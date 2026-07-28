@@ -41,7 +41,7 @@
 <p>本文回答：CubeSandbox 出故障时证据从哪里来，能证明到哪一层。</p>
 <p>源码基线：当前仓库工作树。</p>
 <blockquote>
-<p>相关：<a href="arm64-log-source-map.html">arm64-log-source-map</a>、<a href="arm64-log-collection-gap.html">arm64-log-collection-gap</a>、<a href="interrupt-event-notification-chain.html">中断与事件通知</a>。</p>
+<p>相关：<a href="interrupt-event-notification-chain.html">中断与事件通知</a>。</p>
 </blockquote>
 <hr>
 <h2 id="0">0. 术语与背景</h2>
@@ -127,7 +127,7 @@ collect_network_agent() { /* /data/log/network-agent/ + runtime network-agent.lo
 <li><strong>组件级</strong>（<code>/data/log/&lt;组件&gt;/</code> 原始日志）：才是组件内部证据。</li>
 </ul>
 <blockquote>
-<p>最常见的误判：看到平台级成功但 guest 行为异常 → 必须下沉到组件级日志（CubeShim/CubeVmm/network-agent），不能止步于平台级端点。详见 <a href="arm64-log-collection-gap.html">arm64-log-collection-gap</a>。</p>
+<p>最常见的误判：看到平台级成功但 guest 行为异常 → 必须下沉到组件级日志（CubeShim/CubeVmm/network-agent），不能止步于平台级端点。详见 collect-logs.sh 模块采集能力。</p>
 </blockquote>
 <h2 id="3">3. 能力边界</h2>
 <table>
