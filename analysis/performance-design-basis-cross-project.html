@@ -44,7 +44,7 @@
 <ul>
 <li>机制基础：<a href="virtio-data-path-cross-project.html">Virtio 传输与设备数据路径</a>、<a href="interrupt-event-notification-cross-project.html">中断与事件通知</a>、<a href="guest-memory-dma-iommu-cross-project.html">Guest Memory/DMA/IOMMU</a>、<a href="hypervisor-kvm-vcpu-cross-project.html">Hypervisor/KVM/vCPU</a>、<a href="snapshot-restore-cross-project.html">Snapshot/Restore/Clone</a>、<a href="resource-qos-cross-project.html">资源管理与 QoS</a>。</li>
 <li>完整面貌：<a href="vm-design-landscape-overview.html">轻量化虚拟机设计全景与学习路线</a>。</li>
-<li>实测数据来源：<code>sandbox-bench/</code> 与 <code>CubeSandbox/.trellis/</code>。</li>
+<li>实测数据来源：<code>CubeSandbox/.trellis/</code>。</li>
 </ul>
 <p>源码基线：当前工作树。带行号的结论引用链路文档已验证的锚点；标注“工程判断”的为推理，非源码事实。</p>
 <h2 id="1">1. 性能杠杆总览</h2>
@@ -126,7 +126,7 @@
 <h3 id="_3">为什么影响性能</h3>
 <p>启动延迟由三部分构成：VMM 进程初始化、KVM VM/vCPU 创建、guest 内核启动到 ready。前两部分里，<strong>设备数量和 ACPI/固件开销是最大的可压缩项</strong>。Firecracker 把设备面压到 virtio block/net/vsock/rng/balloon/pmem 这几个，guest 内核要枚举的设备极少，启动到 init 的路径短。</p>
 <h3 id="_4">量化锚点</h3>
-<p>实测（<a href="../sandbox-bench/docs/high-density-firecracker-notes.html">high-density-firecracker-notes</a>，384 CPU 主机）：</p>
+<p>实测（high-density 实测（已移除），384 CPU 主机）：</p>
 <ul>
 <li>500 实例创建约 <code>6s</code>，1000 实例创建约 <code>15s</code>，1000 实例占用约 <code>133GiB</code> 内存。</li>
 <li>100 实例控制组全部完成 workload，<code>errors=0</code>。</li>
@@ -140,7 +140,7 @@
 <h3 id="_6">机制</h3>
 <p>密度 = 单机可并行运行的实例数，由每实例内存占用和 host 资源争用决定。几个关键设计：</p>
 <ul>
-<li><strong>单进程单 VM</strong>：Firecracker 一个进程管一个 microVM（<a href="../sandbox-bench/docs/firecracker-startup-modes.zh.html">firecracker-startup-modes</a>）。进程隔离强，但每实例有固定进程开销。</li>
+<li><strong>单进程单 VM</strong>：Firecracker 一个进程管一个 microVM（firecracker-startup-modes（已移除））。进程隔离强，但每实例有固定进程开销。</li>
 <li><strong>共享内核</strong>：多实例共用同一内核镜像（只读），guest 内存才是每实例独立开销。</li>
 <li><strong>稀疏 rootfs</strong>：rootfs 副本用 sparse-preserving 拷贝，见 high-density 笔记的 config，避免每实例复制完整镜像。</li>
 <li><strong>CubeCoW</strong>：CubeSandbox 用 copy-on-write 引擎（FICLONE/reflink）让 rootfs 和内存可 clone，见 <a href="../CubeSandbox-sandbox-clone/analysis/cubecow-storage-engine-chain.html">CubeSandbox CubeCoW chain</a>。这是把“共享内核”思想推广到“共享整个 rootfs + 内存基线”。</li>

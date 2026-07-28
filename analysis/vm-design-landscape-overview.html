@@ -238,7 +238,7 @@
 <li><a href="../firecracker/analysis/vcpu-kvm-run-chain.html">Firecracker vCPU KVM_RUN chain</a>：vCPU 线程的状态机与 KVM_RUN。</li>
 <li><a href="../firecracker/analysis/isolation-seccomp-jailer-chain.html">Firecracker isolation seccomp jailer chain</a>：jailer 怎么收敛攻击面。</li>
 </ol>
-<p>读完这一段，你应该能回答：“为什么 Firecracker 能在 15 秒内拉起 1000 个实例”（见 <a href="../sandbox-bench/docs/high-density-firecracker-notes.html">high-density 实测</a>：384 CPU 主机、1000 实例、约 133GiB 内存、约 15s 创建）。</p>
+<p>读完这一段，你应该能回答：“为什么 Firecracker 能在 15 秒内拉起 1000 个实例”（见 high-density 实测（已移除）：384 CPU 主机、1000 实例、约 133GiB 内存、约 15s 创建）。</p>
 <h3 id="cloud-hypervisor">第二段：Cloud Hypervisor —— 理解生命周期与热插拔</h3>
 <p>目标：理解“当 VM 需要 resize、热插拔、迁移时，架构要付出什么代价”。</p>
 <p>阅读顺序：</p>
@@ -331,7 +331,7 @@
 <p>本文是综合层，不产生新的源码结论。以下几点必须明确：</p>
 <ol>
 <li><strong>crosvm 的结论来自已有（暂停的）文档</strong>，未做新的函数级验证。process-per-device 的定位来自 <code>crosvm/README.md</code> 与 <code>ARCHITECTURE.md</code>，机制细节见 <a href="../crosvm/analysis/device-isolation-chain.html">crosvm device isolation chain</a>。</li>
-<li><strong>性能数字来自 <code>sandbox-bench/</code> 与 <code>.trellis/</code> 实测</strong>，口径与机器已在原文注明，不能外推到任意硬件。</li>
+<li><strong>性能数字来自 <code>.trellis/</code> 实测</strong>，口径与机器已在原文注明，不能外推到任意硬件。</li>
 <li><strong>CoCo / 机密计算路径</strong>（TDX/SEV-SNP/CCA）在 Kata 上暂缓，在 Cloud Hypervisor 与 CubeSandbox 上保留为历史参考，不作主线。见 <a href="coco-pvm-protected-vm-cross-project.html">CoCo/pVM/protected VM 专题</a>。</li>
 <li>本文不替代任何链路文档。所有“为什么”都要回到对应 <code>*-chain.md</code> 的源码锚点。</li>
 </ol>

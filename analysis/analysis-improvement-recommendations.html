@@ -225,10 +225,10 @@
 <p>这不是说 ARM64 网络不重要（它确实是真实判错场景），但当框架自己说“继续补 ARM64 网络框架边际收益已很低”（<code>README.md</code> 第 3 节）时，人力应转到偏薄的安全/可观测线。</p>
 <p>建议（本次已部分完成）：可观测轴的 CubeSandbox <code>observability-diagnostics-chain.md</code> 已于本次补齐（聚合现有 cube-diag / /readyz / quickcheck），至此四个活跃项目都有专门可观测 chain。仍建议补 CubeSandbox 的 <code>isolation-security-chain.md</code>（聚合 CubeShim seccomp / network-agent 策略 / CubeVS eBPF / snapshot mode 隔离语义）与 Kata 的安全聚合 chain，让安全轴在四个活跃项目上对齐。</p>
 <h3 id="p2">P2：定量数据与机制分析脱节</h3>
-<p>框架有丰富的实测数据（<code>sandbox-bench/</code>、<code>CubeSandbox/.trellis/.../benchmark-*</code>），但它们基本独立于机制分析：</p>
+<p>框架有丰富的实测数据（<code>CubeSandbox/.trellis/.../benchmark-*</code>），但它们基本独立于机制分析：</p>
 <ul>
-<li>1000 Firecracker 实例密度的实测（<code>sandbox-bench/docs/high-density-firecracker-notes.md</code>）没有进入任何启动/密度机制叙事。</li>
-<li>arm64 context-switch 成本（<code>sandbox-bench/docs/context-switch-cost-experiment.zh.md</code>，p50 约 1.2µs）没有进入 CPU/调度机制叙事。</li>
+<li>1000 Firecracker 实例密度的实测（已移除的 high-density 实测）没有进入任何启动/密度机制叙事。</li>
+<li>arm64 context-switch 成本（已移除的 context-switch 实测，p50 约 1.2µs）没有进入 CPU/调度机制叙事。</li>
 <li>CubeSandbox c100 restore p99 约 2.7s 的调优数据（<code>.trellis/.../restore-bottleneck-current-summary-zh.md</code>）只在调优笔记里，没进入 snapshot/restore 机制叙事。</li>
 </ul>
 <p>本次综合文档已开始把这些数字串进性能叙事，但机制层 chain 本身仍缺定量锚点。</p>
