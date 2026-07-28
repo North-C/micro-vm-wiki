@@ -223,7 +223,7 @@
 <li>安全/可观测线：项目级 chain 不齐（见第 2 节）。</li>
 </ul>
 <p>这不是说 ARM64 网络不重要（它确实是真实判错场景），但当框架自己说“继续补 ARM64 网络框架边际收益已很低”（<code>README.md</code> 第 3 节）时，人力应转到偏薄的安全/可观测线。</p>
-<p>建议（本次已部分完成）：可观测轴的 CubeSandbox <code>observability-diagnostics-chain.md</code> 已于本次补齐（聚合现有 arm64-log-source-map / arm64-log-collection-gap / cube-diag / /readyz / quickcheck），至此四个活跃项目都有专门可观测 chain。仍建议补 CubeSandbox 的 <code>isolation-security-chain.md</code>（聚合 CubeShim seccomp / network-agent 策略 / CubeVS eBPF / snapshot mode 隔离语义）与 Kata 的安全聚合 chain，让安全轴在四个活跃项目上对齐。</p>
+<p>建议（本次已部分完成）：可观测轴的 CubeSandbox <code>observability-diagnostics-chain.md</code> 已于本次补齐（聚合现有 cube-diag / /readyz / quickcheck），至此四个活跃项目都有专门可观测 chain。仍建议补 CubeSandbox 的 <code>isolation-security-chain.md</code>（聚合 CubeShim seccomp / network-agent 策略 / CubeVS eBPF / snapshot mode 隔离语义）与 Kata 的安全聚合 chain，让安全轴在四个活跃项目上对齐。</p>
 <h3 id="p2">P2：定量数据与机制分析脱节</h3>
 <p>框架有丰富的实测数据（<code>sandbox-bench/</code>、<code>CubeSandbox/.trellis/.../benchmark-*</code>），但它们基本独立于机制分析：</p>
 <ul>
@@ -257,7 +257,7 @@
 <p>建议：在每份机制 chain 的开头“相关横向专题”区，增加“相关综合文档”一行，链接到 landscape / performance-basis / security-basis 中最相关的那份。让读者从任一 chain 都能跳到设计依据层。</p>
 <h3 id="43-samples">4.3 给 samples/ 加“机制锚点”反向索引</h3>
 <p><code>samples/</code> 体系很完整（template/seed/real/validated），但样本与机制 chain 是单向的（chain 引用 sample，sample 不回引 chain 里的具体行号）。</p>
-<p>建议：在 <code>samples/INDEX.md</code> 为每个 real/baseline 样本标注它印证了哪份 chain 的哪段结论，形成“机制 ↔ 证据”双向索引，提升样本的判错复用价值。</p>
+<p>建议：为每个 real/baseline 样本标注它印证了哪份 chain 的哪段结论，形成“机制 ↔ 证据”双向索引，提升样本的判错复用价值。</p>
 <h2 id="5">5. 推荐的下一步优先级</h2>
 <p>综合以上，如果继续推进，建议按这个顺序：</p>
 <ol>
@@ -268,7 +268,7 @@
 <li><strong>P3/P5</strong>：视余力做 crosvm process-per-device 定向补证、CoCo 引导标注。（设计空间完整性与安全全貌）</li>
 </ol>
 <h2 id="6">6. 关于“分析完整”的边界判断</h2>
-<p>最后是一个元判断。框架自己的 <code>non-network-evidence-gaps.md</code> 已经说了：<strong>没有新运行证据时，继续补分析边际收益很低</strong>。这个判断在本次盘点后依然成立：</p>
+<p>最后是一个元判断。框架自己的盘点已经说了：<strong>没有新运行证据时，继续补分析边际收益很低</strong>。这个判断在本次盘点后依然成立：</p>
 <ul>
 <li>机制层 13/16 专题已完整或按设计委托完整。</li>
 <li>真正稀缺的不是“更多机制文档”，而是“新的运行证据”（真实样本、failure bundle、定量数据）。</li>

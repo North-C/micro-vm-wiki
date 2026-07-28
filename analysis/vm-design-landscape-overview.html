@@ -221,7 +221,7 @@
 </tr>
 </tbody>
 </table>
-<p>学习要点：<strong>架构差异的重点不是“换了一套安全模型”，而是同一套框架在 syscall allowlist、设备 policy、guest kernel 能力、eBPF load 上都按架构改变</strong>。这也解释了为什么当前工作树里 ARM64 网络线特别厚——它是把架构差异落到真实判错场景的最集中体现（见 <a href="arm64-network-document-index.html">ARM64 网络文档索引</a>）。</p>
+<p>学习要点：<strong>架构差异的重点不是“换了一套安全模型”，而是同一套框架在 syscall allowlist、设备 policy、guest kernel 能力、eBPF load 上都按架构改变</strong>。这也解释了为什么当前工作树里 ARM64 网络线特别厚——它是把架构差异落到真实判错场景的最集中体现（ARM64 网络判错样本体系已移除）。</p>
 <h2 id="5">5. 推荐学习路线（四段式）</h2>
 <p>与其按目录线性读，不如按“从机制到产品”的四段式读。每一段都建立在前一段的语义之上。</p>
 <div class="mermaid">flowchart LR
