@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SBench 用户指南</title>
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar">
+    <div class="brand">Micro-VM 分析 Wiki</div>
+    <input id="search" type="search" placeholder="搜索文档…" autocomplete="off">
+    <nav class="nav">
+      <li><a href="../../index.html">🏠 首页</a></li>
+<details class="nav-group" open><summary>综合学习层</summary><ul><li><a href="../../analysis/vm-design-landscape-overview.html">轻量化虚拟机设计全景与学习路线</a></li><li><a href="../../analysis/performance-design-basis-cross-project.html">性能设计依据跨项目专题分析</a></li><li><a href="../../analysis/security-design-basis-cross-project.html">安全设计依据跨项目专题分析</a></li><li><a href="../../analysis/analysis-improvement-recommendations.html">分析框架改进意见</a></li><li><a href="../../analysis/claude-code-research-workflow.html">Claude Code 协同研究工作流</a></li></ul></details>
+<details class="nav-group" open><summary>分析框架导航</summary><ul><li><a href="../../analysis/README.html">Analysis 导航入口</a></li><li><a href="../../analysis/four-project-deep-routes.html">Micro-VM 项目深入路线总览</a></li><li><a href="../../analysis/four-project-route-coverage-matrix.html">四项目深入路线完成度矩阵</a></li></ul></details>
+<details class="nav-group" open><summary>跨项目专题</summary><ul><li><a href="../../analysis/boot-control-plane-cross-project.html">启动路径与控制面跨项目专题分析</a></li><li><a href="../../analysis/snapshot-restore-cross-project.html">Snapshot / Restore / Clone 跨项目专题分析</a></li><li><a href="../../analysis/storage-rootfs-sharefs-cross-project.html">存储、rootfs 与共享文件系统跨项目专题分析</a></li><li><a href="../../analysis/virtio-data-path-cross-project.html">Virtio 传输与设备数据路径跨项目专题分析</a></li><li><a href="../../analysis/interrupt-event-notification-cross-project.html">中断与事件通知跨项目专题分析</a></li><li><a href="../../analysis/hypervisor-kvm-vcpu-cross-project.html">Hypervisor/KVM/vCPU 执行边界跨项目专题分析</a></li><li><a href="../../analysis/guest-memory-dma-iommu-cross-project.html">Guest Memory、DMA/IOMMU 与地址转换跨项目专题分析</a></li><li><a href="../../analysis/device-model-isolation-cross-project.html">设备模型与隔离边界跨项目专题分析</a></li><li><a href="../../analysis/runtime-control-hotplug-cross-project.html">运行期控制面与热插拔跨项目专题分析</a></li><li><a href="../../analysis/network-connectivity-cross-project.html">网络与连接模型跨项目专题分析</a></li><li><a href="../../analysis/guest-agent-runtime-cross-project.html">Guest Agent 与 Runtime 语义跨项目专题分析</a></li><li><a href="../../analysis/security-isolation-cross-project.html">安全隔离边界跨项目专题分析</a></li><li><a href="../../analysis/resource-qos-cross-project.html">资源管理与 QoS 跨项目专题分析</a></li><li><a href="../../analysis/observability-diagnostics-cross-project.html">可观测性与故障诊断跨项目专题分析</a></li><li><a href="../../analysis/cpu-interrupt-machine-cross-project.html">CPU、中断控制器与机器描述跨项目专题分析</a></li><li><a href="../../analysis/arm64-x86-cross-project-matrix.html">ARM64 与 x86_64 跨项目架构差异专题分析</a></li></ul></details>
+<details class="nav-group" open><summary>项目交叉线</summary><ul><li><a href="../../analysis/ch-cubesandbox-backend-notifier-restore-crossline.html">Cloud Hypervisor 与 CubeSandbox：Backend / Notifier / Restore 交叉线</a></li><li><a href="../../analysis/ch-cubesandbox-restore-guest-unavailability-checklist.html">Cloud Hypervisor 与 CubeSandbox：Restore 后 Guest 不可用验证清单</a></li><li><a href="../../analysis/fc-kata-storage-semantics-crossline.html">Firecracker 与 Kata：Rootfs / Backing / Guest-Visible Storage 交叉线</a></li></ul></details>
+<details class="nav-group" open><summary>ARM64 网络线</summary><ul><li><a href="../../analysis/arm64-network-document-index.html">ARM64 网络文档索引</a></li><li><a href="../../analysis/arm64-network-sample-coverage-matrix.html">ARM64 网络准样本覆盖矩阵</a></li><li><a href="../../analysis/arm64-network-next-target-map.html">ARM64 网络下一批真实样本目标图</a></li><li><a href="../../analysis/arm64-network-sample-collection-runbook.html">ARM64 网络样本采集 Runbook</a></li><li><a href="../../analysis/arm64-network-validation-observation-matrix.html">ARM64 网络验证与观测总表</a></li><li><a href="../../analysis/arm64-network-failure-signature-matrix.html">ARM64 网络失败签名总表</a></li><li><a href="../../analysis/arm64-network-evidence-maturity-matrix.html">ARM64 网络样本成熟度矩阵</a></li><li><a href="../../analysis/arm64-network-test-observation-command-matrix.html">ARM64 网络测试与取证命令总表</a></li><li><a href="../../analysis/arm64-network-next-sample-priority.html">ARM64 网络下一批样本优先级</a></li></ul></details>
+<details class="nav-group" open><summary>非网络样本与证据</summary><ul><li><a href="../../analysis/arm64-non-network-risk-map.html">ARM64 非网络风险图</a></li><li><a href="../../analysis/non-network-sample-asset-matrix.html">非网络横线样本资产矩阵</a></li><li><a href="../../analysis/non-network-next-target-map.html">非网络下一批真实样本目标图</a></li><li><a href="../../analysis/non-network-evidence-bundle-template.html">非网络证据包记录模板</a></li><li><a href="../../analysis/non-network-sample-collection-runbook.html">非网络样本采集 Runbook</a></li><li><a href="../../analysis/non-network-evidence-gaps.html">非网络当前证据缺口总表</a></li></ul></details>
+<details class="nav-group"><summary>历史 / 暂缓参考</summary><ul><li><a href="../../analysis/coco-pvm-protected-vm-cross-project.html">CoCo / pVM / 受保护 VM 跨项目专题分析</a></li><li><a href="../../analysis/protected-vm-snapshot-migration-cross-project.html">Protected VM 与 snapshot/migration 跨项目专题分析</a></li></ul></details>
+<details class="nav-group"><summary>其他顶层文档</summary><ul><li><a href="../../analysis/snapshot-device-save-restore-deep-dive.html">Snapshot 设备状态保存与恢复专题</a></li><li><a href="../../analysis/snapshot-memory-save-restore-deep-dive.html">Snapshot 内存保存与恢复专题</a></li><li><a href="../../analysis/snapshot-restore-kernel-deep-dive.html">Snapshot / Restore 底层内核技术深度解读</a></li></ul></details>
+<details class="nav-group"><summary>Firecracker (32)</summary><ul><li><a href="../../firecracker/analysis/deep-routes.html">Firecracker 深入路线展开</a></li><li><a href="../../firecracker/analysis/deep-dive.html">Firecracker 深入探索文档</a></li><li><a href="../../firecracker/analysis/api-event-loop-thread-chain.html">Firecracker API Event Loop 与线程协作链路</a></li><li><a href="../../firecracker/analysis/api-start-boot-chain.html">Firecracker API 到 MicroVM 启动链路</a></li><li><a href="../../firecracker/analysis/arch-arm64-x86-chain.html">Firecracker ARM64 与 x86_64 架构差异链路</a></li><li><a href="../../firecracker/analysis/arm64-network-capability-matrix.html">Firecracker ARM64 网络能力边界矩阵</a></li><li><a href="../../firecracker/analysis/arm64-network-failure-prototypes.html">Firecracker ARM64 网络失败原型</a></li><li><a href="../../firecracker/analysis/arm64-network-observation-guide.html">Firecracker ARM64 网络观测指南</a></li><li><a href="../../firecracker/analysis/arm64-network-sample-guest-visibility.html">Firecracker ARM64 网络准样本：Guest Visibility / Interrupt Visibility</a></li><li><a href="../../firecracker/analysis/arm64-network-sample-mmds-throttle.html">Firecracker ARM64 网络准样本：MMDS / Rate Limiter 伪失败</a></li><li><a href="../../firecracker/analysis/arm64-network-sample-restore-regression.html">Firecracker ARM64 网络准样本：Restore 后网络异常</a></li><li><a href="../../firecracker/analysis/arm64-network-sample-tap-backend.html">Firecracker ARM64 网络准样本：TAP / vnet header 早失败</a></li><li><a href="../../firecracker/analysis/balloon-virtio-mem-guest-chain.html">Firecracker Balloon 与 Virtio-mem Guest 协作链路</a></li><li><a href="../../firecracker/analysis/build-microvm-boot-chain.html">Firecracker build_microvm_for_boot 构建链路</a></li><li><a href="../../firecracker/analysis/device-capability-boundary-chain.html">Firecracker 设备能力边界链路</a></li><li><a href="../../firecracker/analysis/device-manager-id-transport-chain.html">Firecracker DeviceManager ID 与 Transport 组件链路</a></li><li><a href="../../firecracker/analysis/device-manager-virtio-transport-chain.html">Firecracker DeviceManager / Virtio Transport 链路</a></li><li><a href="../../firecracker/analysis/interrupt-event-notification-chain.html">Firecracker 中断与事件通知链路</a></li><li><a href="../../firecracker/analysis/isolation-seccomp-jailer-chain.html">Firecracker 隔离机制链路</a></li><li><a href="../../firecracker/analysis/machine-description-acpi-fdt-chain.html">Firecracker 机器描述：x86_64 ACPI 与 ARM64 FDT 链路</a></li><li><a href="../../firecracker/analysis/memory-device-snapshot-chain.html">Firecracker Balloon / Virtio-mem Snapshot 状态链路</a></li><li><a href="../../firecracker/analysis/mmds-metadata-network-chain.html">Firecracker MMDS 元数据网络链路</a></li><li><a href="../../firecracker/analysis/observability-diagnostics-chain.html">Firecracker 可观测性与诊断链路</a></li><li><a href="../../firecracker/analysis/runtime-device-update-chain.html">Firecracker Runtime 设备更新链路</a></li><li><a href="../../firecracker/analysis/snapshot-restore-chain.html">Firecracker Snapshot / Restore 链路</a></li><li><a href="../../firecracker/analysis/storage-rootfs-sharefs-boundary-chain.html">Firecracker 存储 / rootfs / share-fs 边界链路</a></li><li><a href="../../firecracker/analysis/uffd-memory-restore-chain.html">Firecracker UFFD / Memory Restore 边界链路</a></li><li><a href="../../firecracker/analysis/vcpu-kvm-run-chain.html">Firecracker vCPU / KVM_RUN 链路</a></li><li><a href="../../firecracker/analysis/virtio-block-data-path-chain.html">Firecracker Virtio Block 数据面链路</a></li><li><a href="../../firecracker/analysis/virtio-device-work-chain.html">Firecracker Virtio 设备工作机制链路</a></li><li><a href="../../firecracker/analysis/virtio-net-data-path-chain.html">Firecracker Virtio Net 数据面链路</a></li><li><a href="../../firecracker/analysis/vmresources-config-boundary-chain.html">Firecracker VmResources 配置聚合与能力边界链路</a></li></ul></details>
+<details class="nav-group"><summary>Cloud Hypervisor (37)</summary><ul><li><a href="../../cloud-hypervisor/analysis/deep-routes.html">Cloud Hypervisor 深入路线展开</a></li><li><a href="../../cloud-hypervisor/analysis/deep-dive.html">Cloud Hypervisor 深入探索文档</a></li><li><a href="../../cloud-hypervisor/analysis/02-Cloud-Hypervisor-架构分析报告.html">Cloud Hypervisor 微虚拟机架构深度分析报告</a></li><li><a href="../../cloud-hypervisor/analysis/acpi-fdt-machine-description-chain.html">Cloud Hypervisor ACPI / FDT 机器描述生成链路</a></li><li><a href="../../cloud-hypervisor/analysis/api-vmm-thread-control-chain.html">Cloud Hypervisor API / VMM Thread 控制面链路</a></li><li><a href="../../cloud-hypervisor/analysis/arch-arm64-x86-chain.html">Cloud Hypervisor ARM64 与 x86_64 架构差异链路</a></li><li><a href="../../cloud-hypervisor/analysis/arm64-network-capability-matrix.html">Cloud Hypervisor ARM64 网络能力边界矩阵</a></li><li><a href="../../cloud-hypervisor/analysis/arm64-network-failure-prototypes.html">Cloud Hypervisor ARM64 网络失败原型</a></li><li><a href="../../cloud-hypervisor/analysis/arm64-network-observation-guide.html">Cloud Hypervisor ARM64 网络观测指南</a></li><li><a href="../../cloud-hypervisor/analysis/arm64-network-sample-host-backend-pseudo-failures.html">Cloud Hypervisor ARM64 网络准样本：Host Backend 伪失败</a></li><li><a href="../../cloud-hypervisor/analysis/arm64-network-sample-hotplug-failure.html">Cloud Hypervisor ARM64 网络准样本：Runtime `add-net` / Hotplug 失败</a></li><li><a href="../../cloud-hypervisor/analysis/arm64-network-sample-multi-if.html">Cloud Hypervisor ARM64 网络准样本：多网卡</a></li><li><a href="../../cloud-hypervisor/analysis/arm64-network-sample-pci-msi.html">Cloud Hypervisor ARM64 网络准样本：PCI MSI</a></li><li><a href="../../cloud-hypervisor/analysis/arm64-network-sample-restore-regression.html">Cloud Hypervisor ARM64 网络准样本：Restore 后网络异常</a></li><li><a href="../../cloud-hypervisor/analysis/arm64-network-sample-seed.html">Cloud Hypervisor ARM64 网络样本种子</a></li><li><a href="../../cloud-hypervisor/analysis/arm64-network-test-scenarios.html">Cloud Hypervisor ARM64 网络测试场景</a></li><li><a href="../../cloud-hypervisor/analysis/coco-tdx-sev-snp-chain.html">Cloud Hypervisor CoCo：TDX 与 SEV-SNP 函数级链路</a></li><li><a href="../../cloud-hypervisor/analysis/cpu-boot-chain.html">Cloud Hypervisor CPU 启动链路函数级分析</a></li><li><a href="../../cloud-hypervisor/analysis/cpu-runtime-hotplug-migration-chain.html">Cloud Hypervisor CPU 运行期控制与迁移状态链路</a></li><li><a href="../../cloud-hypervisor/analysis/device-creation-matrix-chain.html">Cloud Hypervisor 设备创建矩阵链路</a></li><li><a href="../../cloud-hypervisor/analysis/device-manager-chain.html">Cloud Hypervisor DeviceManager 设备链路函数级分析</a></li><li><a href="../../cloud-hypervisor/analysis/device-tree-hotplug-restore-chain.html">Cloud Hypervisor DeviceTree / 热插拔 / Restore 链路</a></li><li><a href="../../cloud-hypervisor/analysis/interrupt-event-notification-chain.html">Cloud Hypervisor 中断与事件通知链路</a></li><li><a href="../../cloud-hypervisor/analysis/io-device-data-path-chain.html">Cloud Hypervisor I/O 设备数据面链路</a></li><li><a href="../../cloud-hypervisor/analysis/isolation-seccomp-landlock-chain.html">Cloud Hypervisor 隔离机制函数级链路（seccomp + Landlock）</a></li><li><a href="../../cloud-hypervisor/analysis/memory-address-hotplug-topology-chain.html">Cloud Hypervisor Memory Address / Hotplug Topology 链路</a></li><li><a href="../../cloud-hypervisor/analysis/memory-manager-chain.html">Cloud Hypervisor MemoryManager 内存链路函数级分析</a></li><li><a href="../../cloud-hypervisor/analysis/migration-memory-transport-chain.html">Cloud Hypervisor Migration Memory Transport 链路</a></li><li><a href="../../cloud-hypervisor/analysis/observability-diagnostics-chain.html">Cloud Hypervisor 可观测性与诊断链路</a></li><li><a href="../../cloud-hypervisor/analysis/runtime-control-hotplug-chain.html">Cloud Hypervisor 运行期控制与热插拔链路</a></li><li><a href="../../cloud-hypervisor/analysis/sev-snp-igvm-vmsa-chain.html">Cloud Hypervisor SEV-SNP IGVM / VMSA / isolated page 链路</a></li><li><a href="../../cloud-hypervisor/analysis/storage-rootfs-sharefs-boundary-chain.html">Cloud Hypervisor 存储 / rootfs / share-fs 边界链路</a></li><li><a href="../../cloud-hypervisor/analysis/tdx-lifecycle-limit-chain.html">Cloud Hypervisor TDX lifecycle 限制链路</a></li><li><a href="../../cloud-hypervisor/analysis/tdx-tdvf-hob-chain.html">Cloud Hypervisor TDX TDVF / HOB 启动链路</a></li><li><a href="../../cloud-hypervisor/analysis/tdx-vcpu-exit-vmcall-chain.html">Cloud Hypervisor TDX vCPU exit / VMCALL 边界链路</a></li><li><a href="../../cloud-hypervisor/analysis/vfio-vfio-user-iommu-migration-chain.html">Cloud Hypervisor VFIO / vfio-user / IOMMU / Migration 能力矩阵链路</a></li><li><a href="../../cloud-hypervisor/analysis/vm-create-boot-chain.html">Cloud Hypervisor VM Create / Boot 构建链路</a></li></ul></details>
+<details class="nav-group"><summary>Kata Containers (29)</summary><ul><li><a href="../../kata-containers/analysis/deep-routes.html">Kata Containers 深入路线展开</a></li><li><a href="../../kata-containers/analysis/deep-dive.html">Kata Containers 深入探索文档</a></li><li><a href="../../kata-containers/analysis/agent-container-lifecycle-chain.html">Kata Agent Container 生命周期链路</a></li><li><a href="../../kata-containers/analysis/agent-rpc-boundary-chain.html">Kata agent RPC 边界链路</a></li><li><a href="../../kata-containers/analysis/arch-arm64-x86-chain.html">Kata Containers ARM64 与 x86_64 架构支持链路</a></li><li><a href="../../kata-containers/analysis/arm64-feature-test-coverage-chain.html">Kata ARM64 功能与测试覆盖边界链路</a></li><li><a href="../../kata-containers/analysis/arm64-network-capability-matrix.html">Kata Containers ARM64 网络能力边界矩阵</a></li><li><a href="../../kata-containers/analysis/arm64-network-failure-prototypes.html">Kata Containers ARM64 网络失败原型</a></li><li><a href="../../kata-containers/analysis/arm64-network-observation-guide.html">Kata Containers ARM64 网络观测指南</a></li><li><a href="../../kata-containers/analysis/arm64-network-sample-agent-discovery.html">Kata Containers ARM64 网络准样本：Guest Agent 设备发现失败</a></li><li><a href="../../kata-containers/analysis/arm64-network-sample-backend-diff.html">Kata Containers ARM64 网络准样本：Backend 差异失败</a></li><li><a href="../../kata-containers/analysis/arm64-network-sample-machine-iommu.html">Kata Containers ARM64 网络准样本：Machine / vIOMMU 早失败</a></li><li><a href="../../kata-containers/analysis/arm64-network-sample-route-convergence.html">Kata Containers ARM64 网络准样本：Route Convergence 失败</a></li><li><a href="../../kata-containers/analysis/configuration-hypervisor-capability-chain.html">Kata configuration 到 Hypervisor capability 链路</a></li><li><a href="../../kata-containers/analysis/cpu-scheduling-boundary-chain.html">Kata Containers CPU / 调度边界链路</a></li><li><a href="../../kata-containers/analysis/guest-agent-create-container-chain.html">Kata guest agent CreateContainer 落地链路</a></li><li><a href="../../kata-containers/analysis/hypervisor-plugin-lifecycle-chain.html">Kata runtime-rs Hypervisor Plugin 生命周期链路</a></li><li><a href="../../kata-containers/analysis/interrupt-event-notification-chain.html">Kata Containers 中断与事件通知委托链路</a></li><li><a href="../../kata-containers/analysis/network-endpoint-agent-chain.html">Kata Containers 网络 Endpoint 到 Agent 链路</a></li><li><a href="../../kata-containers/analysis/observability-diagnostics-chain.html">Kata Containers 可观测性与诊断机制函数级链路</a></li><li><a href="../../kata-containers/analysis/qemu-launch-params-chain.html">Kata Containers QEMU 启动参数构造链路</a></li><li><a href="../../kata-containers/analysis/runtime-control-agent-hotplug-chain.html">Kata Containers 运行期控制、Agent RPC 与设备更新链路</a></li><li><a href="../../kata-containers/analysis/runtime-rs-manager-request-chain.html">Kata runtime-rs Manager 请求分发链路</a></li><li><a href="../../kata-containers/analysis/runtime-rs-resource-device-agent-chain.html">Kata runtime-rs ResourceManager 资源设备链路</a></li><li><a href="../../kata-containers/analysis/sharefs-rootfs-volume-agent-chain.html">Share-fs / Rootfs / Volume 到 Agent 链路</a></li><li><a href="../../kata-containers/analysis/shim-exit-event-recovery-chain.html">Kata shim v2 Exit / Event / Recovery 链路</a></li><li><a href="../../kata-containers/analysis/shim-sandbox-lifecycle-chain.html">Kata Containers shim v2 到 sandbox/container 生命周期链路</a></li><li><a href="../../kata-containers/analysis/snapshot-restore-persist-chain.html">Kata Containers Snapshot / Restore / Persist 链路</a></li><li><a href="../../kata-containers/analysis/storage-device-agent-chain.html">Kata Containers storage/device 到 agent RPC 链路</a></li></ul></details>
+<details class="nav-group"><summary>crosvm (16)</summary><ul><li><a href="../../crosvm/analysis/deep-routes.html">crosvm 深入路线展开</a></li><li><a href="../../crosvm/analysis/deep-dive.html">crosvm 深入探索文档</a></li><li><a href="../../crosvm/analysis/arch-arm64-x86-chain.html">crosvm ARM64 与 x86_64 架构差异链路</a></li><li><a href="../../crosvm/analysis/boot-control-chain.html">crosvm 启动与控制循环函数级分析</a></li><li><a href="../../crosvm/analysis/create-devices-matrix-chain.html">crosvm create_devices 设备矩阵与隔离链路</a></li><li><a href="../../crosvm/analysis/device-isolation-chain.html">crosvm 设备模型与隔离链路函数级分析</a></li><li><a href="../../crosvm/analysis/protected-vm-block-net-fs-data-path-chain.html">crosvm protected VM block/net/fs 数据路径链路</a></li><li><a href="../../crosvm/analysis/protected-vm-device-boundary-chain.html">crosvm protected VM 设备边界与 virtio feature 链路</a></li><li><a href="../../crosvm/analysis/protected-vm-hypervisor-backend-chain.html">crosvm protected VM hypervisor backend 分流链路</a></li><li><a href="../../crosvm/analysis/protected-vm-iommu-vfio-memory-mapper-chain.html">crosvm protected VM IOMMU / VFIO / MemoryMapper 链路</a></li><li><a href="../../crosvm/analysis/protected-vm-pvm-chain.html">crosvm protected VM / pVM firmware 函数级链路</a></li><li><a href="../../crosvm/analysis/protected-vm-snapshot-restore-boundary-chain.html">crosvm protected VM snapshot / restore 边界链路</a></li><li><a href="../../crosvm/analysis/protected-vm-vhost-user-memory-iotlb-chain.html">crosvm protected VM vhost-user memory / IOTLB 链路</a></li><li><a href="../../crosvm/analysis/runtime-control-tube-chain.html">crosvm 运行期控制与 Tube 分发链路</a></li><li><a href="../../crosvm/analysis/snapshot-suspend-chain.html">crosvm Snapshot 与 Suspend 函数级分析</a></li><li><a href="../../crosvm/analysis/virtio-queue-worker-chain.html">crosvm virtio Queue 与 Worker 链路函数级分析</a></li></ul></details>
+<details class="nav-group"><summary>CubeSandbox (48)</summary><ul><li><a href="../../CubeSandbox-sandbox-clone/analysis/deep-routes.html">CubeSandbox 深入路线展开</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/deep-dive.html">CubeSandbox-sandbox-clone 深入探索文档</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/api-master-cubelet-create-chain.html">CubeSandbox API 到 Cubelet 创建链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/arch-arm64-x86-chain.html">CubeSandbox ARM64 与 x86_64 架构差异链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/arm64-log-collection-gap.html">CubeSandbox ARM64 日志采集缺口与补齐路径</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/arm64-log-source-map.html">CubeSandbox ARM64 日志源映射</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/arm64-network-evidence-sample.html">CubeSandbox ARM64 网络实测样本记录</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/arm64-network-evidence-template.html">CubeSandbox ARM64 网络实测取证模板</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/arm64-network-failure-prototypes.html">CubeSandbox ARM64 网络失败原型</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/arm64-network-observation-guide.html">CubeSandbox ARM64 网络观测与取证指南</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/arm64-network-validation-matrix.html">CubeSandbox ARM64 网络验证矩阵</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/cpu-vcpu-resource-boundary-chain.html">CubeSandbox CPU / vCPU 资源边界链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/cubeapi-long-operation-contract-chain.html">CubeAPI Long Operation Contract 链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/cubebox-action-containerd-chain.html">Cubebox Action 到 Containerd / CubeShim 链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/cubecow-storage-engine-chain.html">CubeCoW 存储引擎链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/cubehypervisor-api-request-chain.html">CubeHypervisor API Request 内部调度链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/cubelet-workflow-create-chain.html">Cubelet Workflow Create 编排链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/cubemaster-cache-consistency-boundary-chain.html">CubeMaster 缓存一致性边界链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/cubemaster-scheduler-task-chain.html">CubeMaster Scheduler 与 Task Retry 链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/cubemaster-snapshot-job-contract-chain.html">CubeMaster Snapshot Job Contract 链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/cubesandbox-redis-hugepages-report-20260627.html">CubeSandbox Redis Benchmark 静态大页/zram 对比报告</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/cubesandbox-unixbench-hugepages-report-20260626.html">CubeSandbox UnixBench 静态大页影响测试报告</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/cubesandbox_unixbench_hugepages_runbook.html">CubeSandbox UnixBench HugePages Runbook</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/cubeshim-container-agent-lifecycle-chain.html">CubeShim Container 到 Guest Agent 生命周期链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/cubeshim-sandbox-hypervisor-chain.html">CubeShim sandbox 与 CubeHypervisor 创建链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/cubevs-ebpf-data-plane-chain.html">CubeVS eBPF 数据面链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/guest-agent-network-config-chain.html">Guest Agent 网络配置链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/interrupt-event-notification-chain.html">CubeSandbox 中断与事件通知链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/interrupt-state-restore-chain.html">CubeSandbox 中断状态恢复链路（snapshot → restore → route re-enable）</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/network-agent-ensure-network-chain.html">Network-Agent EnsureNetwork 链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/network-data-plane-interrupt-wakeup-chain.html">CubeSandbox 网络数据面与中断唤醒链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/observability-diagnostics-chain.html">CubeSandbox 可观测性与诊断机制链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/rollback-runtime-update-chain.html">CubeSandbox Rollback / Runtime Update 链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/runtime-control-vmm-update-chain.html">CubeSandbox 运行期控制与 VMM 更新链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/sandbox-ready-lifecycle-chain.html">CubeSandbox Sandbox Ready 生命周期链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/snapshot-catalog-restore-binding-chain.html">Snapshot Catalog / Restore Binding 链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/snapshot-create-commit-chain.html">Snapshot Create / Commit 生成链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/snapshot-replica-reconciler-chain.html">Snapshot Replica Reconciler 链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/snapshot-restore-network-chain.html">Snapshot Restore 网络恢复链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/snapshot-template-storage-format-chain.html">CubeSandbox Snapshot 与 Template 存储、格式、恢复链路专题</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/tap-fd-networkinfo-chain.html">TAP FD 与 NetworkInfo 闭环</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/tap-fd-unavailable-case-study.html">CubeSandbox ARM64 `tap fd unavailable` 故障案例分析</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/template-build-from-oci-chain.html">CubeSandbox Template 构建链路：从 OCI 镜像到 Template</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/template-restore-msix-chain.html">基于 Template 启动到 RestoreVm 与 MSI-X Restore 的链路分析</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/virtio-interrupt-injection-trace.html">CubeSandbox Virtio 中断注入函数级链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/virtio-net-fs-restore-chain.html">CubeSandbox Virtio Net / Fs Restore 内部状态链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/vmm-device-restore-chain.html">CubeSandbox VMM Device Restore 设备恢复链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/vmm-snapshot-restore-state-chain.html">CubeSandbox VMM Snapshot Restore 状态恢复链路</a></li></ul></details>
+<details class="nav-group"><summary>sandbox-bench 文档</summary><ul><li><a href="../../sandbox-bench/docs/context-switch-cost-experiment.zh.html">Context Switch 内核切换开销观测设计与实现方案</a></li><li><a href="../../sandbox-bench/docs/context-switch-finish-stage-analysis.zh.html">context_switch finish 阶段流程分析</a></li><li><a href="../../sandbox-bench/docs/devkit-collector-notes.html">DevKit Collector Notes</a></li><li><a href="../../sandbox-bench/docs/e2b-firecracker-reference.zh.html">E2B Firecracker 使用方案参考</a></li><li><a href="../../sandbox-bench/docs/e2b-openeuler-guest-kernel-redeploy-notes.zh.html">E2B openEuler Guest Kernel 重新部署记录</a></li><li><a href="../../sandbox-bench/docs/e2b-sandbox-internal-perf-flamegraph.zh.html">E2B Sandbox 内部 perf 火焰图采集流程</a></li><li><a href="../../sandbox-bench/docs/e2b-tbench-profile-workflow.zh.html">E2B tbench Profile 时延指标采集流程</a></li><li><a href="../../sandbox-bench/docs/firecracker-startup-modes.html">Firecracker Startup Modes</a></li><li><a href="../../sandbox-bench/docs/firecracker-startup-modes.zh.html">Firecracker 启动模式说明</a></li><li><a href="../../sandbox-bench/docs/high-density-firecracker-notes.html">High-density Firecracker Notes</a></li><li><a href="../../sandbox-bench/docs/high-density-test-protocol.zh.html">高密度 MicroVM 单节点实验协议</a></li><li><a href="../../sandbox-bench/docs/hypervisor-download-install.html">Firecracker And Cloud Hypervisor Download And Install</a></li><li><a href="../../sandbox-bench/docs/hypervisor-download-install.zh.html">Firecracker 和 Cloud Hypervisor 下载与安装</a></li><li><a href="../../sandbox-bench/docs/json-parse-microvm-image-summary.html">Json-parse MicroVM Image Build Summary</a></li><li><a href="../../sandbox-bench/docs/metrics-reference.zh.html">SBench Prometheus 指标参考</a></li><li><a href="../../sandbox-bench/docs/microvm-image-build.html">MicroVM Image Build Notes</a></li><li><a href="../../sandbox-bench/docs/prometheus-grafana.html">Prometheus and Grafana</a></li><li><a href="../../sandbox-bench/docs/quickstart.html">Quickstart</a></li><li><a href="../../sandbox-bench/docs/standalone-collector.zh.html">独立采集模式（Standalone Collector）</a></li><li><a href="../../sandbox-bench/docs/user-guide.zh.html">SBench 用户指南</a></li><li><a href="../../sandbox-bench/docs/v1-baseline-spec.html">Sandbox Bench V1 Baseline Specification</a></li><li><a href="../../sandbox-bench/docs/v1-minimal-schema.html">V1 Minimal Schema</a></li></ul></details>
+<details class="nav-group"><summary>样本资产</summary><ul><li><a href="../../analysis/samples/INDEX.html">样本目录索引</a></li><li><a href="../../analysis/samples/README.html">样本资产目录</a></li><li><a href="../../analysis/samples/ch-arm64-network-hotplug-failure-template/SUMMARY.html">Cloud Hypervisor ARM64 Hotplug 样本模板</a></li><li><a href="../../analysis/samples/ch-arm64-network-hotplug-seed-20260618/SUMMARY.html">Cloud Hypervisor ARM64 `add-net` / Hotplug 样本种子</a></li><li><a href="../../analysis/samples/ch-arm64-network-restore-seed-20260618/SUMMARY.html">Cloud Hypervisor ARM64 Restore 样本种子</a></li><li><a href="../../analysis/samples/ch-backend-notifier-restore-baseline-real-20260622/SUMMARY.html">Cloud Hypervisor Backend / Notifier / Restore Baseline Record</a></li><li><a href="../../analysis/samples/ch-backend-notifier-restore-checklist-seed-20260622/SUMMARY.html">Cloud Hypervisor Backend / Notifier / Restore Checklist Seed</a></li><li><a href="../../analysis/samples/cubesandbox-arm64-network-midlogs-template/SUMMARY.html">CubeSandbox ARM64 中间层日志样本模板</a></li><li><a href="../../analysis/samples/cubesandbox-arm64-network-tap-fd-unavailable-20260613/SUMMARY.html">CubeSandbox ARM64 `tap fd unavailable` 样本记录</a></li><li><a href="../../analysis/samples/cubesandbox-dev-shm-capacity-real-20260613/SUMMARY.html">CubeSandbox `/dev/shm` 容量不足样本记录</a></li><li><a href="../../analysis/samples/cubesandbox-guest-visible-restore-baseline-real-20260622/SUMMARY.html">CubeSandbox Guest-Visible Restore Baseline Record</a></li><li><a href="../../analysis/samples/cubesandbox-guest-visible-restore-checklist-seed-20260622/SUMMARY.html">CubeSandbox Guest-Visible Restore Checklist Seed</a></li><li><a href="../../analysis/samples/cubesandbox-no-more-resource-real-20260613/SUMMARY.html">CubeSandbox `no more resource` 样本记录</a></li><li><a href="../../analysis/samples/cubesandbox-rollback-sandbox-not-running-real-20260622/SUMMARY.html">CubeSandbox Rollback `sandbox is not running` 样本记录</a></li><li><a href="../../analysis/samples/fc-arm64-network-guest-visibility-seed-20260618/SUMMARY.html">Firecracker ARM64 Guest Visibility 样本种子</a></li><li><a href="../../analysis/samples/fc-arm64-network-guest-visibility-template/SUMMARY.html">Firecracker ARM64 Guest Visibility 样本模板</a></li><li><a href="../../analysis/samples/fc-arm64-network-restore-seed-20260618/SUMMARY.html">Firecracker ARM64 Restore 样本种子</a></li><li><a href="../../analysis/samples/fc-rootfs-backing-restore-checklist-seed-20260622/SUMMARY.html">Firecracker Rootfs / Backing / Restore Checklist Seed</a></li><li><a href="../../analysis/samples/kata-arm64-network-backend-diff-ch-seed-20260618/SUMMARY.html">Kata ARM64 Backend Diff Cloud Hypervisor 样本种子</a></li><li><a href="../../analysis/samples/kata-arm64-network-backend-diff-dragonball-seed-20260618/SUMMARY.html">Kata ARM64 Backend Diff Dragonball 样本种子</a></li><li><a href="../../analysis/samples/kata-arm64-network-backend-diff-qemu-seed-20260618/SUMMARY.html">Kata ARM64 Backend Diff QEMU 样本种子</a></li><li><a href="../../analysis/samples/kata-arm64-network-backend-diff-seed-20260618/SUMMARY.html">Kata ARM64 Backend 差异样本种子</a></li><li><a href="../../analysis/samples/kata-arm64-network-backend-diff-template/SUMMARY.html">Kata ARM64 Backend 差异样本模板</a></li><li><a href="../../analysis/samples/kata-arm64-network-route-convergence-seed-20260618/SUMMARY.html">Kata ARM64 Route Convergence 样本种子</a></li><li><a href="../../analysis/samples/kata-storage-convergence-checklist-seed-20260622/SUMMARY.html">Kata Storage Convergence Checklist Seed</a></li></ul></details>
+<li><a href="../../Agent.html">Micro-VM Agent Instructions</a></li>
+    </nav>
+  </aside>
+  <main class="content">
+    <div class="topbar">
+      <button id="theme-toggle" title="切换暗色模式">🌙</button>
+      <a class="back-home" href="../../index.html">🏠 首页</a>
+    </div>
+    <article class="markdown-body">
+      <h1 id="sbench">SBench 用户指南</h1>
+<p>SBench 帮助你完成三件事：<strong>启动虚拟机 → 采集性能数据 → 可视化展示</strong>。本指南覆盖从环境准备到查看 Dashboard 的完整流程。</p>
+<h2 id="_1">当前能力范围</h2>
+<ul>
+<li>支持通过 Firecracker 启动虚拟机，也支持导入外部启动的虚拟机进程。</li>
+<li>所有性能采集都在主机侧完成，不需要在虚拟机内部安装额外工具。</li>
+<li>虚拟机采用长驻模式：启动后持续运行，可以对其反复执行不同的采集任务。</li>
+<li>支持自动调度：Agent 可以按配置定期自动采集，无需手动操作。</li>
+</ul>
+<h2 id="_2">环境准备</h2>
+<h3 id="_3">安装目录</h3>
+<pre><code class="language-bash">mkdir -p /opt/sbench/{bin,images,tools,results,state}
+</code></pre>
+<h3 id="sbench_1">构建 sbench</h3>
+<pre><code class="language-bash">go build -o /opt/sbench/bin/sbench ./cmd/sbench
+</code></pre>
+<h3 id="_4">必要组件</h3>
+<ul>
+<li><code>sbench</code> 放入 <code>/opt/sbench/bin/</code> 或加入 PATH</li>
+<li>Firecracker 二进制放入 <code>/opt/sbench/bin/</code> 或加入 PATH</li>
+<li>虚拟机镜像放入 <code>/opt/sbench/images/</code></li>
+</ul>
+<pre><code class="language-text">/opt/sbench/images/vmlinux            # 内核
+/opt/sbench/images/initramfs.cpio.gz  # initramfs（可选）
+/opt/sbench/images/rootfs.ext4        # rootfs
+</code></pre>
+<p>构建镜像参考 <a href="microvm-image-build.html">microvm-image-build.md</a>。</p>
+<h3 id="_5">可选组件</h3>
+<table>
+<thead>
+<tr>
+<th>工具</th>
+<th>安装方式</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>perf</code></td>
+<td>系统包管理器</td>
+<td>采集 cache/TLB miss 等硬件事件</td>
+</tr>
+<tr>
+<td>FlameGraph 脚本</td>
+<td>已随仓库 vendoring 到 <code>third_party/FlameGraph/</code></td>
+<td>将 <code>perf script</code> 渲染为 SVG 火焰图</td>
+</tr>
+<tr>
+<td>Kunpeng DevKit</td>
+<td>放入 <code>/opt/sbench/tools/devkit/devkit</code></td>
+<td>TopDown 分析、内存带宽、miss 热点</td>
+</tr>
+<tr>
+<td><code>iostat</code> / <code>pidstat</code> / <code>sar</code></td>
+<td>安装 <code>sysstat</code> 包</td>
+<td>磁盘 I/O、进程资源、系统活动统计</td>
+</tr>
+<tr>
+<td>Docker / Docker Compose</td>
+<td>系统包管理器</td>
+<td>Prometheus/Grafana 可视化</td>
+</tr>
+</tbody>
+</table>
+<h2 id="_6">子命令详解</h2>
+<h3 id="sbench-host-probe"><code>sbench host probe</code> — 探测主机环境</h3>
+<p>扫描当前机器的硬件配置和工具可用性。在开始测试前运行一次，确认环境就绪。</p>
+<pre><code class="language-bash">sbench host probe --root /opt/sbench
+</code></pre>
+<p>输出一份 JSON 文件（默认写入 <code>&lt;root&gt;/state/host-probe.json</code>），包含：</p>
+<ul>
+<li>CPU 核心数、在线 CPU 列表</li>
+<li>NUMA 节点拓扑</li>
+<li>可用工具路径（firecracker、perf、devkit 等）</li>
+<li>内核版本和操作系统信息</li>
+</ul>
+<hr>
+<h3 id="sbench-deployment-create"><code>sbench deployment create</code> — 启动虚拟机</h3>
+<p>根据配置文件启动一批 Firecracker 虚拟机。每个 VM 独享一份 rootfs 副本，可指定 CPU 绑核策略。</p>
+<pre><code class="language-bash">sbench deployment create \
+  -c configs/deploy/firecracker-json-parse-2vm-quick.yaml \
+  --root /opt/sbench
+</code></pre>
+<p>启动成功后会输出 <code>deployment_id</code>，后续所有操作都通过这个 ID 关联。</p>
+<p>查看运行状态：</p>
+<pre><code class="language-bash">sbench deployment status &lt;deployment-id&gt; --root /opt/sbench
+</code></pre>
+<p>可用的部署配置示例：</p>
+<table>
+<thead>
+<tr>
+<th>配置文件</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>firecracker-json-parse-quick.yaml</code></td>
+<td>1 个 VM，快速验证</td>
+</tr>
+<tr>
+<td><code>firecracker-json-parse-2vm-quick.yaml</code></td>
+<td>2 个 VM，标准测试</td>
+</tr>
+<tr>
+<td><code>firecracker-32-single-numa.yaml</code></td>
+<td>32 个 VM，单 NUMA 节点</td>
+</tr>
+<tr>
+<td><code>firecracker-json-parse-1000-idle.yaml</code></td>
+<td>1000 个 VM，高密度空闲测试</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h3 id="sbench-deployment-import"><code>sbench deployment import</code> — 导入外部虚拟机</h3>
+<p>当虚拟机由其他工具启动时，用此命令导入当前机器上正在运行的 Firecracker 进程。导入后可以像 sbench 自己启动的 VM 一样进行采集。</p>
+<pre><code class="language-bash"># 自动扫描所有 Firecracker 进程
+sbench deployment import --name external-sandbox --root /opt/sbench
+
+# 只导入命令行包含特定关键字的进程
+sbench deployment import --name json-parse-sandbox --pattern json-parse --root /opt/sbench
+
+# 指定只扫描 Firecracker 进程
+sbench deployment import --hypervisor firecracker --root /opt/sbench
+</code></pre>
+<p>导入后会生成 deployment state 文件，包含每个 VM 的 PID、线程 ID、CPU 亲和性等信息。</p>
+<p>注意事项：
+- 导入的 deployment 在 <code>destroy</code> 时<strong>不会停止</strong>原始进程，只更新 sbench 的状态记录
+- 适合临时采集场景——对外部管理的虚拟机做一次性性能分析</p>
+<hr>
+<h3 id="sbench-deployment-status"><code>sbench deployment status</code> — 查看部署状态</h3>
+<p>显示指定 deployment 的详细信息。</p>
+<pre><code class="language-bash">sbench deployment status &lt;deployment-id&gt; --root /opt/sbench
+</code></pre>
+<hr>
+<h3 id="sbench-deployment-destroy"><code>sbench deployment destroy</code> — 销毁部署</h3>
+<p>停止 deployment 中的所有 Firecracker 进程，释放资源。<strong>已采集的性能数据不会被删除</strong>，仍可用于后续分析。</p>
+<pre><code class="language-bash">sbench deployment destroy &lt;deployment-id&gt; --root /opt/sbench
+</code></pre>
+<hr>
+<h3 id="sbench-workload-start"><code>sbench workload start</code> — 登记负载会话</h3>
+<p>为 deployment 创建一个 workload session，并生成 phase 文件和宿主机侧
+<code>metrics_dir</code>。该命令不会进入虚拟机或 E2B sandbox 执行任务；任务仍需由
+guest init、E2B <code>sandbox exec</code>、SDK <code>commands.run()</code> 或外部调度器启动。</p>
+<pre><code class="language-bash">sbench workload start &lt;deployment-id&gt; \
+  -c configs/workload/json-parse.yaml \
+  --root /opt/sbench
+</code></pre>
+<p>命令会同时输出 <code>metrics_dir</code>。对于支持 Terminal-Bench/E2B
+<code>task_completion</code> JSON 的负载，只有当这个目录对任务侧和 sbench agent
+都可见时，agent 才能直接解析其中的完成事件并在 Overview 中展示沙箱任务吞吐量。
+本地容器可以通过 volume 挂载该目录；远端 E2B sandbox 需要把事件文件同步回
+这个目录，或通过宿主机可读的共享 metrics 目录写入。</p>
+<p>如果 E2B 任务需要在一批已存在的 sandbox 中持续运行，可以使用 Python SDK
+辅助脚本按 template 名称/id 或 sandbox id 选择目标：</p>
+<pre><code class="language-bash">python3 -m pip install e2b
+export E2B_API_KEY=&lt;your-e2b-api-key&gt;
+
+scripts/e2b-tbench-sdk.py list --template &lt;template-name&gt; --json
+
+scripts/e2b-tbench-sdk.py start-loop \
+  --template &lt;template-name&gt; \
+  --rows 1000000 \
+  --run-id-prefix tbench
+
+scripts/e2b-tbench-sdk.py pull \
+  --sandbox-id &lt;sandbox-id-a&gt; \
+  --sandbox-id &lt;sandbox-id-b&gt; \
+  /opt/sbench/results/workload-sessions/&lt;session-id&gt;/metrics
+</code></pre>
+<p><code>start-loop</code> 会在 sandbox 内安装 <code>/tmp/sbench-tbench-loop.sh</code> 并通过
+SDK <code>commands.run(..., background=True)</code> 启动后台循环。默认情况下如果远端
+pid 文件显示循环仍在运行，它不会重复叠加新的无限循环；需要强制替换时加
+<code>--restart</code>。<code>pull</code> 会把远端
+<code>/tmp/sbench-task-metrics/completions.ndjson</code> 增量拆分成宿主机
+<code>metrics_dir/e2b-&lt;sandbox-id&gt;-00000001.json</code> 这样的单条 JSON 文件。
+<code>start-loop</code> 默认会先校验并运行 E2B 镜像中安装的
+<code>/usr/local/bin/tbench-large-scale-text-editing</code>；如果 template 使用不同路径，
+通过 <code>--task-bin &lt;path-or-command&gt;</code> 覆盖。</p>
+<hr>
+<h3 id="sbench-workload-stop"><code>sbench workload stop</code> — 停止负载</h3>
+<p>将当前 workload session 标记为已停止。</p>
+<pre><code class="language-bash">sbench workload stop &lt;deployment-id&gt; --root /opt/sbench
+</code></pre>
+<hr>
+<h3 id="sbench-collect-run"><code>sbench collect run</code> — 采集性能数据（附带模式）</h3>
+<p>绑定到已有的 deployment，对其中的虚拟机进程采集性能数据。每次执行会生成一个独立的采集目录。</p>
+<pre><code class="language-bash"># 基础采集：CPU 使用率、进程资源占用、上下文切换
+sbench collect run &lt;deployment-id&gt; \
+  -c configs/collect/baseline-quick.yaml \
+  --root /opt/sbench
+
+# 硬件事件：cache miss、TLB miss 等
+sbench collect run &lt;deployment-id&gt; \
+  -c configs/collect/perf-stat-vmm-quick.yaml \
+  --root /opt/sbench
+
+# TopDown 性能分析
+sbench collect run &lt;deployment-id&gt; \
+  -c configs/collect/devkit-topdown-quick.yaml \
+  --root /opt/sbench
+
+# miss 热点分析
+sbench collect run &lt;deployment-id&gt; \
+  -c configs/collect/devkit-miss-event-vmm-quick.yaml \
+  --root /opt/sbench
+
+# 系统工具：iostat、pidstat、sar
+sbench collect run &lt;deployment-id&gt; \
+  -c configs/collect/sysstat-tools-vmm-quick.yaml \
+  --root /opt/sbench
+
+# 中断指标：sar + /proc/interrupts
+sbench collect run &lt;deployment-id&gt; \
+  -c configs/collect/interrupts-vmm-quick.yaml \
+  --root /opt/sbench
+</code></pre>
+<p>每个采集配置文件可以包含一个或多个采集器，通过 <code>enabled</code> 字段单独开关。</p>
+<hr>
+<h3 id="sbench-collector-run"><code>sbench collector run</code> — 采集性能数据（独立模式）</h3>
+<p>不需要启动虚拟机，直接对指定的 CPU、进程或整个主机采集。适合调试和快速测试。</p>
+<pre><code class="language-bash"># 主机 CPU 统计（30 秒）
+sbench collector run -c configs/collector/proc-stat-standalone.yaml --root /opt/sbench
+
+# 指定 CPU 核心的硬件事件（5 秒）
+sbench collector run -c configs/collector/perf-stat-quick.yaml --root /opt/sbench
+
+# 生成 perf 火焰图（SVG + HTML）
+sbench collector run -c configs/collector/perf-flamegraph-quick.yaml --root /opt/sbench
+
+# TopDown 分析
+sbench collector run -c configs/collector/devkit-topdown-quick.yaml --root /opt/sbench
+
+# 内存带宽统计
+sbench collector run -c configs/collector/devkit-memory-quick.yaml --root /opt/sbench
+
+# miss 热点分析
+sbench collector run -c configs/collector/devkit-miss-event-quick.yaml --root /opt/sbench
+</code></pre>
+<p>独立模式的配置以 <code>collector_run</code> 为顶层字段，所有采集目标（CPU、PID、设备）都需要在配置中显式指定。详细说明参考 <a href="standalone-collector.zh.html">standalone-collector.zh.md</a>。</p>
+<hr>
+<h3 id="sbench-agent-serve"><code>sbench agent serve</code> — 启动指标服务</h3>
+<p>启动 HTTP 服务，将采集数据转换为 Prometheus 格式，供 Grafana 读取和展示。</p>
+<pre><code class="language-bash"># 基本用法
+sbench agent serve --root /opt/sbench --listen 127.0.0.1:8888
+</code></pre>
+<h4 id="_7">命令行参数</h4>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>默认值</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--root</code></td>
+<td><code>.sbench</code></td>
+<td>数据根目录</td>
+</tr>
+<tr>
+<td><code>--listen</code></td>
+<td><code>127.0.0.1:8888</code></td>
+<td>监听地址</td>
+</tr>
+<tr>
+<td><code>--refresh</code></td>
+<td><code>1s</code></td>
+<td>数据刷新间隔</td>
+</tr>
+<tr>
+<td><code>--no-proc</code></td>
+<td>否</td>
+<td>不读取本机 <code>/proc</code>，用于离线可视化</td>
+</tr>
+<tr>
+<td><code>--schedule</code></td>
+<td>无</td>
+<td>调度配置文件，自动定期执行采集任务</td>
+</tr>
+</tbody>
+</table>
+<h4 id="_8">离线可视化</h4>
+<p>将采集结果拷贝到另一台机器上查看时，使用 <code>--no-proc</code> 避免读取不相关的本机进程数据：</p>
+<pre><code class="language-bash"># 在非采集机器上启动 agent
+sbench agent serve --root /opt/sbench --listen 0.0.0.0:8888 --no-proc
+</code></pre>
+<h4 id="_9">自动调度</h4>
+<p>通过 <code>--schedule</code> 指定调度配置，Agent 会在后台按配置自动执行采集：</p>
+<pre><code class="language-bash">sbench agent serve --root /opt/sbench --listen 127.0.0.1:8888 \
+  --schedule configs/agent/schedule-quick.yaml
+</code></pre>
+<p>调度配置示例：</p>
+<pre><code class="language-yaml">agent:
+  scheduler:
+    enabled: true
+  proc:
+    # 可选：限制实时 sbench_vmm_* 指标只读取指定 deployment/PID。
+    # 如果不配置，Agent 会读取 deployment state 中的全部 VMM PID。
+    deployment_id: fc-json-parse-2vm-quick-20260513-135837
+    target:
+      type: pid_group
+      pids: [12345]
+
+jobs:
+  # 附加到指定 deployment，每 60 秒采集一次 perf 数据
+  - name: perf-stat
+    enabled: true
+    mode: attached
+    deployment_id: fc-json-parse-2vm-quick-20260513-135837
+    config: configs/collect/perf-stat-vmm-quick.yaml
+    interval: 60s
+    concurrency_policy: skip
+
+  # 独立模式，每 30 秒采集一次主机 CPU 数据
+  - name: host-cpu
+    enabled: true
+    mode: standalone
+    config: configs/collector/proc-stat-standalone.yaml
+    interval: 30s
+    concurrency_policy: skip
+</code></pre>
+<p>调度任务字段说明：</p>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>mode</code></td>
+<td><code>attached</code> 绑定 deployment，<code>standalone</code> 独立运行</td>
+</tr>
+<tr>
+<td><code>deployment_id</code></td>
+<td><code>attached</code> 模式下必填，必须写明确切 deployment ID</td>
+</tr>
+<tr>
+<td><code>config</code></td>
+<td>采集配置文件路径</td>
+</tr>
+<tr>
+<td><code>start_delay</code></td>
+<td>相对 Agent 启动的首次延迟，可用于控制任务首次进入调度窗口的相位</td>
+</tr>
+<tr>
+<td><code>interval</code></td>
+<td>执行间隔</td>
+</tr>
+<tr>
+<td><code>concurrency_policy</code></td>
+<td><code>skip</code> 表示上一次未完成则跳过本轮</td>
+</tr>
+<tr>
+<td><code>resource_lock</code></td>
+<td>资源锁名称，相同锁名的任务不会同时运行（如 perf 和 devkit 共用 PMU）</td>
+</tr>
+<tr>
+<td><code>target</code></td>
+<td>可选的 scheduler 级目标覆盖；会覆盖引用 collector 配置中相同类型的 target，例如覆盖 <code>proc_pid</code> / <code>pidstat</code> 的 <code>pid_group</code></td>
+</tr>
+<tr>
+<td><code>collector_targets</code></td>
+<td>可选的按 collector 名称覆盖 target，用于同一个 job 内不同 collector 需要不同目标时</td>
+</tr>
+</tbody>
+</table>
+<p>调度状态通过 Agent 的 <code>/metrics</code> 端点暴露，可在 Grafana 中监控任务执行情况。</p>
+<p>对于严肃实验使用的 <code>configs/agent/schedule-density-experiment.yaml</code>，其中
+<code>density-procfs-pidstat-by-pid</code> 这一项现在会触发：</p>
+<ul>
+<li><code>proc_stat</code>：主机 <code>/proc/stat</code></li>
+<li><code>proc_pid</code>：目标 VMM PID 的 <code>/proc/&lt;pid&gt;</code></li>
+<li><code>pidstat</code>：目标 VMM PID 的 CPU/内存/I/O/上下文切换</li>
+</ul>
+<p>目标 PID 可以直接在 agent schedule 中配置，不必再修改 collector 配置文件：</p>
+<pre><code class="language-yaml">jobs:
+  - name: density-procfs-pidstat-by-pid
+    mode: attached
+    deployment_id: fc-json-parse-2vm-quick-20260513-135837
+    config: configs/experiments/density-procfs-pidstat-by-pid.yaml
+    target:
+      type: pid_group
+      pids: [12345]
+</code></pre>
+<p>而主机级中断/CPU 状态采集已拆成独立的 <code>density-sar-host</code> job，便于单独控制刷新周期，
+不再等待整组 <code>procfs/pidstat</code> 串行完成。该 job 使用 <code>configs/experiments/density-interrupts-host.yaml</code>，
+其中 <code>interrupts</code> 是组合 collector，运行时会展开为 <code>sar</code> 和 <code>proc_interrupts</code>。</p>
+<p>这样启用后：</p>
+<ul>
+<li><code>density-procfs-pidstat-by-pid</code> 提供 <code>Target Process CPU Usage</code></li>
+<li><code>density-sar-host</code> 提供 <code>Host CPU State Breakdown</code>、<code>Host Interrupt Rate</code>、<code>IRQ SoftIRQ CPU Time Share</code> 和 <code>IPI Scheduler Interrupt Rate</code></li>
+</ul>
+<p>当多个 DevKit 任务共用 <code>resource_lock: pmu</code> 时，Agent 现在会在同一把锁下建立串行队列，并按照 <code>jobs:</code> 中的声明顺序轮转执行。例如，把 <code>topdown</code>、<code>miss-event</code>、<code>memory</code> 依次写在配置中，就会形成固定顺序：</p>
+<pre><code class="language-yaml">jobs:
+  - name: topdown
+    enabled: true
+    mode: attached
+    deployment_id: fc-json-parse-2vm-quick-20260513-135837
+    config: configs/experiments/density-devkit-topdown-by-pid.yaml
+    start_delay: 0s
+    interval: 300s
+    resource_lock: pmu
+    concurrency_policy: skip
+
+  - name: miss-event
+    enabled: true
+    mode: attached
+    deployment_id: fc-json-parse-2vm-quick-20260513-135837
+    config: configs/experiments/density-devkit-miss-event-by-pid.yaml
+    start_delay: 40s
+    interval: 300s
+    resource_lock: pmu
+    concurrency_policy: skip
+
+  - name: memory
+    enabled: true
+    mode: attached
+    deployment_id: fc-json-parse-2vm-quick-20260513-135837
+    config: configs/experiments/density-devkit-memory-by-cpu.yaml
+    start_delay: 80s
+    interval: 300s
+    resource_lock: pmu
+    concurrency_policy: skip
+</code></pre>
+<p>这样会形成 <code>topdown -&gt; miss-event -&gt; memory</code> 的固定调度顺序，不会再因为简单抢锁而让后面的任务长期饥饿。<code>start_delay</code> 在这里是可选项，只用于调整首次启动时各任务进入队列的时间点，不再是定义顺序的唯一手段。</p>
+<p>如果你需要在同一个 agent 中同时采集“单 VMM PID topdown”和“全核心 topdown”，可以直接基于：</p>
+<pre><code class="language-text">configs/agent/schedule-density-mixed-topdown.yaml
+</code></pre>
+<p>这个模板已经把 PMU 队列顺序定义为：</p>
+<ol>
+<li>单 VMM PID topdown</li>
+<li>全核心 topdown</li>
+<li>单 VMM PID perf stat</li>
+<li>全核心 perf stat</li>
+<li>单 VMM PID miss-event</li>
+<li>CPU range memory</li>
+</ol>
+<p>同时，这个 mixed 模板会把主机 CPU 状态拆成独立的 <code>density-sar-host</code> job。</p>
+<p>在 Prometheus 指标层面，这两类 topdown 会通过通用目标标签区分：</p>
+<ul>
+<li><code>target_type=pid_list</code> + <code>target_pids=...</code></li>
+<li><code>target_type=cpu_range</code> + <code>target_cpus=...</code></li>
+</ul>
+<p>Dashboard 的 Topdown 面板已经拆成两组固定视图：</p>
+<ul>
+<li><code>VMM PID Topdown ...</code></li>
+<li><code>All CPU Topdown ...</code></li>
+</ul>
+<p>Perf Stat 面板也对应拆成两组固定视图：</p>
+<ul>
+<li><code>VMM PID Perf Stat ...</code></li>
+<li><code>All CPU Perf Stat ...</code></li>
+</ul>
+<p>用于直接区分 PID 视角和全核心视角的 PMU 数据。</p>
+<p>DevKit Memory 面板已拆成独立视图：</p>
+<ul>
+<li><code>L1/L2 Average Cache Miss Rate</code>：各级 L1/L2 cache 平均 miss 率</li>
+<li><code>Total DDR Bandwidth</code> / <code>DDR Read Write Bandwidth</code>：系统级 DDR 总带宽和读写拆分</li>
+<li><code>Average Access Bandwidth</code> / <code>Average Hit Rate</code>：L1/L2/TLB 访问带宽与命中率，<code>CPU=All</code> 时对 CPU 维度求平均</li>
+<li><code>Average TLB Miss Rate</code>：由 TLB hit rate 派生的 miss rate，默认展示 <code>L2D_TLB</code> 数据访问视图</li>
+<li><code>L3 Read Bandwidth</code> / <code>L3 Read Hit Rate</code>：L3 读带宽与命中率</li>
+<li><code>DDRC Controller Bandwidth</code>：按 DDRC 控制器拆分的读写带宽</li>
+</ul>
+<p>注意：DevKit <code>tuner memory</code> 只支持 host/CPU range 目标，不能按 PID 直接采集。需要单个 VMM 进程的 TLB miss 热点时，使用 <code>devkit_miss_event</code> 并设置 <code>devkit.metric: 2</code>，例如 <code>configs/collect/devkit-tlb-miss-event-vmm-quick.yaml</code> 或 <code>configs/experiments/density-devkit-tlb-miss-event-by-pid.yaml</code>。</p>
+<p>Overview 面板中的 <code>LLC Miss Rate Table</code> 按函数/模块展示 <code>devkit_miss_event</code> 的 LLC Miss Rate 热点；使用 <code>configs/collect/devkit-llc-miss-event-vmm-quick.yaml</code> 或 <code>configs/experiments/density-devkit-llc-miss-event-by-pid.yaml</code> 采集。</p>
+<p>同时，Dashboard 顶部还提供多组目标选择器：</p>
+<ul>
+<li><code>VMM PID Topdown Target</code>：按 <code>target_pids</code> 选择具体 VMM PID 视角结果</li>
+<li><code>Pidstat PID Target</code>：按 <code>target_pids</code> 选择 <code>Target Process CPU Usage</code> / <code>Target Process Context Switch Rate</code> 的 pidstat 结果</li>
+<li><code>All CPU Topdown Target</code>：按 <code>target_cpus</code> 选择具体 CPU 区间 / 全核心结果</li>
+<li><code>VMM PID Perf Target</code>：按 <code>target_pids</code> 选择具体 VMM PID 的 <code>perf stat</code> 结果</li>
+<li><code>All CPU Perf Target</code>：按 <code>target_cpus</code> 选择具体 CPU 区间 / 全核心的 <code>perf stat</code> 结果</li>
+<li><code>Memory CPU Target</code>：在 DevKit Memory Dashboard 中按 <code>target_cpus</code> 选择具体 CPU 区间</li>
+</ul>
+<p>这样当同一个 <code>deployment_id</code> 下同时保留多次 PID topdown 或多组 CPU range topdown 历史结果时，不会把不同目标范围的曲线混在一起。</p>
+<h2 id="_10">采集结果</h2>
+<p>每次采集会生成一个独立目录：</p>
+<pre><code class="language-text">/opt/sbench/results/collections/&lt;collection-id&gt;/
+├── manifest.json              # 采集元数据
+├── config.original.yaml       # 原始配置
+├── config.resolved.json       # 解析后的配置
+├── raw/collectors/            # 原始数据（工具输出、CSV、报告等）
+└── normalized/                # 结构化数据（供 Agent 转为 Prometheus 指标）
+</code></pre>
+<ul>
+<li><code>raw/</code> 保留所有外部工具的原始输出，可用于后续离线分析</li>
+<li><code>normalized/</code> 包含解析后的结构化数据，Agent 读取此目录生成 Prometheus 指标</li>
+</ul>
+<h3 id="_11">查看实际执行的采集命令</h3>
+<p>每次采集时，sbench 会把实际执行的命令记录到 <code>command*.json</code> 中。当你需要确认采集参数、排查问题或复现采集场景时，可以在这里查阅。</p>
+<pre><code class="language-bash"># 查看某次采集中 perf_stat 执行的命令
+cat /opt/sbench/results/collections/&lt;collection-id&gt;/raw/collectors/perf_stat/command.json
+
+# 查看某次采集中 perf_flamegraph 的分阶段命令
+find /opt/sbench/results/collections/&lt;collection-id&gt;/raw/collectors/perf_flamegraph \
+  -name 'command*.json' -exec echo &quot;=== {} ===&quot; \; -exec cat {} \;
+
+# 查看某次采集中所有采集器执行的命令
+find /opt/sbench/results/collections/&lt;collection-id&gt;/raw \( -name command.json -o -name 'command*.json' \) \
+  -exec echo &quot;=== {} ===&quot; \; -exec cat {} \;
+</code></pre>
+<p><code>command.json</code> 包含完整命令、退出码和执行耗时：</p>
+<pre><code class="language-json">{
+  &quot;command&quot;: &quot;perf stat -d -d -d -e l2d_cache_refill,l2i_cache_lmiss -x , -o .../perf-stat.csv -p 12345,12346 -- sleep 5&quot;,
+  &quot;exit_code&quot;: 0,
+  &quot;duration_ms&quot;: 5201
+}
+</code></pre>
+<p>不同采集器的原始数据文件：</p>
+<table>
+<thead>
+<tr>
+<th>采集器</th>
+<th>command.json</th>
+<th>其他文件</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>perf_stat</code></td>
+<td>有</td>
+<td><code>perf-stat.csv</code>（原始 CSV）</td>
+</tr>
+<tr>
+<td><code>perf_flamegraph</code></td>
+<td>有（<code>command.record.json</code> 等）</td>
+<td><code>perf.data</code>、<code>perf.script</code>、<code>out.folded</code>、<code>flamegraph.svg</code>、<code>index.html</code></td>
+</tr>
+<tr>
+<td><code>devkit_topdown</code></td>
+<td>有</td>
+<td><code>stdout.txt</code>、<code>stderr.txt</code></td>
+</tr>
+<tr>
+<td><code>devkit_memory</code></td>
+<td>有</td>
+<td><code>stdout.txt</code>、<code>stderr.txt</code></td>
+</tr>
+<tr>
+<td><code>devkit_miss_event</code></td>
+<td>有</td>
+<td><code>stdout.txt</code>、<code>stderr.txt</code>、<code>miss_report.tar</code></td>
+</tr>
+<tr>
+<td><code>iostat</code> / <code>pidstat</code> / <code>sar</code></td>
+<td>有</td>
+<td><code>stdout.txt</code>、<code>stderr.txt</code></td>
+</tr>
+<tr>
+<td><code>proc_stat</code> / <code>proc_pid</code></td>
+<td>无（直接读 /proc）</td>
+<td><code>.ndjson</code>（原始文本记录）</td>
+</tr>
+</tbody>
+</table>
+<h2 id="_12">可视化</h2>
+<h3 id="_13">使用内置监控栈</h3>
+<pre><code class="language-bash">cd deploy/prometheus-grafana
+docker compose up -d
+</code></pre>
+<p>启动后直接访问：</p>
+<table>
+<thead>
+<tr>
+<th>服务</th>
+<th>地址</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Grafana</td>
+<td><code>http://&lt;host&gt;:3000</code>（admin/admin）</td>
+</tr>
+<tr>
+<td>Prometheus</td>
+<td><code>http://&lt;host&gt;:9090</code></td>
+</tr>
+<tr>
+<td>内置 Dashboard</td>
+<td><code>http://&lt;host&gt;:3000/d/sbench-overview/sbench-overview</code></td>
+</tr>
+</tbody>
+</table>
+<p>Dashboard 在容器启动时自动加载，无需手动导入。</p>
+<h3 id="prometheusgrafana">适配已有的 Prometheus/Grafana</h3>
+<p><strong>Prometheus</strong> — 添加 scrape 目标：</p>
+<pre><code class="language-yaml">scrape_configs:
+  - job_name: sbench
+    scrape_interval: 5s
+    static_configs:
+      - targets:
+          - 127.0.0.1:8888
+</code></pre>
+<p><strong>Grafana</strong> — 导入 Dashboard：</p>
+<p>内置 Dashboard 默认使用名为 <code>Prometheus</code> 的 datasource，并在 dashboard 顶部
+提供 datasource 选择器。如果接入已有 Grafana，只要存在可用的 Prometheus
+datasource，即可在导入后直接切换使用。</p>
+<p>方式一：通过 API 导入</p>
+<pre><code class="language-bash">curl -X POST http://&lt;host&gt;:3000/api/dashboards/db \
+  -u admin:admin \
+  -H &quot;Content-Type: application/json&quot; \
+  -d '{&quot;dashboard&quot;: '&quot;$(jq '.' deploy/prometheus-grafana/grafana/dashboards/sbench-overview.json)&quot;', &quot;overwrite&quot;: true}'
+</code></pre>
+<p>方式二：在 Grafana UI 中，Dashboards → Import → 上传 <code>deploy/prometheus-grafana/grafana/dashboards/sbench-overview.json</code></p>
+<h2 id="promql">常用查询（PromQL）</h2>
+<p>在 Grafana 或 Prometheus 中可以使用以下查询：</p>
+<pre><code class="language-promql"># 虚拟机进程状态
+sbench_vmm_up
+sbench_vmm_cpu_seconds_total
+sbench_vmm_context_switches_total
+
+# 硬件性能事件
+sbench_perf_stat_event_value{event=~&quot;L1.*|LLC.*|.*TLB.*|l2.*&quot;}
+
+# DevKit TopDown 分析
+sbench_devkit_topdown_metric_percent
+
+# 中断处理
+sbench_sar_cpu_percent{field=~&quot;irq|soft&quot;}
+sbench_sar_interrupts_per_second
+sbench_proc_interrupts_total
+
+# DevKit 内存带宽
+sbench_devkit_memory_cache_miss_percent
+sbench_devkit_memory_ddr_bandwidth_mbps
+sbench_devkit_memory_cpu_cache_bandwidth_mbps
+sbench_devkit_memory_cpu_cache_hit_percent
+sbench_devkit_memory_cpu_cache_miss_percent
+sbench_devkit_memory_l3_read_bandwidth_mbps
+sbench_devkit_memory_l3_read_hit_percent
+sbench_devkit_memory_ddrc_bandwidth_mbps
+
+# DevKit miss 热点
+sbench_devkit_miss_event_rate_percent
+</code></pre>
+<h2 id="_14">故障排查</h2>
+<h3 id="_15">虚拟机启动失败</h3>
+<ul>
+<li>检查 <code>/opt/sbench/bin/firecracker</code> 是否存在并可执行</li>
+<li>检查 kernel/rootfs 镜像路径是否与配置文件一致</li>
+<li>查看日志：<code>/opt/sbench/results/deployments/&lt;deployment-id&gt;/hypervisor/&lt;vm-id&gt;/firecracker.stderr</code></li>
+<li>确认磁盘空间足够（每个 VM 需要复制一份 rootfs）</li>
+</ul>
+<h3 id="perf-not-counted">perf 采集失败或显示 <code>&lt;not counted&gt;</code></h3>
+<ul>
+<li>确认以 root 运行</li>
+<li>检查 <code>/proc/sys/kernel/perf_event_paranoid</code> 是否为 0 或 -1</li>
+<li>用 <code>perf list</code> 确认平台支持的事件名称</li>
+<li>尝试改用 CPU range 模式（对整个 CPU 采集而非指定 PID）</li>
+<li>减少同时采集的事件数量</li>
+</ul>
+<h3 id="devkit">DevKit 采集失败</h3>
+<ul>
+<li>确认 DevKit 路径正确：<code>/opt/sbench/tools/devkit/devkit</code></li>
+<li>确认目标 CPU 上有活跃的负载</li>
+<li>检查采集时长是否足够（建议至少 3 秒）</li>
+</ul>
+<h3 id="prometheusgrafana_1">Prometheus/Grafana 无数据</h3>
+<ul>
+<li>确认 <code>sbench agent serve</code> 正在运行：<code>curl http://127.0.0.1:8888/healthz</code></li>
+<li>检查 Agent 是否有数据：<code>curl http://127.0.0.1:8888/metrics | head</code></li>
+<li>在 Prometheus 的 <code>/targets</code> 页面确认 sbench target 状态为 UP</li>
+<li>确认采集任务已执行：检查 <code>results/collections/</code> 下是否有数据</li>
+</ul>
+    </article>
+    <footer class="page-foot">源文件: <code>sandbox-bench/docs/user-guide.zh.md</code></footer>
+  </main>
+</div>
+<script src="../../assets/mermaid.min.js"></script>
+<script>window.mermaid && mermaid.initialize({startOnLoad:true, theme:'neutral', securityLevel:'loose'});</script>
+<script src="../../assets/wiki.js"></script>
+</body>
+</html>

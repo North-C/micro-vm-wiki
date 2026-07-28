@@ -1,0 +1,155 @@
+/* Micro-VM 分析 Wiki 样式 */
+:root {
+  --bg: #ffffff;
+  --bg-alt: #f6f8fa;
+  --fg: #24292f;
+  --fg-muted: #57606a;
+  --border: #d0d7de;
+  --accent: #0969da;
+  --code-bg: #f6f8fa;
+  --sidebar-bg: #fbfbfd;
+  --card-bg: #f6f8fa;
+  --link: #0969da;
+  --shadow: rgba(0,0,0,0.08);
+}
+html.dark {
+  --bg: #0d1117;
+  --bg-alt: #161b22;
+  --fg: #e6edf3;
+  --fg-muted: #8b949e;
+  --border: #30363d;
+  --accent: #58a6ff;
+  --code-bg: #161b22;
+  --sidebar-bg: #010409;
+  --card-bg: #161b22;
+  --link: #58a6ff;
+  --shadow: rgba(0,0,0,0.4);
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; height: 100%; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+               "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC",
+               "Source Han Sans SC", Roboto, Helvetica, Arial, sans-serif;
+  background: var(--bg); color: var(--fg);
+  line-height: 1.7; font-size: 15.5px;
+  -webkit-font-smoothing: antialiased;
+}
+.layout { display: flex; min-height: 100vh; }
+
+/* 侧边栏 */
+.sidebar {
+  width: 300px; min-width: 300px; max-height: 100vh; overflow-y: auto;
+  background: var(--sidebar-bg); border-right: 1px solid var(--border);
+  padding: 16px 12px 60px; position: sticky; top: 0;
+}
+.brand {
+  font-weight: 700; font-size: 16px; padding: 6px 10px 12px;
+  color: var(--fg); border-bottom: 1px solid var(--border); margin-bottom: 8px;
+}
+#search {
+  width: 100%; padding: 7px 10px; margin-bottom: 12px; border-radius: 6px;
+  border: 1px solid var(--border); background: var(--bg); color: var(--fg);
+  font-size: 13.5px;
+}
+#search:focus { outline: none; border-color: var(--accent); }
+.nav { font-size: 13.5px; }
+.nav ul { list-style: none; margin: 4px 0 10px; padding-left: 14px; }
+.nav > details > ul { padding-left: 8px; }
+.nav li { margin: 1px 0; }
+.nav a {
+  color: var(--fg-muted); text-decoration: none; display: block;
+  padding: 3px 6px; border-radius: 5px; word-break: break-word;
+}
+.nav a:hover { background: var(--bg-alt); color: var(--accent); }
+.details-active > a, .nav a.active { color: var(--accent); font-weight: 600; }
+details.nav-group { margin: 2px 0; }
+details.nav-group > summary {
+  cursor: pointer; font-weight: 600; padding: 5px 6px; border-radius: 5px;
+  color: var(--fg); user-select: none; font-size: 13.5px;
+}
+details.nav-group > summary:hover { background: var(--bg-alt); }
+details.nav-group[open] > summary { color: var(--accent); }
+
+/* 搜索结果 */
+.search-results {
+  background: var(--bg); border: 1px solid var(--border); border-radius: 6px;
+  margin-bottom: 12px; max-height: 320px; overflow-y: auto; display: none;
+}
+.search-results .res { padding: 6px 10px; border-bottom: 1px solid var(--border); cursor: pointer; }
+.search-results .res:last-child { border-bottom: none; }
+.search-results .res:hover { background: var(--bg-alt); }
+.search-results .res .t { font-size: 13.5px; color: var(--accent); }
+.search-results .res .s { font-size: 12px; color: var(--fg-muted); }
+
+/* 内容 */
+.content { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.topbar {
+  display: flex; align-items: center; gap: 12px; padding: 10px 28px;
+  border-bottom: 1px solid var(--border); background: var(--bg);
+  position: sticky; top: 0; z-index: 5;
+}
+#theme-toggle {
+  background: var(--bg-alt); border: 1px solid var(--border); color: var(--fg);
+  width: 34px; height: 30px; border-radius: 6px; cursor: pointer; font-size: 15px;
+}
+.back-home { margin-left: auto; color: var(--link); text-decoration: none; font-size: 13.5px; }
+.markdown-body { max-width: 900px; margin: 0 auto; padding: 32px 28px 80px; }
+.page-foot {
+  max-width: 900px; margin: 0 auto; padding: 0 28px 40px; font-size: 12px; color: var(--fg-muted);
+}
+
+/* markdown 排版 */
+.markdown-body h1 { font-size: 1.9em; border-bottom: 1px solid var(--border); padding-bottom: .3em; margin-top: .2em; }
+.markdown-body h2 { font-size: 1.45em; border-bottom: 1px solid var(--border); padding-bottom: .25em; margin-top: 1.6em; }
+.markdown-body h3 { font-size: 1.18em; margin-top: 1.4em; }
+.markdown-body h4 { font-size: 1.02em; margin-top: 1.2em; }
+.markdown-body p { margin: .7em 0; }
+.markdown-body a { color: var(--link); }
+.markdown-body ul, .markdown-body ol { padding-left: 1.6em; }
+.markdown-body li { margin: .25em 0; }
+.markdown-body blockquote {
+  margin: .8em 0; padding: .4em 1em; border-left: 4px solid var(--accent);
+  background: var(--bg-alt); color: var(--fg-muted); border-radius: 0 6px 6px 0;
+}
+.markdown-body code {
+  font-family: "SF Mono", "JetBrains Mono", "Fira Code", Consolas, "Liberation Mono", monospace;
+  background: var(--code-bg); padding: .12em .4em; border-radius: 4px; font-size: .9em;
+  color: var(--fg);
+}
+.markdown-body pre {
+  background: var(--code-bg); padding: 14px 16px; border-radius: 8px; overflow-x: auto;
+  border: 1px solid var(--border); line-height: 1.5;
+}
+.markdown-body pre code { background: none; padding: 0; font-size: .88em; }
+.markdown-body table {
+  border-collapse: collapse; margin: 1em 0; display: block; overflow-x: auto;
+  max-width: 100%;
+}
+.markdown-body th, .markdown-body td {
+  border: 1px solid var(--border); padding: 6px 12px; text-align: left; font-size: .94em;
+}
+.markdown-body th { background: var(--bg-alt); font-weight: 600; }
+.markdown-body tr:nth-child(2n) td { background: var(--bg-alt); }
+.markdown-body hr { border: none; border-top: 1px solid var(--border); margin: 2em 0; }
+.markdown-body img { max-width: 100%; }
+.src-ref { color: var(--fg-muted); font-size: .85em; }
+
+/* mermaid 容器 */
+.mermaid { text-align: center; margin: 1.2em 0; background: var(--bg-alt); padding: 12px; border-radius: 8px; }
+
+/* 首页卡片 */
+.home-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; margin: 1.5em 0; }
+.home-grid .card {
+  background: var(--card-bg); border: 1px solid var(--border); border-radius: 10px;
+  padding: 16px 18px; box-shadow: 0 1px 2px var(--shadow);
+}
+.home-grid .card h3 { margin-top: 0; font-size: 1.05em; }
+.home-grid .card p { color: var(--fg-muted); font-size: .92em; margin: .5em 0 .9em; }
+.home-grid .card a { font-size: .92em; }
+
+/* 响应式 */
+@media (max-width: 860px) {
+  .sidebar { position: relative; width: 100%; max-width: 100%; max-height: none; border-right: none; border-bottom: 1px solid var(--border); }
+  .layout { flex-direction: column; }
+}

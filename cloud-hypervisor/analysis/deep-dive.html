@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cloud Hypervisor 深入探索文档</title>
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar">
+    <div class="brand">Micro-VM 分析 Wiki</div>
+    <input id="search" type="search" placeholder="搜索文档…" autocomplete="off">
+    <nav class="nav">
+      <li><a href="../../index.html">🏠 首页</a></li>
+<details class="nav-group" open><summary>综合学习层</summary><ul><li><a href="../../analysis/vm-design-landscape-overview.html">轻量化虚拟机设计全景与学习路线</a></li><li><a href="../../analysis/performance-design-basis-cross-project.html">性能设计依据跨项目专题分析</a></li><li><a href="../../analysis/security-design-basis-cross-project.html">安全设计依据跨项目专题分析</a></li><li><a href="../../analysis/analysis-improvement-recommendations.html">分析框架改进意见</a></li><li><a href="../../analysis/claude-code-research-workflow.html">Claude Code 协同研究工作流</a></li></ul></details>
+<details class="nav-group" open><summary>分析框架导航</summary><ul><li><a href="../../analysis/README.html">Analysis 导航入口</a></li><li><a href="../../analysis/four-project-deep-routes.html">Micro-VM 项目深入路线总览</a></li><li><a href="../../analysis/four-project-route-coverage-matrix.html">四项目深入路线完成度矩阵</a></li></ul></details>
+<details class="nav-group" open><summary>跨项目专题</summary><ul><li><a href="../../analysis/boot-control-plane-cross-project.html">启动路径与控制面跨项目专题分析</a></li><li><a href="../../analysis/snapshot-restore-cross-project.html">Snapshot / Restore / Clone 跨项目专题分析</a></li><li><a href="../../analysis/storage-rootfs-sharefs-cross-project.html">存储、rootfs 与共享文件系统跨项目专题分析</a></li><li><a href="../../analysis/virtio-data-path-cross-project.html">Virtio 传输与设备数据路径跨项目专题分析</a></li><li><a href="../../analysis/interrupt-event-notification-cross-project.html">中断与事件通知跨项目专题分析</a></li><li><a href="../../analysis/hypervisor-kvm-vcpu-cross-project.html">Hypervisor/KVM/vCPU 执行边界跨项目专题分析</a></li><li><a href="../../analysis/guest-memory-dma-iommu-cross-project.html">Guest Memory、DMA/IOMMU 与地址转换跨项目专题分析</a></li><li><a href="../../analysis/device-model-isolation-cross-project.html">设备模型与隔离边界跨项目专题分析</a></li><li><a href="../../analysis/runtime-control-hotplug-cross-project.html">运行期控制面与热插拔跨项目专题分析</a></li><li><a href="../../analysis/network-connectivity-cross-project.html">网络与连接模型跨项目专题分析</a></li><li><a href="../../analysis/guest-agent-runtime-cross-project.html">Guest Agent 与 Runtime 语义跨项目专题分析</a></li><li><a href="../../analysis/security-isolation-cross-project.html">安全隔离边界跨项目专题分析</a></li><li><a href="../../analysis/resource-qos-cross-project.html">资源管理与 QoS 跨项目专题分析</a></li><li><a href="../../analysis/observability-diagnostics-cross-project.html">可观测性与故障诊断跨项目专题分析</a></li><li><a href="../../analysis/cpu-interrupt-machine-cross-project.html">CPU、中断控制器与机器描述跨项目专题分析</a></li><li><a href="../../analysis/arm64-x86-cross-project-matrix.html">ARM64 与 x86_64 跨项目架构差异专题分析</a></li></ul></details>
+<details class="nav-group" open><summary>项目交叉线</summary><ul><li><a href="../../analysis/ch-cubesandbox-backend-notifier-restore-crossline.html">Cloud Hypervisor 与 CubeSandbox：Backend / Notifier / Restore 交叉线</a></li><li><a href="../../analysis/ch-cubesandbox-restore-guest-unavailability-checklist.html">Cloud Hypervisor 与 CubeSandbox：Restore 后 Guest 不可用验证清单</a></li><li><a href="../../analysis/fc-kata-storage-semantics-crossline.html">Firecracker 与 Kata：Rootfs / Backing / Guest-Visible Storage 交叉线</a></li></ul></details>
+<details class="nav-group" open><summary>ARM64 网络线</summary><ul><li><a href="../../analysis/arm64-network-document-index.html">ARM64 网络文档索引</a></li><li><a href="../../analysis/arm64-network-sample-coverage-matrix.html">ARM64 网络准样本覆盖矩阵</a></li><li><a href="../../analysis/arm64-network-next-target-map.html">ARM64 网络下一批真实样本目标图</a></li><li><a href="../../analysis/arm64-network-sample-collection-runbook.html">ARM64 网络样本采集 Runbook</a></li><li><a href="../../analysis/arm64-network-validation-observation-matrix.html">ARM64 网络验证与观测总表</a></li><li><a href="../../analysis/arm64-network-failure-signature-matrix.html">ARM64 网络失败签名总表</a></li><li><a href="../../analysis/arm64-network-evidence-maturity-matrix.html">ARM64 网络样本成熟度矩阵</a></li><li><a href="../../analysis/arm64-network-test-observation-command-matrix.html">ARM64 网络测试与取证命令总表</a></li><li><a href="../../analysis/arm64-network-next-sample-priority.html">ARM64 网络下一批样本优先级</a></li></ul></details>
+<details class="nav-group" open><summary>非网络样本与证据</summary><ul><li><a href="../../analysis/arm64-non-network-risk-map.html">ARM64 非网络风险图</a></li><li><a href="../../analysis/non-network-sample-asset-matrix.html">非网络横线样本资产矩阵</a></li><li><a href="../../analysis/non-network-next-target-map.html">非网络下一批真实样本目标图</a></li><li><a href="../../analysis/non-network-evidence-bundle-template.html">非网络证据包记录模板</a></li><li><a href="../../analysis/non-network-sample-collection-runbook.html">非网络样本采集 Runbook</a></li><li><a href="../../analysis/non-network-evidence-gaps.html">非网络当前证据缺口总表</a></li></ul></details>
+<details class="nav-group"><summary>历史 / 暂缓参考</summary><ul><li><a href="../../analysis/coco-pvm-protected-vm-cross-project.html">CoCo / pVM / 受保护 VM 跨项目专题分析</a></li><li><a href="../../analysis/protected-vm-snapshot-migration-cross-project.html">Protected VM 与 snapshot/migration 跨项目专题分析</a></li></ul></details>
+<details class="nav-group"><summary>其他顶层文档</summary><ul><li><a href="../../analysis/snapshot-device-save-restore-deep-dive.html">Snapshot 设备状态保存与恢复专题</a></li><li><a href="../../analysis/snapshot-memory-save-restore-deep-dive.html">Snapshot 内存保存与恢复专题</a></li><li><a href="../../analysis/snapshot-restore-kernel-deep-dive.html">Snapshot / Restore 底层内核技术深度解读</a></li></ul></details>
+<details class="nav-group"><summary>Firecracker (32)</summary><ul><li><a href="../../firecracker/analysis/deep-routes.html">Firecracker 深入路线展开</a></li><li><a href="../../firecracker/analysis/deep-dive.html">Firecracker 深入探索文档</a></li><li><a href="../../firecracker/analysis/api-event-loop-thread-chain.html">Firecracker API Event Loop 与线程协作链路</a></li><li><a href="../../firecracker/analysis/api-start-boot-chain.html">Firecracker API 到 MicroVM 启动链路</a></li><li><a href="../../firecracker/analysis/arch-arm64-x86-chain.html">Firecracker ARM64 与 x86_64 架构差异链路</a></li><li><a href="../../firecracker/analysis/arm64-network-capability-matrix.html">Firecracker ARM64 网络能力边界矩阵</a></li><li><a href="../../firecracker/analysis/arm64-network-failure-prototypes.html">Firecracker ARM64 网络失败原型</a></li><li><a href="../../firecracker/analysis/arm64-network-observation-guide.html">Firecracker ARM64 网络观测指南</a></li><li><a href="../../firecracker/analysis/arm64-network-sample-guest-visibility.html">Firecracker ARM64 网络准样本：Guest Visibility / Interrupt Visibility</a></li><li><a href="../../firecracker/analysis/arm64-network-sample-mmds-throttle.html">Firecracker ARM64 网络准样本：MMDS / Rate Limiter 伪失败</a></li><li><a href="../../firecracker/analysis/arm64-network-sample-restore-regression.html">Firecracker ARM64 网络准样本：Restore 后网络异常</a></li><li><a href="../../firecracker/analysis/arm64-network-sample-tap-backend.html">Firecracker ARM64 网络准样本：TAP / vnet header 早失败</a></li><li><a href="../../firecracker/analysis/balloon-virtio-mem-guest-chain.html">Firecracker Balloon 与 Virtio-mem Guest 协作链路</a></li><li><a href="../../firecracker/analysis/build-microvm-boot-chain.html">Firecracker build_microvm_for_boot 构建链路</a></li><li><a href="../../firecracker/analysis/device-capability-boundary-chain.html">Firecracker 设备能力边界链路</a></li><li><a href="../../firecracker/analysis/device-manager-id-transport-chain.html">Firecracker DeviceManager ID 与 Transport 组件链路</a></li><li><a href="../../firecracker/analysis/device-manager-virtio-transport-chain.html">Firecracker DeviceManager / Virtio Transport 链路</a></li><li><a href="../../firecracker/analysis/interrupt-event-notification-chain.html">Firecracker 中断与事件通知链路</a></li><li><a href="../../firecracker/analysis/isolation-seccomp-jailer-chain.html">Firecracker 隔离机制链路</a></li><li><a href="../../firecracker/analysis/machine-description-acpi-fdt-chain.html">Firecracker 机器描述：x86_64 ACPI 与 ARM64 FDT 链路</a></li><li><a href="../../firecracker/analysis/memory-device-snapshot-chain.html">Firecracker Balloon / Virtio-mem Snapshot 状态链路</a></li><li><a href="../../firecracker/analysis/mmds-metadata-network-chain.html">Firecracker MMDS 元数据网络链路</a></li><li><a href="../../firecracker/analysis/observability-diagnostics-chain.html">Firecracker 可观测性与诊断链路</a></li><li><a href="../../firecracker/analysis/runtime-device-update-chain.html">Firecracker Runtime 设备更新链路</a></li><li><a href="../../firecracker/analysis/snapshot-restore-chain.html">Firecracker Snapshot / Restore 链路</a></li><li><a href="../../firecracker/analysis/storage-rootfs-sharefs-boundary-chain.html">Firecracker 存储 / rootfs / share-fs 边界链路</a></li><li><a href="../../firecracker/analysis/uffd-memory-restore-chain.html">Firecracker UFFD / Memory Restore 边界链路</a></li><li><a href="../../firecracker/analysis/vcpu-kvm-run-chain.html">Firecracker vCPU / KVM_RUN 链路</a></li><li><a href="../../firecracker/analysis/virtio-block-data-path-chain.html">Firecracker Virtio Block 数据面链路</a></li><li><a href="../../firecracker/analysis/virtio-device-work-chain.html">Firecracker Virtio 设备工作机制链路</a></li><li><a href="../../firecracker/analysis/virtio-net-data-path-chain.html">Firecracker Virtio Net 数据面链路</a></li><li><a href="../../firecracker/analysis/vmresources-config-boundary-chain.html">Firecracker VmResources 配置聚合与能力边界链路</a></li></ul></details>
+<details class="nav-group"><summary>Cloud Hypervisor (37)</summary><ul><li><a href="../../cloud-hypervisor/analysis/deep-routes.html">Cloud Hypervisor 深入路线展开</a></li><li><a href="../../cloud-hypervisor/analysis/deep-dive.html">Cloud Hypervisor 深入探索文档</a></li><li><a href="../../cloud-hypervisor/analysis/02-Cloud-Hypervisor-架构分析报告.html">Cloud Hypervisor 微虚拟机架构深度分析报告</a></li><li><a href="../../cloud-hypervisor/analysis/acpi-fdt-machine-description-chain.html">Cloud Hypervisor ACPI / FDT 机器描述生成链路</a></li><li><a href="../../cloud-hypervisor/analysis/api-vmm-thread-control-chain.html">Cloud Hypervisor API / VMM Thread 控制面链路</a></li><li><a href="../../cloud-hypervisor/analysis/arch-arm64-x86-chain.html">Cloud Hypervisor ARM64 与 x86_64 架构差异链路</a></li><li><a href="../../cloud-hypervisor/analysis/arm64-network-capability-matrix.html">Cloud Hypervisor ARM64 网络能力边界矩阵</a></li><li><a href="../../cloud-hypervisor/analysis/arm64-network-failure-prototypes.html">Cloud Hypervisor ARM64 网络失败原型</a></li><li><a href="../../cloud-hypervisor/analysis/arm64-network-observation-guide.html">Cloud Hypervisor ARM64 网络观测指南</a></li><li><a href="../../cloud-hypervisor/analysis/arm64-network-sample-host-backend-pseudo-failures.html">Cloud Hypervisor ARM64 网络准样本：Host Backend 伪失败</a></li><li><a href="../../cloud-hypervisor/analysis/arm64-network-sample-hotplug-failure.html">Cloud Hypervisor ARM64 网络准样本：Runtime `add-net` / Hotplug 失败</a></li><li><a href="../../cloud-hypervisor/analysis/arm64-network-sample-multi-if.html">Cloud Hypervisor ARM64 网络准样本：多网卡</a></li><li><a href="../../cloud-hypervisor/analysis/arm64-network-sample-pci-msi.html">Cloud Hypervisor ARM64 网络准样本：PCI MSI</a></li><li><a href="../../cloud-hypervisor/analysis/arm64-network-sample-restore-regression.html">Cloud Hypervisor ARM64 网络准样本：Restore 后网络异常</a></li><li><a href="../../cloud-hypervisor/analysis/arm64-network-sample-seed.html">Cloud Hypervisor ARM64 网络样本种子</a></li><li><a href="../../cloud-hypervisor/analysis/arm64-network-test-scenarios.html">Cloud Hypervisor ARM64 网络测试场景</a></li><li><a href="../../cloud-hypervisor/analysis/coco-tdx-sev-snp-chain.html">Cloud Hypervisor CoCo：TDX 与 SEV-SNP 函数级链路</a></li><li><a href="../../cloud-hypervisor/analysis/cpu-boot-chain.html">Cloud Hypervisor CPU 启动链路函数级分析</a></li><li><a href="../../cloud-hypervisor/analysis/cpu-runtime-hotplug-migration-chain.html">Cloud Hypervisor CPU 运行期控制与迁移状态链路</a></li><li><a href="../../cloud-hypervisor/analysis/device-creation-matrix-chain.html">Cloud Hypervisor 设备创建矩阵链路</a></li><li><a href="../../cloud-hypervisor/analysis/device-manager-chain.html">Cloud Hypervisor DeviceManager 设备链路函数级分析</a></li><li><a href="../../cloud-hypervisor/analysis/device-tree-hotplug-restore-chain.html">Cloud Hypervisor DeviceTree / 热插拔 / Restore 链路</a></li><li><a href="../../cloud-hypervisor/analysis/interrupt-event-notification-chain.html">Cloud Hypervisor 中断与事件通知链路</a></li><li><a href="../../cloud-hypervisor/analysis/io-device-data-path-chain.html">Cloud Hypervisor I/O 设备数据面链路</a></li><li><a href="../../cloud-hypervisor/analysis/isolation-seccomp-landlock-chain.html">Cloud Hypervisor 隔离机制函数级链路（seccomp + Landlock）</a></li><li><a href="../../cloud-hypervisor/analysis/memory-address-hotplug-topology-chain.html">Cloud Hypervisor Memory Address / Hotplug Topology 链路</a></li><li><a href="../../cloud-hypervisor/analysis/memory-manager-chain.html">Cloud Hypervisor MemoryManager 内存链路函数级分析</a></li><li><a href="../../cloud-hypervisor/analysis/migration-memory-transport-chain.html">Cloud Hypervisor Migration Memory Transport 链路</a></li><li><a href="../../cloud-hypervisor/analysis/observability-diagnostics-chain.html">Cloud Hypervisor 可观测性与诊断链路</a></li><li><a href="../../cloud-hypervisor/analysis/runtime-control-hotplug-chain.html">Cloud Hypervisor 运行期控制与热插拔链路</a></li><li><a href="../../cloud-hypervisor/analysis/sev-snp-igvm-vmsa-chain.html">Cloud Hypervisor SEV-SNP IGVM / VMSA / isolated page 链路</a></li><li><a href="../../cloud-hypervisor/analysis/storage-rootfs-sharefs-boundary-chain.html">Cloud Hypervisor 存储 / rootfs / share-fs 边界链路</a></li><li><a href="../../cloud-hypervisor/analysis/tdx-lifecycle-limit-chain.html">Cloud Hypervisor TDX lifecycle 限制链路</a></li><li><a href="../../cloud-hypervisor/analysis/tdx-tdvf-hob-chain.html">Cloud Hypervisor TDX TDVF / HOB 启动链路</a></li><li><a href="../../cloud-hypervisor/analysis/tdx-vcpu-exit-vmcall-chain.html">Cloud Hypervisor TDX vCPU exit / VMCALL 边界链路</a></li><li><a href="../../cloud-hypervisor/analysis/vfio-vfio-user-iommu-migration-chain.html">Cloud Hypervisor VFIO / vfio-user / IOMMU / Migration 能力矩阵链路</a></li><li><a href="../../cloud-hypervisor/analysis/vm-create-boot-chain.html">Cloud Hypervisor VM Create / Boot 构建链路</a></li></ul></details>
+<details class="nav-group"><summary>Kata Containers (29)</summary><ul><li><a href="../../kata-containers/analysis/deep-routes.html">Kata Containers 深入路线展开</a></li><li><a href="../../kata-containers/analysis/deep-dive.html">Kata Containers 深入探索文档</a></li><li><a href="../../kata-containers/analysis/agent-container-lifecycle-chain.html">Kata Agent Container 生命周期链路</a></li><li><a href="../../kata-containers/analysis/agent-rpc-boundary-chain.html">Kata agent RPC 边界链路</a></li><li><a href="../../kata-containers/analysis/arch-arm64-x86-chain.html">Kata Containers ARM64 与 x86_64 架构支持链路</a></li><li><a href="../../kata-containers/analysis/arm64-feature-test-coverage-chain.html">Kata ARM64 功能与测试覆盖边界链路</a></li><li><a href="../../kata-containers/analysis/arm64-network-capability-matrix.html">Kata Containers ARM64 网络能力边界矩阵</a></li><li><a href="../../kata-containers/analysis/arm64-network-failure-prototypes.html">Kata Containers ARM64 网络失败原型</a></li><li><a href="../../kata-containers/analysis/arm64-network-observation-guide.html">Kata Containers ARM64 网络观测指南</a></li><li><a href="../../kata-containers/analysis/arm64-network-sample-agent-discovery.html">Kata Containers ARM64 网络准样本：Guest Agent 设备发现失败</a></li><li><a href="../../kata-containers/analysis/arm64-network-sample-backend-diff.html">Kata Containers ARM64 网络准样本：Backend 差异失败</a></li><li><a href="../../kata-containers/analysis/arm64-network-sample-machine-iommu.html">Kata Containers ARM64 网络准样本：Machine / vIOMMU 早失败</a></li><li><a href="../../kata-containers/analysis/arm64-network-sample-route-convergence.html">Kata Containers ARM64 网络准样本：Route Convergence 失败</a></li><li><a href="../../kata-containers/analysis/configuration-hypervisor-capability-chain.html">Kata configuration 到 Hypervisor capability 链路</a></li><li><a href="../../kata-containers/analysis/cpu-scheduling-boundary-chain.html">Kata Containers CPU / 调度边界链路</a></li><li><a href="../../kata-containers/analysis/guest-agent-create-container-chain.html">Kata guest agent CreateContainer 落地链路</a></li><li><a href="../../kata-containers/analysis/hypervisor-plugin-lifecycle-chain.html">Kata runtime-rs Hypervisor Plugin 生命周期链路</a></li><li><a href="../../kata-containers/analysis/interrupt-event-notification-chain.html">Kata Containers 中断与事件通知委托链路</a></li><li><a href="../../kata-containers/analysis/network-endpoint-agent-chain.html">Kata Containers 网络 Endpoint 到 Agent 链路</a></li><li><a href="../../kata-containers/analysis/observability-diagnostics-chain.html">Kata Containers 可观测性与诊断机制函数级链路</a></li><li><a href="../../kata-containers/analysis/qemu-launch-params-chain.html">Kata Containers QEMU 启动参数构造链路</a></li><li><a href="../../kata-containers/analysis/runtime-control-agent-hotplug-chain.html">Kata Containers 运行期控制、Agent RPC 与设备更新链路</a></li><li><a href="../../kata-containers/analysis/runtime-rs-manager-request-chain.html">Kata runtime-rs Manager 请求分发链路</a></li><li><a href="../../kata-containers/analysis/runtime-rs-resource-device-agent-chain.html">Kata runtime-rs ResourceManager 资源设备链路</a></li><li><a href="../../kata-containers/analysis/sharefs-rootfs-volume-agent-chain.html">Share-fs / Rootfs / Volume 到 Agent 链路</a></li><li><a href="../../kata-containers/analysis/shim-exit-event-recovery-chain.html">Kata shim v2 Exit / Event / Recovery 链路</a></li><li><a href="../../kata-containers/analysis/shim-sandbox-lifecycle-chain.html">Kata Containers shim v2 到 sandbox/container 生命周期链路</a></li><li><a href="../../kata-containers/analysis/snapshot-restore-persist-chain.html">Kata Containers Snapshot / Restore / Persist 链路</a></li><li><a href="../../kata-containers/analysis/storage-device-agent-chain.html">Kata Containers storage/device 到 agent RPC 链路</a></li></ul></details>
+<details class="nav-group"><summary>crosvm (16)</summary><ul><li><a href="../../crosvm/analysis/deep-routes.html">crosvm 深入路线展开</a></li><li><a href="../../crosvm/analysis/deep-dive.html">crosvm 深入探索文档</a></li><li><a href="../../crosvm/analysis/arch-arm64-x86-chain.html">crosvm ARM64 与 x86_64 架构差异链路</a></li><li><a href="../../crosvm/analysis/boot-control-chain.html">crosvm 启动与控制循环函数级分析</a></li><li><a href="../../crosvm/analysis/create-devices-matrix-chain.html">crosvm create_devices 设备矩阵与隔离链路</a></li><li><a href="../../crosvm/analysis/device-isolation-chain.html">crosvm 设备模型与隔离链路函数级分析</a></li><li><a href="../../crosvm/analysis/protected-vm-block-net-fs-data-path-chain.html">crosvm protected VM block/net/fs 数据路径链路</a></li><li><a href="../../crosvm/analysis/protected-vm-device-boundary-chain.html">crosvm protected VM 设备边界与 virtio feature 链路</a></li><li><a href="../../crosvm/analysis/protected-vm-hypervisor-backend-chain.html">crosvm protected VM hypervisor backend 分流链路</a></li><li><a href="../../crosvm/analysis/protected-vm-iommu-vfio-memory-mapper-chain.html">crosvm protected VM IOMMU / VFIO / MemoryMapper 链路</a></li><li><a href="../../crosvm/analysis/protected-vm-pvm-chain.html">crosvm protected VM / pVM firmware 函数级链路</a></li><li><a href="../../crosvm/analysis/protected-vm-snapshot-restore-boundary-chain.html">crosvm protected VM snapshot / restore 边界链路</a></li><li><a href="../../crosvm/analysis/protected-vm-vhost-user-memory-iotlb-chain.html">crosvm protected VM vhost-user memory / IOTLB 链路</a></li><li><a href="../../crosvm/analysis/runtime-control-tube-chain.html">crosvm 运行期控制与 Tube 分发链路</a></li><li><a href="../../crosvm/analysis/snapshot-suspend-chain.html">crosvm Snapshot 与 Suspend 函数级分析</a></li><li><a href="../../crosvm/analysis/virtio-queue-worker-chain.html">crosvm virtio Queue 与 Worker 链路函数级分析</a></li></ul></details>
+<details class="nav-group"><summary>CubeSandbox (48)</summary><ul><li><a href="../../CubeSandbox-sandbox-clone/analysis/deep-routes.html">CubeSandbox 深入路线展开</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/deep-dive.html">CubeSandbox-sandbox-clone 深入探索文档</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/api-master-cubelet-create-chain.html">CubeSandbox API 到 Cubelet 创建链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/arch-arm64-x86-chain.html">CubeSandbox ARM64 与 x86_64 架构差异链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/arm64-log-collection-gap.html">CubeSandbox ARM64 日志采集缺口与补齐路径</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/arm64-log-source-map.html">CubeSandbox ARM64 日志源映射</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/arm64-network-evidence-sample.html">CubeSandbox ARM64 网络实测样本记录</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/arm64-network-evidence-template.html">CubeSandbox ARM64 网络实测取证模板</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/arm64-network-failure-prototypes.html">CubeSandbox ARM64 网络失败原型</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/arm64-network-observation-guide.html">CubeSandbox ARM64 网络观测与取证指南</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/arm64-network-validation-matrix.html">CubeSandbox ARM64 网络验证矩阵</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/cpu-vcpu-resource-boundary-chain.html">CubeSandbox CPU / vCPU 资源边界链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/cubeapi-long-operation-contract-chain.html">CubeAPI Long Operation Contract 链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/cubebox-action-containerd-chain.html">Cubebox Action 到 Containerd / CubeShim 链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/cubecow-storage-engine-chain.html">CubeCoW 存储引擎链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/cubehypervisor-api-request-chain.html">CubeHypervisor API Request 内部调度链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/cubelet-workflow-create-chain.html">Cubelet Workflow Create 编排链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/cubemaster-cache-consistency-boundary-chain.html">CubeMaster 缓存一致性边界链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/cubemaster-scheduler-task-chain.html">CubeMaster Scheduler 与 Task Retry 链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/cubemaster-snapshot-job-contract-chain.html">CubeMaster Snapshot Job Contract 链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/cubesandbox-redis-hugepages-report-20260627.html">CubeSandbox Redis Benchmark 静态大页/zram 对比报告</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/cubesandbox-unixbench-hugepages-report-20260626.html">CubeSandbox UnixBench 静态大页影响测试报告</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/cubesandbox_unixbench_hugepages_runbook.html">CubeSandbox UnixBench HugePages Runbook</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/cubeshim-container-agent-lifecycle-chain.html">CubeShim Container 到 Guest Agent 生命周期链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/cubeshim-sandbox-hypervisor-chain.html">CubeShim sandbox 与 CubeHypervisor 创建链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/cubevs-ebpf-data-plane-chain.html">CubeVS eBPF 数据面链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/guest-agent-network-config-chain.html">Guest Agent 网络配置链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/interrupt-event-notification-chain.html">CubeSandbox 中断与事件通知链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/interrupt-state-restore-chain.html">CubeSandbox 中断状态恢复链路（snapshot → restore → route re-enable）</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/network-agent-ensure-network-chain.html">Network-Agent EnsureNetwork 链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/network-data-plane-interrupt-wakeup-chain.html">CubeSandbox 网络数据面与中断唤醒链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/observability-diagnostics-chain.html">CubeSandbox 可观测性与诊断机制链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/rollback-runtime-update-chain.html">CubeSandbox Rollback / Runtime Update 链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/runtime-control-vmm-update-chain.html">CubeSandbox 运行期控制与 VMM 更新链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/sandbox-ready-lifecycle-chain.html">CubeSandbox Sandbox Ready 生命周期链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/snapshot-catalog-restore-binding-chain.html">Snapshot Catalog / Restore Binding 链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/snapshot-create-commit-chain.html">Snapshot Create / Commit 生成链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/snapshot-replica-reconciler-chain.html">Snapshot Replica Reconciler 链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/snapshot-restore-network-chain.html">Snapshot Restore 网络恢复链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/snapshot-template-storage-format-chain.html">CubeSandbox Snapshot 与 Template 存储、格式、恢复链路专题</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/tap-fd-networkinfo-chain.html">TAP FD 与 NetworkInfo 闭环</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/tap-fd-unavailable-case-study.html">CubeSandbox ARM64 `tap fd unavailable` 故障案例分析</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/template-build-from-oci-chain.html">CubeSandbox Template 构建链路：从 OCI 镜像到 Template</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/template-restore-msix-chain.html">基于 Template 启动到 RestoreVm 与 MSI-X Restore 的链路分析</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/virtio-interrupt-injection-trace.html">CubeSandbox Virtio 中断注入函数级链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/virtio-net-fs-restore-chain.html">CubeSandbox Virtio Net / Fs Restore 内部状态链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/vmm-device-restore-chain.html">CubeSandbox VMM Device Restore 设备恢复链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/vmm-snapshot-restore-state-chain.html">CubeSandbox VMM Snapshot Restore 状态恢复链路</a></li></ul></details>
+<details class="nav-group"><summary>sandbox-bench 文档</summary><ul><li><a href="../../sandbox-bench/docs/context-switch-cost-experiment.zh.html">Context Switch 内核切换开销观测设计与实现方案</a></li><li><a href="../../sandbox-bench/docs/context-switch-finish-stage-analysis.zh.html">context_switch finish 阶段流程分析</a></li><li><a href="../../sandbox-bench/docs/devkit-collector-notes.html">DevKit Collector Notes</a></li><li><a href="../../sandbox-bench/docs/e2b-firecracker-reference.zh.html">E2B Firecracker 使用方案参考</a></li><li><a href="../../sandbox-bench/docs/e2b-openeuler-guest-kernel-redeploy-notes.zh.html">E2B openEuler Guest Kernel 重新部署记录</a></li><li><a href="../../sandbox-bench/docs/e2b-sandbox-internal-perf-flamegraph.zh.html">E2B Sandbox 内部 perf 火焰图采集流程</a></li><li><a href="../../sandbox-bench/docs/e2b-tbench-profile-workflow.zh.html">E2B tbench Profile 时延指标采集流程</a></li><li><a href="../../sandbox-bench/docs/firecracker-startup-modes.html">Firecracker Startup Modes</a></li><li><a href="../../sandbox-bench/docs/firecracker-startup-modes.zh.html">Firecracker 启动模式说明</a></li><li><a href="../../sandbox-bench/docs/high-density-firecracker-notes.html">High-density Firecracker Notes</a></li><li><a href="../../sandbox-bench/docs/high-density-test-protocol.zh.html">高密度 MicroVM 单节点实验协议</a></li><li><a href="../../sandbox-bench/docs/hypervisor-download-install.html">Firecracker And Cloud Hypervisor Download And Install</a></li><li><a href="../../sandbox-bench/docs/hypervisor-download-install.zh.html">Firecracker 和 Cloud Hypervisor 下载与安装</a></li><li><a href="../../sandbox-bench/docs/json-parse-microvm-image-summary.html">Json-parse MicroVM Image Build Summary</a></li><li><a href="../../sandbox-bench/docs/metrics-reference.zh.html">SBench Prometheus 指标参考</a></li><li><a href="../../sandbox-bench/docs/microvm-image-build.html">MicroVM Image Build Notes</a></li><li><a href="../../sandbox-bench/docs/prometheus-grafana.html">Prometheus and Grafana</a></li><li><a href="../../sandbox-bench/docs/quickstart.html">Quickstart</a></li><li><a href="../../sandbox-bench/docs/standalone-collector.zh.html">独立采集模式（Standalone Collector）</a></li><li><a href="../../sandbox-bench/docs/user-guide.zh.html">SBench 用户指南</a></li><li><a href="../../sandbox-bench/docs/v1-baseline-spec.html">Sandbox Bench V1 Baseline Specification</a></li><li><a href="../../sandbox-bench/docs/v1-minimal-schema.html">V1 Minimal Schema</a></li></ul></details>
+<details class="nav-group"><summary>样本资产</summary><ul><li><a href="../../analysis/samples/INDEX.html">样本目录索引</a></li><li><a href="../../analysis/samples/README.html">样本资产目录</a></li><li><a href="../../analysis/samples/ch-arm64-network-hotplug-failure-template/SUMMARY.html">Cloud Hypervisor ARM64 Hotplug 样本模板</a></li><li><a href="../../analysis/samples/ch-arm64-network-hotplug-seed-20260618/SUMMARY.html">Cloud Hypervisor ARM64 `add-net` / Hotplug 样本种子</a></li><li><a href="../../analysis/samples/ch-arm64-network-restore-seed-20260618/SUMMARY.html">Cloud Hypervisor ARM64 Restore 样本种子</a></li><li><a href="../../analysis/samples/ch-backend-notifier-restore-baseline-real-20260622/SUMMARY.html">Cloud Hypervisor Backend / Notifier / Restore Baseline Record</a></li><li><a href="../../analysis/samples/ch-backend-notifier-restore-checklist-seed-20260622/SUMMARY.html">Cloud Hypervisor Backend / Notifier / Restore Checklist Seed</a></li><li><a href="../../analysis/samples/cubesandbox-arm64-network-midlogs-template/SUMMARY.html">CubeSandbox ARM64 中间层日志样本模板</a></li><li><a href="../../analysis/samples/cubesandbox-arm64-network-tap-fd-unavailable-20260613/SUMMARY.html">CubeSandbox ARM64 `tap fd unavailable` 样本记录</a></li><li><a href="../../analysis/samples/cubesandbox-dev-shm-capacity-real-20260613/SUMMARY.html">CubeSandbox `/dev/shm` 容量不足样本记录</a></li><li><a href="../../analysis/samples/cubesandbox-guest-visible-restore-baseline-real-20260622/SUMMARY.html">CubeSandbox Guest-Visible Restore Baseline Record</a></li><li><a href="../../analysis/samples/cubesandbox-guest-visible-restore-checklist-seed-20260622/SUMMARY.html">CubeSandbox Guest-Visible Restore Checklist Seed</a></li><li><a href="../../analysis/samples/cubesandbox-no-more-resource-real-20260613/SUMMARY.html">CubeSandbox `no more resource` 样本记录</a></li><li><a href="../../analysis/samples/cubesandbox-rollback-sandbox-not-running-real-20260622/SUMMARY.html">CubeSandbox Rollback `sandbox is not running` 样本记录</a></li><li><a href="../../analysis/samples/fc-arm64-network-guest-visibility-seed-20260618/SUMMARY.html">Firecracker ARM64 Guest Visibility 样本种子</a></li><li><a href="../../analysis/samples/fc-arm64-network-guest-visibility-template/SUMMARY.html">Firecracker ARM64 Guest Visibility 样本模板</a></li><li><a href="../../analysis/samples/fc-arm64-network-restore-seed-20260618/SUMMARY.html">Firecracker ARM64 Restore 样本种子</a></li><li><a href="../../analysis/samples/fc-rootfs-backing-restore-checklist-seed-20260622/SUMMARY.html">Firecracker Rootfs / Backing / Restore Checklist Seed</a></li><li><a href="../../analysis/samples/kata-arm64-network-backend-diff-ch-seed-20260618/SUMMARY.html">Kata ARM64 Backend Diff Cloud Hypervisor 样本种子</a></li><li><a href="../../analysis/samples/kata-arm64-network-backend-diff-dragonball-seed-20260618/SUMMARY.html">Kata ARM64 Backend Diff Dragonball 样本种子</a></li><li><a href="../../analysis/samples/kata-arm64-network-backend-diff-qemu-seed-20260618/SUMMARY.html">Kata ARM64 Backend Diff QEMU 样本种子</a></li><li><a href="../../analysis/samples/kata-arm64-network-backend-diff-seed-20260618/SUMMARY.html">Kata ARM64 Backend 差异样本种子</a></li><li><a href="../../analysis/samples/kata-arm64-network-backend-diff-template/SUMMARY.html">Kata ARM64 Backend 差异样本模板</a></li><li><a href="../../analysis/samples/kata-arm64-network-route-convergence-seed-20260618/SUMMARY.html">Kata ARM64 Route Convergence 样本种子</a></li><li><a href="../../analysis/samples/kata-storage-convergence-checklist-seed-20260622/SUMMARY.html">Kata Storage Convergence Checklist Seed</a></li></ul></details>
+<li><a href="../../Agent.html">Micro-VM Agent Instructions</a></li>
+    </nav>
+  </aside>
+  <main class="content">
+    <div class="topbar">
+      <button id="theme-toggle" title="切换暗色模式">🌙</button>
+      <a class="back-home" href="../../index.html">🏠 首页</a>
+    </div>
+    <article class="markdown-body">
+      <h1 id="cloud-hypervisor">Cloud Hypervisor 深入探索文档</h1>
+<p>本文档从当前仓库源码出发，建立对 Cloud Hypervisor 的系统性理解：它与 Firecracker/crosvm 的边界差异、VMM 控制面如何组织、设备和 snapshot/migration 如何扩展，以及 ARM64 与 x86_64 路径如何分叉。</p>
+<p>当前版本：第 2 版<br>
+源码基线：<code>cloud-hypervisor</code> 仓库，commit <code>ea0a0393b</code><br>
+阅读方式：先看定位和总架构，再沿 CLI/API -&gt; VMM thread -&gt; Vm -&gt; Cpu/Memory/DeviceManager -&gt; migration/snapshot 展开。</p>
+<h2 id="0">0. 问题地图</h2>
+<ol>
+<li>Cloud Hypervisor 是不是 microVM？它和 Firecracker 的定位差在哪里？</li>
+<li>进程入口、API thread、VMM thread、VM 对象之间如何传递控制？</li>
+<li><code>VmCreate</code>、<code>VmBoot</code>、<code>VmRestore</code>、<code>VmSnapshot</code> 如何进入 VMM 内部？</li>
+<li><code>DeviceManager</code> 为什么是理解 Cloud Hypervisor 的核心？</li>
+<li>它支持哪些热插拔设备，为什么比 Firecracker 的设备面更宽？</li>
+<li>snapshot/restore 和 live migration 保存的是哪些层级的状态？</li>
+<li>seccomp 与 Landlock 分别限制什么？</li>
+<li>ARM64 与 x86_64 在 boot、interrupt、memory layout、ACPI/FDT 上有什么差异？</li>
+<li>与 Firecracker、crosvm、Kata/CubeSandbox 的关系应如何理解？</li>
+</ol>
+<h2 id="1">1. 一句话定位</h2>
+<p>Cloud Hypervisor 是面向现代云工作负载的通用 Rust VMM。它运行在 KVM/MSHV 之上，避免 legacy 设备，强调 paravirtualized I/O、热插拔、迁移、VFIO/vDPA/vhost-user，以及 Rust VMM 生态复用。</p>
+<p>源码和文档依据：</p>
+<ul>
+<li>README 明确它是运行在 KVM/MSHV 之上的开源 VMM，面向 modern cloud workloads，不要求 legacy devices，并基于 Rust VMM crates：<code class="src-ref">README.md</code>。</li>
+<li>README 说明 Cloud Hypervisor 与 Firecracker/crosvm 的差异：它目标是 general purpose VMM for cloud workloads，不局限于 container/serverless 或 client workloads：<code class="src-ref">README.md</code>。</li>
+<li><code>arch/src/lib.rs</code> 顶层注释列出 supported platforms: x86_64、aarch64、riscv64：<code class="src-ref">arch/src/lib.rs</code>。</li>
+</ul>
+<h2 id="2">2. 能力边界</h2>
+<table>
+<thead>
+<tr>
+<th>能力</th>
+<th>Cloud Hypervisor 状态</th>
+<th>与 Firecracker 的差异</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>VM 生命周期</td>
+<td>CLI、HTTP API、DBus API、ch-remote</td>
+<td>Firecracker 更偏单 microVM API；Cloud Hypervisor 更偏长期可管理 VM</td>
+</tr>
+<tr>
+<td>设备模型</td>
+<td>virtio-pci、vhost-user、VFIO、vDPA、virtio-fs、pmem、vsock、memory hotplug</td>
+<td>设备面显著更宽</td>
+</tr>
+<tr>
+<td>热插拔</td>
+<td>CPU、VFIO、virtio-net/block/pmem/fs/vsock、memory resize</td>
+<td>Firecracker 热插拔能力更有限</td>
+</tr>
+<tr>
+<td>snapshot/restore</td>
+<td><code>vm_migration::Snapshot</code> 聚合 VM、CPU、Memory、DeviceManager、device state</td>
+<td>目标更贴近迁移/管理能力</td>
+</tr>
+<tr>
+<td>兼容性</td>
+<td>snapshot/restore 与 live migration 不保证跨版本兼容</td>
+<td>与 Firecracker 类似，都需要同版本/兼容状态边界</td>
+</tr>
+<tr>
+<td>隔离</td>
+<td>seccomp + Landlock + Rust 内存安全</td>
+<td>Firecracker 重点是 jailer/seccomp/cgroup/namespace</td>
+</tr>
+<tr>
+<td>架构</td>
+<td>x86_64、aarch64、riscv64 源码支持</td>
+<td>Firecracker 主要关注 x86_64/aarch64</td>
+</tr>
+</tbody>
+</table>
+<p>README 的 hotplug 小节列出 CPU、VFIO、<code>virtio-{net,block,pmem,fs,vsock}</code> 和 memory resizing：<code class="src-ref">README.md</code>。README 同时说明 snapshot/restore、live migration 不保证跨版本支持：<code class="src-ref">README.md</code>。</p>
+<h2 id="3">3. 顶层架构</h2>
+<div class="mermaid">flowchart TB
+    CLI["cloud-hypervisor CLI"] --> MAIN["cloud-hypervisor/src/main.rs"]
+    REMOTE["ch-remote / HTTP / DBus"] --> API["API endpoint layer"]
+    MAIN --> HV["hypervisor::new()\nKVM/MSHV"]
+    MAIN --> VMMT["start_vmm_thread"]
+    API --> REQ["ApiRequest closure"]
+    REQ --> VMM["Vmm"]
+    VMM --> VM["Vm"]
+    VM --> CPU["CpuManager"]
+    VM --> MEM["MemoryManager"]
+    VM --> DEV["DeviceManager"]
+    DEV --> PCI["virtio-pci transport"]
+    DEV --> VHOST["vhost-user / vDPA / VFIO"]
+    CPU --> VCPU["vCPU threads"]
+</div>
+<p>Cloud Hypervisor 的关键不是“一个 VM 对象”，而是 <code>Vmm</code> 作为控制中心，持有/创建 <code>Vm</code>，再由 <code>Vm</code> 组合 <code>CpuManager</code>、<code>MemoryManager</code>、<code>DeviceManager</code>。API 层把外部请求变成 <code>ApiRequest</code>，交给 VMM thread 串行处理。</p>
+<p>入口路径在 <code>cloud-hypervisor/src/main.rs</code> 中很集中：创建 API channel 和 <code>EventFd</code>，解析 seccomp/landlock，创建 hypervisor backend，启动 VMM thread，然后根据命令行发送 <code>VmCreate</code>/<code>VmBoot</code> 或 <code>VmRestore</code>：<code class="src-ref">cloud-hypervisor/src/main.rs</code>。</p>
+<h2 id="4">4. 启动与控制面流程</h2>
+<div class="mermaid">sequenceDiagram
+    participant CLI as main.rs
+    participant HV as hypervisor backend
+    participant VMM as VMM thread
+    participant API as ApiRequest
+    participant VM as Vm
+
+    CLI->>CLI: parse args / seccomp / landlock
+    CLI->>HV: hypervisor::new()
+    CLI->>VMM: start_vmm_thread(...)
+    alt direct boot
+        CLI->>API: VmCreate(vm_config)
+        API->>VMM: vmm.vm_create()
+        VMM->>VM: Vm::new(...)
+        CLI->>API: VmBoot
+        API->>VMM: vmm.vm_boot()
+    else restore
+        CLI->>API: VmRestore(restore_config)
+        API->>VMM: vmm.vm_restore()
+    end
+</div>
+<p><code>main.rs</code> 在有 kernel/firmware payload 时先构造 <code>VmConfig</code>，再发送 <code>VmCreate</code> 和 <code>VmBoot</code>；如果命令行传入 <code>--restore</code>，则发送 <code>VmRestore</code>：<code class="src-ref">cloud-hypervisor/src/main.rs</code>。</p>
+<p>API action 的实现模式是统一的。<code>VmRestore</code>、<code>VmSnapshot</code> 等类型实现 <code>ApiAction</code>，<code>request()</code> 返回一个闭包，这个闭包在 VMM thread 内调用 <code>vmm.vm_restore()</code> 或 <code>vmm.vm_snapshot()</code>，再把响应通过 channel 送回：<code class="src-ref">vmm/src/api/mod.rs</code>。</p>
+<h2 id="5-vmm-thread">5. VMM thread：控制面如何串行化</h2>
+<p>Cloud Hypervisor 的控制面有一个很关键的设计：外部 API 线程不直接操作 VM，而是把请求包装为 <code>ApiRequest</code> 闭包，通过 channel 和 <code>EventFd</code> 送入 VMM thread。真正修改 VM 状态的代码在 VMM thread 里执行。</p>
+<div class="mermaid">flowchart TB
+    API["HTTP/DBus/ch-remote/API action"] --> REQ["ApiRequest closure"]
+    REQ --> CH["api_sender/api_receiver"]
+    API --> EVT["api_event EventFd"]
+    EVT --> EPOLL["Vmm EpollContext"]
+    CH --> EPOLL
+    EPOLL --> VMM["Vmm::control_loop"]
+    VMM --> HANDLER["RequestHandler for Vmm"]
+    HANDLER --> VMCREATE["vm_create"]
+    HANDLER --> VMBOOT["vm_boot"]
+    HANDLER --> SNAP["vm_snapshot"]
+    HANDLER --> RESTORE["vm_restore"]
+</div>
+<p>源码依据：</p>
+<ul>
+<li><code>start_vmm_thread()</code> 创建名为 <code>vmm</code> 的线程，在线程内先应用 VMM thread 的 seccomp filter，然后构造 <code>Vmm::new()</code>，安装 signal handler，再进入 <code>vmm.control_loop()</code>：<code class="src-ref">vmm/src/lib.rs</code>。</li>
+<li>HTTP API 线程在 VMM thread 启动之后创建，持有 <code>api_event_clone</code> 和 <code>api_sender</code>，因此它的职责是发送请求，不是执行请求：<code class="src-ref">vmm/src/lib.rs</code>。</li>
+<li><code>Vmm::new()</code> 创建 <code>EpollContext</code>，把 exit/reset/activate/api/debug 等 event fd 注册到 epoll 中：<code class="src-ref">vmm/src/lib.rs</code>。</li>
+<li>控制循环收到 <code>EpollDispatch::Api</code> 后读取 <code>api_evt</code>，再从 channel 取出 <code>ApiRequest</code>，调用闭包 <code>api_request(self)</code>：<code class="src-ref">vmm/src/lib.rs</code>。</li>
+</ul>
+<p>这个模型解释了 Cloud Hypervisor 的并发边界：API thread 可以并发接收请求，但 VM 生命周期变更被收敛到 VMM thread 的 event loop 中。相比把每个请求直接打到共享对象上，这种模型更容易维持 VM 状态机的一致性。</p>
+<h2 id="6-vm_create-vm">6. <code>vm_create</code> 并不真正创建 VM</h2>
+<p>容易误解的一点是：API 名字叫 <code>VmCreate</code>，但 <code>Vmm::vm_create()</code> 只保存配置并预创建 console 相关设备，真正的 <code>Vm</code> 对象在 <code>vm_boot()</code> 中创建。</p>
+<div class="mermaid">sequenceDiagram
+    participant API as ApiRequest
+    participant VMM as Vmm
+    participant VM as Vm
+    participant CM as CpuManager
+    participant MM as MemoryManager
+    participant DM as DeviceManager
+
+    API->>VMM: vm_create(config)
+    VMM->>VMM: store vm_config
+    VMM->>VMM: pre_create_console_devices()
+    API->>VMM: vm_boot()
+    VMM->>VM: Vm::new(...)
+    VM->>MM: MemoryManager::new(...)
+    VM->>CM: CpuManager::new(...)
+    VM->>DM: DeviceManager::new(...)
+    VMM->>VM: vm.boot()
+</div>
+<p>源码依据：</p>
+<ul>
+<li><code>vm_create()</code> 在 <code>self.vm_config</code> 已存在时返回 <code>VmAlreadyCreated</code>，否则只把 <code>VmConfig</code> 存入 <code>self.vm_config</code>，随后调用 <code>pre_create_console_devices()</code>；如果启用 Landlock，则在配置上应用路径限制：<code class="src-ref">vmm/src/lib.rs</code>。</li>
+<li><code>vm_boot()</code> 才判断 <code>self.vm.is_none()</code>，并调用 <code>Vm::new(...)</code> 创建 VM 对象，然后调用 <code>vm.boot()</code>：<code class="src-ref">vmm/src/lib.rs</code>。</li>
+<li><code>vm_snapshot()</code> 要求 <code>self.vm</code> 存在；它先释放 console fd，再调用 <code>vm.snapshot()</code> 和 <code>vm.send()</code>：<code class="src-ref">vmm/src/lib.rs</code>。</li>
+<li><code>vm_restore()</code> 反过来要求当前不能已有 VM/config；它从 snapshot 目录读取 config，校验 restore config，然后走 <code>self.vm_restore(...)</code>，必要时再 <code>vm_resume()</code>：<code class="src-ref">vmm/src/lib.rs</code>。</li>
+</ul>
+<p>这个延迟创建策略的直接后果是：<code>VmCreate</code> 更像“提交 VM 配置”，<code>VmBoot</code> 才是资源分配和 hypervisor 对象创建的主入口。分析能力边界时应该以 <code>vm_boot()</code> 和 <code>Vm::new()</code> 为准，而不是只看 API 名字。</p>
+<h2 id="7-vmnew_from_memory_managervm">7. <code>Vm::new_from_memory_manager</code>：VM 组装主路径</h2>
+<p><code>Vm</code> 是 Cloud Hypervisor 内部的核心聚合对象。它持有 payload、thread handle、<code>DeviceManager</code>、<code>CpuManager</code>、<code>MemoryManager</code>、hypervisor VM handle、NUMA nodes 和当前 <code>VmState</code>：<code class="src-ref">vmm/src/vm.rs</code>。</p>
+<p><code>Vm::new_from_memory_manager()</code> 展示了 VM 创建的真实顺序：</p>
+<ol>
+<li>校验 <code>VmConfig</code>，建立 boot id list 和 NUMA node 信息。</li>
+<li>根据 IOMMU、TDX、restore 等条件决定动态能力和 <code>stop_on_boot</code>。</li>
+<li>创建 guest memory、I/O bus、MMIO bus、<code>VmOpsHandler</code>。</li>
+<li>创建 <code>CpuManager</code>。</li>
+<li>创建 <code>DeviceManager</code>。</li>
+<li>执行 hypervisor-specific 初始化。</li>
+<li>加载 kernel/initramfs 或在 restore 时恢复状态。</li>
+<li>初始化 <code>VmState</code>：普通新建为 <code>Created</code>，从 snapshot 恢复为 <code>Paused</code>。</li>
+</ol>
+<p>源码依据：</p>
+<ul>
+<li><code>Vm::new_from_memory_manager()</code> 的主线包含 config 校验、NUMA 创建、guest memory/bus 创建、CPU manager 创建、DeviceManager 创建和 payload 加载：<code class="src-ref">vmm/src/vm.rs</code>。</li>
+<li><code>create_device_manager()</code> 把 bus、hypervisor VM、config、memory manager、CPU manager、event fd、NUMA、activate event、snapshot 等全部传给 <code>DeviceManager::new()</code>：<code class="src-ref">vmm/src/vm.rs</code>。</li>
+<li><code>hypervisor_specific_init()</code> 处理 MSHV、SEV-SNP、TDX、地址空间分配、aarch64 UEFI flash、payload 异步加载、boot vCPU 创建和 KVM 初始化：<code class="src-ref">vmm/src/vm.rs</code>。</li>
+</ul>
+<p>可以把 <code>Vm</code> 理解为一个“依赖装配器”：它自身不直接实现所有虚拟化细节，而是按顺序装配 hypervisor VM、memory、CPU、device 三大 manager，再在 boot 阶段把它们推进到可运行状态。</p>
+<h2 id="8-boot-created-running">8. Boot 流程：从 Created 到 Running</h2>
+<p><code>Vm::boot()</code> 不是简单地启动 vCPU。它在真正运行 vCPU 前要完成磁盘锁、ACPI/FDT、payload entry point、vCPU 配置、平台系统配置、TDX finalize 等工作。</p>
+<div class="mermaid">flowchart TB
+    START["Vm::boot()"] --> LOCK["try_lock_disks()"]
+    LOCK --> STATE["Created -> Running/BreakPoint"]
+    STATE --> ACPIX["x86_64: create ACPI tables early"]
+    STATE --> ENTRY["entry_point() / wait payload load"]
+    ENTRY --> VCPUCFG["configure_vcpu() for each vCPU"]
+    VCPUCFG --> A64GIC["aarch64: set GIC redistributor addr"]
+    A64GIC --> A64ACPI["aarch64: create ACPI tables after MPIDR known"]
+    VCPUCFG --> SYS["configure_system()"]
+    SYS --> RESUME["hypervisor VM resume if Created"]
+    RESUME --> RUN["CpuManager::start_boot_vcpus()"]
+</div>
+<p>源码依据：</p>
+<ul>
+<li><code>Vm::boot()</code> 首先对磁盘做 advisory lock，然后计算新状态：普通运行是 <code>Running</code>，<code>stop_on_boot</code> 则进入 <code>BreakPoint</code>：<code class="src-ref">vmm/src/vm.rs</code>。</li>
+<li>x86_64 上 ACPI tables 可以在 vCPU configure 前创建；aarch64 上代码注释明确指出 ACPI 依赖 vCPU MPIDR，因此要在 vCPU configure 之后创建：<code class="src-ref">vmm/src/vm.rs</code> 和 <code class="src-ref">vmm/src/vm.rs</code>。</li>
+<li>每个 vCPU 都调用 <code>cpu_manager.configure_vcpu()</code>；aarch64 还会把 GIC redistributor 地址写入 vCPU：<code class="src-ref">vmm/src/vm.rs</code>。</li>
+<li>最后 <code>self.vm.resume()</code>，再调用 <code>cpu_manager.start_boot_vcpus()</code>，把 vCPU thread 跑起来：<code class="src-ref">vmm/src/vm.rs</code>。</li>
+</ul>
+<p>这说明 Cloud Hypervisor 的 boot 边界包含三类工作：guest 描述构造、vCPU 初始状态配置、hypervisor run loop 启动。只看 <code>start_boot_vcpus()</code> 会漏掉大部分平台初始化。</p>
+<h2 id="9-cpumanager-vcpu-run-loop">9. CpuManager 与 vCPU run loop</h2>
+<p><code>CpuManager</code> 管理的是 vCPU 生命周期，不只是“创建几个线程”。它保存 CPU 配置、interrupt controller、x86 CPUID、pause/kick/kill 原子变量、vCPU 状态、thread handle、NUMA affinity、dynamic hotplug 标记、hypervisor handle，以及 core scheduling leader 等：<code class="src-ref">vmm/src/cpu.rs</code>。</p>
+<p>关键路径：</p>
+<ol>
+<li><code>CpuManager::new()</code> 检查 <code>max_vcpus</code> 是否超过 hypervisor 能力，准备 vCPU 状态数组，x86_64 上读取 CPU vendor/CPUID 相关信息，处理 AMX/NUMA affinity/dynamic hotplug：<code class="src-ref">vmm/src/cpu.rs</code>。</li>
+<li><code>create_vcpu()</code> 调用 hypervisor VM 创建 vCPU。x86_64 使用 topology 计算 x2APIC id；aarch64/riscv64 直接用 cpu id，并在 snapshot restore 场景加载 vCPU 状态：<code class="src-ref">vmm/src/cpu.rs</code>。</li>
+<li><code>configure_vcpu()</code> 在 x86_64 上传入 CPUID、Hyper-V emulation、topology、nested virtualization 标志；在 aarch64 上调用 <code>vcpu.configure(self.vm.as_ref(), boot_setup)</code>：<code class="src-ref">vmm/src/cpu.rs</code>。</li>
+<li>vCPU thread 启动时应用 vCPU seccomp filter、设置 affinity/core scheduling，随后进入循环处理 pause/kick/kill，再调用 <code>vcpu.run()</code>：<code class="src-ref">vmm/src/cpu.rs</code> 和 <code class="src-ref">vmm/src/cpu.rs</code>。</li>
+<li>pause 时，CPU manager 通过原子变量和信号中断 <code>KVM_RUN</code>，并等待 active vCPU 都进入 paused 状态；snapshot 中 CPU manager 聚合所有 vCPU snapshot：<code class="src-ref">vmm/src/cpu.rs</code> 和 <code class="src-ref">vmm/src/cpu.rs</code>。</li>
+</ol>
+<p>vCPU thread 的 run loop 特别说明了迁移场景的严格性：当 pause 由 PIO/MMIO exit 触发时，代码会通过 <code>immediate_exit</code> 重新进入一次 <code>KVM_RUN</code>，确保内核完成未完成的 I/O/MMIO 操作，然后再认为 guest state 可迁移：<code class="src-ref">vmm/src/cpu.rs</code>。这是 snapshot/migration 正确性的关键细节。</p>
+<h2 id="10-memorymanagerguest-ramhotplug-dirty-log">10. MemoryManager：guest RAM、hotplug 与 dirty log</h2>
+<p><code>MemoryManager</code> 保存 guest memory 的全局视图：boot/current RAM、memory zones、hotplug slots、device area、arch memory regions、guest RAM mappings、userfaultfd handler、ACPI 地址，以及 aarch64/riscv64 UEFI flash 等：<code class="src-ref">vmm/src/memory_manager.rs</code>。</p>
+<div class="mermaid">flowchart LR
+    CFG["MemoryConfig"] --> MM["MemoryManager"]
+    MM --> ZONE["Memory zones"]
+    MM --> GM["GuestMemoryAtomic"]
+    MM --> MAP["guest_ram_mappings"]
+    MM --> HOT["hotplug slots"]
+    MM --> DIRTY["hypervisor dirty log + VMM bitmap"]
+    MM --> SNAP["MemoryManagerSnapshotData"]
+</div>
+<p>源码依据：</p>
+<ul>
+<li><code>MemoryManager::new()</code> 先校验 memory config。restore 场景走 <code>restore_memory_regions_and_zones()</code> 并从 snapshot data 恢复 device area、RAM 大小、slot、hotplug 等状态；非 restore 场景则按架构内存布局创建 memory regions：<code class="src-ref">vmm/src/memory_manager.rs</code>。</li>
+<li><code>memory_range_table(snapshot=true)</code> 遍历 memory zones 和 region。对于特定共享文件映射且可由用户文件保存的区域，会跳过内存内容复制：<code class="src-ref">vmm/src/memory_manager.rs</code>。</li>
+<li><code>snapshot_data()</code> 保存 memory ranges、guest RAM mappings、device area、boot/current RAM、arch memory regions、hotplug slots、memory slot 等恢复所需元数据：<code class="src-ref">vmm/src/memory_manager.rs</code>。</li>
+<li><code>Snapshottable for MemoryManager</code> 生成 snapshot memory range table 后，把 <code>MemoryManagerSnapshotData</code> 写入 snapshot：<code class="src-ref">vmm/src/memory_manager.rs</code>。</li>
+<li><code>Transportable for MemoryManager</code> 把 guest memory ranges 写到 snapshot 目录中的内存文件；<code>Migratable</code> 则通过 hypervisor dirty log 和 VMM bitmap 合并生成 dirty range table：<code class="src-ref">vmm/src/memory_manager.rs</code> 和 <code class="src-ref">vmm/src/memory_manager.rs</code>。</li>
+</ul>
+<p>因此 Cloud Hypervisor 的 memory snapshot 不是单纯 dump RAM。它同时保存“哪些 GPA 范围需要保存”和“这些范围如何映射、属于哪些 slot/zone/hotplug 状态”。这也是 restore 能重新建立同等内存拓扑的基础。</p>
+<h2 id="11-devicemanager">11. DeviceManager 与设备模型</h2>
+<p>Cloud Hypervisor 的设备面比 Firecracker 宽，核心在 <code>DeviceManager</code>。它不是单个 virtio bus，而是一个包含地址分配、PCI segment、interrupt manager、device tree、virtio/vhost/VFIO/vDPA/pmem/fs/net/vsock 等对象的设备编排器。</p>
+<p><code>DeviceManager</code> 关键成员包括：</p>
+<ul>
+<li><code>address_manager</code>：统一管理 IO/MMIO bus、地址分配器和 PCI MMIO aperture。</li>
+<li><code>interrupt_controller</code>：x86_64 是 IOAPIC，aarch64 是 GIC，riscv64 是 AIA：<code class="src-ref">vmm/src/device_manager.rs</code>。</li>
+<li><code>virtio_devices</code>、<code>block_devices</code>、<code>bus_devices</code>：保存设备和 bus 侧强引用。</li>
+<li><code>pci_segments</code>、MSI/legacy interrupt manager、VFIO ops、virtio IOMMU、device tree。</li>
+<li><code>activate_evt</code> 和 <code>pending_activations</code>：把 virtio device activation 收敛回 VMM thread。</li>
+<li>aarch64 特有的 <code>gpio_device</code> 和 <code>id_to_dev_info</code>。</li>
+</ul>
+<p>设备创建路径：</p>
+<div class="mermaid">flowchart TB
+    NEW["DeviceManager::new"] --> ADDR["create mmio allocators / AddressManager"]
+    ADDR --> IRQ["MSI -> IOAPIC/GIC -> legacy interrupt chain"]
+    IRQ --> PCI["create PCI segments"]
+    PCI --> CFG["consume VmConfig device lists"]
+    CFG --> ADD["add_* device"]
+    ADD --> PCIDEV["add_pci_device / allocate BARs"]
+    PCIDEV --> TREE["device_tree"]
+    TREE --> ACT["pending activation / activate_evt"]
+</div>
+<p>源码依据：</p>
+<ul>
+<li><code>DeviceManager::new()</code> 在 restore 时从 snapshot 恢复 <code>device_tree</code> 和 <code>device_id_cnt</code>，否则创建新的 device tree：<code class="src-ref">vmm/src/device_manager.rs</code>。</li>
+<li>它按 PCI segment 权重创建 32-bit/64-bit MMIO allocator，然后构造 <code>AddressManager</code>：<code class="src-ref">vmm/src/device_manager.rs</code>。</li>
+<li>中断管理上先创建 MSI interrupt manager，再创建 IOAPIC/legacy 相关链路；源码注释明确说明依赖链是 <code>msi_interrupt_manager &lt;- IOAPIC &lt;- legacy_interrupt_manager</code>：<code class="src-ref">vmm/src/device_manager.rs</code>。</li>
+<li><code>add_pci_device()</code> 为 PCI 设备分配 BAR，然后挂入对应 segment：<code class="src-ref">vmm/src/device_manager.rs</code>。</li>
+<li>VFIO-user 设备创建时会建立 client、DMA mapping，并把内存 zone 的 region 映射给 VFIO-user PCI device：<code class="src-ref">vmm/src/device_manager.rs</code>。</li>
+<li><code>DeviceManager::snapshot()</code> 先保存自身 state，再遍历 device tree，把每个 migratable device 的 snapshot 聚合进去：<code class="src-ref">vmm/src/device_manager.rs</code>。</li>
+</ul>
+<p>公开热插拔函数包括 <code>add_disk()</code>、<code>add_fs()</code>、<code>add_generic_vhost_user()</code>、<code>add_pmem()</code>、<code>add_net()</code>、<code>add_vdpa()</code>、<code>add_vsock()</code>：<code class="src-ref">vmm/src/device_manager.rs</code>。这解释了为什么 Cloud Hypervisor 更像“现代云 VM 管理器”，而 Firecracker 更像刻意收窄的 microVM building block。</p>
+<h2 id="12-snapshotrestore-migration">12. Snapshot、restore 与 migration</h2>
+<p>Cloud Hypervisor 使用 <code>vm_migration::Snapshot</code> 作为分层聚合容器。VM snapshot 顶层保存 VM 自身状态，再加入 CPU、Memory、DeviceManager 的子 snapshot。</p>
+<div class="mermaid">flowchart TB
+    SNAP["Vm::snapshot()"] --> CHECK["must be Paused"]
+    CHECK --> VMS["VmSnapshot\nclock/common_cpuid on x86_64"]
+    VMS --> CPU["CpuManager snapshot\nall vCPU states"]
+    VMS --> MEM["MemoryManager snapshot\nranges/mappings/slots"]
+    VMS --> DEV["DeviceManager snapshot\ndevice tree + device snapshots"]
+    MEM --> FILE["guest memory file"]
+    DEV --> D1["virtio/vhost/VFIO migratable devices"]
+</div>
+<p>源码依据：</p>
+<ul>
+<li><code>Vm::pause()</code> 先保存 x86_64 VM clock，再激活 pending virtio devices，然后依次 pause CPU manager、DeviceManager 和 hypervisor VM：<code class="src-ref">vmm/src/vm.rs</code>。</li>
+<li><code>Vm::snapshot()</code> 明确拒绝 TDX VM snapshot，且要求当前 VM 状态必须是 <code>Paused</code>；x86_64/KVM 下还会生成 common CPUID 以便 restore 兼容性检查：<code class="src-ref">vmm/src/vm.rs</code>。</li>
+<li><code>Vm::snapshot()</code> 依次加入 <code>CpuManager</code>、<code>MemoryManager</code>、<code>DeviceManager</code> 的 snapshot：<code class="src-ref">vmm/src/vm.rs</code>。</li>
+<li><code>Vm::send()</code> 把 VM config 写到 <code>SNAPSHOT_CONFIG_FILE</code>，把 snapshot state 序列化写到 <code>SNAPSHOT_STATE_FILE</code>；MemoryManager 的 transport 负责写 guest memory 内容：<code class="src-ref">vmm/src/vm.rs</code>。</li>
+<li>restore 时 <code>vm_restore()</code> 读取 snapshot state。x86_64/KVM 下先用 common CPUID 做兼容性检查，再构造带 snapshot 的 <code>Vm::new(...)</code>，最后调用 <code>vm.restore()</code>：<code class="src-ref">vmm/src/lib.rs</code>。</li>
+<li><code>Vm::restore()</code> 重新加锁磁盘，然后调用 <code>cpu_manager.start_restored_vcpus()</code> 启动恢复出来的 vCPU：<code class="src-ref">vmm/src/vm.rs</code>。</li>
+</ul>
+<p>和 Firecracker 相比，Cloud Hypervisor 的 snapshot/migration 需要面对更复杂的 device tree、更宽的设备集合、hotplug 状态、memory zone/slot 状态和可能的 live migration dirty log。README 也明确说明 snapshot/restore 与 live migration 不保证跨版本兼容：<code class="src-ref">README.md</code>。</p>
+<h2 id="13-seccomp-landlock">13. 隔离机制：seccomp + Landlock 的分层位置</h2>
+<p>Cloud Hypervisor 的隔离不是一个单独模块，而是分散在不同线程创建点和 VM 配置应用点。</p>
+<div class="mermaid">flowchart TB
+    MAIN["main.rs parse seccomp/landlock"] --> VMMT["VMM thread seccomp"]
+    MAIN --> API["HTTP/DBus API thread seccomp"]
+    MAIN --> EVT["event monitor seccomp"]
+    VMMT --> SIG["signal handler seccomp"]
+    VMMT --> VCPU["vCPU thread seccomp"]
+    VMMT --> LL["apply_landlock(config paths)"]
+</div>
+<p>源码依据：</p>
+<ul>
+<li><code>main.rs</code> 未指定 seccomp action 时使用 <code>SeccompAction::Trap</code>，并把 <code>landlock_enable</code> 传入 VMM thread、API thread 和 event monitor thread：<code class="src-ref">cloud-hypervisor/src/main.rs</code>。</li>
+<li><code>start_vmm_thread()</code> 根据 <code>Thread::Vmm</code> 和 hypervisor type 取 seccomp filter，并在线程启动后立即应用：<code class="src-ref">vmm/src/lib.rs</code>。</li>
+<li>event monitor thread 和 signal handler thread 也分别获取并应用自己的 seccomp filter；signal handler 在 Landlock 启用时也会应用 Landlock 规则：<code class="src-ref">vmm/src/lib.rs</code> 和 <code class="src-ref">vmm/src/lib.rs</code>。</li>
+<li>vCPU thread 启动路径中会获取 vCPU seccomp filter，并在线程内应用后才进入 vCPU run loop：<code class="src-ref">vmm/src/cpu.rs</code>。</li>
+<li><code>vm_create()</code> 在保存配置后，如果 <code>landlock_enable</code> 为 true，会调用 <code>apply_landlock(&amp;mut config)</code>；restore 路径在构造 VM 前也会再次应用 Landlock：<code class="src-ref">vmm/src/lib.rs</code> 和 <code class="src-ref">vmm/src/lib.rs</code>。</li>
+<li><code>Landlock::new()</code> 创建 ruleset 并设置 hard requirement 兼容级别，后续由 <code>apply_landlock()</code> 按 VM 配置中的磁盘、fs、vhost-user socket、VFIO、payload 等路径添加允许规则：<code class="src-ref">vmm/src/landlock.rs</code>。</li>
+</ul>
+<p>因此它的隔离模型可以概括为：seccomp 限制线程可用 syscall，Landlock 限制进程可访问路径。它没有 Firecracker jailer 那种外部进程包装形态，隔离边界更集中在 VMM 自身的线程和路径权限收缩上。</p>
+<h2 id="14-arm64-x86_64">14. ARM64 与 x86_64 差异</h2>
+<p>Cloud Hypervisor 的架构差异不是只在 <code>arch/</code> 目录里，也贯穿 VM boot、CPU configure、DeviceManager interrupt controller、ACPI/FDT 生成、snapshot pause 等路径。</p>
+<p><code>arch/src/lib.rs</code> 按 <code>target_arch</code> 导出平台模块。x86_64 导出 CPUID、zero page、ram ranges、cmdline start 等；aarch64 导出 FDT device info、IRQ base、UEFI、arch memory regions、vcpu configure 等：<code class="src-ref">arch/src/lib.rs</code>。</p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>x86_64</th>
+<th>aarch64</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>guest 描述</td>
+<td>ACPI、zero page、HVM start info、E820</td>
+<td>FDT、UEFI、GIC 信息，也存在 ACPI 表生成路径</td>
+</tr>
+<tr>
+<td>vCPU identity</td>
+<td>topology -&gt; x2APIC id</td>
+<td>vCPU configure 后读取 MPIDR_EL1</td>
+</tr>
+<tr>
+<td>CPU 配置</td>
+<td>CPUID、MSR、regs、Hyper-V emulation、nested 标志</td>
+<td><code>setup_regs(id, entry, FDT_START)</code>，读取 MPIDR</td>
+</tr>
+<tr>
+<td>中断控制器</td>
+<td>IOAPIC/LAPIC/MSI，legacy interrupt manager</td>
+<td>GIC，pause 时需要 flush GIC pending/ITS tables 到 guest RAM</td>
+</tr>
+<tr>
+<td>内存布局</td>
+<td>x86_64 layout/PCI/ACPI 习惯</td>
+<td>0-256MiB reserved，256-768MiB MMIO，1GiB 起 RAM，4GiB 后高端 RAM</td>
+</tr>
+<tr>
+<td>boot 描述时机</td>
+<td>ACPI 可早于 vCPU configure 创建</td>
+<td>ACPI/FDT 依赖 MPIDR，需在 vCPU configure 后补齐</td>
+</tr>
+<tr>
+<td>snapshot 细节</td>
+<td>保存 VM clock、common CPUID 兼容性数据</td>
+<td>DeviceManager pause 额外触发 GIC pause</td>
+</tr>
+</tbody>
+</table>
+<p>源码依据：</p>
+<ul>
+<li>x86_64 <code>EntryPoint</code> 包含 <code>setup_header</code>，并定义 CPUID feature bit、KVM feature bit、x2APIC topology 计算等逻辑：<code class="src-ref">arch/src/x86_64/mod.rs</code> 和 <code class="src-ref">arch/src/x86_64/mod.rs</code>。</li>
+<li>aarch64 <code>configure_vcpu()</code> 在有 boot setup 时调用 <code>setup_regs(id, kernel_entry, FDT_START)</code>，然后读取 <code>MPIDR_EL1</code> 返回给上层：<code class="src-ref">arch/src/aarch64/mod.rs</code>。</li>
+<li>aarch64 <code>arch_memory_regions()</code> 明确划分 UEFI/GIC/legacy reserved、MMIO、PCI MMCONFIG、低端 RAM、高端 RAM 和 32-bit reserved hole：<code class="src-ref">arch/src/aarch64/mod.rs</code>。</li>
+<li><code>CpuManager::configure_vcpu()</code> 在 x86_64 和 aarch64 的分支完全不同：x86_64 传 CPUID/topology/nested，aarch64 传 hypervisor VM 和 boot setup：<code class="src-ref">vmm/src/cpu.rs</code>。</li>
+<li><code>DeviceManager</code> 的 <code>interrupt_controller</code> 类型按架构切换：x86_64 是 <code>ioapic::Ioapic</code>，aarch64 是 <code>gic::Gic</code>：<code class="src-ref">vmm/src/device_manager.rs</code>。</li>
+<li>aarch64 上 <code>DeviceManager::pause()</code> 需要 pause GIC，把 GIC pending tables 和 ITS tables flush 到 guest RAM：<code class="src-ref">vmm/src/device_manager.rs</code>。</li>
+</ul>
+<p>结论：Cloud Hypervisor 在 ARM64 上不是“复用 x86 模型的小改版”。CPU 身份、guest 描述、interrupt controller、memory layout、pause/snapshot 边界都有显式架构分叉。与 x86_64 相比，ARM64 路径更依赖 FDT/GIC/MPIDR 这些 ARM 平台构件。</p>
+<h2 id="15-firecracker">15. 与 Firecracker 的关键差异</h2>
+<ol>
+<li>Firecracker 追求极简单 microVM；Cloud Hypervisor 追求现代 cloud workload 的通用 VM 管理能力。</li>
+<li>Firecracker 的设备集合刻意小；Cloud Hypervisor 设备集合包含 VFIO、vDPA、vhost-user、virtio-fs、hotplug 等更宽场景。</li>
+<li>Firecracker 的隔离重点包含 jailer；Cloud Hypervisor 更依赖进程内 VMM、seccomp、Landlock 和 Rust 安全。</li>
+<li>Firecracker 的 snapshot 更像 microVM 克隆/恢复原语；Cloud Hypervisor 的 snapshot 与 migration 抽象联系更强。</li>
+<li>Cloud Hypervisor 与 Firecracker/crosvm 同属 Rust VMM 生态，README 明确提到大量代码借鉴了 Firecracker 或 crosvm：<code class="src-ref">README.md</code>。</li>
+</ol>
+<h2 id="16">16. 后续深入路线</h2>
+<p>本节路线已在 <a href="deep-routes.html">deep-routes.md</a> 展开为源码研究路径、机制边界和验证点。</p>
+<ol>
+<li>深入 <code>Vmm::vm_create</code> 到 <code>Vm::new</code>：梳理 CPU/Memory/DeviceManager 初始化顺序。</li>
+<li>深入 <code>CpuManager</code>：vCPU 创建、暂停、恢复、snapshot、热插拔。</li>
+<li>深入 <code>MemoryManager</code>：memory zones、virtio-mem、dirty log、migration transport。</li>
+<li>深入 <code>DeviceManager</code>：virtio-pci、VFIO、vhost-user、vDPA、device tree、hotplug rollback。</li>
+<li>深入 ARM64：GIC、FDT、UEFI、ACPI MADT/GIC 表生成。</li>
+<li>深入 x86_64：CPUID、IOAPIC、ACPI、PCI window、TDX/SEV-SNP 路径。</li>
+</ol>
+    </article>
+    <footer class="page-foot">源文件: <code>cloud-hypervisor/analysis/deep-dive.md</code></footer>
+  </main>
+</div>
+<script src="../../assets/mermaid.min.js"></script>
+<script>window.mermaid && mermaid.initialize({startOnLoad:true, theme:'neutral', securityLevel:'loose'});</script>
+<script src="../../assets/wiki.js"></script>
+</body>
+</html>
