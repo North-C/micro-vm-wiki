@@ -246,7 +246,7 @@
 <li><strong>调度确定性</strong>：core scheduling 防止跨安全域的侧信道，但有调度开销。</li>
 </ul>
 <h3 id="hostguest">host↔guest 切换的地板成本</h3>
-<p>性能调优最终都会撞到“一次 host↔guest 切换到底花多少 ns”。<code>sandbox-bench</code> 在 openEuler arm64 内核上做了专门的 tracepoint 插桩测量（<a href="../sandbox-bench/docs/context-switch-cost-experiment.zh.html">context-switch-cost-experiment</a>）：</p>
+<p>性能调优最终都会撞到“一次 host↔guest 切换到底花多少 ns”。在 openEuler arm64 内核上做了专门的 tracepoint 插桩测量（context-switch 实测，已移除）：</p>
 <table>
 <thead>
 <tr>
