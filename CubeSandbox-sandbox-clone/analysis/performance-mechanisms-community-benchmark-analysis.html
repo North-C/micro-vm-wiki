@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CubeSandbox 性能机制与社区基准测试项分析</title>
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar">
+    <div class="brand">Micro-VM 分析 Wiki</div>
+    <input id="search" type="search" placeholder="搜索文档…" autocomplete="off">
+    <nav class="nav">
+      <li><a href="../../index.html">🏠 首页</a></li>
+<details class="nav-group" open><summary>综合学习层</summary><ul><li><a href="../../analysis/vm-design-landscape-overview.html">轻量化虚拟机设计全景与学习路线</a></li><li><a href="../../analysis/performance-design-basis-cross-project.html">性能设计依据跨项目专题分析</a></li><li><a href="../../analysis/security-design-basis-cross-project.html">安全设计依据跨项目专题分析</a></li><li><a href="../../analysis/analysis-improvement-recommendations.html">分析框架改进意见</a></li><li><a href="../../analysis/claude-code-research-workflow.html">Claude Code 协同研究工作流</a></li></ul></details>
+<details class="nav-group" open><summary>分析框架导航</summary><ul><li><a href="../../analysis/README.html">Analysis 导航入口</a></li><li><a href="../../analysis/four-project-deep-routes.html">Micro-VM 项目深入路线总览</a></li><li><a href="../../analysis/four-project-route-coverage-matrix.html">四项目深入路线完成度矩阵</a></li></ul></details>
+<details class="nav-group" open><summary>跨项目专题</summary><ul><li><a href="../../analysis/boot-control-plane-cross-project.html">启动路径与控制面跨项目专题分析</a></li><li><a href="../../analysis/snapshot-restore-cross-project.html">Snapshot / Restore / Clone 跨项目专题分析</a></li><li><a href="../../analysis/storage-rootfs-sharefs-cross-project.html">存储、rootfs 与共享文件系统跨项目专题分析</a></li><li><a href="../../analysis/virtio-data-path-cross-project.html">Virtio 传输与设备数据路径跨项目专题分析</a></li><li><a href="../../analysis/interrupt-event-notification-cross-project.html">中断与事件通知跨项目专题分析</a></li><li><a href="../../analysis/hypervisor-kvm-vcpu-cross-project.html">Hypervisor/KVM/vCPU 执行边界跨项目专题分析</a></li><li><a href="../../analysis/guest-memory-dma-iommu-cross-project.html">Guest Memory、DMA/IOMMU 与地址转换跨项目专题分析</a></li><li><a href="../../analysis/device-model-isolation-cross-project.html">设备模型与隔离边界跨项目专题分析</a></li><li><a href="../../analysis/runtime-control-hotplug-cross-project.html">运行期控制面与热插拔跨项目专题分析</a></li><li><a href="../../analysis/network-connectivity-cross-project.html">网络与连接模型跨项目专题分析</a></li><li><a href="../../analysis/guest-agent-runtime-cross-project.html">Guest Agent 与 Runtime 语义跨项目专题分析</a></li><li><a href="../../analysis/security-isolation-cross-project.html">安全隔离边界跨项目专题分析</a></li><li><a href="../../analysis/resource-qos-cross-project.html">资源管理与 QoS 跨项目专题分析</a></li><li><a href="../../analysis/observability-diagnostics-cross-project.html">可观测性与故障诊断跨项目专题分析</a></li><li><a href="../../analysis/cpu-interrupt-machine-cross-project.html">CPU、中断控制器与机器描述跨项目专题分析</a></li><li><a href="../../analysis/arm64-x86-cross-project-matrix.html">ARM64 与 x86_64 跨项目架构差异专题分析</a></li><li><a href="../../analysis/snapshot-device-save-restore-deep-dive.html">Snapshot 设备状态保存与恢复专题</a></li><li><a href="../../analysis/snapshot-memory-save-restore-deep-dive.html">Snapshot 内存保存与恢复专题</a></li><li><a href="../../analysis/snapshot-restore-kernel-deep-dive.html">Snapshot / Restore 底层内核技术深度解读</a></li></ul></details>
+<details class="nav-group" open><summary>项目交叉线</summary><ul><li><a href="../../analysis/ch-cubesandbox-backend-notifier-restore-crossline.html">Cloud Hypervisor 与 CubeSandbox：Backend / Notifier / Restore 交叉线</a></li><li><a href="../../analysis/ch-cubesandbox-restore-guest-unavailability-checklist.html">Cloud Hypervisor 与 CubeSandbox：Restore 后 Guest 不可用验证清单</a></li><li><a href="../../analysis/fc-kata-storage-semantics-crossline.html">Firecracker 与 Kata：Rootfs / Backing / Guest-Visible Storage 交叉线</a></li></ul></details>
+
+
+<details class="nav-group"><summary>历史 / 暂缓参考</summary><ul><li><a href="../../analysis/coco-pvm-protected-vm-cross-project.html">CoCo / pVM / 受保护 VM 跨项目专题分析</a></li><li><a href="../../analysis/protected-vm-snapshot-migration-cross-project.html">Protected VM 与 snapshot/migration 跨项目专题分析</a></li></ul></details>
+
+<details class="nav-group"><summary>Firecracker (32)</summary><ul><li><a href="../../firecracker/analysis/deep-routes.html">Firecracker 深入路线展开</a></li><li><a href="../../firecracker/analysis/deep-dive.html">Firecracker 深入探索文档</a></li><li><a href="../../firecracker/analysis/api-event-loop-thread-chain.html">Firecracker API Event Loop 与线程协作链路</a></li><li><a href="../../firecracker/analysis/api-start-boot-chain.html">Firecracker API 到 MicroVM 启动链路</a></li><li><a href="../../firecracker/analysis/arch-arm64-x86-chain.html">Firecracker ARM64 与 x86_64 架构差异链路</a></li><li><a href="../../firecracker/analysis/balloon-virtio-mem-guest-chain.html">Firecracker Balloon 与 Virtio-mem Guest 协作链路</a></li><li><a href="../../firecracker/analysis/build-microvm-boot-chain.html">Firecracker build_microvm_for_boot 构建链路</a></li><li><a href="../../firecracker/analysis/device-capability-boundary-chain.html">Firecracker 设备能力边界链路</a></li><li><a href="../../firecracker/analysis/device-manager-id-transport-chain.html">Firecracker DeviceManager ID 与 Transport 组件链路</a></li><li><a href="../../firecracker/analysis/device-manager-virtio-transport-chain.html">Firecracker DeviceManager / Virtio Transport 链路</a></li><li><a href="../../firecracker/analysis/interrupt-event-notification-chain.html">Firecracker 中断与事件通知链路</a></li><li><a href="../../firecracker/analysis/isolation-seccomp-jailer-chain.html">Firecracker 隔离机制链路</a></li><li><a href="../../firecracker/analysis/machine-description-acpi-fdt-chain.html">Firecracker 机器描述：x86_64 ACPI 与 ARM64 FDT 链路</a></li><li><a href="../../firecracker/analysis/memory-device-snapshot-chain.html">Firecracker Balloon / Virtio-mem Snapshot 状态链路</a></li><li><a href="../../firecracker/analysis/mmds-metadata-network-chain.html">Firecracker MMDS 元数据网络链路</a></li><li><a href="../../firecracker/analysis/observability-diagnostics-chain.html">Firecracker 可观测性与诊断链路</a></li><li><a href="../../firecracker/analysis/runtime-device-update-chain.html">Firecracker Runtime 设备更新链路</a></li><li><a href="../../firecracker/analysis/snapshot-restore-chain.html">Firecracker Snapshot / Restore 链路</a></li><li><a href="../../firecracker/analysis/storage-rootfs-sharefs-boundary-chain.html">Firecracker 存储 / rootfs / share-fs 边界链路</a></li><li><a href="../../firecracker/analysis/uffd-memory-restore-chain.html">Firecracker UFFD / Memory Restore 边界链路</a></li><li><a href="../../firecracker/analysis/vcpu-kvm-run-chain.html">Firecracker vCPU / KVM_RUN 链路</a></li><li><a href="../../firecracker/analysis/virtio-block-data-path-chain.html">Firecracker Virtio Block 数据面链路</a></li><li><a href="../../firecracker/analysis/virtio-device-work-chain.html">Firecracker Virtio 设备工作机制链路</a></li><li><a href="../../firecracker/analysis/virtio-net-data-path-chain.html">Firecracker Virtio Net 数据面链路</a></li><li><a href="../../firecracker/analysis/vmresources-config-boundary-chain.html">Firecracker VmResources 配置聚合与能力边界链路</a></li></ul></details>
+<details class="nav-group"><summary>Cloud Hypervisor (37)</summary><ul><li><a href="../../cloud-hypervisor/analysis/deep-routes.html">Cloud Hypervisor 深入路线展开</a></li><li><a href="../../cloud-hypervisor/analysis/deep-dive.html">Cloud Hypervisor 深入探索文档</a></li><li><a href="../../cloud-hypervisor/analysis/02-Cloud-Hypervisor-架构分析报告.html">Cloud Hypervisor 微虚拟机架构深度分析报告</a></li><li><a href="../../cloud-hypervisor/analysis/acpi-fdt-machine-description-chain.html">Cloud Hypervisor ACPI / FDT 机器描述生成链路</a></li><li><a href="../../cloud-hypervisor/analysis/api-vmm-thread-control-chain.html">Cloud Hypervisor API / VMM Thread 控制面链路</a></li><li><a href="../../cloud-hypervisor/analysis/arch-arm64-x86-chain.html">Cloud Hypervisor ARM64 与 x86_64 架构差异链路</a></li><li><a href="../../cloud-hypervisor/analysis/coco-tdx-sev-snp-chain.html">Cloud Hypervisor CoCo：TDX 与 SEV-SNP 函数级链路</a></li><li><a href="../../cloud-hypervisor/analysis/cpu-boot-chain.html">Cloud Hypervisor CPU 启动链路函数级分析</a></li><li><a href="../../cloud-hypervisor/analysis/cpu-runtime-hotplug-migration-chain.html">Cloud Hypervisor CPU 运行期控制与迁移状态链路</a></li><li><a href="../../cloud-hypervisor/analysis/device-creation-matrix-chain.html">Cloud Hypervisor 设备创建矩阵链路</a></li><li><a href="../../cloud-hypervisor/analysis/device-manager-chain.html">Cloud Hypervisor DeviceManager 设备链路函数级分析</a></li><li><a href="../../cloud-hypervisor/analysis/device-tree-hotplug-restore-chain.html">Cloud Hypervisor DeviceTree / 热插拔 / Restore 链路</a></li><li><a href="../../cloud-hypervisor/analysis/interrupt-event-notification-chain.html">Cloud Hypervisor 中断与事件通知链路</a></li><li><a href="../../cloud-hypervisor/analysis/io-device-data-path-chain.html">Cloud Hypervisor I/O 设备数据面链路</a></li><li><a href="../../cloud-hypervisor/analysis/isolation-seccomp-landlock-chain.html">Cloud Hypervisor 隔离机制函数级链路（seccomp + Landlock）</a></li><li><a href="../../cloud-hypervisor/analysis/memory-address-hotplug-topology-chain.html">Cloud Hypervisor Memory Address / Hotplug Topology 链路</a></li><li><a href="../../cloud-hypervisor/analysis/memory-manager-chain.html">Cloud Hypervisor MemoryManager 内存链路函数级分析</a></li><li><a href="../../cloud-hypervisor/analysis/migration-memory-transport-chain.html">Cloud Hypervisor Migration Memory Transport 链路</a></li><li><a href="../../cloud-hypervisor/analysis/observability-diagnostics-chain.html">Cloud Hypervisor 可观测性与诊断链路</a></li><li><a href="../../cloud-hypervisor/analysis/runtime-control-hotplug-chain.html">Cloud Hypervisor 运行期控制与热插拔链路</a></li><li><a href="../../cloud-hypervisor/analysis/sev-snp-igvm-vmsa-chain.html">Cloud Hypervisor SEV-SNP IGVM / VMSA / isolated page 链路</a></li><li><a href="../../cloud-hypervisor/analysis/storage-rootfs-sharefs-boundary-chain.html">Cloud Hypervisor 存储 / rootfs / share-fs 边界链路</a></li><li><a href="../../cloud-hypervisor/analysis/tdx-lifecycle-limit-chain.html">Cloud Hypervisor TDX lifecycle 限制链路</a></li><li><a href="../../cloud-hypervisor/analysis/tdx-tdvf-hob-chain.html">Cloud Hypervisor TDX TDVF / HOB 启动链路</a></li><li><a href="../../cloud-hypervisor/analysis/tdx-vcpu-exit-vmcall-chain.html">Cloud Hypervisor TDX vCPU exit / VMCALL 边界链路</a></li><li><a href="../../cloud-hypervisor/analysis/vfio-vfio-user-iommu-migration-chain.html">Cloud Hypervisor VFIO / vfio-user / IOMMU / Migration 能力矩阵链路</a></li><li><a href="../../cloud-hypervisor/analysis/vm-create-boot-chain.html">Cloud Hypervisor VM Create / Boot 构建链路</a></li></ul></details>
+<details class="nav-group"><summary>Kata Containers (29)</summary><ul><li><a href="../../kata-containers/analysis/deep-routes.html">Kata Containers 深入路线展开</a></li><li><a href="../../kata-containers/analysis/deep-dive.html">Kata Containers 深入探索文档</a></li><li><a href="../../kata-containers/analysis/agent-container-lifecycle-chain.html">Kata Agent Container 生命周期链路</a></li><li><a href="../../kata-containers/analysis/agent-rpc-boundary-chain.html">Kata agent RPC 边界链路</a></li><li><a href="../../kata-containers/analysis/arch-arm64-x86-chain.html">Kata Containers ARM64 与 x86_64 架构支持链路</a></li><li><a href="../../kata-containers/analysis/arm64-feature-test-coverage-chain.html">Kata ARM64 功能与测试覆盖边界链路</a></li><li><a href="../../kata-containers/analysis/configuration-hypervisor-capability-chain.html">Kata configuration 到 Hypervisor capability 链路</a></li><li><a href="../../kata-containers/analysis/cpu-scheduling-boundary-chain.html">Kata Containers CPU / 调度边界链路</a></li><li><a href="../../kata-containers/analysis/guest-agent-create-container-chain.html">Kata guest agent CreateContainer 落地链路</a></li><li><a href="../../kata-containers/analysis/hypervisor-plugin-lifecycle-chain.html">Kata runtime-rs Hypervisor Plugin 生命周期链路</a></li><li><a href="../../kata-containers/analysis/interrupt-event-notification-chain.html">Kata Containers 中断与事件通知委托链路</a></li><li><a href="../../kata-containers/analysis/network-endpoint-agent-chain.html">Kata Containers 网络 Endpoint 到 Agent 链路</a></li><li><a href="../../kata-containers/analysis/observability-diagnostics-chain.html">Kata Containers 可观测性与诊断机制函数级链路</a></li><li><a href="../../kata-containers/analysis/qemu-launch-params-chain.html">Kata Containers QEMU 启动参数构造链路</a></li><li><a href="../../kata-containers/analysis/runtime-control-agent-hotplug-chain.html">Kata Containers 运行期控制、Agent RPC 与设备更新链路</a></li><li><a href="../../kata-containers/analysis/runtime-rs-manager-request-chain.html">Kata runtime-rs Manager 请求分发链路</a></li><li><a href="../../kata-containers/analysis/runtime-rs-resource-device-agent-chain.html">Kata runtime-rs ResourceManager 资源设备链路</a></li><li><a href="../../kata-containers/analysis/sharefs-rootfs-volume-agent-chain.html">Share-fs / Rootfs / Volume 到 Agent 链路</a></li><li><a href="../../kata-containers/analysis/shim-exit-event-recovery-chain.html">Kata shim v2 Exit / Event / Recovery 链路</a></li><li><a href="../../kata-containers/analysis/shim-sandbox-lifecycle-chain.html">Kata Containers shim v2 到 sandbox/container 生命周期链路</a></li><li><a href="../../kata-containers/analysis/snapshot-restore-persist-chain.html">Kata Containers Snapshot / Restore / Persist 链路</a></li><li><a href="../../kata-containers/analysis/storage-device-agent-chain.html">Kata Containers storage/device 到 agent RPC 链路</a></li></ul></details>
+<details class="nav-group"><summary>crosvm (16)</summary><ul><li><a href="../../crosvm/analysis/deep-routes.html">crosvm 深入路线展开</a></li><li><a href="../../crosvm/analysis/deep-dive.html">crosvm 深入探索文档</a></li><li><a href="../../crosvm/analysis/arch-arm64-x86-chain.html">crosvm ARM64 与 x86_64 架构差异链路</a></li><li><a href="../../crosvm/analysis/boot-control-chain.html">crosvm 启动与控制循环函数级分析</a></li><li><a href="../../crosvm/analysis/create-devices-matrix-chain.html">crosvm create_devices 设备矩阵与隔离链路</a></li><li><a href="../../crosvm/analysis/device-isolation-chain.html">crosvm 设备模型与隔离链路函数级分析</a></li><li><a href="../../crosvm/analysis/protected-vm-block-net-fs-data-path-chain.html">crosvm protected VM block/net/fs 数据路径链路</a></li><li><a href="../../crosvm/analysis/protected-vm-device-boundary-chain.html">crosvm protected VM 设备边界与 virtio feature 链路</a></li><li><a href="../../crosvm/analysis/protected-vm-hypervisor-backend-chain.html">crosvm protected VM hypervisor backend 分流链路</a></li><li><a href="../../crosvm/analysis/protected-vm-iommu-vfio-memory-mapper-chain.html">crosvm protected VM IOMMU / VFIO / MemoryMapper 链路</a></li><li><a href="../../crosvm/analysis/protected-vm-pvm-chain.html">crosvm protected VM / pVM firmware 函数级链路</a></li><li><a href="../../crosvm/analysis/protected-vm-snapshot-restore-boundary-chain.html">crosvm protected VM snapshot / restore 边界链路</a></li><li><a href="../../crosvm/analysis/protected-vm-vhost-user-memory-iotlb-chain.html">crosvm protected VM vhost-user memory / IOTLB 链路</a></li><li><a href="../../crosvm/analysis/runtime-control-tube-chain.html">crosvm 运行期控制与 Tube 分发链路</a></li><li><a href="../../crosvm/analysis/snapshot-suspend-chain.html">crosvm Snapshot 与 Suspend 函数级分析</a></li><li><a href="../../crosvm/analysis/virtio-queue-worker-chain.html">crosvm virtio Queue 与 Worker 链路函数级分析</a></li></ul></details>
+<details class="nav-group"><summary>CubeSandbox (43)</summary><ul><li><a href="../../CubeSandbox-sandbox-clone/analysis/deep-routes.html">CubeSandbox 深入路线展开</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/deep-dive.html">CubeSandbox-sandbox-clone 深入探索文档</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/api-master-cubelet-create-chain.html">CubeSandbox API 到 Cubelet 创建链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/arch-arm64-x86-chain.html">CubeSandbox ARM64 与 x86_64 架构差异链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/cpu-vcpu-resource-boundary-chain.html">CubeSandbox CPU / vCPU 资源边界链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/cubeapi-long-operation-contract-chain.html">CubeAPI Long Operation Contract 链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/cubebox-action-containerd-chain.html">Cubebox Action 到 Containerd / CubeShim 链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/cubecow-storage-engine-chain.html">CubeCoW 存储引擎链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/cubehypervisor-api-request-chain.html">CubeHypervisor API Request 内部调度链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/cubelet-workflow-create-chain.html">Cubelet Workflow Create 编排链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/cubemaster-cache-consistency-boundary-chain.html">CubeMaster 缓存一致性边界链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/cubemaster-scheduler-task-chain.html">CubeMaster Scheduler 与 Task Retry 链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/cubemaster-snapshot-job-contract-chain.html">CubeMaster Snapshot Job Contract 链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/cubesandbox-redis-hugepages-report-20260627.html">CubeSandbox Redis Benchmark 静态大页/zram 对比报告</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/cubesandbox-unixbench-hugepages-report-20260626.html">CubeSandbox UnixBench 静态大页影响测试报告</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/cubesandbox_unixbench_hugepages_runbook.html">CubeSandbox UnixBench HugePages Runbook</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/cubeshim-container-agent-lifecycle-chain.html">CubeShim Container 到 Guest Agent 生命周期链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/cubeshim-sandbox-hypervisor-chain.html">CubeShim sandbox 与 CubeHypervisor 创建链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/cubevs-ebpf-data-plane-chain.html">CubeVS eBPF 数据面链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/guest-agent-network-config-chain.html">Guest Agent 网络配置链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/interrupt-event-notification-chain.html">CubeSandbox 中断与事件通知链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/interrupt-state-restore-chain.html">CubeSandbox 中断状态恢复链路（snapshot → restore → route re-enable）</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/network-agent-ensure-network-chain.html">Network-Agent EnsureNetwork 链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/network-data-plane-interrupt-wakeup-chain.html">CubeSandbox 网络数据面与中断唤醒链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/observability-diagnostics-chain.html">CubeSandbox 可观测性与诊断机制链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/performance-mechanisms-community-benchmark-analysis.html">CubeSandbox 性能机制与社区基准测试项分析</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/rollback-runtime-update-chain.html">CubeSandbox Rollback / Runtime Update 链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/runtime-control-vmm-update-chain.html">CubeSandbox 运行期控制与 VMM 更新链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/sandbox-ready-lifecycle-chain.html">CubeSandbox Sandbox Ready 生命周期链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/sandbox-vm-container-template-runtime-hierarchy.html">CubeSandbox Sandbox / VM / Container 层次与 OCI Template 运行链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/snapshot-catalog-restore-binding-chain.html">Snapshot Catalog / Restore Binding 链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/snapshot-create-commit-chain.html">Snapshot Create / Commit 生成链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/snapshot-replica-reconciler-chain.html">Snapshot Replica Reconciler 链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/snapshot-restore-network-chain.html">Snapshot Restore 网络恢复链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/snapshot-template-storage-format-chain.html">CubeSandbox Snapshot 与 Template 存储、格式、恢复链路专题</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/tap-fd-networkinfo-chain.html">TAP FD 与 NetworkInfo 闭环</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/tap-fd-unavailable-case-study.html">CubeSandbox ARM64 `tap fd unavailable` 故障案例分析</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/template-build-from-oci-chain.html">CubeSandbox Template 构建链路：从 OCI 镜像到 Template</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/template-restore-msix-chain.html">基于 Template 启动到 RestoreVm 与 MSI-X Restore 的链路分析</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/virtio-interrupt-injection-trace.html">CubeSandbox Virtio 中断注入函数级链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/virtio-net-fs-restore-chain.html">CubeSandbox Virtio Net / Fs Restore 内部状态链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/vmm-device-restore-chain.html">CubeSandbox VMM Device Restore 设备恢复链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/vmm-snapshot-restore-state-chain.html">CubeSandbox VMM Snapshot Restore 状态恢复链路</a></li></ul></details>
+
+
+<li><a href="../../Agent.html">Micro-VM Agent Instructions</a></li>
+    </nav>
+  </aside>
+  <main class="content">
+    <div class="topbar">
+      <button id="theme-toggle" title="切换暗色模式">🌙</button>
+      <a class="back-home" href="../../index.html">🏠 首页</a>
+    </div>
+    <article class="markdown-body">
+      <h1 id="cubesandbox">CubeSandbox 性能机制与社区基准测试项分析</h1>
+<h2 id="_1">结论摘要</h2>
+<p>本文回答的问题是：CubeSandbox 当前源码已经用哪些设计降低 Template 创建、单机密度、Snapshot、Restore、Rollback、Clone、Pause / Resume 的成本，这些成本被消除、共享、延迟或转移到哪里，社区基准报告又实际观察到了什么。</p>
+<p>结论是，CubeSandbox 的共同优化主线不是“把完整 VM 操作做得更快”，而是改变请求路径上的工作量：用预制状态 restore 代替 guest 冷启动，用 <code>MAP_PRIVATE | MAP_NORESERVE</code> 和 XFS reflink 共享基线，把内存与 rootfs 的复制成本延迟到 page fault / CoW 写入；Snapshot 先过滤匿名页，再在 steady state 只覆盖 soft-dirty 页；Rollback 复用 shim/VMM 进程且省掉临时 safety checkpoint；Clone 把一次 capture 共享给 N 次有界并发 restore；Resume 直接恢复持久状态而非重新启动 guest。普通 Pause 是例外：在固定源码基线中仍保存 full snapshot，并未采用报告预测的 soft-dirty Pause。</p>
+<p>社区报告的数据与这些机制的预期方向一致，但没有固定被测二进制版本，且测试是 x86_64、warm-up 后、空载或低 dirty、单批次并发。因而：</p>
+<ul>
+<li><strong>Community report observation</strong> 可说明报告环境中出现了共享、增量写和并行 fan-out 的效果信号。</li>
+<li><strong>Inference</strong> 只能把这些信号映射为当前源码机制的待验证假设，不能证明某个机制的贡献比例。</li>
+<li>绝对数值对固定源码基线 <code>5135a40d86c94a85fe2521fd9ed913ac5fd6cfd9</code> 属于 <strong>non-comparable</strong>；操作定义与 x86_64 机制方向最多 <strong>partially comparable</strong>；对 ARM64 数值结论为 <strong>non-comparable</strong>。</li>
+</ul>
+<p>本文没有运行新 benchmark，也不产生新的独立性能报告。</p>
+<h2 id="1">1. 问题、源码基线与证据标签</h2>
+<h3 id="11">1.1 固定边界</h3>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>本文边界</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>本地源码</td>
+<td><code>CubeSandbox/</code>，分支 <code>0731-after-v0.6.0</code>，commit <code>5135a40d86c94a85fe2521fd9ed913ac5fd6cfd9</code></td>
+</tr>
+<tr>
+<td>Linux 机制参考</td>
+<td>本地 <code>kernel/</code> commit <code>1cefaec0de176ec513c09153d3bd3dd5d60e10a0</code> 与上游内核文档；只用于解释通用 MM/KVM/XFS 机制，不代表社区报告的运行内核</td>
+</tr>
+<tr>
+<td>本地分析</td>
+<td>源码机制分析，不包含本地 runtime 测量</td>
+</tr>
+<tr>
+<td>社区报告</td>
+<td>CubeSandbox 社区，作者 <code>coolli</code>，《<code class="src-ref">CubeSandbox 核心操作性能基准测试报告</code>》，页面日期 2026-06-01；<a href="https://cubesandbox.com/zh/blog/posts/2026-06-01-cubesandbox-perf-benchmark.html">官方页面</a></td>
+</tr>
+<tr>
+<td>报告文档历史</td>
+<td>最终数据首次进入 <code>530f9ca90e8dd30a66220a88738784013f4374c7</code>；环境变量后续修订至 <code>238006a4c0c5a320197f67b95cd8e03647d508c6</code>；两者均不是被测二进制身份</td>
+</tr>
+<tr>
+<td>架构</td>
+<td>报告只测 x86_64；本文不把其结果外推到 ARM64</td>
+</tr>
+<tr>
+<td>排除项</td>
+<td>不重跑 benchmark，不分析 2-vCPU Restore 专项根因，不修改 CubeSandbox 源码，不发布 Wiki</td>
+</tr>
+</tbody>
+</table>
+<p>证据标签在全文保持固定含义：</p>
+<ul>
+<li><strong>Local fact</strong>：由上述 pinned source 中的代码、配置或测试直接支持。</li>
+<li><strong>Community report observation</strong>：社区报告公开的方法、数值或作者解释，不是当前基线的本地实测。</li>
+<li><strong>Inference</strong>：由 Local fact 与报告观察建立的有条件解释。</li>
+<li><strong>Engineering judgment</strong>：进一步设计选择、取舍、验证或回滚建议。</li>
+<li><strong>Unconfirmed</strong>：当前材料缺失或不能把历史测试与当前源码绑定。</li>
+</ul>
+<h3 id="12-provenance">1.2 社区报告 provenance 与可比性</h3>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>报告披露</th>
+<th>对本文的影响</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>发布方 / URL / 日期</td>
+<td>CubeSandbox 社区，官方仓库与官网页面，2026-06-01</td>
+<td>官方二级经验依据</td>
+</tr>
+<tr>
+<td>被测版本 / commit</td>
+<td>未披露 CubeSandbox release、commit、镜像 digest 或 VMM checksum</td>
+<td>绝对数值不能绑定 <code>5135a40d...</code></td>
+</tr>
+<tr>
+<td>Host</td>
+<td>腾讯云 BMI5 裸金属；Intel Xeon Platinum 8255C；96 logical CPU；2 NUMA node；375 GiB RAM</td>
+<td>并发拐点受该主机影响</td>
+</tr>
+<tr>
+<td>Host OS / kernel / arch</td>
+<td>OpenCloudOS (TencentOS Server 4)，Linux 6.6.119，x86_64</td>
+<td>ARM64 不可比</td>
+</tr>
+<tr>
+<td>存储</td>
+<td>NVMe，XFS，reflink；Clone 明确为 Page Cache warm</td>
+<td>冷读与内存压力场景未测</td>
+</tr>
+<tr>
+<td>Sandbox</td>
+<td>2 vCPU / 2 GiB；镜像使用可变 <code>latest</code>；guest kernel 未披露</td>
+<td>workload 不可复现为同一版本</td>
+</tr>
+<tr>
+<td>运行配置</td>
+<td>披露 soft-dirty、部分 TAP pool 调整；完整组件配置、CPU pinning、NUMA policy 未披露</td>
+<td>只能部分映射机制</td>
+</tr>
+<tr>
+<td>方法</td>
+<td>所有项目 warm-up；Template create 为 20--500 requests；多数 Python 项目为 2--5 rounds 的单批 N=C</td>
+<td>不是稳态 open-loop arrival</td>
+</tr>
+<tr>
+<td>指标</td>
+<td>Template 表同时给逐请求 latency、wall/N 与 throughput；Python 表主要给 batch wall 与 wall/N</td>
+<td>必须分开 request latency 和 batch throughput interval</td>
+</tr>
+<tr>
+<td>正确性</td>
+<td>Template create 报 100% API success；其余表没有完整成功率与 restore 后 guest state/data 校验</td>
+<td>不能证明状态恢复正确性</td>
+</tr>
+</tbody>
+</table>
+<p>总体分类为：<strong>数值性能保证 non-comparable；x86_64 操作定义和机制假设 partially comparable；ARM64 数值 non-comparable</strong>。报告缺少被测 commit、guest kernel、精确 SDK/tool 版本、raw data 和完整配置，因此没有一个测试项满足完全 <code>comparable</code>。</p>
+<h3 id="13">1.3 指标语义校正</h3>
+<p><strong>Local fact</strong>：当前 <code>cube-bench</code> 在单个 create 调用周围记录逐请求 latency，并用 <code>successful / elapsed</code> 算 throughput；Python concurrency 脚本主要记录一批操作从发出到全部完成的 wall time。当前脚本只能解释指标实现，不能证明 2026-06 历史执行使用了完全相同版本。证据：<code class="src-ref">runner.go</code>、<code class="src-ref">report.go</code>、<code class="src-ref">stats.go</code> 及 <code class="src-ref">Snapshot/Rollback/Clone 脚本目录</code>。</p>
+<ul>
+<li><code>wall / N</code> 是完成该批 N 项的<strong>批吞吐间隔</strong>，等价于 <code>1 / batch throughput</code>，不是任一请求的 latency，也不表示用户在该时间内收到一个结果。</li>
+<li>一批操作的 <code>wall</code> 近似其中最慢任务的完成时间，并包含批内排队与资源竞争；它不提供每请求 p50/p95。</li>
+<li>Python 表只有 2--5 rounds，按 nearest-rank 统计时 p95 等于 max；这些 p95 不能当作稳定尾延迟估计。</li>
+<li>Rollback 的 timer 只包围 <code>rollback()</code>；每个 sandbox 的 checkpoint 在 timer 之前创建。因此 81.6 ms 等数字<strong>不包含 checkpoint creation</strong>，报告正文把它称为“打快照 + 回滚全流程”与脚本边界不一致。</li>
+<li>Dirty-page restore 丢弃首次 restore，Clone 明确声明文件已在 Page Cache；两者都是 warm-cache 观察。</li>
+</ul>
+<h2 id="2">2. 统一关键路径与成本模型</h2>
+<h3 id="21">2.1 端到端边界</h3>
+<p>外部 create/restore 类请求的成本路径为：CubeAPI/CubeMaster 调度与状态管理 -&gt; Cubelet workflow 的 storage/network/containerd 动作 -&gt; CubeShim 启动 VMM 或恢复 VM -&gt; VMM 映射 guest memory、恢复 device/vCPU/KVM state -&gt; guest vsock ready -&gt; CubeShim 连接 agent 并完成 guest <code>CreateSandbox</code> -&gt; 平台返回。</p>
+<p>Snapshot/Rollback/Pause 则额外跨越 VMM pause、pagemap/soft-dirty 扫描、memory 文件写入、CubeCoW rootfs generation、catalog binding、VM delete/restore 和 agent/monitor 重连。深入链路已有独立文档，本文只在成本边界上引用：</p>
+<ul>
+<li><a href="sandbox-ready-lifecycle-chain.html">Sandbox Ready 生命周期</a>：create 返回前的 VMM、vsock、agent 与 guest ready 边界。</li>
+<li><a href="snapshot-create-commit-chain.html">Snapshot Create / Commit</a>：full、anonymous-page 与 soft-dirty 的创建和退化顺序。</li>
+<li><a href="snapshot-catalog-restore-binding-chain.html">Snapshot Catalog / Restore Binding</a>：logical snapshot 到本地 rootfs/memory/meta 的绑定。</li>
+<li><a href="vmm-snapshot-restore-state-chain.html">VMM Snapshot Restore 状态恢复</a>：memory、device、vCPU 和架构状态恢复。</li>
+<li><a href="cubecow-storage-engine-chain.html">CubeCoW 存储引擎</a>：XFS reflink、对象所有权和恢复边界。</li>
+<li><a href="rollback-runtime-update-chain.html">Rollback / Runtime Update</a>：Rollback 删除旧 VM 再 restore 新 VM 的真实语义。</li>
+<li><a href="network-agent-ensure-network-chain.html">Network-Agent EnsureNetwork</a>：TAP、CubeVS、port mapping 与资源池边界。</li>
+</ul>
+<h3 id="22">2.2 可证伪成本模型</h3>
+<p>为避免把优化效果误写成单一“瓶颈”，本文使用以下模型解释成本如何变化：</p>
+<pre><code class="language-text">L_create = Q_control + C_storage_meta + C_network + C_vmm
+         + C_state_restore + F_memory + C_device_vcpu + C_agent_ready
+
+L_snapshot = C_pause + C_scan(P_total) + C_range(P_candidate)
+           + W(B_written) + C_state_fs + C_resume
+
+M_host(N) = M_shared_baseline + N * (M_fixed + M_pagetable + M_device)
+          + sum(R_private_dirty_i) + M_page_cache + M_kernel
+
+T_batch(N, C) = queue/service time across control, CPU, storage metadata,
+                memory write/fault, network pool and agent-ready stages
+wall/N = 1 / observed batch throughput
+</code></pre>
+<p>其中 <code>F_memory</code> 是 restore 后按需 fault/cache miss 成本，<code>W(B_written)</code> 是实际写入 memory snapshot 的字节成本。优化的核心因果链是：</p>
+<ul>
+<li>预制 snapshot 让 <code>guest boot + application initialization</code> 从 <code>L_create</code> 移到模板构建阶段。</li>
+<li>reflink 与 private file mapping 把完整复制从 create/restore 移到后续写时 CoW 和缺页。</li>
+<li>anonymous-page / soft-dirty 过滤把 <code>W(total guest RAM)</code> 降为 <code>W(candidate or dirty bytes)</code>，但保留 scan、state 与同步固定成本。</li>
+<li>并发只会降低 <code>T_batch/N</code>；当 CPU、NUMA、存储 metadata、Page Cache、TAP pool 或 agent-ready stage 饱和时，排队会抬高逐请求 latency。</li>
+</ul>
+<p>当前没有分阶段 trace 或本地 profile，故本文不把任何一个剩余项断言为主导瓶颈；相关判断均保留为待验证假设。</p>
+<h3 id="23-linuxkvm">2.3 Linux/KVM 机制基座：优化的是何种对象</h3>
+<p>下面四组对象决定了“共享、延迟、增量”分别发生在哪里。它们是 Linux/KVM 通用机制在 CubeSandbox 调用点上的映射，不是 CubeSandbox 自创的内核能力。</p>
+<h4 id="file-backed-guest-rampage-cache-cow">file-backed guest RAM、Page Cache 与 CoW</h4>
+<p><strong>Local fact</strong>：fast restore 打开 snapshot memory 文件后，以 <code>MAP_PRIVATE | MAP_NORESERVE</code> 建立可读写 VMA；只有 <code>prefault=true</code> 才附加 <code>MAP_POPULATE</code>。<code class="src-ref">new_from_snapshot</code>、<code class="src-ref">create_ram_region</code></p>
+<pre><code class="language-text">mmap(snapshot fd, MAP_PRIVATE | MAP_NORESERVE)
+  -&gt; 建立 VMA，通常尚未为每个 guest page 建 host PTE
+  -&gt; KVM memslot 记录 GPA range -&gt; HVA range
+  -&gt; vCPU 首次读 GPA
+       -&gt; warm Page Cache: minor fault，建立 host PTE/KVM secondary mapping
+       -&gt; cold Page Cache: major fault，先从 storage 读入 cache folio
+  -&gt; vCPU 首次写仍共享的 file page
+       -&gt; write-protection fault
+       -&gt; 分配 anonymous page + 复制旧内容 + 替换 PTE
+</code></pre>
+<p><code>MAP_PRIVATE</code> 允许多个 VM 读取同一 page-cache folio，但写入不会回写基线文件；<code>MAP_NORESERVE</code> 只减少 mmap 时的 swap/commit 预留，在 strict overcommit 下可能被忽略，也不保证未来 CoW 分配一定成功。<code>MAP_POPULATE</code> 把一部分 fault、PTE 和 readahead 成本拉回 restore 阶段，因此是 ready latency、首次 workload latency 与密度之间的交换，不是无条件加速。</p>
+<p><strong>Local fact（Linux/KVM 通用机制）</strong>：minor fault 只表示无需阻塞读取文件，不代表零成本；仍可能包含 fault handler、页表分配/锁、rmap/mapcount 和 KVM secondary-MMU 建映射。major fault 还引入 filesystem/block I/O。配置的 2 GiB guest RAM 是 GPA 地址空间，不能等同于 2 GiB 独占物理内存；RSS 会计入 resident shared file pages，PSS 才按映射者分摊，anonymous CoW pages 则随每个 workload 写集独立增长。</p>
+<h4 id="kvm-memslot">KVM memslot：注册地址关系，不是复制内存</h4>
+<p><strong>Local fact</strong>：<code>create_userspace_mapping()</code> 为每段 guest RAM 分配 slot，把 <code>(slot, guest_phys_addr, memory_size, userspace_addr, readonly, log_dirty)</code> 交给 hypervisor；KVM backend 最终执行 <code>KVM_SET_USER_MEMORY_REGION</code>。<code class="src-ref">create_userspace_mapping</code>、<code class="src-ref">KVM backend</code></p>
+<pre><code class="language-text">guest virtual address
+  -&gt; guest page table -&gt; GPA/GFN
+  -&gt; KVM memslot lookup -&gt; HVA
+  -&gt; Linux host page table / GUP -&gt; PFN
+  -&gt; KVM secondary MMU (EPT on x86_64) -&gt; host physical page
+</code></pre>
+<p>memslot 建立本身不会把整个 memory file 读入 RAM。VMA 变化、reclaim、NUMA migration 或 userspace unmap 需要 MMU notifier 使 KVM 缓存的 secondary mappings 失效；因此“大文件只做一个 mmap”仍存在每 VM 的 memslot、页表、KVM MMU 与 vCPU/device 固定成本。</p>
+<h4 id="xfs-reflink-extent">XFS reflink：共享 extent，不是共享文件语义</h4>
+<p><strong>Local fact</strong>：CubeCoW 先 <code>create_new</code> 目标文件，再执行 <code>ioctl(dst_fd, FICLONE, src_fd)</code>；成功后把 snapshot 投影到对象索引，并 best-effort 同步父目录。<code class="src-ref">create_snapshot</code>、<code class="src-ref">ficlone</code></p>
+<p>XFS 让源与目标的逻辑 extent 指向相同物理 blocks，并用 refcount metadata 记录共享。目标首次写共享 extent 时，filesystem 才分配 CoW staging blocks、写入新数据、完成 extent swap/refcount 更新。因而 create/snapshot 的数据复制被改成 metadata 操作，但随机小写可能带来 extent unshare、metadata 更新、fragmentation 和 write amplification；删除对象也只有引用归零后才回收物理 blocks。</p>
+<h4 id="soft-dirtypte-tracking-window-dirty-log">soft-dirty：PTE tracking window，不是字节级 dirty log</h4>
+<p><strong>Local fact（Linux 通用机制）</strong>：向 <code>/proc/self/clear_refs</code> 写 <code>4</code> 会清 soft-dirty 状态并写保护相关 PTE；后续 CPU 写通过 write fault 重新设置 pagemap bit 55。clear 操作需要进程范围的 page-table walk、MMU notifier 与 TLB flush，后续第一次写还会承担重新置位的 fault 成本。</p>
+<p><strong>Unconfirmed</strong>：当前源码注释把 device DMA 也概括为会设置 soft-dirty，但 Linux <code>clear_refs</code> 对可能 DMA-pinned 的 PTE 有跳过路径；本文没有证明所有设备 DMA 写都被当前 soft-dirty 窗口捕获。Snapshot 正确性验证必须包含 DMA/virtio 写入，不能只测 vCPU store。</p>
+<p><strong>Local fact（带边界）</strong>：<code>KPF_ANON</code> 只说明 PFN 当前属于 anonymous 类页面，不足以证明它一定由 guest 写入产生；host/VMM 对 private mapping 的写也可能使页面匿名化。当前过滤将其作为“可能偏离 file base”的保守候选，再与 soft-dirty 取交集，而不是把它解释为 guest-write provenance。</p>
+<h2 id="3-template">3. Template 创建延迟与并发扩展</h2>
+<h3 id="31">3.1 已实现优化设计与实现路径</h3>
+<p>未经优化时，一次创建需要完整 guest boot、system service 与应用初始化，并复制独立 rootfs/内存。CubeSandbox 的目标是把通用工作提前到 AppSnapshot，把请求路径缩为“绑定共享基线 + restore 特有状态 + ready 收敛”。</p>
+<p><strong>Local fact</strong>：<code>SandBox::start_vm()</code> 在 <code>by_snapshot()</code> 为真时先 <code>restore_vm()</code>；<code>app_snapshot_restore</code> 成功后直接返回 restore 分支，不调用 <code>boot_vm()</code>。<code class="src-ref">by_snapshot / start_vm</code> 和 <code class="src-ref">restore_vm</code> 校验 CPU、memory、kernel、image、disk、pmem 等 metadata，再为实例重建 fs/net/disk/pmem/vsock 的 <code>RestoreConfig</code>。</p>
+<p><strong>Local fact</strong>：<code>MemoryManager::new_from_snapshot()</code> 满足 fast-restore 条件时直接打开 snapshot memory 文件；只有不满足条件才通过 <code>fill_saved_regions()</code> 填充保存区。<code class="src-ref">new_from_snapshot</code> 与 <code class="src-ref">support_fast_restore_check</code> 要求没有 shared-memory zone 且没有 virtio-mem hotplug。<code>create_ram_region()</code> 对文件映射使用 <code>MAP_PRIVATE | MAP_NORESERVE</code>，仅 <code>prefault</code> 时加 <code>MAP_POPULATE</code>。<code class="src-ref">create_ram_region</code></p>
+<p><strong>Local fact</strong>：CubeCoW 的 <code>ficlone()</code> 调 Linux <code>FICLONE</code> 创建共享 extent 的目标文件；Cubelet <code>GetSync()</code> 按 UUID hash 分散 base index，再由 backend 派生对象。<code class="src-ref">ficlone</code>、<code class="src-ref">GetSync</code></p>
+<p>从 snapshot/template 创建的完整控制流如下。协议边界之间不是同语言静态调用，因此图中每一跳表示请求字段与接收端 handler 的对应关系：</p>
+<div class="mermaid">sequenceDiagram
+    participant SDK as SDK
+    participant API as CubeAPI
+    participant Master as CubeMaster
+    participant Let as Cubelet
+    participant Shim as CubeShim
+    participant VMM as VMM/KVM
+    participant Agent as Guest Agent
+    SDK->>API: POST /sandboxes, template_id
+    API->>Master: CreateSandbox RPC + v2 snapshot annotations
+    Master->>Master: resolve alias/kind/template/local replica
+    Master->>Let: schedule merged create request
+    Let->>Let: derive CubeCoW rootfs, network, containerd task
+    Let->>Shim: start task with restore annotations
+    Shim->>VMM: VmResumeFromSnapshot(RestoreConfig)
+    VMM->>VMM: restore config, memory, devices, vCPUs
+    VMM->>VMM: mmap memory + register KVM memslots
+    Shim->>Agent: connect/reset/rebind container clients
+    Agent-->>Shim: ready
+    Shim-->>Let: task ready
+    Let-->>Master: sandbox ready
+    Master-->>API: sandbox response
+    API-->>SDK: 201 Created
+</div>
+<p><strong>图中证据（Local fact）</strong>：CubeAPI 把 <code>template_id</code> 写入 <code>cube.master.appsnapshot.template.id</code> 并标记版本 <code>v2</code>，再同步等待 CubeMaster create RPC。<code class="src-ref">create_sandbox</code> CubeMaster 随后解析 alias、读取模板请求、校验至少一个健康节点具有 ready replica、识别 snapshot kind，并把模板的 container、volume、network 和 runtime handler 合并到实例请求。<code class="src-ref">dealCubeboxCreateReqWithTemplate</code></p>
+<p>这里的 locality gate 是性能设计的一部分：没有 ready replica 时拒绝调度，避免在不可预测的 create critical path 临时远程拉取大 artifact。代价被转移到模板复制、健康检查和 catalog 一致性；若 catalog 误报 ready，失败只会更晚地暴露在节点 restore。</p>
+<p>VMM restore 不是“mmap 完即 ready”。它先创建新的 hypervisor VM，恢复 memory-manager snapshot 和 GPA/HVA memslots，再按 device tree 的 child-before-parent、parent group 顺序恢复设备；组内最多使用限定 worker 并行，之后还要恢复 vCPU/架构状态。<code class="src-ref">Vm::new_from_snapshot</code>、<code class="src-ref">restore_devices</code> Shim 最终重连 vsock agent、执行 guest reset、替换各 container client 并启动 OOM/VM monitor；这些均仍属于请求返回前的实例特有工作。</p>
+<h3 id="32">3.2 被消除、共享和转移的成本</h3>
+<ul>
+<li>消除：每次 guest 冷启动与应用初始化；每实例完整 rootfs/memory eager copy。</li>
+<li>共享：snapshot memory 的 file-backed clean pages、rootfs reflink extents、模板制作阶段的初始化结果。</li>
+<li>延迟/转移：memory 读取转到 restore 后 page fault/Page Cache；实例写入转到 private page 与 reflink CoW；网络、vsock、device/vCPU restore、agent ready 仍在请求路径。</li>
+<li>前置条件：metadata 与当前 CPU/memory/kernel/device layout 兼容；本节点有 catalog 与 rootfs/memory 对象；fast-restore 不含 shared memory zone 或 virtio-mem hotplug；TAP、storage 与控制面资源池有容量。</li>
+</ul>
+<h3 id="33">3.3 社区报告如何观察它</h3>
+<p><strong>Community report observation</strong>：报告在 2 vCPU/2 GiB、warm-up、create-only 下记录逐请求 latency：c1 avg 47.8 ms、p95 57.4 ms；c20 avg 98.1 ms、throughput 180.9/s；c50 avg 276.1 ms、p95 508.4 ms、throughput 147.6/s。所有档位 API success 为 100%。</p>
+<p><strong>Inference</strong>：中等并发提高 batch throughput 与“共享模板 + 独立 restore stage 可并行”一致；c50 throughput 回落且逐请求 latency 上升，说明至少一个共享阶段出现排队。但报告没有阶段 trace，不能把拐点归因于 VMM、CPU/NUMA、TAP pool、storage metadata 或 agent ready 中的某一个。</p>
+<p>这里 Template 表中的 avg/p95 是逐请求 latency；“单沙箱均摊”仍是总 wall / request count，不能用其 5.5 ms 声称单请求 5.5 ms 返回。</p>
+<h3 id="34">3.4 局限与进一步优化</h3>
+<p><strong>Engineering judgment</strong>：优先增加 create stage trace，分别记录 scheduler/pool wait、reflink、network ensure、VMM launch、memory/device restore、vsock 与 agent ready。若证据显示多资源队列而非单资源饱和，再引入 CPU/NUMA、TAP、storage metadata 与 restore queue 的联合 admission control。验证指标是逐阶段 p50/p95、request latency、throughput、成功率和 cleanup leak；若新 admission 在目标并发下吞吐无改善或 p95 恶化超过预设阈值，回滚到原并发限制策略。</p>
+<p>不应直接选择“提高 SDK concurrency”：它可能继续降低 wall/N，却加深服务端排队并恶化用户 latency。</p>
+<h2 id="4">4. 单机密度与内存成本</h2>
+<h3 id="41">4.1 已实现优化设计与实现路径</h3>
+<p>未经优化时，N 个 2 GiB VM 可能为每实例预提交规格上限并复制相同基线。CubeSandbox 的目标是让 host 物理成本随实际 working set 与 private writes 增长，而不是随 guest address-space 上限线性预占。</p>
+<p><strong>Local fact</strong>：snapshot memory 使用 <code>MAP_PRIVATE | MAP_NORESERVE</code>，默认不 <code>MAP_POPULATE</code>；rootfs 与派生 memory 对象使用 reflink/CoW。<code>create_userspace_mapping()</code> 只有配置 <code>mergeable</code> 时才执行 <code>MADV_MERGEABLE</code>，所以不能把默认密度归功于 KSM。<code class="src-ref">create_userspace_mapping</code></p>
+<p>密度优化发生在物理页和 extent 的拥有关系上，而不是缩小 guest 可见地址空间：</p>
+<div class="mermaid">flowchart LR
+    MF[同一 snapshot memory file] --> PC[Host Page Cache clean folios]
+    PC --> V1[VM 1 private VMA]
+    PC --> V2[VM 2 private VMA]
+    PC --> VN[VM N private VMA]
+    V1 -->|首次写| A1[VM 1 anonymous CoW pages]
+    V2 -->|首次写| A2[VM 2 anonymous CoW pages]
+    RF[同一 rootfs extents] --> R1[VM 1 reflink view]
+    RF --> R2[VM 2 reflink view]
+    R1 -->|首次写| U1[unshared XFS extents]
+    R2 -->|首次写| U2[unshared XFS extents]
+</div>
+<p><strong>图中证据（Local fact）</strong>：snapshot RAM 的 private mapping 由 <code class="src-ref">create_ram_region</code> 建立，rootfs extent sharing 由 CubeCoW <code class="src-ref">create_snapshot</code> 与 <code class="src-ref">ficlone</code> 建立；图中的 anonymous page 与 unshared extent 是两条机制首次写入后的分叉。</p>
+<p>因此每增加一个 idle VM，不必立即增加一个 guest-size 的独占内存副本，但必然增加 VMM/shim heap、host/guest page tables、KVM MMU metadata、vCPU/device/virtio queue、TAP、fd 和控制面对象。随着各 VM 触碰和写入不同页面，匿名页与 unshared extents 向 <code>N * working-set</code> 方向增长；内存压力回收共享 file pages 后，下一次读取还会从 minor fault 退化为 major fault。</p>
+<p>NUMA 也决定“共享”是否便宜。<code>create_ram_region()</code> 在配置 host NUMA node 时执行 <code>mbind(MPOL_BIND, MPOL_MF_STRICT | MPOL_MF_MOVE)</code>；private CoW 页通常按 faulting task 与 VMA policy 分配，而 file page-cache page 的位置受最初填充者和 filesystem read 路径影响。<code class="src-ref">NUMA binding</code> 因而同一基线被跨 socket vCPU 访问时可能共享物理页却支付 remote-NUMA latency；把所有 VM 固定到单节点又会先耗尽该节点容量。</p>
+<h3 id="42">4.2 被消除、共享和转移的成本</h3>
+<ul>
+<li>消除：按 2 GiB 规格为每个空载 VM 预提交等量 host RAM；为每实例复制相同 rootfs/memory 数据块。</li>
+<li>共享：干净 snapshot pages、Page Cache 和 reflink extents。</li>
+<li>延迟/转移：首次访问产生 page fault；写入产生 anonymous/private page 与 extent unshare；高密度还支付 VMM/shim heap、页表、KVM/kernel metadata、virtio queue、TAP 和 fd 等固定成本。</li>
+<li>前置条件：小 working set、较低 dirty/unshare、Page Cache 可容纳共享页、host 没有强内存压力；XFS 支持 reflink。</li>
+</ul>
+<h3 id="43">4.3 社区报告如何观察它</h3>
+<p><strong>Community report observation</strong>：报告用 <code>free available</code> 比较累积存活的 create-only sandbox：0 个 359.5 GiB，100/300/500/1000 个分别 357.4/352.5/347.3/334.3 GiB，并折算约 21.5--25.7 MB/VM；1000 个创建成功。报告还把 <code>tap_init_num</code> 从默认 500 调到至少目标密度。</p>
+<p><strong>Inference</strong>：结果与“不预提交 guest 规格上限 + 共享基线”的方向一致，但 <code>free available</code> 是 host 综合记账，无法把 VMM RSS、Page Cache、kernel slab、页表和设备资源拆开，也不能隔离 reflink、private mapping 与报告所称“内核页共享”的贡献。约 25 MB 是该模板的空载/轻载结果，不是平台固定 per-VM 开销。</p>
+<h3 id="44">4.4 局限与进一步优化</h3>
+<p>生产密度会随 guest dirty working set、CoW unshare、活跃 CPU/I/O、Page Cache 回收、页表与设备数增长而下降。报告没有验证 guest 实际写满 2 GiB、持续负载、swap/reclaim、OOM 或 NUMA 分布，因此“1000 VM”不能等价为 1000 个生产 workload。</p>
+<p><strong>Engineering judgment</strong>：建立 <code>M_fixed + shared clean + private dirty + page cache + kernel</code> 分账，并监测 per-sandbox RSS/PSS、anonymous/file、minor/major faults、reflink shared/unshared bytes、slab、页表、TAP/fd 与 OOM/reclaim。候选优化是 CoW fan-out/chain 生命周期控制与按 NUMA 分配基线；若回收策略提高 major fault、p95 create/restore 或 CoW 写放大超过门限，应撤销新的回收/放置策略。</p>
+<h2 id="5-snapshot">5. Snapshot 并发扩展</h2>
+<h3 id="51">5.1 已实现优化设计与实现路径</h3>
+<p>未经优化时，每次 Snapshot 都写全部 guest RAM；不同 sandbox 的请求若全局串行，则吞吐也无法扩展。CubeSandbox 的目标是先缩小每次写入集合，再允许独立 sandbox 的 capture 并行；同一 sandbox 的生命周期仍需串行化以保持一致状态。</p>
+<p><strong>Local fact</strong>：runtime Snapshot 的完整链路和三层退化为 soft-dirty -&gt; pagemap anonymous -&gt; full；目标 memory artifact 是可直接 restore 的完整 image，而不是只能独立应用的裸 delta。详见 <a href="snapshot-create-commit-chain.html">Snapshot Create / Commit</a>。VMM <code>send_soft_dirty_memory()</code> 首次/未 armed 时写 anonymous-page 基线并通过 <code>/proc/self/clear_refs</code> arm；steady state 才过滤 anonymous 与 soft-dirty 的交集。<code class="src-ref">send_soft_dirty_memory</code></p>
+<div class="mermaid">sequenceDiagram
+    participant API as Snapshot API/Master
+    participant Let as Cubelet
+    participant Runtime as cube-runtime/CubeShim
+    participant VMM as VMM
+    participant Proc as Linux procfs/MM
+    participant Store as Memory/CubeCoW files
+    API->>Let: CommitSandbox(snapshot id/type)
+    Let->>Let: validate lifecycle, objects and catalog
+    Let->>Runtime: cube-runtime snapshot --app-snapshot
+    Runtime->>VMM: VmPause
+    VMM->>VMM: freeze vCPU/device state
+    Runtime->>VMM: VmSnapshot(type, memory_vol_url)
+    VMM->>Proc: scan pagemap/kpageflags, optionally bit 55
+    VMM->>VMM: coalesce selected pages into GPA ranges
+    VMM->>Store: overlay ranges + write config/device/vCPU state
+    VMM->>Proc: clear_refs=4 to re-arm when applicable
+    Runtime->>VMM: resume
+    Let->>Let: publish catalog/binding metadata
+    Let-->>API: snapshot result
+</div>
+<p><strong>图中证据（Local fact）</strong>：Cubelet 将 snapshot type、VM id、state path、disk 和 memory volume 传给 <code>cube-runtime snapshot --app-snapshot</code>。<code class="src-ref">executeCubeRuntimeSnapshot</code> CubeShim 在创建 state 目录前先发送 <code>VmPause</code>，再发送带 memory volume 与 type 的 <code>VmSnapshot</code>，并在 snapshot 尝试结束后调用 resume。<code class="src-ref">create_snapshot</code>、<code class="src-ref">snapshot/resume orchestration</code> 这使 device/vCPU state 与内存选择面对同一个 paused consistency point；并发优化只能发生在不同 sandbox 之间，不能把同一 sandbox 的 lifecycle 操作无序重叠。</p>
+<p>Snapshot 的 CPU 与 I/O 可以分别饱和：pagemap/kpageflags scan 消耗 CPU、procfs 读取和 page-table walk；range 越碎，seek/write/ioctl 与 extent metadata 次数越多；多个 sandbox 同时 overlay 会竞争 storage bandwidth、XFS log/metadata 和 Page Cache。SDK 或 API 层没有单一 concurrency 数能代表这些下游容量。</p>
+<h3 id="52">5.2 被消除、共享和转移的成本</h3>
+<ul>
+<li>消除：file-backed clean pages 的重复写入；steady state 中本窗口未修改 anonymous pages 的写入。</li>
+<li>并行：不同 sandbox 的 pause/scan/write/state 操作可并发；同一 sandbox 仍需要顺序边界。</li>
+<li>保留：pagemap 扫描、range 构造、pause/device state、文件 metadata/sync、resume 与 API/control overhead。</li>
+<li>前置条件：base snapshot 文件存在并与 sandbox restore-base 正确绑定；<code>CONFIG_MEM_SOFT_DIRTY</code> 与 <code>clear_refs</code> 可用；不同请求拥有独立 sandbox 与输出对象；I/O 和 CPU 没有饱和。</li>
+</ul>
+<h3 id="53">5.3 社区报告如何观察它</h3>
+<p><strong>Community report observation</strong>：约 7 MB captured pages 时，c1/c5/c10 的 batch wall avg 为 49.8/71.0/127.2 ms，wall/N 为 49.8/14.2/12.7 ms。每个并发请求针对不同 sandbox。</p>
+<p><strong>Inference</strong>：batch throughput 随 c1 到 c5/c10 增长，符合独立 capture 可并行和每项写入量较小的机制预期；c10 wall 高于 c5 表明共享资源成本开始增长。12.7 ms 是 batch throughput interval，不是一次 Snapshot request latency。5 rounds 下 p95 等于 max，不能解释为稳定尾延迟。</p>
+<h3 id="54">5.4 局限与进一步优化</h3>
+<p>报告没有持续 arrival、queue depth、per-request latency、磁盘带宽/IOPS、scan CPU、fsync、NUMA 或成功/正确性数据，无法定位并发上限。</p>
+<p><strong>Engineering judgment</strong>：先记录 pause、scan pages、selected pages、written bytes、write/sync、resume 和 queue time；以成功率、state restore 校验、batch throughput 与 per-request p95 共同选 admission 并发。若新的并行上限导致 snapshot 失败、restore 校验失败、I/O saturation 或 p95 越界，则回滚 concurrency/admission 配置。</p>
+<h2 id="6-snapshot-dirty-page">6. Snapshot 与 Dirty Page 规模</h2>
+<h3 id="61">6.1 已实现优化设计与实现路径</h3>
+<p>未经优化时写入量是 guest RAM 上限；当前设计把写入量降为 anonymous candidate，并在 tracker 已 armed 的 steady state 进一步降为本窗口 dirty subset。<code>send_soft_dirty_memory()</code> 要求 delta 覆盖到已经存在的 base 文件；base 缺失会报错，<code>clear_refs</code> re-arm 失败则 disarm，下一次退回完整 anonymous-page 路径。这些回退保护“生成的文件可恢复”不变量，而不是为追求小写入量生成不完整 artifact。</p>
+<p>状态机必须按 snapshot 周期理解：</p>
+<pre><code class="language-text">Unarmed
+  -&gt; 写入全部 anon candidate 到既有完整 base
+  -&gt; clear_refs(4) 成功: Armed
+  -&gt; clear_refs(4) 失败: 保持 Unarmed
+
+Armed
+  -&gt; 读取 anon bitmap 与 pagemap bit 55
+  -&gt; must_save = anon AND soft_dirty
+  -&gt; 连续 page 合并为 MemoryRange
+  -&gt; 按 GPA-&gt;file offset 覆盖既有完整 image
+  -&gt; clear_refs(4) 成功: 继续 Armed
+  -&gt; clear_refs(4) 失败: 转为 Unarmed，下轮保守写全 anon
+</code></pre>
+<p>anonymous 候选来自 <code>/proc/self/pagemap</code> 的 PFN 与 <code>/proc/kpageflags</code> 的 <code>KPF_ANON</code>；读取 PFN 需要相应权限，present page 的 PFN 为 0 时当前实现报 capability error；swapped page 被保守纳入。<code class="src-ref">get_anon_pages</code> soft-dirty scan 读取 pagemap bit 55，也把 swapped page 保守视为 dirty。<code class="src-ref">get_soft_dirty_pages</code></p>
+<p><strong>Local fact（带边界）</strong>：bitmap 交集之后，连续页被合并为范围，再通过 GPA 到 snapshot file offset 的表做原位覆盖；它减少写入 bytes 和碎片化调用，但 scan 仍触达整个声明范围。<code class="src-ref">filter_memory_ranges_by_anon_and_soft_dirty</code> 当前 swapped page 会被保存，但统计结构未同步增加相应 swapped 计数，因而日志统计不能作为 swap 覆盖完整性的唯一证据。</p>
+<p><strong>Unconfirmed durability boundary</strong>：已检查的 memory snapshot overlay 路径可见 <code>write_at</code>/文件覆盖与 metadata/state 写入，但未看到明确的 <code>fsync</code>、<code>fdatasync</code>、临时文件原子 rename 或两阶段 publication。CubeCoW reflink 路径虽调用目录 fsync，错误也被忽略。本文因此只能断言“调用返回前完成用户态写入”，不能断言掉电后的 crash durability 或 memory/state/rootfs 三者原子一致；故障注入必须覆盖写一半、state 已发布但 memory 未持久化等窗口。</p>
+<h3 id="62">6.2 被消除、共享和转移的成本</h3>
+<ul>
+<li><code>W(total RAM)</code> 变为 <code>W(anonymous candidate)</code> 或 <code>W(anonymous intersect soft-dirty)</code>。</li>
+<li>scan cost 仍与页表/候选范围有关；device/vCPU state 和 pause/resume 是近似固定项。</li>
+<li>dirty 写越多，snapshot write、CoW extent 与缓存压力越大；“增量”节省当次写 I/O，但 base 生命周期、绑定与 crash consistency 成为额外控制成本。</li>
+<li>生效条件是正确建立首次基线和 tracking window；环境表写有 soft-dirty 不等于每种操作都走 soft-dirty。</li>
+</ul>
+<h3 id="63">6.3 社区报告如何观察它</h3>
+<p><strong>Community report observation</strong>：VMM 日志记录的 captured bytes 从 7.1 MB 增至 1136.4 MB 时，snapshot avg 从 45.7 ms 增至 486.9 ms；中间点整体近线性。测试按 requested <code>/dev/shm</code> 写入量分档，但“Dirty Page”列采用 VMM 实际 logged bytes。报告称每档丢弃首次结果，再测 3 rounds。</p>
+<p><strong>Local fact（仅当前脚本）</strong>：固定基线的 <code>bench_snapshot_dirty.py</code> 没有在 3 个 snapshot 正式样本前额外丢弃一次 snapshot；它只在每个正式 round 内丢弃该 snapshot 的第一次 restore，再计时暖缓存 restore。因此报告的“每个数据点先预热”不能用于断言 snapshot 表也排除了首个 snapshot 样本，历史脚本又未绑定到具体 commit。</p>
+<p><strong>Inference</strong>：观察支持 <code>L_snapshot = fixed scan/state cost + W(B_written)</code> 中写入字节是随 dirty 增长的重要项；它不证明唯一成本是磁盘带宽，也不证明 <code>clear_refs</code>、base binding 或故障回退在历史运行中正确执行。3 rounds 下 p95 就是 max。</p>
+<h3 id="64">6.4 局限与进一步优化</h3>
+<p>报告没有 raw log、write bandwidth、pagemap scan time、fsync、dirty-page spatial distribution 或 base chain 深度，不能从斜率外推其他存储和 workload。</p>
+<p><strong>Engineering judgment</strong>：优化前先把 <code>total_pages / anonymous_pages / soft_dirty_pages / written_bytes / scan_us / write_us / sync_us</code> 关联到 snapshot id 和 base id。可评估 range coalescing 或异步 I/O，但必须保持可直接 restore artifact、base ownership 和 crash consistency；任一 restore checksum/state validation 失败或固定成本增加抵消低-dirty 收益时回滚。</p>
+<h2 id="7-snapshot">7. 基于 Snapshot 创建沙箱</h2>
+<h3 id="71">7.1 已实现优化设计与实现路径</h3>
+<p>未经优化时恢复需要把整个 memory image 读入匿名内存再构建 VM。fast restore 直接把 memory file 私有映射为 guest RAM，然后恢复 device/vCPU/KVM state，并在实际访问时 fault；rootfs 由 reflink 派生。平台仍需重建实例特有网络、vsock 和 guest agent 会话。</p>
+<p>相关 Local facts 与 Template create 相同：<code>new_from_snapshot()</code> 选择 memory-file fast path，<code>create_ram_region()</code> 使用 private/noreserve mapping，<code>restore_vm()</code> 注入当前实例设备 backend。详细状态边界见 <a href="vmm-snapshot-restore-state-chain.html">VMM Snapshot Restore</a> 和 <a href="snapshot-catalog-restore-binding-chain.html">Snapshot Catalog / Restore Binding</a>。</p>
+<p>restore 的 VM 内部顺序如下；“API ready”发生在 agent 重连之后，但 lazy memory fault 可以发生在 ready 之前或之后，取决于 restore/device/agent 和 workload 实际触碰的页：</p>
+<div class="mermaid">flowchart TD
+    A[读取 snapshot config/state] --> B[创建空 hypervisor VM]
+    B --> C[恢复 MemoryManagerSnapshotData]
+    C --> D{fast restore supported?}
+    D -->|yes| E[open memory file read-only]
+    E --> F[mmap MAP_PRIVATE/NORESERVE]
+    D -->|no| G[allocate normal regions]
+    G --> H[fill_saved_regions eager copy]
+    F --> I[register GPA-HVA KVM memslots]
+    H --> I
+    I --> J[重建实例 fs/net/disk/pmem/vsock backend]
+    J --> K[按 device tree 顺序 restore]
+    K --> L[restore vCPU/arch state and resume]
+    L --> M[connect agent, reset guest, rebind clients/monitors]
+    M --> N[platform ready]
+    N --> O[后续 workload 继续产生 file faults/CoW]
+</div>
+<p><strong>图中证据（Local fact）</strong>：fast path 的显式适用条件是没有 shared-memory zone 且没有 virtio-mem hotplug；不满足时使用 <code>fill_saved_regions()</code>，不能把 private mapping 的成本模型套到 fallback。<code class="src-ref">new_from_snapshot</code>、<code class="src-ref">support_fast_restore_check</code> snapshot 中的 <code>MemoryManagerSnapshotData</code> 还原 memory ranges、guest RAM mapping、slot 序号和 hotplug state；这些 metadata 必须与 config 和 device topology 匹配，否则“文件可读”仍不足以恢复 VM。</p>
+<p>Page Cache 热度决定的是 fault 成本而非 restore 正确性。warm cache 可能让报告中的 API ready 只承担 minor faults；cold cache、reclaim 或跨 NUMA 访问会让相同代码路径出现 storage read 和 remote memory。prefault/readahead 能减少 ready 后首个 workload 的 fault，却会提高 restore I/O、RSS 和并发时的 cache/bandwidth 压力，所以必须用“API ready + 首次真实请求”的联合 SLO 选择策略。</p>
+<h3 id="72">7.2 被消除、共享和转移的成本</h3>
+<ul>
+<li>消除：restore 请求中的全 memory memcpy、guest cold boot 与应用初始化。</li>
+<li>共享：snapshot clean pages、warm Page Cache、rootfs reflink extents。</li>
+<li>延迟/转移：snapshot 越大并不必然增加 API 返回前的 copied bytes，但之后访问会产生 page fault/cache miss；首次写产生 memory/rootfs CoW。</li>
+<li>前置条件：fast-restore 支持、snapshot metadata/device topology 兼容、本地 artifact 完整、实例网络/backend 可重建。warm Page Cache 是低 fault 成本条件，不是语义正确性的条件。</li>
+</ul>
+<h3 id="73">7.3 社区报告如何观察它</h3>
+<p><strong>Community report observation</strong>：Dirty Page 分档中的 create avg 为 60.7--68.4 ms，max 为 66.1--84.6 ms；脚本丢弃第一次 restore，所以这是 warm restore。独立 create-from-snapshot 批测试中 c1/c10/c20/c50 的 wall avg 为 63.9/89.9/118.9/180.3 ms，wall/N 为 63.9/9.0/5.9/3.6 ms。</p>
+<p><strong>Inference</strong>：API 返回前耗时对 artifact captured bytes 不敏感，与 file mapping + lazy fault 方向一致；它不能证明“恢复成本与 snapshot 大小无关”。总工作集变大时，成本只是转移到返回后的 fault、cache miss、NUMA remote access 和首次写 CoW。独立测试的 3-round p95 等于 max，3.6 ms 仍只是 batch throughput interval。</p>
+<h3 id="74">7.4 局限与进一步优化</h3>
+<p>报告未测 cold cache、memory pressure、首次 guest workload latency、major/minor faults、NUMA placement 或 restore 后 state/data correctness。</p>
+<p><strong>Engineering judgment</strong>：对比 lazy、targeted readahead 和 prefault 必须同时测 API ready latency、ready 后首个真实 workload latency、fault count、RSS/PSS 与密度。prefault 可能降低首访问 latency，却把 I/O 和 resident memory 拉回请求路径。若 ready latency、内存密度或无访问 workload 明显回退，则恢复 lazy 默认；只对有可预测 working set 的模板选择性启用预取。</p>
+<h2 id="8-rollback">8. Rollback</h2>
+<h3 id="81">8.1 已实现优化设计与实现路径</h3>
+<p>未经优化时 Rollback 可以重建整个 shim/VMM 进程，或先为当前状态制作 safety checkpoint 再尝试 restore。当前设计选择保留控制进程、替换内部 VM，并明确省掉临时 checkpoint。</p>
+<p><strong>Local fact</strong>：Cubelet rollback 在生命周期锁内要求 CubeCoW backend，经本地 catalog 解析目标，并用 <code>RollbackDeriveNewGen()</code> 从目标 rootfs 派生新 generation。<code class="src-ref">Rollback</code></p>
+<p><strong>Local fact</strong>：<code>rollback_vm()</code> 断开 agent/monitor，发送 <code>VmDelete</code> 删除当前 VM 对象但保留 VMM 进程，清空 stale shutdown event，再用调用方的 <code>RestoreConfig</code> 恢复。<code class="src-ref">rollback_vm</code> 源码明确不先做 temporary checkpoint；目标 restore 失败时 VM 保持 deleted。恢复后 <code>resume_vm_with_config()</code> 重连 agent、reset guest、重绑 container client 并重启 monitor。<code class="src-ref">resume_vm_with_config</code></p>
+<div class="mermaid">sequenceDiagram
+    participant Master as CubeMaster
+    participant Let as Cubelet
+    participant Cow as CubeCoW
+    participant Ctrd as containerd/shim update
+    participant Shim as CubeShim
+    participant VMM as existing VMM process
+    participant Agent as Guest Agent
+    Master->>Let: Rollback(snapshot_id, new_gen)
+    Let->>Let: acquire per-sandbox lifecycle lock
+    Let->>Let: resolve catalog/ownership/current rootfs
+    Let->>Cow: derive new rootfs generation from target
+    Cow-->>Let: new dev path
+    Let->>Let: build RestoreConfig(memory + substituted disks)
+    Let->>Ctrd: update action=rollback + restore_config
+    Ctrd->>Shim: rollback_vm
+    Shim->>Agent: disconnect and abort old monitors
+    Shim->>VMM: VmDelete
+    Shim->>VMM: drain stale VmShutdown events
+    Shim->>VMM: VmResumeFromSnapshot(target)
+    Shim->>Agent: reconnect/reset/rebind/restart monitors
+    Shim-->>Let: success
+    Let->>Let: persist new generation/base binding
+    Let->>Cow: delete old rootfs best-effort
+    Let-->>Master: rollback result
+</div>
+<p><strong>图中证据（Local fact）</strong>：Cubelet 在派生新 generation 后设置 deferred cleanup；只有 shim restore 成功才取消该 cleanup。它还在 shim 操作期间设置 <code>RollingBack</code>，避免 DeadGC 或 task status 的短暂 <code>Unknown</code> 把 sandbox 标成 terminated；成功后清理旧终止标记并持久化新 rootfs/base binding。<code class="src-ref">RollbackSandbox</code></p>
+<p>这条顺序维持两个不变量：进入 shim 前目标 rootfs/memory/state 已经解析为具体对象；对外宣告成功前 agent/container clients 与 monitors 已绑定新 VM。它没有维持“失败后仍可继续使用旧 VM”不变量：<code>VmDelete</code> 之后若 target restore 或 agent reconnect 失败，旧 VM object 已丢失。VMM 进程复用节省 process/bootstrap 成本，但不是事务回滚。</p>
+<h3 id="82">8.2 被消除、共享和转移的成本</h3>
+<ul>
+<li>消除：shim/VMM process recreate、guest cold boot、完整 rootfs copy、临时 safety checkpoint 的 memory I/O。</li>
+<li>共享/复用：现有控制进程、本地 catalog、CubeCoW target rootfs 与 snapshot restore path。</li>
+<li>保留：VM delete、event drain、memory/device restore、agent/container reconnect 和 monitor rebuild。</li>
+<li>转移的风险：省掉 safety checkpoint 缩短成功路径，但 restore 失败没有自动恢复到调用前状态。</li>
+<li>前置条件：sandbox 处于允许 rollback 的状态、无阻塞 exec、snapshot 属于该 sandbox 且本节点 catalog/artifact 完整、CubeCoW backend 可派生 generation。</li>
+</ul>
+<h3 id="83">8.3 社区报告如何观察它</h3>
+<p><strong>Community report observation</strong>：c1/c5/c10 的 rollback-only batch wall avg 为 81.6/189.6/266.1 ms，wall/N 为 81.6/37.9/26.6 ms；每个 sandbox 使用自己的预建 checkpoint。</p>
+<p><strong>Local fact（仅当前脚本）</strong>：checkpoint creation 在 timer 之前。因此报告正文把约 82 ms 称为“create_snapshot + rollback”不符合脚本计时边界。上述数值只能解释 rollback 调用，不包含创建 checkpoint、sandbox setup 和 cleanup。由于报告未固定脚本 commit，该事实用于校正当前可见方法边界，不能证明历史脚本完全相同。5 rounds 的 p95 等于 max。</p>
+<p><strong>Inference</strong>：并发 batch throughput 改善与独立 sandbox restore 可并行一致，但不能说明完整 checkpoint-to-rollback workflow，也没有证明回滚后内存、文件系统、agent 和 device state 正确。</p>
+<h3 id="84">8.4 局限与进一步优化</h3>
+<p><strong>Engineering judgment</strong>：Rollback 的第一优先级不是继续省步骤，而是为 <code>rootfs derive / VmDelete / state restore / agent reconnect / ready</code> 建阶段 trace，并注入 restore failure 验证 deleted-state、catalog/generation cleanup 和可恢复性。若要重新引入可选 safety checkpoint，应明确性能与恢复保证的产品选择；若优化路径的 restore failure rate、orphan generation 或不可恢复状态超过零容忍阈值，回滚到更保守的 checkpoint/recreate 路径。</p>
+<h2 id="9-clone">9. Clone</h2>
+<h3 id="91">9.1 已实现优化设计与实现路径</h3>
+<p>未经优化时 N 个 clone 可能重复 capture 源状态 N 次并逐个完整复制。CubeSandbox Node SDK 的 Clone 不是“fork 运行进程”的底层原语，而是一次 <code>createSnapshot()</code>，再从同一 snapshot 有界并发执行 N 次 <code>Sandbox.create()</code>。</p>
+<p><strong>Local fact</strong>：<code>clone()</code> 创建一次临时 snapshot，以 <code>min(n, concurrency)</code> 个 worker drain 全部 create；失败时清理已创建 siblings，最终删除临时 snapshot。<code class="src-ref">clone</code></p>
+<p>展开后的 <code>clone()</code> 运行流不是单个 API 原语，而是两阶段编排：</p>
+<div class="mermaid">sequenceDiagram
+    participant Caller as Caller
+    participant SDK as Node SDK clone
+    participant Snap as Snapshot API/path
+    participant Create as Create-from-snapshot path
+    participant Child as Child sandboxes
+    Caller->>SDK: clone(N, concurrency=C)
+    SDK->>Snap: createSnapshot(parent) once
+    Snap-->>SDK: temporary snapshot_id
+    loop min(N,C) bounded workers
+        SDK->>Create: Sandbox.create(template=snapshot_id)
+        Create->>Create: schedule + rootfs reflink + VM restore
+        Create-->>SDK: child or error
+    end
+    alt all create calls succeed
+        SDK-->>Caller: N children sharing CloneCleanup
+        Child->>SDK: release/kill each child
+        SDK->>Snap: delete temporary snapshot after last release
+    else any create fails
+        SDK->>Child: kill every successful sibling, allSettled
+        SDK->>Snap: force idempotent cleanup
+        SDK-->>Caller: throw first error
+    end
+</div>
+<p><strong>图中证据（Local fact）</strong>：<code>CloneCleanup</code> 用 released-id set 保证同一 child 只扣减一次，用 <code>remaining</code> 在最后一个 child release 时删临时 snapshot，并用 <code>cleanupStarted</code> 防止并发重复删除。<code class="src-ref">CloneCleanup</code> snapshot delete 是 best-effort，因此 SDK 清理逻辑防止正常路径泄漏，但不能提供进程崩溃后的 GC 保证。</p>
+<p>每个 worker 发起的都是第 7 节完整 create-from-snapshot：各自经历 CubeAPI/Master 调度、节点 rootfs 派生、network/containerd/shim、VMM mmap/memslot/device/vCPU restore 和 agent ready。只被摊薄的是 parent snapshot capture 与 immutable base；每个 child 的控制对象、KVM/device 状态、页表和 ready handshake 均不能共享。</p>
+<p>内核层共享也有清晰生命周期：所有 child 的 <code>MAP_PRIVATE</code> memory VMA 可以引用同一 snapshot file 的 clean Page Cache，rootfs 文件可以引用相同 XFS extents；child 读冷页仍各自触发 fault 路径，child 写入则各自生成 anonymous page 或 unshared extent。删除临时 snapshot 名称不会立刻回收仍被打开/引用的 file pages 或 extents，但 catalog、文件 fd 与 CubeCoW ownership 必须保持到所有 child 建立自己的有效引用之后。</p>
+<h3 id="92">9.2 被消除、共享和转移的成本</h3>
+<ul>
+<li>消除：N 次重复 snapshot capture、N 次完整 memory/rootfs copy、严格串行的 N 次 restore。</li>
+<li>共享：同一 immutable snapshot、memory clean pages、rootfs reflink extents 和 Page Cache。</li>
+<li>并行：有界 worker fan-out；<code>n=100</code> 时提高 C 减少批次数。</li>
+<li>转移：每个 child 后续的 page faults、private writes 和 CoW unshare；共享 artifact 的 fan-out、缓存与生命周期压力。</li>
+<li>前置条件：首次 snapshot 成功；所有 child 都能访问 artifact；并发额度不压垮控制面、network/storage/VMM；partial failure cleanup 正确。</li>
+</ul>
+<h3 id="93">9.3 社区报告如何观察它</h3>
+<p><strong>Community report observation</strong>：n1/c1 的 wall avg 219.6 ms；固定 n=100 时 c10/c20/c50 为 870.4/638.6/540.9 ms，wall/N 为 8.7/6.4/5.4 ms。报告明确涉及的文件已在 Page Cache；n=100 只有 2 rounds，所以 p95 等于 max。</p>
+<p><strong>Inference</strong>：固定 N 时更多 worker 减少批次数，与有界 fan-out 设计一致；warm shared Page Cache 也可能降低 fault/read 成本。但 5.4 ms 不是一个 clone request 的 latency，且 n1/c1 与 n100 档位的固定 snapshot/调度摊销不同，不能直接作单请求加速倍数。报告没有隔离“批次数减少”和“Page Cache 复用更充分”的贡献。</p>
+<h3 id="94">9.4 局限与进一步优化</h3>
+<p>冷 cache、memory pressure、大 dirty source、child 首次 workload、partial failure、artifact cleanup 和 fan-out 上限均未覆盖。</p>
+<p><strong>Engineering judgment</strong>：按 source working set、snapshot bytes、fan-out、cache state 和多资源容量设置 clone admission；记录 snapshot-once 固定成本、child request latency、faults、cleanup 成功率及 shared/unshared bytes。若 adaptive concurrency 增加失败/泄漏、child p95 或 Page Cache thrashing，回滚到固定 worker 上限；不要以更低 wall/N 单独作为放宽并发的依据。</p>
+<h2 id="10-pause-resume">10. Pause / Resume</h2>
+<h3 id="101">10.1 已实现优化设计与实现路径</h3>
+<p>Pause 的功能目标是持久化 VM 状态并删除运行 VM，从而在 paused 期间释放运行资源；Resume 直接恢复持久状态，避免 guest cold boot。当前性能设计只优化了 Resume 路径和 paused 生命周期，<strong>没有把普通 Pause 的 memory capture 增量化</strong>。</p>
+<p><strong>Local fact</strong>：<code>SandBox::pause_vm()</code> 断开 agent、创建 per-sandbox snapshot 目录、调用 <code>pause_vm_cube()</code> 并等待 shutdown event。<code class="src-ref">pause_vm</code> <code>pause_vm_cube()</code> 创建没有指定 type 的 <code>SnapshotConfig</code> 并发送 <code>VmPauseToSnapshot</code>。<code class="src-ref">pause_vm_cube</code> <code>SnapshotType::default()</code> 是 <code>Full</code>。<code class="src-ref">SnapshotType</code> VMM <code>vm_pause_to_snapshot()</code> 顺序执行 pause、snapshot、delete。<code class="src-ref">vm_pause_to_snapshot</code></p>
+<p><strong>Local fact</strong>：Resume 发送 <code>VmResumeFromSnapshot</code>，随后重连 agent/container client 与 monitor。它复用 snapshot restore 的 private mapping/lazy fault 设计，而不是重新引导 guest。</p>
+<div class="mermaid">sequenceDiagram
+    participant API as Pause/Resume API
+    participant Shim as CubeShim
+    participant Agent as Guest Agent
+    participant VMM as VMM
+    participant Disk as pause snapshot directory
+    API->>Shim: pause
+    Shim->>Shim: Normal -> Paused; reject active exec
+    Shim->>Agent: disconnect
+    Shim->>Disk: recreate per-sandbox directory
+    Shim->>VMM: VmPauseToSnapshot(default SnapshotConfig)
+    VMM->>VMM: pause vCPUs/devices
+    VMM->>Disk: full memory + VM/device/vCPU state
+    VMM->>VMM: VmDelete
+    VMM-->>Shim: VmShutdown event
+    Shim-->>API: paused
+    API->>Shim: resume
+    Shim->>VMM: VmResumeFromSnapshot(directory)
+    VMM->>Disk: restore state + private memory mapping
+    Shim->>Agent: reconnect + reset guest
+    Shim->>Shim: rebind clients, OOM/VM monitors; Paused -> Normal
+    Shim-->>API: resumed
+</div>
+<p><strong>图中证据（Local fact）</strong>：默认 <code>SnapshotConfig</code> 的 <code>SnapshotType</code> 在此基线为 <code>Full</code>，所以 Pause 会遍历并写出 full memory ranges；runtime Snapshot 的 unarmed/armed soft-dirty state machine 不在这条入口上。<code class="src-ref">pause_vm_cube</code>、<code class="src-ref">vm_pause_to_snapshot</code> Resume 可以使用相同 fast memory mapping，因此“Pause 写得多、Resume 返回快”在机制上并不矛盾：前者承担持久化，后者把一部分读取延迟到 fault。</p>
+<p>Pause 返回还依赖 shutdown event；Resume 返回依赖 agent 重新连接、guest reset、container client 重绑和 monitor 重建，而不只是 <code>VmResumeFromSnapshot</code> ioctl 完成。测试如果只检查 API success 而不执行 guest memory、filesystem、network/device 和 agent operation 校验，只覆盖生命周期控制面，不足以证明恢复正确。</p>
+<h3 id="102">10.2 被消除、共享和转移的成本</h3>
+<ul>
+<li>Pause 已消除的成本：paused 期间不继续保留 active VM 执行资源；持久化后可删除 VM。</li>
+<li>Resume 已消除的成本：guest cold boot 与应用初始化；恢复读取可转为 mapping/page fault。</li>
+<li>Pause 当前未消除的成本：普通路径仍保存 full snapshot，不是 soft-dirty delta。</li>
+<li>转移：Resume 后的 page faults/CoW；Pause 的完整 memory write 落到持久存储。</li>
+<li>前置条件：per-sandbox snapshot 路径可用，full snapshot 完整，restore metadata 兼容，agent/monitor 可重连。</li>
+</ul>
+<h3 id="103">10.3 社区报告如何观察它</h3>
+<p><strong>Community report observation</strong>：Pause c1/c5/c10 batch wall avg 为 558.4/656.9/682.1 ms，wall/N 为 558.4/131.4/68.2 ms；Resume 为 41.8/28.2/35.7 ms，wall/N 为 41.8/5.6/3.6 ms。每档 5 rounds，p95 等于 max。</p>
+<p><strong>Inference</strong>：Pause 的较大固定 wall 与 full snapshot 写路径方向一致；并发 wall 增长较小只说明该 warm、空载批次有并行余量，不证明高 dirty/full 2 GiB 写入可同样扩展。Resume 的短 warm batch 与直接 restore/lazy mapping 一致，但不包含 cold cache 和恢复后首个 workload。</p>
+<p><strong>Community report observation</strong>：报告预测 future soft-dirty Pause 约 60 ms、降低 80--90%，但没有提供实测。该数字不是当前实现事实，也不是当前 baseline 的性能结果。</p>
+<h3 id="104">10.4 局限与进一步优化</h3>
+<p><strong>Engineering judgment，P1</strong>：要把 soft-dirty 接入 Pause，不能只修改 <code>SnapshotType</code>。设计必须拥有持久 full base + delta overlay，定义 first pause、连续 pause、resume 后 tracking re-arm、base 失效、crash consistency、artifact GC 和失败回退。选择该方案是因为 runtime Snapshot 已有 soft-dirty primitive；“每次 full copy”保留为首次/失效 fallback，“只保存裸 delta”因不能独立恢复而拒绝。</p>
+<p>验证必须同时覆盖 pause wall/bytes、resume ready、恢复后 memory/filesystem/device/agent correctness、base/delta ownership、crash injection 和并发 I/O。若 base 缺失、tracking/re-arm 失败或 restore validation 失败，立即回退 full snapshot；若低-dirty 收益不足以抵消生命周期复杂度，也保留 full 为默认。</p>
+<h2 id="11_1">11. 跨项优化优先级、验证与回滚</h2>
+<p>以下均为 <strong>Engineering judgment</strong>，排在现有机制解释之后，不由社区数字直接证明：</p>
+<table>
+<thead>
+<tr>
+<th>优先级</th>
+<th>设计</th>
+<th>预期改变的成本项</th>
+<th>风险 / 不变量</th>
+<th>最小验证</th>
+<th>回滚条件与方法</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>P0</td>
+<td>统一阶段 trace 与 artifact identity</td>
+<td>先定位 <code>Q_control</code>、scan/write、fault、agent ready，而非直接降成本</td>
+<td>tracing overhead；不得泄露敏感数据</td>
+<td>各操作 p50/p95、queue、bytes/pages、fault、success/correctness</td>
+<td>overhead 或日志量越界则关闭采样/恢复原埋点</td>
+</tr>
+<tr>
+<td>P1</td>
+<td>多资源 admission control</td>
+<td>限制队列放大，改善逐请求尾延迟</td>
+<td>可能降低峰值 batch throughput；保证公平和 cleanup</td>
+<td>arrival-controlled latency/throughput、CPU/NUMA、I/O、TAP/storage queue</td>
+<td>吞吐无改善或 p95/公平性回退则恢复固定上限</td>
+</tr>
+<tr>
+<td>P1</td>
+<td>Pause full-base + soft-dirty delta</td>
+<td>降低 steady-state <code>W(B_written)</code></td>
+<td>base 生命周期、原子性、恢复正确性</td>
+<td>first/steady/failure/restart/并发矩阵</td>
+<td>任一 state validation/base binding 失败即强制 full</td>
+</tr>
+<tr>
+<td>P1</td>
+<td>Restore targeted readahead/prefault</td>
+<td>把部分后续 fault 移到 ready 前</td>
+<td>增加 ready latency、RSS 与无用 I/O</td>
+<td>cold/warm、首 workload、fault、RSS/PSS、NUMA</td>
+<td>ready 或密度超阈值则恢复 lazy mapping</td>
+</tr>
+<tr>
+<td>P2</td>
+<td>CoW fan-out/chain 管理</td>
+<td>控制 unshare、Page Cache 与 metadata 放大</td>
+<td>GC 误删、artifact ownership、写放大</td>
+<td>shared/unshared bytes、chain depth、fault/I/O、restore correctness</td>
+<td>ownership 不确定或 fault/I/O 回退则禁用新策略</td>
+</tr>
+</tbody>
+</table>
+<p>验证时必须固定 source commit、binary/image digest、host/guest kernel、CPU/NUMA policy、storage/cache state、sandbox config、workload、arrival pattern、run count 和 metric boundary。成功标准应在实验前定义，至少同时包含性能、成功率、恢复后状态正确性和资源泄漏；不能只用 wall/N。本文不替这些设计执行 benchmark。</p>
+<h2 id="12">12. 架构、正确性与适用边界</h2>
+<ul>
+<li><strong>Local fact</strong>：CubeCoW reflink、Cubelet workflow 和多数 control-plane 编排没有 ARM64/x86_64 分支；VMM 的 CPU、interrupt controller、memory layout 和 device state restore 存在架构差异。详见 <a href="arch-arm64-x86-chain.html">ARM64 与 x86_64 架构差异</a> 与 <a href="interrupt-state-restore-chain.html">中断状态恢复</a>。</li>
+<li><strong>Engineering judgment</strong>：共享控制路径不能替代架构专项验证。报告只测 x86_64，故 ARM64 create/restore/Pause 的正确性与性能都保持 unconfirmed/non-comparable。</li>
+<li>Snapshot/restore 的首要不变量是 memory、vCPU、device、interrupt、filesystem、network 与 agent-visible state 一致；API success 或 Hello World 前置验证不能覆盖这些不变量。</li>
+<li>fast restore、reflink 和 soft-dirty 分别依赖 memory layout、filesystem 与 kernel capability。任一前置条件不成立时，应显式 fallback 或失败，不能把不完整 artifact 当成功。</li>
+<li>warm-cache 数字不能覆盖 cold start；空载数字不能覆盖 dirty/CPU/I/O workload；单波 batch 不能覆盖稳态排队与 backpressure。</li>
+</ul>
+<h2 id="13_1">13. 结论与证据账本</h2>
+<table>
+<thead>
+<tr>
+<th>结论</th>
+<th>标签</th>
+<th>核心证据</th>
+<th>剩余不确定性</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Template create 用 snapshot restore 替代 guest/app 冷启动</td>
+<td>Local fact</td>
+<td><code>start_vm</code> / <code>restore_vm</code>、memory fast restore、CubeCoW reflink</td>
+<td>各阶段贡献比例未测</td>
+</tr>
+<tr>
+<td>密度来自按需 private mapping 与 CoW 基线，而非默认 KSM</td>
+<td>Local fact + Inference</td>
+<td><code>create_ram_region</code>、<code>create_userspace_mapping</code>、<code>ficlone</code></td>
+<td>约 25 MB 的内存分账未测</td>
+</tr>
+<tr>
+<td>runtime Snapshot 可从 anonymous 基线进入 soft-dirty steady state</td>
+<td>Local fact</td>
+<td><code>send_soft_dirty_memory</code>、Snapshot Create / Commit 链路</td>
+<td>历史报告运行时具体路径未绑定</td>
+</tr>
+<tr>
+<td>snapshot 写耗时随 captured bytes 增长</td>
+<td>Community report observation</td>
+<td>7.1--1136.4 MB 与 45.7--486.9 ms 表</td>
+<td>scan/write 贡献未隔离；当前路径未确认显式持久化同步</td>
+</tr>
+<tr>
+<td>warm restore API time对 captured bytes 不敏感，但成本转移到 faults/CoW</td>
+<td>Community report observation + Inference</td>
+<td>warm create 60.7--68.4 ms；private lazy mapping</td>
+<td>cold cache、首 workload 未测</td>
+</tr>
+<tr>
+<td>Rollback 复用进程并省掉临时 checkpoint</td>
+<td>Local fact</td>
+<td><code>rollback.go</code>、<code>rollback_vm</code>、<code>resume_vm_with_config</code></td>
+<td>失败恢复代价需注入验证</td>
+</tr>
+<tr>
+<td>Rollback 报告计时不含 checkpoint creation</td>
+<td>Local fact（仅当前脚本）</td>
+<td><code>bench_rollback_concurrency.py</code> timer boundary</td>
+<td>历史脚本版本未固定</td>
+</tr>
+<tr>
+<td>Clone 是 snapshot-once + bounded fan-out，不是 process fork</td>
+<td>Local fact</td>
+<td>Node SDK <code>clone()</code></td>
+<td>冷 cache 与大 working set 未测</td>
+</tr>
+<tr>
+<td>普通 Pause 当前仍为 Full；soft-dirty Pause 是未实测方向</td>
+<td>Local fact + Community report observation</td>
+<td><code>pause_vm_cube</code>、<code>SnapshotType::default</code>、报告预测</td>
+<td>新生命周期设计尚未实现/验证</td>
+</tr>
+<tr>
+<td><code>wall/N</code> 只表示 batch throughput interval</td>
+<td>Local fact / metric definition</td>
+<td>benchmark timer 与 batch aggregation</td>
+<td>不提供单请求分布</td>
+</tr>
+</tbody>
+</table>
+<p>最终回答是：社区报告覆盖的所有操作都能在当前源码中找到明确的优化设计，但优化的价值来自“减少或迁移工作”，而不是报告中的某个绝对毫秒数。当前证据足以建立机制、前置条件、代价和验证假设；不足以把报告数值升级为 <code>5135a40d...</code> 的 SLA、把 warm path 外推到 cold/loaded path，或把 x86_64 观察外推到 ARM64。</p>
+    </article>
+    <footer class="page-foot">源文件: <code>analysis/projects/cubesandbox/performance-mechanisms-community-benchmark-analysis.md</code></footer>
+  </main>
+</div>
+<script src="../../assets/mermaid.min.js"></script>
+<script>window.mermaid && mermaid.initialize({startOnLoad:true, theme:'neutral', securityLevel:'loose'});</script>
+<script src="../../assets/wiki.js"></script>
+</body>
+</html>
