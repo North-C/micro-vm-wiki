@@ -12,6 +12,9 @@
   var searchStatus = document.getElementById('search-status');
   var searchIndex = null;
   var activeResult = -1;
+  var kindLabels = { tutorial: '学习路线', 'how-to': '操作指南', reference: '参考资料', explanation: '机制解析' };
+  var statusLabels = { draft: '草稿', review: '复核中', current: '已按固定版本复核', historical: '历史参考', deferred: '暂缓', unconfirmed: '待固定版本复核' };
+  var projectLabels = { firecracker: 'Firecracker', 'cloud-hypervisor': 'Cloud Hypervisor', crosvm: 'crosvm', 'kata-containers': 'Kata Containers', cubesandbox: 'CubeSandbox' };
 
   function resolveFromRoot(path) {
     return new URL(root + path, document.baseURI).href;
@@ -132,7 +135,8 @@
       return;
     }
     searchResults.innerHTML = hits.map(function (entry) {
-      var meta = (entry.projects || []).concat([entry.kind, entry.status]).filter(Boolean).join(' · ');
+      var projects = (entry.projects || []).map(function (project) { return projectLabels[project] || project; });
+      var meta = projects.concat([kindLabels[entry.kind] || entry.kind, statusLabels[entry.status] || entry.status]).filter(Boolean).join(' · ');
       return '<a class="search-result" role="option" aria-selected="false" href="' +
         escapeHtml(resolveFromRoot(entry.route)) + '">' +
         '<span class="search-result-title">' + escapeHtml(entry.title) + '</span>' +

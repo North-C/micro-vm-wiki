@@ -212,9 +212,27 @@ summary:focus-visible {
   background: var(--panel);
   color: var(--muted);
   font-size: 0.76rem;
+  text-decoration: none;
 }
 .badge-status { border-color: #bf8700; color: #7d4e00; }
 html.dark .badge-status { color: #e3b341; }
+.status-explainer,
+.related-reading {
+  width: min(100%, var(--content));
+  margin: 0.9rem auto 0;
+  padding-right: 1.6rem;
+  padding-left: 1.6rem;
+}
+.status-explainer { color: var(--muted); font-size: 0.86rem; }
+.related-reading {
+  margin-bottom: 2.2rem;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+.related-reading h2 { margin-top: 0; font-size: 1.15rem; }
+.related-reading ul { margin-bottom: 0; padding-left: 1.3rem; }
 
 .markdown-body,
 .page-foot {
@@ -274,6 +292,8 @@ html.dark .badge-status { color: #e3b341; }
   .topbar { padding: 0.5rem 0.75rem; }
   .breadcrumbs,
   .page-meta,
+  .status-explainer,
+  .related-reading,
   .markdown-body,
   .page-foot { padding-right: 1rem; padding-left: 1rem; }
   .home-grid { grid-template-columns: 1fr; }

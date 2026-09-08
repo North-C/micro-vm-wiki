@@ -427,33 +427,6 @@
     ]
   },
   {
-    "doc_id": "cubesandbox.cubesandbox-unixbench-hugepages-runbook",
-    "title": "CubeSandbox UnixBench HugePages Runbook",
-    "route": "CubeSandbox-sandbox-clone/analysis/cubesandbox_unixbench_hugepages_runbook.html",
-    "headings": [
-      "Purpose",
-      "Run",
-      "Expected Output",
-      "Current Blocker"
-    ],
-    "summary": "CubeSandbox UnixBench HugePages Runbook This runbook is for an approved private benchmark host. Purpose Measure UnixBench inside one CubeSandbox sandbox using: - Baseline: 2 vCPU / 2048 MiB sandbox. - Comparison: a new 2 vCPU / 2048 MiB sandbox, then reserve s",
-    "projects": [
-      "cubesandbox"
-    ],
-    "topics": [
-      "operations-observability-performance"
-    ],
-    "baselines": [],
-    "status": "historical",
-    "kind": "how-to",
-    "tags": [
-      "cubesandbox",
-      "unixbench",
-      "hugepages",
-      "runbook"
-    ]
-  },
-  {
     "doc_id": "cubesandbox.cubeshim-container-agent-lifecycle-chain",
     "title": "CubeShim Container 到 Guest Agent 生命周期链路",
     "route": "CubeSandbox-sandbox-clone/analysis/cubeshim-container-agent-lifecycle-chain.html",
@@ -744,8 +717,7 @@
     "tags": [
       "network",
       "agent",
-      "ensure",
-      "network"
+      "ensure"
     ]
   },
   {
@@ -1474,70 +1446,6 @@
     ]
   },
   {
-    "doc_id": "analysis.readme",
-    "title": "Analysis 导航入口",
-    "route": "analysis/README.html",
-    "headings": [
-      "当前 CubeSandbox 源码基线",
-      "0. 如果你是第一次想系统学习",
-      "1. 四类读法",
-      "A. 按项目路线读",
-      "B. 按跨项目专题读",
-      "C. 按 ARM64 网络线读",
-      "D. 按样本资产读",
-      "2. 目录约定",
-      "3. 当前重点",
-      "4. 推荐使用顺序"
-    ],
-    "summary": "Analysis 导航入口 本目录是顶层分析入口。 项目级源码链路统一放在 analysis/projects/ / ，由私有分析控制仓维护。 各源码仓库是只读研究输入；旧项目内 analysis/ 只在明确任务中作为迁移输入或私有证据根。 顶层 analysis/ 只放四类内容： 1. 项目路线总览 2. 跨项目专题判断 3. ARM64 网络线索引与样本体系 4. 样本资产入口 当前 CubeSandbox 源码基线 从 2026-07-31 起，新的 CubeSandbox 分析默认以 canonical 工",
-    "projects": [],
-    "topics": [
-      "learning"
-    ],
-    "baselines": [],
-    "status": "unconfirmed",
-    "kind": "reference",
-    "tags": [
-      "readme"
-    ]
-  },
-  {
-    "doc_id": "analysis.analysis-improvement-recommendations",
-    "title": "分析框架改进意见",
-    "route": "analysis/analysis-improvement-recommendations.html",
-    "headings": [
-      "1. 先肯定：框架已经做得很好的地方",
-      "2. 完整性盘点：每个专题到底缺什么",
-      "3. 真实不足（按优先级）",
-      "P0：综合/学习层此前缺失（本次已部分补）",
-      "P1：覆盖不均衡——ARM64 网络线过度，安全/可观测线偏薄",
-      "P2：定量数据与机制分析脱节",
-      "P3：crosvm 暂停导致设计空间不完整",
-      "P4：runtime-rs 与 Go runtime 的覆盖不对称",
-      "P5：CoCo/机密计算的暂缓是正确的，但边界要持续标注",
-      "4. 结构性改进建议",
-      "4.1 建立“专题完成度看板”并定期刷新",
-      "4.2 综合层与机制层双向链接",
-      "4.3 给 samples/ 加“机制锚点”反向索引",
-      "5. 推荐的下一步优先级",
-      "6. 关于“分析完整”的边界判断",
-      "7. 本次工作产出索引"
-    ],
-    "summary": "分析框架改进意见 本文是对当前 Micro-VM 分析框架的坦诚评估与改进建议。 它不是新的机制分析，而是对“框架本身”的元层面反思：哪里已经做得好、哪里还有真实缺口、结构上怎么改进、优先级怎么排。目的是让后续研究更有效，也让读者更清楚这套材料的边界。 源码基线：当前工作树。评估基于本次系统盘点的结果。 1. 先肯定：框架已经做得很好的地方 在提改进之前，必须承认这套框架已经达到的成熟度，否则改进建议会失真。 1. 证据标准严格且一致 。每个结论都要求 文件路径:行号 / 符号名，区分事实、源码推断、工程判断（ A",
-    "projects": [],
-    "topics": [
-      "evidence-version"
-    ],
-    "baselines": [],
-    "status": "unconfirmed",
-    "kind": "explanation",
-    "tags": [
-      "analysis",
-      "improvement",
-      "recommendations"
-    ]
-  },
-  {
     "doc_id": "analysis.arm64-x86-cross-project-matrix",
     "title": "ARM64 与 x86_64 跨项目架构差异专题分析",
     "route": "analysis/arm64-x86-cross-project-matrix.html",
@@ -1675,35 +1583,6 @@
       "guest",
       "unavailability",
       "checklist"
-    ]
-  },
-  {
-    "doc_id": "analysis.claude-code-research-workflow",
-    "title": "Claude Code 协同研究工作流",
-    "route": "analysis/claude-code-research-workflow.html",
-    "headings": [
-      "1. 分工原则",
-      "2. 每轮执行步骤",
-      "3. Claude Code 解析任务模板",
-      "4. Claude Code 审阅任务模板",
-      "5. Claude Code 文档材料模板",
-      "6. 证据门槛",
-      "7. 主线程校验项",
-      "8. 后续任务队列"
-    ],
-    "summary": "Claude Code 协同研究工作流 本文定义后续深入研究的协作方式。主线程负责路线规划、任务拆解、交叉核验、文档组织和最终校验；Claude Code 主要负责源码阅读、文档材料、文档初稿和只读审阅。 1. 分工原则 主线程不再把所有源码细读都串行完成。每次选择一条深入路线后，先产出问题清单、证据需求、源码范围和预期文档结构。 Claude Code 承担三类任务。第一类是源码解析，回答限定范围内的调用链、状态机、架构差异和能力边界。第二类是文档材料或初稿，按主线程给出的结构整理证据。第三类是只读审阅，检查文档",
-    "projects": [],
-    "topics": [
-      "operations-validation"
-    ],
-    "baselines": [],
-    "status": "unconfirmed",
-    "kind": "how-to",
-    "tags": [
-      "claude",
-      "code",
-      "research",
-      "workflow"
     ]
   },
   {
@@ -1847,68 +1726,6 @@
       "storage",
       "semantics",
       "crossline"
-    ]
-  },
-  {
-    "doc_id": "analysis.four-project-deep-routes",
-    "title": "Micro-VM 项目深入路线总览",
-    "route": "analysis/four-project-deep-routes.html",
-    "headings": [
-      "1. 分层对齐",
-      "2. 同类问题的源码入口",
-      "3. Snapshot/Clone/Restore 的横向理解",
-      "4. 启动路径与控制面横向理解",
-      "5. ARM64 与 x86_64 比较轴",
-      "6. 存储/rootfs/share-fs 横向理解",
-      "7. 网络与连接模型横向理解",
-      "8. 推荐后续研究顺序",
-      "9. 当前阶段产物",
-      "10. 历史参考：crosvm（暂停继续扩展）"
-    ],
-    "summary": "Micro-VM 项目深入路线总览 本文把重点 Micro-VM 项目的路线展开文档横向对齐，帮助后续研究时避免“每个项目各看各的”。项目文档分别是： - Firecracker 深入路线 projects/firecracker/deep-routes.md - Cloud Hypervisor 深入路线 projects/cloud-hypervisor/deep-routes.md - Kata Containers 深入路线 projects/kata-containers/deep-routes.md -",
-    "projects": [],
-    "topics": [
-      "learning"
-    ],
-    "baselines": [],
-    "status": "unconfirmed",
-    "kind": "reference",
-    "tags": [
-      "four",
-      "deep",
-      "routes"
-    ]
-  },
-  {
-    "doc_id": "analysis.four-project-route-coverage-matrix",
-    "title": "四项目深入路线完成度矩阵",
-    "route": "analysis/four-project-route-coverage-matrix.html",
-    "headings": [
-      "1. 核心结论",
-      "2. 完成度分级",
-      "3. 总体矩阵",
-      "4. Firecracker：完成度判断",
-      "5. Cloud Hypervisor：完成度判断",
-      "6. Kata Containers：完成度判断",
-      "7. CubeSandbox：完成度判断",
-      "8. 下一批更值得补的非网络路线",
-      "9. 这张矩阵怎么用",
-      "10. 结论",
-      "11. 2026-06 更新"
-    ],
-    "summary": "四项目深入路线完成度矩阵 本文承接 Micro-VM 项目深入路线总览 ./four-project-deep-routes.md 。 前面的总览已经把四个项目的研究路线横向对齐。 但随着文档增多，一个新的问题开始变得更重要： 哪些路线已经真正展开到位，哪些路线还只停在入口级别。 本文的目标就是把这一点收清楚。 源码基线：当前工作树。 1. 核心结论 当前四个项目的研究线，整体上已经从“缺入口图”进入“缺覆盖盘点”的阶段。 尤其是 Firecracker、Cloud Hypervisor、Kata，这三家的主干路线",
-    "projects": [],
-    "topics": [
-      "evidence-version"
-    ],
-    "baselines": [],
-    "status": "unconfirmed",
-    "kind": "reference",
-    "tags": [
-      "four",
-      "route",
-      "coverage",
-      "matrix"
     ]
   },
   {
@@ -3427,7 +3244,6 @@
     "status": "unconfirmed",
     "kind": "explanation",
     "tags": [
-      "vfio",
       "vfio",
       "user",
       "iommu",
