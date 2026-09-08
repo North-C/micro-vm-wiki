@@ -1,0 +1,862 @@
+[
+  {
+    "path": ".nojekyll",
+    "size": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "Agent.html",
+    "size": 482,
+    "sha256": "8a0899989fccaeea6d486c345ef3ae45a7f1c84cc8f8dc98fc01a99d73bc6639"
+  },
+  {
+    "path": "CubeSandbox-sandbox-clone/analysis/api-master-cubelet-create-chain.html",
+    "size": 42990,
+    "sha256": "6e9d94690fbac194f2efdaac66dd6e7f10862d32608aeba183a6c07cb2352dee"
+  },
+  {
+    "path": "CubeSandbox-sandbox-clone/analysis/arch-arm64-x86-chain.html",
+    "size": 30536,
+    "sha256": "a0fd011cff1316d01c8fa188361252e618c111acf34bbb3538833132008231d1"
+  },
+  {
+    "path": "CubeSandbox-sandbox-clone/analysis/cpu-vcpu-resource-boundary-chain.html",
+    "size": 35790,
+    "sha256": "3601296fe3d2f4cb2e2da9a70758037e00542000195a2abc1f5e037e9c57a86f"
+  },
+  {
+    "path": "CubeSandbox-sandbox-clone/analysis/cubeapi-long-operation-contract-chain.html",
+    "size": 28441,
+    "sha256": "749d8408544a2a43e569e0a8cfaded3a161f9865915ed1be6ba433449c27b9f3"
+  },
+  {
+    "path": "CubeSandbox-sandbox-clone/analysis/cubebox-action-containerd-chain.html",
+    "size": 30795,
+    "sha256": "0888b941aa25d84c004e70e2924ebec604b6194bfbf243adbde1fa8752767409"
+  },
+  {
+    "path": "CubeSandbox-sandbox-clone/analysis/cubecow-storage-engine-chain.html",
+    "size": 45467,
+    "sha256": "96839d7f88b3ea62a3ff35b144d7f3c23949a7f8b169d03db0a25cd032db82f9"
+  },
+  {
+    "path": "CubeSandbox-sandbox-clone/analysis/cubehypervisor-api-request-chain.html",
+    "size": 47637,
+    "sha256": "e763e71b91ecf70cfa64ac84431f0878d072f2c427f66324be1fbeaf5181ac11"
+  },
+  {
+    "path": "CubeSandbox-sandbox-clone/analysis/cubelet-workflow-create-chain.html",
+    "size": 42837,
+    "sha256": "59800147e047ed0ed884480b6ba27b16d0526e101cd5bde133989c1e23c964aa"
+  },
+  {
+    "path": "CubeSandbox-sandbox-clone/analysis/cubemaster-cache-consistency-boundary-chain.html",
+    "size": 43185,
+    "sha256": "24cf05b6dfd1d4180952facd0f269a78f3926648f4280d34ef356fee0c61b0e5"
+  },
+  {
+    "path": "CubeSandbox-sandbox-clone/analysis/cubemaster-scheduler-task-chain.html",
+    "size": 30041,
+    "sha256": "b5356fb1e83eced2d28c34a3ad893b053e12ef4909f209b12a6864efe8333628"
+  },
+  {
+    "path": "CubeSandbox-sandbox-clone/analysis/cubemaster-snapshot-job-contract-chain.html",
+    "size": 29276,
+    "sha256": "1c207d1cc6b4cc9cce303b3d50b72093d51c0ca8e919a27701eede796bd5f65c"
+  },
+  {
+    "path": "CubeSandbox-sandbox-clone/analysis/cubesandbox-redis-hugepages-report-20260627.html",
+    "size": 36066,
+    "sha256": "100eb0b5b577150ddae1688a70a29c2616ba42a238bb165e03318f676d72a52e"
+  },
+  {
+    "path": "CubeSandbox-sandbox-clone/analysis/cubesandbox-unixbench-hugepages-report-20260626.html",
+    "size": 36527,
+    "sha256": "1aafbe80c820aab80e7ae039eb453b3a6618baf6d25e6606e648db5bf4439c52"
+  },
+  {
+    "path": "CubeSandbox-sandbox-clone/analysis/cubesandbox_unixbench_hugepages_runbook.html",
+    "size": 28524,
+    "sha256": "30886f6e02cfa804a40847bfb682c8d8d7fba580bfc0eba0e43e8c32c1d784b6"
+  },
+  {
+    "path": "CubeSandbox-sandbox-clone/analysis/cubeshim-container-agent-lifecycle-chain.html",
+    "size": 45132,
+    "sha256": "4bce3fb74192c2e6b9a27f002ba866113c15d6353a4daca6c2d9b55b44648ae6"
+  },
+  {
+    "path": "CubeSandbox-sandbox-clone/analysis/cubeshim-sandbox-hypervisor-chain.html",
+    "size": 30377,
+    "sha256": "6f55bb6d438da1cdaee511d9f8d66b8345f00b1ade024e43e78ac9eb1edbc1b2"
+  },
+  {
+    "path": "CubeSandbox-sandbox-clone/analysis/cubevs-ebpf-data-plane-chain.html",
+    "size": 30252,
+    "sha256": "dc14f2d86672844b887005f41eea2e1d3c1e24bb1e28eb95ed6f1116597c4a21"
+  },
+  {
+    "path": "CubeSandbox-sandbox-clone/analysis/deep-dive.html",
+    "size": 63867,
+    "sha256": "9595d655dc7a747e4e866d94869d1f228c6b90404fd386f6d14a4ceaf6ab666d"
+  },
+  {
+    "path": "CubeSandbox-sandbox-clone/analysis/deep-routes.html",
+    "size": 51829,
+    "sha256": "7189da5c928cc064201f3e40117cc8641979f380352fc00524580ebfb2f15392"
+  },
+  {
+    "path": "CubeSandbox-sandbox-clone/analysis/guest-agent-network-config-chain.html",
+    "size": 29686,
+    "sha256": "c76090b86bb9c00071ffa88fc45cbd64323e003d6ee255bb7cb709c953c442cb"
+  },
+  {
+    "path": "CubeSandbox-sandbox-clone/analysis/interrupt-event-notification-chain.html",
+    "size": 49265,
+    "sha256": "fbd7ff28125c6de8e2c13661175a93aefba386059988adfb99962e93446147d7"
+  },
+  {
+    "path": "CubeSandbox-sandbox-clone/analysis/interrupt-state-restore-chain.html",
+    "size": 47433,
+    "sha256": "5d2ad02f47f37c95f50910e61fefb636dea53dbed7ff475d61abea3d52212a98"
+  },
+  {
+    "path": "CubeSandbox-sandbox-clone/analysis/network-agent-ensure-network-chain.html",
+    "size": 29989,
+    "sha256": "10c0dfab36d28250e2e73b15406126fddeb22c95cb7a84949c3ae634cd95d47d"
+  },
+  {
+    "path": "CubeSandbox-sandbox-clone/analysis/network-data-plane-interrupt-wakeup-chain.html",
+    "size": 46395,
+    "sha256": "b0eb94c578761c0d1d91f9ece444602476af2d7141a6b4ec76a560e50906f462"
+  },
+  {
+    "path": "CubeSandbox-sandbox-clone/analysis/observability-diagnostics-chain.html",
+    "size": 30846,
+    "sha256": "fb4910b60ab4d36cfe766ea1694f577979d3a1d29d4480f28c86b4dd9b353029"
+  },
+  {
+    "path": "CubeSandbox-sandbox-clone/analysis/performance-mechanisms-community-benchmark-analysis.html",
+    "size": 101395,
+    "sha256": "9e4947ea6b18c45ef298cce6e95798b070b1bbb7b423af84e65c94e76fd70b93"
+  },
+  {
+    "path": "CubeSandbox-sandbox-clone/analysis/rollback-runtime-update-chain.html",
+    "size": 30474,
+    "sha256": "6f3ae41954a71fd74bad86c35f2b2af7b30e8fc98e7856c509f32c2f04148832"
+  },
+  {
+    "path": "CubeSandbox-sandbox-clone/analysis/runtime-control-vmm-update-chain.html",
+    "size": 30652,
+    "sha256": "a9ee01b5b7780ad4f5c4f6b920360e41ae7809a7283761df2ca613c3223f1660"
+  },
+  {
+    "path": "CubeSandbox-sandbox-clone/analysis/sandbox-ready-lifecycle-chain.html",
+    "size": 30075,
+    "sha256": "63a339016497d61370ce4ec8685054a402d659aefb2c5d23330c1bc04fdd7c69"
+  },
+  {
+    "path": "CubeSandbox-sandbox-clone/analysis/sandbox-vm-container-template-runtime-hierarchy.html",
+    "size": 110680,
+    "sha256": "3fe8f31e44837c5fad19ed5c409791bc8ea4c05d1746e9fa3e26db361e2d8c16"
+  },
+  {
+    "path": "CubeSandbox-sandbox-clone/analysis/snapshot-catalog-restore-binding-chain.html",
+    "size": 29988,
+    "sha256": "48501252a5fdea3de4423bc11edd2550bbb3daf73aad0af2b569320f202b05f4"
+  },
+  {
+    "path": "CubeSandbox-sandbox-clone/analysis/snapshot-create-commit-chain.html",
+    "size": 47051,
+    "sha256": "677ee78a8293a89fbd43ca6503991e8daaab91e609cc48cb7dba8e0d6be568a3"
+  },
+  {
+    "path": "CubeSandbox-sandbox-clone/analysis/snapshot-replica-reconciler-chain.html",
+    "size": 29450,
+    "sha256": "7033bac6d8a4e72fdc3eb801db4fa6d884cf4b5e81f1cc8409ec6a65ab70391c"
+  },
+  {
+    "path": "CubeSandbox-sandbox-clone/analysis/snapshot-restore-network-chain.html",
+    "size": 30173,
+    "sha256": "73c372c82a7906126b789fdf9c47df0dce2b31ae6aa9a46836108d7930a4fcd1"
+  },
+  {
+    "path": "CubeSandbox-sandbox-clone/analysis/snapshot-template-storage-format-chain.html",
+    "size": 57807,
+    "sha256": "bbeefba8e84d99f935f712710f5e6e4dc47b3012f84e06fea769d7fce5129554"
+  },
+  {
+    "path": "CubeSandbox-sandbox-clone/analysis/tap-fd-networkinfo-chain.html",
+    "size": 30533,
+    "sha256": "c8d915d74e5e3184dcb9afd3cf33a3cea7d29460abe187526635b462b43d075b"
+  },
+  {
+    "path": "CubeSandbox-sandbox-clone/analysis/tap-fd-unavailable-case-study.html",
+    "size": 36784,
+    "sha256": "d4ebe6e82dd3c6b39eb461c52d4d471041849033d544c2fddba0d8f8cdc82fca"
+  },
+  {
+    "path": "CubeSandbox-sandbox-clone/analysis/template-build-from-oci-chain.html",
+    "size": 50041,
+    "sha256": "3d0b1ed7d05db0bac67e882db40ecb0255a43733cca5b3da9df90e0967b7af83"
+  },
+  {
+    "path": "CubeSandbox-sandbox-clone/analysis/template-restore-msix-chain.html",
+    "size": 70659,
+    "sha256": "cfe306a5b317349a9e4fb480e3f7f00ec1cf40e7874e53f658ab25335b016ba9"
+  },
+  {
+    "path": "CubeSandbox-sandbox-clone/analysis/virtio-interrupt-injection-trace.html",
+    "size": 60703,
+    "sha256": "9dea5bfe074f0f3c8971b9f9b53d436d1618bcd2fe79a50024a2383e293309e5"
+  },
+  {
+    "path": "CubeSandbox-sandbox-clone/analysis/virtio-net-fs-restore-chain.html",
+    "size": 44311,
+    "sha256": "b54d8f9edd2ea08266e6f6cfb70bd1951e596c876920b41f5b4dabaf20ade9ae"
+  },
+  {
+    "path": "CubeSandbox-sandbox-clone/analysis/vmm-device-restore-chain.html",
+    "size": 43752,
+    "sha256": "ba8f5f8f9b42578a90a2918a1d4809ea7797728378b1fabb4280edafa654e489"
+  },
+  {
+    "path": "CubeSandbox-sandbox-clone/analysis/vmm-snapshot-restore-state-chain.html",
+    "size": 46326,
+    "sha256": "fbcf34c74a1f645d9614d9b55e3be2242db4886e4db959b05ce742cf1f6f9796"
+  },
+  {
+    "path": "README.md",
+    "size": 267,
+    "sha256": "1ad42c7487c94638edf4db9c059045d555d1f65d3e447967b9bade36f49153ce"
+  },
+  {
+    "path": "analysis/README.html",
+    "size": 35139,
+    "sha256": "f3546f724f446cfa0c6c2ba59766e21c5bd8b0df4b0464f806909904390cdd51"
+  },
+  {
+    "path": "analysis/analysis-improvement-recommendations.html",
+    "size": 43149,
+    "sha256": "f58ae72b08c3311aed02df580cf1a1dc4034a2f0d2f87f4ad1444d373e533c9d"
+  },
+  {
+    "path": "analysis/arm64-x86-cross-project-matrix.html",
+    "size": 54956,
+    "sha256": "c959f3679deb5607f47d3f7c492a61db7cf3615f96933c9141bd9b7ee7fa6dd5"
+  },
+  {
+    "path": "analysis/boot-control-plane-cross-project.html",
+    "size": 49848,
+    "sha256": "26d380c84756b1c05b33abfd7c7b3eaee405a8ddad2652bf5a794ac4b556a57f"
+  },
+  {
+    "path": "analysis/ch-cubesandbox-backend-notifier-restore-crossline.html",
+    "size": 35841,
+    "sha256": "59207e92e8444e9d0e0138ae89a24165bc69a7897d8dd3b6c4e5325a870328fc"
+  },
+  {
+    "path": "analysis/ch-cubesandbox-restore-guest-unavailability-checklist.html",
+    "size": 39431,
+    "sha256": "1e5dc663729f82553f756df7999c8cb9a8327e99f3005b42eb8783d05028d2e9"
+  },
+  {
+    "path": "analysis/claude-code-research-workflow.html",
+    "size": 34258,
+    "sha256": "be3175be5a141f76eace9064c66b059640180f53c2c8b185097c16eaa0edc295"
+  },
+  {
+    "path": "analysis/coco-pvm-protected-vm-cross-project.html",
+    "size": 42462,
+    "sha256": "35826683abe0666371764370ea2c6064fd93df90e061859e4f3fddadd99632b9"
+  },
+  {
+    "path": "analysis/cpu-interrupt-machine-cross-project.html",
+    "size": 57426,
+    "sha256": "57293f80630ac14a26226a56a1101f16e9471d4ac14e0376293b412842c4715d"
+  },
+  {
+    "path": "analysis/device-model-isolation-cross-project.html",
+    "size": 50391,
+    "sha256": "4a9e8d96d8511e5bf270c00c6d26539806467c8081659e7f6fe9d1cd5b2e52fd"
+  },
+  {
+    "path": "analysis/fc-kata-storage-semantics-crossline.html",
+    "size": 32067,
+    "sha256": "799e3421a4d40b8dd98e778e357d4d1ff87e73bf2d5c03d8af225908c5dd72be"
+  },
+  {
+    "path": "analysis/four-project-deep-routes.html",
+    "size": 86251,
+    "sha256": "d11dcd65813e5a28f90c2421148407c321bf4c55b80d3065523b00974f8cf6d8"
+  },
+  {
+    "path": "analysis/four-project-route-coverage-matrix.html",
+    "size": 35918,
+    "sha256": "fedf0876176f89919cb479cbcb65f0618b7c43b103b27324778392e3fda0291a"
+  },
+  {
+    "path": "analysis/guest-agent-runtime-cross-project.html",
+    "size": 40648,
+    "sha256": "a79d085f112ab7cf04d33f73e57edba023656c8c7e46333471750f51c9055a53"
+  },
+  {
+    "path": "analysis/guest-memory-dma-iommu-cross-project.html",
+    "size": 44373,
+    "sha256": "9eb5f42f868e4cd432009ce0dc6efc80d87f65b364212195372dd4083bca1b45"
+  },
+  {
+    "path": "analysis/hypervisor-kvm-vcpu-cross-project.html",
+    "size": 45644,
+    "sha256": "df3b49579492d1a5ec18b91dfa0f8d27fe3334568cf870ab3c60db4d9edcd0d9"
+  },
+  {
+    "path": "analysis/interrupt-event-notification-cross-project.html",
+    "size": 53647,
+    "sha256": "b5912051c781641707e97e4dac3bcde4b6c9327737b5459c05a56b4b0a581bd8"
+  },
+  {
+    "path": "analysis/network-connectivity-cross-project.html",
+    "size": 49837,
+    "sha256": "faf13254f0d41a7285c71bb2dd5a7e2308a4ae54ad67be378b80db88832d1c91"
+  },
+  {
+    "path": "analysis/observability-diagnostics-cross-project.html",
+    "size": 42770,
+    "sha256": "4eec0fa8a6cf53b365a7e19c3fae195df8f3e242805a031f8fda6f73d3013c05"
+  },
+  {
+    "path": "analysis/performance-design-basis-cross-project.html",
+    "size": 53899,
+    "sha256": "e67fba4943eb5fc124e3f4e79b2796c447a64727f831ed69fbb51243eb58662b"
+  },
+  {
+    "path": "analysis/protected-vm-snapshot-migration-cross-project.html",
+    "size": 39582,
+    "sha256": "5149513194265bc6fe127dfd570c56947293e521d97726d04784f9f09fe7874c"
+  },
+  {
+    "path": "analysis/resource-qos-cross-project.html",
+    "size": 43771,
+    "sha256": "93e5bc0920ec5be7350503f0c2c7e539ac0737b4b981070587c41babdb10ad99"
+  },
+  {
+    "path": "analysis/runtime-control-hotplug-cross-project.html",
+    "size": 44921,
+    "sha256": "b948d1a03d5ae8857f04e3bc22bbb5af60f42eab0c0210194aac7d725a19a32c"
+  },
+  {
+    "path": "analysis/security-design-basis-cross-project.html",
+    "size": 46757,
+    "sha256": "e26ab52a17c1b4d155525ee8c1cefffbc4a675cb8d6a3323d57ff971e2b4c2ff"
+  },
+  {
+    "path": "analysis/security-isolation-cross-project.html",
+    "size": 45784,
+    "sha256": "7f7d0945bad1f155631d236c959e5d48b3d5a3891b744567a734c3b3deadb8c4"
+  },
+  {
+    "path": "analysis/snapshot-device-save-restore-deep-dive.html",
+    "size": 48943,
+    "sha256": "9317a018324dd117ca984c7599078e9c9e0a36602e3540dcba70beb16c846129"
+  },
+  {
+    "path": "analysis/snapshot-memory-save-restore-deep-dive.html",
+    "size": 57723,
+    "sha256": "c36270e7b20437728f5811dea96670cc4a6755f30a15053525264f911a441140"
+  },
+  {
+    "path": "analysis/snapshot-restore-cross-project.html",
+    "size": 58376,
+    "sha256": "88864725f038188230deed0d4d9cb6cfe0ff15e88e000e92e9de483f425f0a48"
+  },
+  {
+    "path": "analysis/snapshot-restore-kernel-deep-dive.html",
+    "size": 64317,
+    "sha256": "f513bf28dd23d51925d7117fe8ffd2a0bf86829d0338e3b26e2f0db0f851aa14"
+  },
+  {
+    "path": "analysis/storage-rootfs-sharefs-cross-project.html",
+    "size": 57455,
+    "sha256": "6e0277b3ade1076f282741ebe9f3cf19ec6a9a491a6c7f9a75d8f457aeeb8e9b"
+  },
+  {
+    "path": "analysis/virtio-data-path-cross-project.html",
+    "size": 55545,
+    "sha256": "9f8c656801af949a74c0e0a71e9e03478ac2be6d226468a900e7dcfee7268af4"
+  },
+  {
+    "path": "analysis/vm-design-landscape-overview.html",
+    "size": 49053,
+    "sha256": "82e129df99ad5eb885c69b74d0883308bdadba752bed63685059d2e6329ba5d0"
+  },
+  {
+    "path": "assets/search.json",
+    "size": 222909,
+    "sha256": "b86313c5056fcd1a3eaea78cdfa36e35892790803ed62210e712ef07030220e5"
+  },
+  {
+    "path": "assets/style.css",
+    "size": 8414,
+    "sha256": "89c92a4328be05ae54c6756bf25fbb508100562c3841c4e5420cff5480aa2979"
+  },
+  {
+    "path": "assets/wiki.js",
+    "size": 7432,
+    "sha256": "401ca78e0fca0a79e3c35afbcea9b1d928f45c168ddfffdcb5ade8f0be435640"
+  },
+  {
+    "path": "cloud-hypervisor/analysis/02-Cloud-Hypervisor-架构分析报告.html",
+    "size": 77878,
+    "sha256": "daeff178cdb5aebb726ca590e590d4caa0ff030e58bf05271b013fbb9a1b021e"
+  },
+  {
+    "path": "cloud-hypervisor/analysis/acpi-fdt-machine-description-chain.html",
+    "size": 30332,
+    "sha256": "219e535f45280a9d2ddc955cc99da1b506cf42ccea069ca57c4041ba1719e3da"
+  },
+  {
+    "path": "cloud-hypervisor/analysis/api-vmm-thread-control-chain.html",
+    "size": 45964,
+    "sha256": "2c599f3b81b80ccac9873471f5b41595f9d3989d8bf0198f314e0b31201bc3e2"
+  },
+  {
+    "path": "cloud-hypervisor/analysis/arch-arm64-x86-chain.html",
+    "size": 30306,
+    "sha256": "c6b6f8307192b105717867af914f31ef7929aa3ff9c1b0efd8fdfa6aef86dfa0"
+  },
+  {
+    "path": "cloud-hypervisor/analysis/coco-tdx-sev-snp-chain.html",
+    "size": 30217,
+    "sha256": "6738279060e1f5a5e460fb168f930e73d61f0c07739972c0a3340de9c41ccb75"
+  },
+  {
+    "path": "cloud-hypervisor/analysis/cpu-boot-chain.html",
+    "size": 29668,
+    "sha256": "d03cc5fa31ee2322466c95274ca13685ed0bff19ca7fde1225237f0671e059f6"
+  },
+  {
+    "path": "cloud-hypervisor/analysis/cpu-runtime-hotplug-migration-chain.html",
+    "size": 43742,
+    "sha256": "46aae3bb75429fcfa84935a7847aa734569c554692922fd1201b85738387f1d6"
+  },
+  {
+    "path": "cloud-hypervisor/analysis/deep-dive.html",
+    "size": 67000,
+    "sha256": "6a9cbc69174cf5661216a6ed2146b5eb459dfdb632e93aafa9bc061c69bb32dd"
+  },
+  {
+    "path": "cloud-hypervisor/analysis/deep-routes.html",
+    "size": 51592,
+    "sha256": "f74b357f0d76a9c58dd7bc3c46b582d0bb78c3623d6cc684f840596716f612cb"
+  },
+  {
+    "path": "cloud-hypervisor/analysis/device-creation-matrix-chain.html",
+    "size": 29638,
+    "sha256": "b6ca5fc5f159e3c42f973acb158fb7b10ca055593ab2ca8969907938e04934fc"
+  },
+  {
+    "path": "cloud-hypervisor/analysis/device-manager-chain.html",
+    "size": 30053,
+    "sha256": "790ba9a8385c9890e4eafca8d6c829a92c04020c8eab3de17e8f7b32d6f5ea91"
+  },
+  {
+    "path": "cloud-hypervisor/analysis/device-tree-hotplug-restore-chain.html",
+    "size": 29626,
+    "sha256": "7a7e85d1db2ea09c2140ce818e45eb15ba8a3130d4ecb49bfbc370590b039e1c"
+  },
+  {
+    "path": "cloud-hypervisor/analysis/interrupt-event-notification-chain.html",
+    "size": 30969,
+    "sha256": "ca7fb16233a4109b19a6d6380a0111e58842eba33a2d9da11658b1c597c25ec1"
+  },
+  {
+    "path": "cloud-hypervisor/analysis/io-device-data-path-chain.html",
+    "size": 49982,
+    "sha256": "7241567fa591076386db83805d153aa0768a40480ae64e892455b72cfdfc325a"
+  },
+  {
+    "path": "cloud-hypervisor/analysis/isolation-seccomp-landlock-chain.html",
+    "size": 31004,
+    "sha256": "5153aab76c309d272714edda776bc18bf8498e374a9e9924eb900a06242cfdfc"
+  },
+  {
+    "path": "cloud-hypervisor/analysis/memory-address-hotplug-topology-chain.html",
+    "size": 29540,
+    "sha256": "f28883535a78827d581702b8dd970d500c961ca57af6988b6d875a584e5283c0"
+  },
+  {
+    "path": "cloud-hypervisor/analysis/memory-manager-chain.html",
+    "size": 31727,
+    "sha256": "59dc269098429a886969aec788fd8e05dd234bf2dea9cbecda8b28a523d00a48"
+  },
+  {
+    "path": "cloud-hypervisor/analysis/migration-memory-transport-chain.html",
+    "size": 43848,
+    "sha256": "d5a92af7e8ab4180a19208a541381e53b969b060f8daaad380043e5db1ae1c0b"
+  },
+  {
+    "path": "cloud-hypervisor/analysis/observability-diagnostics-chain.html",
+    "size": 30550,
+    "sha256": "73076204d500210b243a220328e55f27ad9384357eeb9f3b82fc6faa3cd2a8d7"
+  },
+  {
+    "path": "cloud-hypervisor/analysis/runtime-control-hotplug-chain.html",
+    "size": 30569,
+    "sha256": "6c5ca575c14e593a77e4979d84e27c74b0c47be55a2b285fce970f527a51feba"
+  },
+  {
+    "path": "cloud-hypervisor/analysis/sev-snp-igvm-vmsa-chain.html",
+    "size": 28800,
+    "sha256": "5e03c7609883ead3c1a4b273e2ffb1601177d073bbebfc8764af37e8104e789e"
+  },
+  {
+    "path": "cloud-hypervisor/analysis/storage-rootfs-sharefs-boundary-chain.html",
+    "size": 39172,
+    "sha256": "189b9885a08ee8e3097b6ad271773938ac40d769691b235045a9465fab6ea3cf"
+  },
+  {
+    "path": "cloud-hypervisor/analysis/tdx-lifecycle-limit-chain.html",
+    "size": 28932,
+    "sha256": "5fbe60d15b8e7075192fdd6970fde63f290b36a12a6f84b7c2a02ec31a7e2f1e"
+  },
+  {
+    "path": "cloud-hypervisor/analysis/tdx-tdvf-hob-chain.html",
+    "size": 29211,
+    "sha256": "c4ea9c090a79cf2986ee9e3b782abcfe76dbc1951f2108e33ba5108130c0558b"
+  },
+  {
+    "path": "cloud-hypervisor/analysis/tdx-vcpu-exit-vmcall-chain.html",
+    "size": 28746,
+    "sha256": "dc80226f371f21a6544da92ee32f9cf5c9bad3861b57ea836b268fff521f6d51"
+  },
+  {
+    "path": "cloud-hypervisor/analysis/vfio-vfio-user-iommu-migration-chain.html",
+    "size": 31053,
+    "sha256": "96031539817edb03aef8b3b077f4bd6a4c7e5c4aecb9257a0e482dc21e448d44"
+  },
+  {
+    "path": "cloud-hypervisor/analysis/vm-create-boot-chain.html",
+    "size": 43456,
+    "sha256": "d8b5fcdd1b16224d1097e4b0faa3ea0972e0ec2f0fc54ae65fe347bc991e330e"
+  },
+  {
+    "path": "crosvm/analysis/arch-arm64-x86-chain.html",
+    "size": 43090,
+    "sha256": "d3b73e9169081fc02ed41d5ceb39d262e7381e7596c5a488d6c97e99a68478e8"
+  },
+  {
+    "path": "crosvm/analysis/boot-control-chain.html",
+    "size": 49303,
+    "sha256": "1dda934c59fc27d1eb3cd5d987a40ba4267babcf8dee111fc1dbedf8e16e259c"
+  },
+  {
+    "path": "crosvm/analysis/create-devices-matrix-chain.html",
+    "size": 38931,
+    "sha256": "d1a7f321950d5e8cae5035eb73e8410b05ab72d54e37c48925bb6c7da07692ae"
+  },
+  {
+    "path": "crosvm/analysis/deep-dive.html",
+    "size": 58095,
+    "sha256": "860c2d70bcb7f83c19f18a83529a00a29ebc65f0d8dca3757eb9291a6094ab56"
+  },
+  {
+    "path": "crosvm/analysis/deep-routes.html",
+    "size": 43040,
+    "sha256": "8bf94595137e432e6bc921e8328390a67ba622978a98d807f5a2ea6f2c20a9c3"
+  },
+  {
+    "path": "crosvm/analysis/device-isolation-chain.html",
+    "size": 49229,
+    "sha256": "f5f62c2b6ab9098f64937e96e6dfcb1b25aa86bed7612f7122b69af83d773b46"
+  },
+  {
+    "path": "crosvm/analysis/protected-vm-block-net-fs-data-path-chain.html",
+    "size": 40704,
+    "sha256": "0eb4666b87c73587860c9c4c53cabd2f42936a9f653adef96a51e18afade2463"
+  },
+  {
+    "path": "crosvm/analysis/protected-vm-device-boundary-chain.html",
+    "size": 39337,
+    "sha256": "450b74d8226257c4842d8d5d540423636b0ce9568e960eae70687e0497800c70"
+  },
+  {
+    "path": "crosvm/analysis/protected-vm-hypervisor-backend-chain.html",
+    "size": 42613,
+    "sha256": "df8677af56baa96169466f302e0ff8bf0fbec02e39211ec81ff800efe725ba82"
+  },
+  {
+    "path": "crosvm/analysis/protected-vm-iommu-vfio-memory-mapper-chain.html",
+    "size": 42188,
+    "sha256": "1d9060dee99708e9dfd32b8ac1244f677f8ebf566e5e97849010ecd1b456dfce"
+  },
+  {
+    "path": "crosvm/analysis/protected-vm-pvm-chain.html",
+    "size": 42288,
+    "sha256": "4a46542375b3e356f81e62d7a601bdb10505125b93c0b6659a3a4232305a8589"
+  },
+  {
+    "path": "crosvm/analysis/protected-vm-snapshot-restore-boundary-chain.html",
+    "size": 41708,
+    "sha256": "d9224c42c4511f47fb4dc75bf6d20bf12a53d24121596188e99b97517308fe72"
+  },
+  {
+    "path": "crosvm/analysis/protected-vm-vhost-user-memory-iotlb-chain.html",
+    "size": 40947,
+    "sha256": "b25a0688004dd5cf13743c16658cd1209531fab39250ca9c82d93adb8da527c1"
+  },
+  {
+    "path": "crosvm/analysis/runtime-control-tube-chain.html",
+    "size": 47567,
+    "sha256": "16ebae25a26e5da6f9962be43d80e2ec57c529e38f77953085b3da5afbf04917"
+  },
+  {
+    "path": "crosvm/analysis/snapshot-suspend-chain.html",
+    "size": 48948,
+    "sha256": "4840903fd5af2bce67b331ed5166e984f763160b87c93de65e41f134852a9518"
+  },
+  {
+    "path": "crosvm/analysis/virtio-queue-worker-chain.html",
+    "size": 43570,
+    "sha256": "26ffd1b68cb997817619ebcafe27a6a81fd548f29fa5ae68db65c302b0361ee1"
+  },
+  {
+    "path": "firecracker/analysis/api-event-loop-thread-chain.html",
+    "size": 44370,
+    "sha256": "55f345082a2cecffbc8ac38fe34f4decaa4a489082f92067190a7713ed930336"
+  },
+  {
+    "path": "firecracker/analysis/api-start-boot-chain.html",
+    "size": 30684,
+    "sha256": "e9e9637162fbd4cee13330e51c111d04d0c40752f2f17a59b09df862a3012e15"
+  },
+  {
+    "path": "firecracker/analysis/arch-arm64-x86-chain.html",
+    "size": 32677,
+    "sha256": "271dfd9c2d9cdcbb896588ff2a37f1adeb8dab2500253df062698ec03da02678"
+  },
+  {
+    "path": "firecracker/analysis/balloon-virtio-mem-guest-chain.html",
+    "size": 31169,
+    "sha256": "ecf46a8d1b08cb6e24ba9242513e56dd5f3b9fc861b217168266e05e9d9c1409"
+  },
+  {
+    "path": "firecracker/analysis/build-microvm-boot-chain.html",
+    "size": 41143,
+    "sha256": "950156bc53c5b17ce6cba00f693f0b0b62bd74a04a398a7b8752f53db630fb48"
+  },
+  {
+    "path": "firecracker/analysis/deep-dive.html",
+    "size": 267157,
+    "sha256": "cb2fcd1797eb7479537dfbc676d025eb7acf9034737cdc34ed24a1be279679f1"
+  },
+  {
+    "path": "firecracker/analysis/deep-routes.html",
+    "size": 52292,
+    "sha256": "a9a68bd47de5d8934d0611ed6751fd6b56b4e9340c7ee06347b6b46350773537"
+  },
+  {
+    "path": "firecracker/analysis/device-capability-boundary-chain.html",
+    "size": 32663,
+    "sha256": "95fc07522b9659e36b2e3a7b51bf3300f0c3d7eae1a8eea1ece8fc906629ff18"
+  },
+  {
+    "path": "firecracker/analysis/device-manager-id-transport-chain.html",
+    "size": 31410,
+    "sha256": "7ff61ec8e0e438fae0e9663f57fd506d9b1846eafa0ef3667b1f164eaad78b91"
+  },
+  {
+    "path": "firecracker/analysis/device-manager-virtio-transport-chain.html",
+    "size": 39098,
+    "sha256": "b52861dcbada43c3ac61463188edb117793eaaf520a05c6417406cc2b9540063"
+  },
+  {
+    "path": "firecracker/analysis/interrupt-event-notification-chain.html",
+    "size": 34149,
+    "sha256": "06c64d0c6e7512863ddd01d198bde456eed476a6fa657112e84f3445523dbf59"
+  },
+  {
+    "path": "firecracker/analysis/isolation-seccomp-jailer-chain.html",
+    "size": 32546,
+    "sha256": "58c16df2aa6add3c43990882926f533aff7fc5c8b3f9b72db68a0639904cbb90"
+  },
+  {
+    "path": "firecracker/analysis/machine-description-acpi-fdt-chain.html",
+    "size": 30676,
+    "sha256": "c9789cef5a6da48fa1c88c15e1d8b095e006e3e7cb9d0a85d8a25152633f7afd"
+  },
+  {
+    "path": "firecracker/analysis/memory-device-snapshot-chain.html",
+    "size": 29959,
+    "sha256": "33187516055aa58f793df54334be0b2a90ccbac3767752742c6dd5820717de9a"
+  },
+  {
+    "path": "firecracker/analysis/mmds-metadata-network-chain.html",
+    "size": 30289,
+    "sha256": "ce9a0100015b21ca42686df7d83cc4fe7a2f27211ee0d8c27a958faa9034a9e5"
+  },
+  {
+    "path": "firecracker/analysis/observability-diagnostics-chain.html",
+    "size": 32408,
+    "sha256": "1b75419ac4b51bb6ed2985f29b538f650866b3397c2ef74f5f4e289923e48793"
+  },
+  {
+    "path": "firecracker/analysis/runtime-device-update-chain.html",
+    "size": 32165,
+    "sha256": "f86077db21ac3a0b47812922c01d5160fe3d0e723bc1965c1800364607814e9d"
+  },
+  {
+    "path": "firecracker/analysis/snapshot-restore-chain.html",
+    "size": 44669,
+    "sha256": "72667b2b2e1c640cfd1d78c92022dc4007b58b4f8044f3ae78a93908b589b898"
+  },
+  {
+    "path": "firecracker/analysis/storage-rootfs-sharefs-boundary-chain.html",
+    "size": 38378,
+    "sha256": "475c696c07a33a97c9dd568f491f906f54da302ff5f76e140be6fafa7d4d87af"
+  },
+  {
+    "path": "firecracker/analysis/uffd-memory-restore-chain.html",
+    "size": 32769,
+    "sha256": "b308a216d2fae5eb684ab2dd4524e46e539d0108670ec9fef02fc308abf26c93"
+  },
+  {
+    "path": "firecracker/analysis/vcpu-kvm-run-chain.html",
+    "size": 44688,
+    "sha256": "0773519cc9c59a1cd82320415322602161647f9d59de438b265b30e49ce74e36"
+  },
+  {
+    "path": "firecracker/analysis/virtio-block-data-path-chain.html",
+    "size": 37611,
+    "sha256": "2ba6b48a1ef261165b216f845d3b3166cc9d7879e72dc11192723ef60613e3b5"
+  },
+  {
+    "path": "firecracker/analysis/virtio-device-work-chain.html",
+    "size": 41869,
+    "sha256": "a624bac2b24ea5c1f4479344723e3eee77f22f6a39e52ba009c26e10ce74ae77"
+  },
+  {
+    "path": "firecracker/analysis/virtio-net-data-path-chain.html",
+    "size": 34708,
+    "sha256": "d5190bd044c076097563fa06d7bc81cf56b95cd8b649ddef8211d66a8fe9d5f7"
+  },
+  {
+    "path": "firecracker/analysis/vmresources-config-boundary-chain.html",
+    "size": 44571,
+    "sha256": "7c11f49bbda327fa50bd476f302ede75a413e4f04d073d92e90c4ab2713c51fb"
+  },
+  {
+    "path": "index.html",
+    "size": 27329,
+    "sha256": "85d8c0517a2b23b3d673565b4cdbb9d01f472427186a85da785aa581bc148d9f"
+  },
+  {
+    "path": "kata-containers/analysis/agent-container-lifecycle-chain.html",
+    "size": 45814,
+    "sha256": "cb9a4e52e500c9f978599f5439c22bbb11e61642705fdaf7591e452b25d7f1eb"
+  },
+  {
+    "path": "kata-containers/analysis/agent-rpc-boundary-chain.html",
+    "size": 29501,
+    "sha256": "9e61079403319874a866f595a6abedfff6e7808a09b3a849e72d636b4ac7e597"
+  },
+  {
+    "path": "kata-containers/analysis/arch-arm64-x86-chain.html",
+    "size": 29949,
+    "sha256": "951b01a192225756ee132242fd4e83ce1380d815df6ea841112722feac6dc84d"
+  },
+  {
+    "path": "kata-containers/analysis/arm64-feature-test-coverage-chain.html",
+    "size": 29248,
+    "sha256": "5a85a16986c4a5a4dce81373e1964f095aee42ae5c2be69916996b13cf88833e"
+  },
+  {
+    "path": "kata-containers/analysis/configuration-hypervisor-capability-chain.html",
+    "size": 28817,
+    "sha256": "05ef0ba48f725b24e372d822ffff59f2f14cd52ef29e577faf3f73e6401a8421"
+  },
+  {
+    "path": "kata-containers/analysis/cpu-scheduling-boundary-chain.html",
+    "size": 29430,
+    "sha256": "af6e6776eed7161414ca9ba4a74202e41cbf44542ecc316cb0057f36e545bc98"
+  },
+  {
+    "path": "kata-containers/analysis/deep-dive.html",
+    "size": 53724,
+    "sha256": "ef8d701a065d687d3f8af8d5a5c91796cd5d6f24d505ee92a69a97637f6b6f19"
+  },
+  {
+    "path": "kata-containers/analysis/deep-routes.html",
+    "size": 48419,
+    "sha256": "5c6e5ad55b8bc31cc1bf13a2edb4cb7fccde8cc41b735650592d8dd745821807"
+  },
+  {
+    "path": "kata-containers/analysis/guest-agent-create-container-chain.html",
+    "size": 29864,
+    "sha256": "444b54877512aeb0762612c8b6f65e6cf8b10e412fff9a5853c8e8f2172e7699"
+  },
+  {
+    "path": "kata-containers/analysis/hypervisor-plugin-lifecycle-chain.html",
+    "size": 30375,
+    "sha256": "4b603177ad83a3ea582c1d047f5a86a80be4c9bf70c5ee313bdfe2ef04bf758c"
+  },
+  {
+    "path": "kata-containers/analysis/interrupt-event-notification-chain.html",
+    "size": 29188,
+    "sha256": "ba17d1c8ad3474ff0b663707ebdb945a80240421dcb057bae7349fe77b0c0b6a"
+  },
+  {
+    "path": "kata-containers/analysis/network-endpoint-agent-chain.html",
+    "size": 29499,
+    "sha256": "54fe2bd865da1ae21ec6469c567eaea308024604e5c3e1218edab3ce1dfd4d45"
+  },
+  {
+    "path": "kata-containers/analysis/observability-diagnostics-chain.html",
+    "size": 29520,
+    "sha256": "fa99127c409c6f692a36ba83bf222087b2d872680a37183de6bc9123c81a83b3"
+  },
+  {
+    "path": "kata-containers/analysis/qemu-launch-params-chain.html",
+    "size": 28750,
+    "sha256": "85c69e1368bf2c7cb80479aaf4820a9cd415ac381885151275820cc86b1f5c30"
+  },
+  {
+    "path": "kata-containers/analysis/runtime-control-agent-hotplug-chain.html",
+    "size": 30641,
+    "sha256": "5720c2ab379eee5acf6972e93508148586d7d1900449f762744a50b90f33ea21"
+  },
+  {
+    "path": "kata-containers/analysis/runtime-rs-manager-request-chain.html",
+    "size": 48145,
+    "sha256": "d43dd1e9ff41a837892f17b5d5eb7111a316531c4593edb4d6e1dc51f432c0ee"
+  },
+  {
+    "path": "kata-containers/analysis/runtime-rs-resource-device-agent-chain.html",
+    "size": 43213,
+    "sha256": "e0a0f15278ec5e24ca8d2fc673655f1508a379cfc6e30765723b07e1bc6e1070"
+  },
+  {
+    "path": "kata-containers/analysis/sharefs-rootfs-volume-agent-chain.html",
+    "size": 45835,
+    "sha256": "9542567a5b1dd2450c62a095173623e90449c0a5f9dc78ba83f68f0432d74ed6"
+  },
+  {
+    "path": "kata-containers/analysis/shim-exit-event-recovery-chain.html",
+    "size": 41379,
+    "sha256": "b679c95ab86084d37d4c4498c0682c79949f47eb3f8c7c23b556c371e5a6620f"
+  },
+  {
+    "path": "kata-containers/analysis/shim-sandbox-lifecycle-chain.html",
+    "size": 30051,
+    "sha256": "c5b430f43cf6eea896787b437d5c7c7a4a63370f7990f05aa7ec35d355b006f4"
+  },
+  {
+    "path": "kata-containers/analysis/snapshot-restore-persist-chain.html",
+    "size": 29297,
+    "sha256": "a45904ab4dd453f149d510659b0464475f328e2b1f04b613bf36dfa672c9eb45"
+  },
+  {
+    "path": "kata-containers/analysis/storage-device-agent-chain.html",
+    "size": 28622,
+    "sha256": "374800503e8a4ebd150b84b29d34d1df5b468b339b8777daceb8b8d5f23309ad"
+  }
+]

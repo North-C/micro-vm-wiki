@@ -3,44 +3,38 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Firecracker 深入探索文档</title>
+<meta name="description" content="Firecracker 深入探索文档 本文档用于从当前仓库源码出发，逐步建立对 Firecracker 的系统性理解：它是什么、能力边界在哪里、虚拟化机制如何实现，以及 ARM64 与 x86 64 路径有什么结构性差异。 当前版本：第 12 版 源码基线： firecracker 仓库 main 分支，commit 37d2b74b7 阅读方式：先建立全局概念，再逐章深入 KVM/vCPU、设备模型、启动流程、snapshot、隔离机制和架构差异。 0. 问题地图 我们要解决的不是“Firecracker 是什么">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Firecracker 深入探索文档">
+<meta property="og:description" content="Firecracker 深入探索文档 本文档用于从当前仓库源码出发，逐步建立对 Firecracker 的系统性理解：它是什么、能力边界在哪里、虚拟化机制如何实现，以及 ARM64 与 x86 64 路径有什么结构性差异。 当前版本：第 12 版 源码基线： firecracker 仓库 main 分支，commit 37d2b74b7 阅读方式：先建立全局概念，再逐章深入 KVM/vCPU、设备模型、启动流程、snapshot、隔离机制和架构差异。 0. 问题地图 我们要解决的不是“Firecracker 是什么">
+<link rel="canonical" href="https://north-c.github.io/micro-vm-wiki/firecracker/analysis/deep-dive.html">
+<title>Firecracker 深入探索文档 · Micro-VM 技术研究 Wiki</title>
 <link rel="stylesheet" href="../../assets/style.css">
 </head>
-<body>
+<body data-root="../../">
+<a class="skip-link" href="#main-content">跳到正文</a>
 <div class="layout">
-  <aside class="sidebar">
-    <div class="brand">Micro-VM 分析 Wiki</div>
-    <input id="search" type="search" placeholder="搜索文档…" autocomplete="off">
-    <nav class="nav">
-      <li><a href="../../index.html">🏠 首页</a></li>
-<details class="nav-group" open><summary>综合学习层</summary><ul><li><a href="../../analysis/vm-design-landscape-overview.html">轻量化虚拟机设计全景与学习路线</a></li><li><a href="../../analysis/performance-design-basis-cross-project.html">性能设计依据跨项目专题分析</a></li><li><a href="../../analysis/security-design-basis-cross-project.html">安全设计依据跨项目专题分析</a></li><li><a href="../../analysis/analysis-improvement-recommendations.html">分析框架改进意见</a></li><li><a href="../../analysis/claude-code-research-workflow.html">Claude Code 协同研究工作流</a></li></ul></details>
-<details class="nav-group" open><summary>分析框架导航</summary><ul><li><a href="../../analysis/README.html">Analysis 导航入口</a></li><li><a href="../../analysis/four-project-deep-routes.html">Micro-VM 项目深入路线总览</a></li><li><a href="../../analysis/four-project-route-coverage-matrix.html">四项目深入路线完成度矩阵</a></li></ul></details>
-<details class="nav-group" open><summary>跨项目专题</summary><ul><li><a href="../../analysis/boot-control-plane-cross-project.html">启动路径与控制面跨项目专题分析</a></li><li><a href="../../analysis/snapshot-restore-cross-project.html">Snapshot / Restore / Clone 跨项目专题分析</a></li><li><a href="../../analysis/storage-rootfs-sharefs-cross-project.html">存储、rootfs 与共享文件系统跨项目专题分析</a></li><li><a href="../../analysis/virtio-data-path-cross-project.html">Virtio 传输与设备数据路径跨项目专题分析</a></li><li><a href="../../analysis/interrupt-event-notification-cross-project.html">中断与事件通知跨项目专题分析</a></li><li><a href="../../analysis/hypervisor-kvm-vcpu-cross-project.html">Hypervisor/KVM/vCPU 执行边界跨项目专题分析</a></li><li><a href="../../analysis/guest-memory-dma-iommu-cross-project.html">Guest Memory、DMA/IOMMU 与地址转换跨项目专题分析</a></li><li><a href="../../analysis/device-model-isolation-cross-project.html">设备模型与隔离边界跨项目专题分析</a></li><li><a href="../../analysis/runtime-control-hotplug-cross-project.html">运行期控制面与热插拔跨项目专题分析</a></li><li><a href="../../analysis/network-connectivity-cross-project.html">网络与连接模型跨项目专题分析</a></li><li><a href="../../analysis/guest-agent-runtime-cross-project.html">Guest Agent 与 Runtime 语义跨项目专题分析</a></li><li><a href="../../analysis/security-isolation-cross-project.html">安全隔离边界跨项目专题分析</a></li><li><a href="../../analysis/resource-qos-cross-project.html">资源管理与 QoS 跨项目专题分析</a></li><li><a href="../../analysis/observability-diagnostics-cross-project.html">可观测性与故障诊断跨项目专题分析</a></li><li><a href="../../analysis/cpu-interrupt-machine-cross-project.html">CPU、中断控制器与机器描述跨项目专题分析</a></li><li><a href="../../analysis/arm64-x86-cross-project-matrix.html">ARM64 与 x86_64 跨项目架构差异专题分析</a></li><li><a href="../../analysis/snapshot-device-save-restore-deep-dive.html">Snapshot 设备状态保存与恢复专题</a></li><li><a href="../../analysis/snapshot-memory-save-restore-deep-dive.html">Snapshot 内存保存与恢复专题</a></li><li><a href="../../analysis/snapshot-restore-kernel-deep-dive.html">Snapshot / Restore 底层内核技术深度解读</a></li></ul></details>
-<details class="nav-group" open><summary>项目交叉线</summary><ul><li><a href="../../analysis/ch-cubesandbox-backend-notifier-restore-crossline.html">Cloud Hypervisor 与 CubeSandbox：Backend / Notifier / Restore 交叉线</a></li><li><a href="../../analysis/ch-cubesandbox-restore-guest-unavailability-checklist.html">Cloud Hypervisor 与 CubeSandbox：Restore 后 Guest 不可用验证清单</a></li><li><a href="../../analysis/fc-kata-storage-semantics-crossline.html">Firecracker 与 Kata：Rootfs / Backing / Guest-Visible Storage 交叉线</a></li></ul></details>
-
-
-<details class="nav-group"><summary>历史 / 暂缓参考</summary><ul><li><a href="../../analysis/coco-pvm-protected-vm-cross-project.html">CoCo / pVM / 受保护 VM 跨项目专题分析</a></li><li><a href="../../analysis/protected-vm-snapshot-migration-cross-project.html">Protected VM 与 snapshot/migration 跨项目专题分析</a></li></ul></details>
-
-<details class="nav-group"><summary>Firecracker (32)</summary><ul><li><a href="../../firecracker/analysis/deep-routes.html">Firecracker 深入路线展开</a></li><li><a href="../../firecracker/analysis/deep-dive.html">Firecracker 深入探索文档</a></li><li><a href="../../firecracker/analysis/api-event-loop-thread-chain.html">Firecracker API Event Loop 与线程协作链路</a></li><li><a href="../../firecracker/analysis/api-start-boot-chain.html">Firecracker API 到 MicroVM 启动链路</a></li><li><a href="../../firecracker/analysis/arch-arm64-x86-chain.html">Firecracker ARM64 与 x86_64 架构差异链路</a></li><li><a href="../../firecracker/analysis/balloon-virtio-mem-guest-chain.html">Firecracker Balloon 与 Virtio-mem Guest 协作链路</a></li><li><a href="../../firecracker/analysis/build-microvm-boot-chain.html">Firecracker build_microvm_for_boot 构建链路</a></li><li><a href="../../firecracker/analysis/device-capability-boundary-chain.html">Firecracker 设备能力边界链路</a></li><li><a href="../../firecracker/analysis/device-manager-id-transport-chain.html">Firecracker DeviceManager ID 与 Transport 组件链路</a></li><li><a href="../../firecracker/analysis/device-manager-virtio-transport-chain.html">Firecracker DeviceManager / Virtio Transport 链路</a></li><li><a href="../../firecracker/analysis/interrupt-event-notification-chain.html">Firecracker 中断与事件通知链路</a></li><li><a href="../../firecracker/analysis/isolation-seccomp-jailer-chain.html">Firecracker 隔离机制链路</a></li><li><a href="../../firecracker/analysis/machine-description-acpi-fdt-chain.html">Firecracker 机器描述：x86_64 ACPI 与 ARM64 FDT 链路</a></li><li><a href="../../firecracker/analysis/memory-device-snapshot-chain.html">Firecracker Balloon / Virtio-mem Snapshot 状态链路</a></li><li><a href="../../firecracker/analysis/mmds-metadata-network-chain.html">Firecracker MMDS 元数据网络链路</a></li><li><a href="../../firecracker/analysis/observability-diagnostics-chain.html">Firecracker 可观测性与诊断链路</a></li><li><a href="../../firecracker/analysis/runtime-device-update-chain.html">Firecracker Runtime 设备更新链路</a></li><li><a href="../../firecracker/analysis/snapshot-restore-chain.html">Firecracker Snapshot / Restore 链路</a></li><li><a href="../../firecracker/analysis/storage-rootfs-sharefs-boundary-chain.html">Firecracker 存储 / rootfs / share-fs 边界链路</a></li><li><a href="../../firecracker/analysis/uffd-memory-restore-chain.html">Firecracker UFFD / Memory Restore 边界链路</a></li><li><a href="../../firecracker/analysis/vcpu-kvm-run-chain.html">Firecracker vCPU / KVM_RUN 链路</a></li><li><a href="../../firecracker/analysis/virtio-block-data-path-chain.html">Firecracker Virtio Block 数据面链路</a></li><li><a href="../../firecracker/analysis/virtio-device-work-chain.html">Firecracker Virtio 设备工作机制链路</a></li><li><a href="../../firecracker/analysis/virtio-net-data-path-chain.html">Firecracker Virtio Net 数据面链路</a></li><li><a href="../../firecracker/analysis/vmresources-config-boundary-chain.html">Firecracker VmResources 配置聚合与能力边界链路</a></li></ul></details>
-<details class="nav-group"><summary>Cloud Hypervisor (37)</summary><ul><li><a href="../../cloud-hypervisor/analysis/deep-routes.html">Cloud Hypervisor 深入路线展开</a></li><li><a href="../../cloud-hypervisor/analysis/deep-dive.html">Cloud Hypervisor 深入探索文档</a></li><li><a href="../../cloud-hypervisor/analysis/02-Cloud-Hypervisor-架构分析报告.html">Cloud Hypervisor 微虚拟机架构深度分析报告</a></li><li><a href="../../cloud-hypervisor/analysis/acpi-fdt-machine-description-chain.html">Cloud Hypervisor ACPI / FDT 机器描述生成链路</a></li><li><a href="../../cloud-hypervisor/analysis/api-vmm-thread-control-chain.html">Cloud Hypervisor API / VMM Thread 控制面链路</a></li><li><a href="../../cloud-hypervisor/analysis/arch-arm64-x86-chain.html">Cloud Hypervisor ARM64 与 x86_64 架构差异链路</a></li><li><a href="../../cloud-hypervisor/analysis/coco-tdx-sev-snp-chain.html">Cloud Hypervisor CoCo：TDX 与 SEV-SNP 函数级链路</a></li><li><a href="../../cloud-hypervisor/analysis/cpu-boot-chain.html">Cloud Hypervisor CPU 启动链路函数级分析</a></li><li><a href="../../cloud-hypervisor/analysis/cpu-runtime-hotplug-migration-chain.html">Cloud Hypervisor CPU 运行期控制与迁移状态链路</a></li><li><a href="../../cloud-hypervisor/analysis/device-creation-matrix-chain.html">Cloud Hypervisor 设备创建矩阵链路</a></li><li><a href="../../cloud-hypervisor/analysis/device-manager-chain.html">Cloud Hypervisor DeviceManager 设备链路函数级分析</a></li><li><a href="../../cloud-hypervisor/analysis/device-tree-hotplug-restore-chain.html">Cloud Hypervisor DeviceTree / 热插拔 / Restore 链路</a></li><li><a href="../../cloud-hypervisor/analysis/interrupt-event-notification-chain.html">Cloud Hypervisor 中断与事件通知链路</a></li><li><a href="../../cloud-hypervisor/analysis/io-device-data-path-chain.html">Cloud Hypervisor I/O 设备数据面链路</a></li><li><a href="../../cloud-hypervisor/analysis/isolation-seccomp-landlock-chain.html">Cloud Hypervisor 隔离机制函数级链路（seccomp + Landlock）</a></li><li><a href="../../cloud-hypervisor/analysis/memory-address-hotplug-topology-chain.html">Cloud Hypervisor Memory Address / Hotplug Topology 链路</a></li><li><a href="../../cloud-hypervisor/analysis/memory-manager-chain.html">Cloud Hypervisor MemoryManager 内存链路函数级分析</a></li><li><a href="../../cloud-hypervisor/analysis/migration-memory-transport-chain.html">Cloud Hypervisor Migration Memory Transport 链路</a></li><li><a href="../../cloud-hypervisor/analysis/observability-diagnostics-chain.html">Cloud Hypervisor 可观测性与诊断链路</a></li><li><a href="../../cloud-hypervisor/analysis/runtime-control-hotplug-chain.html">Cloud Hypervisor 运行期控制与热插拔链路</a></li><li><a href="../../cloud-hypervisor/analysis/sev-snp-igvm-vmsa-chain.html">Cloud Hypervisor SEV-SNP IGVM / VMSA / isolated page 链路</a></li><li><a href="../../cloud-hypervisor/analysis/storage-rootfs-sharefs-boundary-chain.html">Cloud Hypervisor 存储 / rootfs / share-fs 边界链路</a></li><li><a href="../../cloud-hypervisor/analysis/tdx-lifecycle-limit-chain.html">Cloud Hypervisor TDX lifecycle 限制链路</a></li><li><a href="../../cloud-hypervisor/analysis/tdx-tdvf-hob-chain.html">Cloud Hypervisor TDX TDVF / HOB 启动链路</a></li><li><a href="../../cloud-hypervisor/analysis/tdx-vcpu-exit-vmcall-chain.html">Cloud Hypervisor TDX vCPU exit / VMCALL 边界链路</a></li><li><a href="../../cloud-hypervisor/analysis/vfio-vfio-user-iommu-migration-chain.html">Cloud Hypervisor VFIO / vfio-user / IOMMU / Migration 能力矩阵链路</a></li><li><a href="../../cloud-hypervisor/analysis/vm-create-boot-chain.html">Cloud Hypervisor VM Create / Boot 构建链路</a></li></ul></details>
-<details class="nav-group"><summary>Kata Containers (29)</summary><ul><li><a href="../../kata-containers/analysis/deep-routes.html">Kata Containers 深入路线展开</a></li><li><a href="../../kata-containers/analysis/deep-dive.html">Kata Containers 深入探索文档</a></li><li><a href="../../kata-containers/analysis/agent-container-lifecycle-chain.html">Kata Agent Container 生命周期链路</a></li><li><a href="../../kata-containers/analysis/agent-rpc-boundary-chain.html">Kata agent RPC 边界链路</a></li><li><a href="../../kata-containers/analysis/arch-arm64-x86-chain.html">Kata Containers ARM64 与 x86_64 架构支持链路</a></li><li><a href="../../kata-containers/analysis/arm64-feature-test-coverage-chain.html">Kata ARM64 功能与测试覆盖边界链路</a></li><li><a href="../../kata-containers/analysis/configuration-hypervisor-capability-chain.html">Kata configuration 到 Hypervisor capability 链路</a></li><li><a href="../../kata-containers/analysis/cpu-scheduling-boundary-chain.html">Kata Containers CPU / 调度边界链路</a></li><li><a href="../../kata-containers/analysis/guest-agent-create-container-chain.html">Kata guest agent CreateContainer 落地链路</a></li><li><a href="../../kata-containers/analysis/hypervisor-plugin-lifecycle-chain.html">Kata runtime-rs Hypervisor Plugin 生命周期链路</a></li><li><a href="../../kata-containers/analysis/interrupt-event-notification-chain.html">Kata Containers 中断与事件通知委托链路</a></li><li><a href="../../kata-containers/analysis/network-endpoint-agent-chain.html">Kata Containers 网络 Endpoint 到 Agent 链路</a></li><li><a href="../../kata-containers/analysis/observability-diagnostics-chain.html">Kata Containers 可观测性与诊断机制函数级链路</a></li><li><a href="../../kata-containers/analysis/qemu-launch-params-chain.html">Kata Containers QEMU 启动参数构造链路</a></li><li><a href="../../kata-containers/analysis/runtime-control-agent-hotplug-chain.html">Kata Containers 运行期控制、Agent RPC 与设备更新链路</a></li><li><a href="../../kata-containers/analysis/runtime-rs-manager-request-chain.html">Kata runtime-rs Manager 请求分发链路</a></li><li><a href="../../kata-containers/analysis/runtime-rs-resource-device-agent-chain.html">Kata runtime-rs ResourceManager 资源设备链路</a></li><li><a href="../../kata-containers/analysis/sharefs-rootfs-volume-agent-chain.html">Share-fs / Rootfs / Volume 到 Agent 链路</a></li><li><a href="../../kata-containers/analysis/shim-exit-event-recovery-chain.html">Kata shim v2 Exit / Event / Recovery 链路</a></li><li><a href="../../kata-containers/analysis/shim-sandbox-lifecycle-chain.html">Kata Containers shim v2 到 sandbox/container 生命周期链路</a></li><li><a href="../../kata-containers/analysis/snapshot-restore-persist-chain.html">Kata Containers Snapshot / Restore / Persist 链路</a></li><li><a href="../../kata-containers/analysis/storage-device-agent-chain.html">Kata Containers storage/device 到 agent RPC 链路</a></li></ul></details>
-<details class="nav-group"><summary>crosvm (16)</summary><ul><li><a href="../../crosvm/analysis/deep-routes.html">crosvm 深入路线展开</a></li><li><a href="../../crosvm/analysis/deep-dive.html">crosvm 深入探索文档</a></li><li><a href="../../crosvm/analysis/arch-arm64-x86-chain.html">crosvm ARM64 与 x86_64 架构差异链路</a></li><li><a href="../../crosvm/analysis/boot-control-chain.html">crosvm 启动与控制循环函数级分析</a></li><li><a href="../../crosvm/analysis/create-devices-matrix-chain.html">crosvm create_devices 设备矩阵与隔离链路</a></li><li><a href="../../crosvm/analysis/device-isolation-chain.html">crosvm 设备模型与隔离链路函数级分析</a></li><li><a href="../../crosvm/analysis/protected-vm-block-net-fs-data-path-chain.html">crosvm protected VM block/net/fs 数据路径链路</a></li><li><a href="../../crosvm/analysis/protected-vm-device-boundary-chain.html">crosvm protected VM 设备边界与 virtio feature 链路</a></li><li><a href="../../crosvm/analysis/protected-vm-hypervisor-backend-chain.html">crosvm protected VM hypervisor backend 分流链路</a></li><li><a href="../../crosvm/analysis/protected-vm-iommu-vfio-memory-mapper-chain.html">crosvm protected VM IOMMU / VFIO / MemoryMapper 链路</a></li><li><a href="../../crosvm/analysis/protected-vm-pvm-chain.html">crosvm protected VM / pVM firmware 函数级链路</a></li><li><a href="../../crosvm/analysis/protected-vm-snapshot-restore-boundary-chain.html">crosvm protected VM snapshot / restore 边界链路</a></li><li><a href="../../crosvm/analysis/protected-vm-vhost-user-memory-iotlb-chain.html">crosvm protected VM vhost-user memory / IOTLB 链路</a></li><li><a href="../../crosvm/analysis/runtime-control-tube-chain.html">crosvm 运行期控制与 Tube 分发链路</a></li><li><a href="../../crosvm/analysis/snapshot-suspend-chain.html">crosvm Snapshot 与 Suspend 函数级分析</a></li><li><a href="../../crosvm/analysis/virtio-queue-worker-chain.html">crosvm virtio Queue 与 Worker 链路函数级分析</a></li></ul></details>
-<details class="nav-group"><summary>CubeSandbox (43)</summary><ul><li><a href="../../CubeSandbox-sandbox-clone/analysis/deep-routes.html">CubeSandbox 深入路线展开</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/deep-dive.html">CubeSandbox-sandbox-clone 深入探索文档</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/api-master-cubelet-create-chain.html">CubeSandbox API 到 Cubelet 创建链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/arch-arm64-x86-chain.html">CubeSandbox ARM64 与 x86_64 架构差异链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/cpu-vcpu-resource-boundary-chain.html">CubeSandbox CPU / vCPU 资源边界链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/cubeapi-long-operation-contract-chain.html">CubeAPI Long Operation Contract 链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/cubebox-action-containerd-chain.html">Cubebox Action 到 Containerd / CubeShim 链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/cubecow-storage-engine-chain.html">CubeCoW 存储引擎链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/cubehypervisor-api-request-chain.html">CubeHypervisor API Request 内部调度链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/cubelet-workflow-create-chain.html">Cubelet Workflow Create 编排链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/cubemaster-cache-consistency-boundary-chain.html">CubeMaster 缓存一致性边界链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/cubemaster-scheduler-task-chain.html">CubeMaster Scheduler 与 Task Retry 链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/cubemaster-snapshot-job-contract-chain.html">CubeMaster Snapshot Job Contract 链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/cubesandbox-redis-hugepages-report-20260627.html">CubeSandbox Redis Benchmark 静态大页/zram 对比报告</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/cubesandbox-unixbench-hugepages-report-20260626.html">CubeSandbox UnixBench 静态大页影响测试报告</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/cubesandbox_unixbench_hugepages_runbook.html">CubeSandbox UnixBench HugePages Runbook</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/cubeshim-container-agent-lifecycle-chain.html">CubeShim Container 到 Guest Agent 生命周期链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/cubeshim-sandbox-hypervisor-chain.html">CubeShim sandbox 与 CubeHypervisor 创建链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/cubevs-ebpf-data-plane-chain.html">CubeVS eBPF 数据面链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/guest-agent-network-config-chain.html">Guest Agent 网络配置链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/interrupt-event-notification-chain.html">CubeSandbox 中断与事件通知链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/interrupt-state-restore-chain.html">CubeSandbox 中断状态恢复链路（snapshot → restore → route re-enable）</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/network-agent-ensure-network-chain.html">Network-Agent EnsureNetwork 链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/network-data-plane-interrupt-wakeup-chain.html">CubeSandbox 网络数据面与中断唤醒链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/observability-diagnostics-chain.html">CubeSandbox 可观测性与诊断机制链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/performance-mechanisms-community-benchmark-analysis.html">CubeSandbox 性能机制与社区基准测试项分析</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/rollback-runtime-update-chain.html">CubeSandbox Rollback / Runtime Update 链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/runtime-control-vmm-update-chain.html">CubeSandbox 运行期控制与 VMM 更新链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/sandbox-ready-lifecycle-chain.html">CubeSandbox Sandbox Ready 生命周期链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/sandbox-vm-container-template-runtime-hierarchy.html">CubeSandbox Sandbox / VM / Container 层次与 OCI Template 运行链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/snapshot-catalog-restore-binding-chain.html">Snapshot Catalog / Restore Binding 链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/snapshot-create-commit-chain.html">Snapshot Create / Commit 生成链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/snapshot-replica-reconciler-chain.html">Snapshot Replica Reconciler 链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/snapshot-restore-network-chain.html">Snapshot Restore 网络恢复链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/snapshot-template-storage-format-chain.html">CubeSandbox Snapshot 与 Template 存储、格式、恢复链路专题</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/tap-fd-networkinfo-chain.html">TAP FD 与 NetworkInfo 闭环</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/tap-fd-unavailable-case-study.html">CubeSandbox ARM64 `tap fd unavailable` 故障案例分析</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/template-build-from-oci-chain.html">CubeSandbox Template 构建链路：从 OCI 镜像到 Template</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/template-restore-msix-chain.html">基于 Template 启动到 RestoreVm 与 MSI-X Restore 的链路分析</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/virtio-interrupt-injection-trace.html">CubeSandbox Virtio 中断注入函数级链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/virtio-net-fs-restore-chain.html">CubeSandbox Virtio Net / Fs Restore 内部状态链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/vmm-device-restore-chain.html">CubeSandbox VMM Device Restore 设备恢复链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/vmm-snapshot-restore-state-chain.html">CubeSandbox VMM Snapshot Restore 状态恢复链路</a></li></ul></details>
-
-
-<li><a href="../../Agent.html">Micro-VM Agent Instructions</a></li>
-    </nav>
+  <aside class="sidebar" id="site-sidebar" aria-label="站点导航" aria-hidden="false">
+    <a class="brand" href="../../index.html">Micro-VM 技术研究 Wiki</a>
+    <label class="search-label" for="search">搜索公开文档</label>
+    <input id="search" type="search" autocomplete="off" aria-controls="search-results" aria-expanded="false">
+    <div id="search-status" class="search-status" role="status" aria-live="polite"></div>
+    <div id="search-results" class="search-results" role="listbox"></div>
+    <nav aria-label="主要导航"><ul class="nav-tree"><li><a href="../../index.html">首页</a></li><li><details class="nav-group" open><summary>开始</summary><ul><li><a href="../../analysis/README.html">Analysis 导航入口</a></li><li><a href="../../analysis/four-project-deep-routes.html">Micro-VM 项目深入路线总览</a></li><li><a href="../../analysis/vm-design-landscape-overview.html">轻量化虚拟机设计全景与学习路线</a></li></ul></details></li><li><details class="nav-group"><summary>项目</summary><ul><li><details class="nav-group nav-subgroup"><summary>CubeSandbox</summary><ul><li><a href="../../CubeSandbox-sandbox-clone/analysis/deep-routes.html">CubeSandbox 深入路线展开</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/deep-dive.html">CubeSandbox-sandbox-clone 深入探索文档</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/api-master-cubelet-create-chain.html">CubeSandbox API 到 Cubelet 创建链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/arch-arm64-x86-chain.html">CubeSandbox ARM64 与 x86_64 架构差异链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/cpu-vcpu-resource-boundary-chain.html">CubeSandbox CPU / vCPU 资源边界链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/cubeapi-long-operation-contract-chain.html">CubeAPI Long Operation Contract 链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/cubebox-action-containerd-chain.html">Cubebox Action 到 Containerd / CubeShim 链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/cubecow-storage-engine-chain.html">CubeCoW 存储引擎链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/cubehypervisor-api-request-chain.html">CubeHypervisor API Request 内部调度链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/cubelet-workflow-create-chain.html">Cubelet Workflow Create 编排链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/cubemaster-cache-consistency-boundary-chain.html">CubeMaster 缓存一致性边界链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/cubemaster-scheduler-task-chain.html">CubeMaster Scheduler 与 Task Retry 链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/cubemaster-snapshot-job-contract-chain.html">CubeMaster Snapshot Job Contract 链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/cubesandbox-redis-hugepages-report-20260627.html">CubeSandbox Redis Benchmark 静态大页/zram 对比报告</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/cubesandbox-unixbench-hugepages-report-20260626.html">CubeSandbox UnixBench 静态大页影响测试报告</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/cubesandbox_unixbench_hugepages_runbook.html">CubeSandbox UnixBench HugePages Runbook</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/cubeshim-container-agent-lifecycle-chain.html">CubeShim Container 到 Guest Agent 生命周期链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/cubeshim-sandbox-hypervisor-chain.html">CubeShim sandbox 与 CubeHypervisor 创建链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/cubevs-ebpf-data-plane-chain.html">CubeVS eBPF 数据面链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/guest-agent-network-config-chain.html">Guest Agent 网络配置链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/interrupt-event-notification-chain.html">CubeSandbox 中断与事件通知链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/interrupt-state-restore-chain.html">CubeSandbox 中断状态恢复链路（snapshot → restore → route re-enable）</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/network-agent-ensure-network-chain.html">Network-Agent EnsureNetwork 链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/network-data-plane-interrupt-wakeup-chain.html">CubeSandbox 网络数据面与中断唤醒链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/observability-diagnostics-chain.html">CubeSandbox 可观测性与诊断机制链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/performance-mechanisms-community-benchmark-analysis.html">CubeSandbox 性能机制与社区基准测试项分析</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/rollback-runtime-update-chain.html">CubeSandbox Rollback / Runtime Update 链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/runtime-control-vmm-update-chain.html">CubeSandbox 运行期控制与 VMM 更新链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/sandbox-ready-lifecycle-chain.html">CubeSandbox Sandbox Ready 生命周期链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/sandbox-vm-container-template-runtime-hierarchy.html">CubeSandbox Sandbox / VM / Container 层次与 OCI Template 运行链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/snapshot-catalog-restore-binding-chain.html">Snapshot Catalog / Restore Binding 链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/snapshot-create-commit-chain.html">Snapshot Create / Commit 生成链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/snapshot-replica-reconciler-chain.html">Snapshot Replica Reconciler 链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/snapshot-restore-network-chain.html">Snapshot Restore 网络恢复链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/snapshot-template-storage-format-chain.html">CubeSandbox Snapshot 与 Template 存储、格式、恢复链路专题</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/tap-fd-networkinfo-chain.html">TAP FD 与 NetworkInfo 闭环</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/tap-fd-unavailable-case-study.html">CubeSandbox ARM64 `tap fd unavailable` 故障案例分析</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/template-build-from-oci-chain.html">CubeSandbox Template 构建链路：从 OCI 镜像到 Template</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/template-restore-msix-chain.html">基于 Template 启动到 RestoreVm 与 MSI-X Restore 的链路分析</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/virtio-interrupt-injection-trace.html">CubeSandbox Virtio 中断注入函数级链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/virtio-net-fs-restore-chain.html">CubeSandbox Virtio Net / Fs Restore 内部状态链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/vmm-device-restore-chain.html">CubeSandbox VMM Device Restore 设备恢复链路</a></li><li><a href="../../CubeSandbox-sandbox-clone/analysis/vmm-snapshot-restore-state-chain.html">CubeSandbox VMM Snapshot Restore 状态恢复链路</a></li></ul></details></li><li><details class="nav-group nav-subgroup"><summary>Cloud Hypervisor</summary><ul><li><a href="../../cloud-hypervisor/analysis/deep-routes.html">Cloud Hypervisor 深入路线展开</a></li><li><a href="../../cloud-hypervisor/analysis/deep-dive.html">Cloud Hypervisor 深入探索文档</a></li><li><a href="../../cloud-hypervisor/analysis/02-Cloud-Hypervisor-架构分析报告.html">Cloud Hypervisor 微虚拟机架构深度分析报告</a></li><li><a href="../../cloud-hypervisor/analysis/acpi-fdt-machine-description-chain.html">Cloud Hypervisor ACPI / FDT 机器描述生成链路</a></li><li><a href="../../cloud-hypervisor/analysis/api-vmm-thread-control-chain.html">Cloud Hypervisor API / VMM Thread 控制面链路</a></li><li><a href="../../cloud-hypervisor/analysis/arch-arm64-x86-chain.html">Cloud Hypervisor ARM64 与 x86_64 架构差异链路</a></li><li><a href="../../cloud-hypervisor/analysis/coco-tdx-sev-snp-chain.html">Cloud Hypervisor CoCo：TDX 与 SEV-SNP 函数级链路</a></li><li><a href="../../cloud-hypervisor/analysis/cpu-boot-chain.html">Cloud Hypervisor CPU 启动链路函数级分析</a></li><li><a href="../../cloud-hypervisor/analysis/cpu-runtime-hotplug-migration-chain.html">Cloud Hypervisor CPU 运行期控制与迁移状态链路</a></li><li><a href="../../cloud-hypervisor/analysis/device-creation-matrix-chain.html">Cloud Hypervisor 设备创建矩阵链路</a></li><li><a href="../../cloud-hypervisor/analysis/device-manager-chain.html">Cloud Hypervisor DeviceManager 设备链路函数级分析</a></li><li><a href="../../cloud-hypervisor/analysis/device-tree-hotplug-restore-chain.html">Cloud Hypervisor DeviceTree / 热插拔 / Restore 链路</a></li><li><a href="../../cloud-hypervisor/analysis/interrupt-event-notification-chain.html">Cloud Hypervisor 中断与事件通知链路</a></li><li><a href="../../cloud-hypervisor/analysis/io-device-data-path-chain.html">Cloud Hypervisor I/O 设备数据面链路</a></li><li><a href="../../cloud-hypervisor/analysis/isolation-seccomp-landlock-chain.html">Cloud Hypervisor 隔离机制函数级链路（seccomp + Landlock）</a></li><li><a href="../../cloud-hypervisor/analysis/memory-address-hotplug-topology-chain.html">Cloud Hypervisor Memory Address / Hotplug Topology 链路</a></li><li><a href="../../cloud-hypervisor/analysis/memory-manager-chain.html">Cloud Hypervisor MemoryManager 内存链路函数级分析</a></li><li><a href="../../cloud-hypervisor/analysis/migration-memory-transport-chain.html">Cloud Hypervisor Migration Memory Transport 链路</a></li><li><a href="../../cloud-hypervisor/analysis/observability-diagnostics-chain.html">Cloud Hypervisor 可观测性与诊断链路</a></li><li><a href="../../cloud-hypervisor/analysis/runtime-control-hotplug-chain.html">Cloud Hypervisor 运行期控制与热插拔链路</a></li><li><a href="../../cloud-hypervisor/analysis/sev-snp-igvm-vmsa-chain.html">Cloud Hypervisor SEV-SNP IGVM / VMSA / isolated page 链路</a></li><li><a href="../../cloud-hypervisor/analysis/storage-rootfs-sharefs-boundary-chain.html">Cloud Hypervisor 存储 / rootfs / share-fs 边界链路</a></li><li><a href="../../cloud-hypervisor/analysis/tdx-lifecycle-limit-chain.html">Cloud Hypervisor TDX lifecycle 限制链路</a></li><li><a href="../../cloud-hypervisor/analysis/tdx-tdvf-hob-chain.html">Cloud Hypervisor TDX TDVF / HOB 启动链路</a></li><li><a href="../../cloud-hypervisor/analysis/tdx-vcpu-exit-vmcall-chain.html">Cloud Hypervisor TDX vCPU exit / VMCALL 边界链路</a></li><li><a href="../../cloud-hypervisor/analysis/vfio-vfio-user-iommu-migration-chain.html">Cloud Hypervisor VFIO / vfio-user / IOMMU / Migration 能力矩阵链路</a></li><li><a href="../../cloud-hypervisor/analysis/vm-create-boot-chain.html">Cloud Hypervisor VM Create / Boot 构建链路</a></li></ul></details></li><li><details class="nav-group nav-subgroup"><summary>crosvm</summary><ul><li><a href="../../crosvm/analysis/deep-routes.html">crosvm 深入路线展开</a></li><li><a href="../../crosvm/analysis/deep-dive.html">crosvm 深入探索文档</a></li><li><a href="../../crosvm/analysis/arch-arm64-x86-chain.html">crosvm ARM64 与 x86_64 架构差异链路</a></li><li><a href="../../crosvm/analysis/boot-control-chain.html">crosvm 启动与控制循环函数级分析</a></li><li><a href="../../crosvm/analysis/create-devices-matrix-chain.html">crosvm create_devices 设备矩阵与隔离链路</a></li><li><a href="../../crosvm/analysis/device-isolation-chain.html">crosvm 设备模型与隔离链路函数级分析</a></li><li><a href="../../crosvm/analysis/protected-vm-block-net-fs-data-path-chain.html">crosvm protected VM block/net/fs 数据路径链路</a></li><li><a href="../../crosvm/analysis/protected-vm-device-boundary-chain.html">crosvm protected VM 设备边界与 virtio feature 链路</a></li><li><a href="../../crosvm/analysis/protected-vm-hypervisor-backend-chain.html">crosvm protected VM hypervisor backend 分流链路</a></li><li><a href="../../crosvm/analysis/protected-vm-iommu-vfio-memory-mapper-chain.html">crosvm protected VM IOMMU / VFIO / MemoryMapper 链路</a></li><li><a href="../../crosvm/analysis/protected-vm-pvm-chain.html">crosvm protected VM / pVM firmware 函数级链路</a></li><li><a href="../../crosvm/analysis/protected-vm-snapshot-restore-boundary-chain.html">crosvm protected VM snapshot / restore 边界链路</a></li><li><a href="../../crosvm/analysis/protected-vm-vhost-user-memory-iotlb-chain.html">crosvm protected VM vhost-user memory / IOTLB 链路</a></li><li><a href="../../crosvm/analysis/runtime-control-tube-chain.html">crosvm 运行期控制与 Tube 分发链路</a></li><li><a href="../../crosvm/analysis/snapshot-suspend-chain.html">crosvm Snapshot 与 Suspend 函数级分析</a></li><li><a href="../../crosvm/analysis/virtio-queue-worker-chain.html">crosvm virtio Queue 与 Worker 链路函数级分析</a></li></ul></details></li><li><details class="nav-group nav-subgroup"><summary>Firecracker</summary><ul><li><a href="../../firecracker/analysis/deep-routes.html">Firecracker 深入路线展开</a></li><li><a href="../../firecracker/analysis/deep-dive.html">Firecracker 深入探索文档</a></li><li><a href="../../firecracker/analysis/api-event-loop-thread-chain.html">Firecracker API Event Loop 与线程协作链路</a></li><li><a href="../../firecracker/analysis/api-start-boot-chain.html">Firecracker API 到 MicroVM 启动链路</a></li><li><a href="../../firecracker/analysis/arch-arm64-x86-chain.html">Firecracker ARM64 与 x86_64 架构差异链路</a></li><li><a href="../../firecracker/analysis/balloon-virtio-mem-guest-chain.html">Firecracker Balloon 与 Virtio-mem Guest 协作链路</a></li><li><a href="../../firecracker/analysis/build-microvm-boot-chain.html">Firecracker build_microvm_for_boot 构建链路</a></li><li><a href="../../firecracker/analysis/device-capability-boundary-chain.html">Firecracker 设备能力边界链路</a></li><li><a href="../../firecracker/analysis/device-manager-id-transport-chain.html">Firecracker DeviceManager ID 与 Transport 组件链路</a></li><li><a href="../../firecracker/analysis/device-manager-virtio-transport-chain.html">Firecracker DeviceManager / Virtio Transport 链路</a></li><li><a href="../../firecracker/analysis/interrupt-event-notification-chain.html">Firecracker 中断与事件通知链路</a></li><li><a href="../../firecracker/analysis/isolation-seccomp-jailer-chain.html">Firecracker 隔离机制链路</a></li><li><a href="../../firecracker/analysis/machine-description-acpi-fdt-chain.html">Firecracker 机器描述：x86_64 ACPI 与 ARM64 FDT 链路</a></li><li><a href="../../firecracker/analysis/memory-device-snapshot-chain.html">Firecracker Balloon / Virtio-mem Snapshot 状态链路</a></li><li><a href="../../firecracker/analysis/mmds-metadata-network-chain.html">Firecracker MMDS 元数据网络链路</a></li><li><a href="../../firecracker/analysis/observability-diagnostics-chain.html">Firecracker 可观测性与诊断链路</a></li><li><a href="../../firecracker/analysis/runtime-device-update-chain.html">Firecracker Runtime 设备更新链路</a></li><li><a href="../../firecracker/analysis/snapshot-restore-chain.html">Firecracker Snapshot / Restore 链路</a></li><li><a href="../../firecracker/analysis/storage-rootfs-sharefs-boundary-chain.html">Firecracker 存储 / rootfs / share-fs 边界链路</a></li><li><a href="../../firecracker/analysis/uffd-memory-restore-chain.html">Firecracker UFFD / Memory Restore 边界链路</a></li><li><a href="../../firecracker/analysis/vcpu-kvm-run-chain.html">Firecracker vCPU / KVM_RUN 链路</a></li><li><a href="../../firecracker/analysis/virtio-block-data-path-chain.html">Firecracker Virtio Block 数据面链路</a></li><li><a href="../../firecracker/analysis/virtio-device-work-chain.html">Firecracker Virtio 设备工作机制链路</a></li><li><a href="../../firecracker/analysis/virtio-net-data-path-chain.html">Firecracker Virtio Net 数据面链路</a></li><li><a href="../../firecracker/analysis/vmresources-config-boundary-chain.html">Firecracker VmResources 配置聚合与能力边界链路</a></li></ul></details></li><li><details class="nav-group nav-subgroup"><summary>Kata Containers</summary><ul><li><a href="../../kata-containers/analysis/deep-routes.html">Kata Containers 深入路线展开</a></li><li><a href="../../kata-containers/analysis/deep-dive.html">Kata Containers 深入探索文档</a></li><li><a href="../../kata-containers/analysis/agent-container-lifecycle-chain.html">Kata Agent Container 生命周期链路</a></li><li><a href="../../kata-containers/analysis/agent-rpc-boundary-chain.html">Kata agent RPC 边界链路</a></li><li><a href="../../kata-containers/analysis/arch-arm64-x86-chain.html">Kata Containers ARM64 与 x86_64 架构支持链路</a></li><li><a href="../../kata-containers/analysis/arm64-feature-test-coverage-chain.html">Kata ARM64 功能与测试覆盖边界链路</a></li><li><a href="../../kata-containers/analysis/configuration-hypervisor-capability-chain.html">Kata configuration 到 Hypervisor capability 链路</a></li><li><a href="../../kata-containers/analysis/cpu-scheduling-boundary-chain.html">Kata Containers CPU / 调度边界链路</a></li><li><a href="../../kata-containers/analysis/guest-agent-create-container-chain.html">Kata guest agent CreateContainer 落地链路</a></li><li><a href="../../kata-containers/analysis/hypervisor-plugin-lifecycle-chain.html">Kata runtime-rs Hypervisor Plugin 生命周期链路</a></li><li><a href="../../kata-containers/analysis/interrupt-event-notification-chain.html">Kata Containers 中断与事件通知委托链路</a></li><li><a href="../../kata-containers/analysis/network-endpoint-agent-chain.html">Kata Containers 网络 Endpoint 到 Agent 链路</a></li><li><a href="../../kata-containers/analysis/observability-diagnostics-chain.html">Kata Containers 可观测性与诊断机制函数级链路</a></li><li><a href="../../kata-containers/analysis/qemu-launch-params-chain.html">Kata Containers QEMU 启动参数构造链路</a></li><li><a href="../../kata-containers/analysis/runtime-control-agent-hotplug-chain.html">Kata Containers 运行期控制、Agent RPC 与设备更新链路</a></li><li><a href="../../kata-containers/analysis/runtime-rs-manager-request-chain.html">Kata runtime-rs Manager 请求分发链路</a></li><li><a href="../../kata-containers/analysis/runtime-rs-resource-device-agent-chain.html">Kata runtime-rs ResourceManager 资源设备链路</a></li><li><a href="../../kata-containers/analysis/sharefs-rootfs-volume-agent-chain.html">Share-fs / Rootfs / Volume 到 Agent 链路</a></li><li><a href="../../kata-containers/analysis/shim-exit-event-recovery-chain.html">Kata shim v2 Exit / Event / Recovery 链路</a></li><li><a href="../../kata-containers/analysis/shim-sandbox-lifecycle-chain.html">Kata Containers shim v2 到 sandbox/container 生命周期链路</a></li><li><a href="../../kata-containers/analysis/snapshot-restore-persist-chain.html">Kata Containers Snapshot / Restore / Persist 链路</a></li><li><a href="../../kata-containers/analysis/storage-device-agent-chain.html">Kata Containers storage/device 到 agent RPC 链路</a></li></ul></details></li></ul></details></li><li><details class="nav-group"><summary>专题比较</summary><ul><li><a href="../../analysis/arm64-x86-cross-project-matrix.html">ARM64 与 x86_64 跨项目架构差异专题分析</a></li><li><a href="../../analysis/boot-control-plane-cross-project.html">启动路径与控制面跨项目专题分析</a></li><li><a href="../../analysis/ch-cubesandbox-backend-notifier-restore-crossline.html">Cloud Hypervisor 与 CubeSandbox：Backend / Notifier / Restore 交叉线</a></li><li><a href="../../analysis/cpu-interrupt-machine-cross-project.html">CPU、中断控制器与机器描述跨项目专题分析</a></li><li><a href="../../analysis/device-model-isolation-cross-project.html">设备模型与隔离边界跨项目专题分析</a></li><li><a href="../../analysis/fc-kata-storage-semantics-crossline.html">Firecracker 与 Kata：Rootfs / Backing / Guest-Visible Storage 交叉线</a></li><li><a href="../../analysis/guest-agent-runtime-cross-project.html">Guest Agent 与 Runtime 语义跨项目专题分析</a></li><li><a href="../../analysis/guest-memory-dma-iommu-cross-project.html">Guest Memory、DMA/IOMMU 与地址转换跨项目专题分析</a></li><li><a href="../../analysis/hypervisor-kvm-vcpu-cross-project.html">Hypervisor/KVM/vCPU 执行边界跨项目专题分析</a></li><li><a href="../../analysis/interrupt-event-notification-cross-project.html">中断与事件通知跨项目专题分析</a></li><li><a href="../../analysis/network-connectivity-cross-project.html">网络与连接模型跨项目专题分析</a></li><li><a href="../../analysis/observability-diagnostics-cross-project.html">可观测性与故障诊断跨项目专题分析</a></li><li><a href="../../analysis/performance-design-basis-cross-project.html">性能设计依据跨项目专题分析</a></li><li><a href="../../analysis/resource-qos-cross-project.html">资源管理与 QoS 跨项目专题分析</a></li><li><a href="../../analysis/runtime-control-hotplug-cross-project.html">运行期控制面与热插拔跨项目专题分析</a></li><li><a href="../../analysis/security-design-basis-cross-project.html">安全设计依据跨项目专题分析</a></li><li><a href="../../analysis/security-isolation-cross-project.html">安全隔离边界跨项目专题分析</a></li><li><a href="../../analysis/snapshot-device-save-restore-deep-dive.html">Snapshot 设备状态保存与恢复专题</a></li><li><a href="../../analysis/snapshot-memory-save-restore-deep-dive.html">Snapshot 内存保存与恢复专题</a></li><li><a href="../../analysis/snapshot-restore-cross-project.html">Snapshot / Restore / Clone 跨项目专题分析</a></li><li><a href="../../analysis/snapshot-restore-kernel-deep-dive.html">Snapshot / Restore 底层内核技术深度解读</a></li><li><a href="../../analysis/storage-rootfs-sharefs-cross-project.html">存储、rootfs 与共享文件系统跨项目专题分析</a></li><li><a href="../../analysis/virtio-data-path-cross-project.html">Virtio 传输与设备数据路径跨项目专题分析</a></li></ul></details></li><li><details class="nav-group"><summary>证据与版本</summary><ul><li><a href="../../analysis/analysis-improvement-recommendations.html">分析框架改进意见</a></li><li><a href="../../analysis/four-project-route-coverage-matrix.html">四项目深入路线完成度矩阵</a></li></ul></details></li><li><details class="nav-group"><summary>操作与验证</summary><ul><li><a href="../../analysis/ch-cubesandbox-restore-guest-unavailability-checklist.html">Cloud Hypervisor 与 CubeSandbox：Restore 后 Guest 不可用验证清单</a></li><li><a href="../../analysis/claude-code-research-workflow.html">Claude Code 协同研究工作流</a></li></ul></details></li><li><details class="nav-group"><summary>历史与暂缓</summary><ul><li><a href="../../analysis/coco-pvm-protected-vm-cross-project.html">CoCo / pVM / 受保护 VM 跨项目专题分析</a></li><li><a href="../../analysis/protected-vm-snapshot-migration-cross-project.html">Protected VM 与 snapshot/migration 跨项目专题分析</a></li></ul></details></li></ul></nav>
   </aside>
-  <main class="content">
+  <button class="sidebar-scrim" id="sidebar-scrim" aria-label="关闭导航"></button>
+  <main class="content" id="main-content" tabindex="-1">
     <div class="topbar">
-      <button id="theme-toggle" title="切换暗色模式">🌙</button>
-      <a class="back-home" href="../../index.html">🏠 首页</a>
+      <button class="menu-toggle" id="menu-toggle" aria-controls="site-sidebar" aria-expanded="false">目录</button>
+      <button id="theme-toggle" aria-label="切换到深色模式">🌙</button>
+      <a class="back-home" href="../../index.html">首页</a>
     </div>
-    <article class="markdown-body">
-      <h1 id="firecracker">Firecracker 深入探索文档</h1>
+<nav class="breadcrumbs" aria-label="面包屑"><ol><li><a href="../../index.html">首页</a></li><li>项目</li><li>Firecracker</li><li aria-current="page">Firecracker 深入探索文档</li></ol></nav>
+<div class="page-meta" aria-label="文档元数据"><span class="badge">explanation</span><span class="badge badge-status">状态：unconfirmed</span><span class="badge">firecracker</span></div>
+    <article class="markdown-body"><h1 id="firecracker">Firecracker 深入探索文档</h1>
 <p>本文档用于从当前仓库源码出发，逐步建立对 Firecracker 的系统性理解：它是什么、能力边界在哪里、虚拟化机制如何实现，以及 ARM64 与 x86_64 路径有什么结构性差异。</p>
-<p>当前版本：第 12 版<br>
-源码基线：<code>firecracker</code> 仓库 <code>main</code> 分支，commit <code>37d2b74b7</code><br>
+<p>当前版本：第 12 版
+源码基线：<code>firecracker</code> 仓库 <code>main</code> 分支，commit <code>37d2b74b7</code>
 阅读方式：先建立全局概念，再逐章深入 KVM/vCPU、设备模型、启动流程、snapshot、隔离机制和架构差异。</p>
 <h2 id="0">0. 问题地图</h2>
 <p>我们要解决的不是“Firecracker 是什么”这种表层问题，而是下面这些更具体的问题：</p>
@@ -167,9 +161,9 @@
 <li>不把 API 线程放在 VM fast path。API 线程只做控制面；VMM 和 vCPU/device 事件路径处理运行期行为：<code class="src-ref">docs/design.md</code>。</li>
 </ul>
 <h2 id="3">3. 顶层架构</h2>
-<div class="mermaid">flowchart TB
-    Client[Host client or orchestrator] -->|HTTP over Unix socket| ApiThread[API thread]
-    ApiThread -->|mpsc VmmAction + eventfd| VmmThread[VMM thread / EventManager]
+<figure class="diagram" aria-label="Mermaid 架构或流程图"><div class="mermaid">flowchart TB
+    Client[Host client or orchestrator] --&gt;|HTTP over Unix socket| ApiThread[API thread]
+    ApiThread --&gt;|mpsc VmmAction + eventfd| VmmThread[VMM thread / EventManager]
 
     subgraph FirecrackerProcess[One Firecracker process = one microVM]
         ApiThread
@@ -180,25 +174,54 @@
         VcpuN[vCPU thread N]
     end
 
-    VmmThread --> VmmCore
-    VmmCore --> DeviceManager
-    VmmCore -->|VcpuEvent| Vcpu0
-    VmmCore -->|VcpuEvent| VcpuN
+    VmmThread --&gt; VmmCore
+    VmmCore --&gt; DeviceManager
+    VmmCore --&gt;|VcpuEvent| Vcpu0
+    VmmCore --&gt;|VcpuEvent| VcpuN
 
-    Vcpu0 -->|KVM_RUN| KVM[Linux KVM]
-    VcpuN -->|KVM_RUN| KVM
-    KVM --> Guest[Guest Linux]
+    Vcpu0 --&gt;|KVM_RUN| KVM[Linux KVM]
+    VcpuN --&gt;|KVM_RUN| KVM
+    KVM --&gt; Guest[Guest Linux]
 
-    DeviceManager --> VirtioBlock[virtio-block]
-    DeviceManager --> VirtioNet[virtio-net]
-    DeviceManager --> VirtioVsock[virtio-vsock]
-    DeviceManager --> OtherVirtio[balloon / pmem / rng / virtio-mem]
+    DeviceManager --&gt; VirtioBlock[virtio-block]
+    DeviceManager --&gt; VirtioNet[virtio-net]
+    DeviceManager --&gt; VirtioVsock[virtio-vsock]
+    DeviceManager --&gt; OtherVirtio[balloon / pmem / rng / virtio-mem]
 
-    VirtioBlock --> HostFile[host backing files]
-    VirtioNet --> Tap[TAP devices]
-    VirtioVsock --> UnixSock[Unix sockets]
-    OtherVirtio --> HostKernel[host kernel resources]
-</div>
+    VirtioBlock --&gt; HostFile[host backing files]
+    VirtioNet --&gt; Tap[TAP devices]
+    VirtioVsock --&gt; UnixSock[Unix sockets]
+    OtherVirtio --&gt; HostKernel[host kernel resources]</div><details class="diagram-source"><summary>查看图表文本</summary><pre><code>flowchart TB
+    Client[Host client or orchestrator] --&gt;|HTTP over Unix socket| ApiThread[API thread]
+    ApiThread --&gt;|mpsc VmmAction + eventfd| VmmThread[VMM thread / EventManager]
+
+    subgraph FirecrackerProcess[One Firecracker process = one microVM]
+        ApiThread
+        VmmThread
+        VmmCore[Vmm object]
+        DeviceManager[DeviceManager]
+        Vcpu0[vCPU thread 0]
+        VcpuN[vCPU thread N]
+    end
+
+    VmmThread --&gt; VmmCore
+    VmmCore --&gt; DeviceManager
+    VmmCore --&gt;|VcpuEvent| Vcpu0
+    VmmCore --&gt;|VcpuEvent| VcpuN
+
+    Vcpu0 --&gt;|KVM_RUN| KVM[Linux KVM]
+    VcpuN --&gt;|KVM_RUN| KVM
+    KVM --&gt; Guest[Guest Linux]
+
+    DeviceManager --&gt; VirtioBlock[virtio-block]
+    DeviceManager --&gt; VirtioNet[virtio-net]
+    DeviceManager --&gt; VirtioVsock[virtio-vsock]
+    DeviceManager --&gt; OtherVirtio[balloon / pmem / rng / virtio-mem]
+
+    VirtioBlock --&gt; HostFile[host backing files]
+    VirtioNet --&gt; Tap[TAP devices]
+    VirtioVsock --&gt; UnixSock[Unix sockets]
+    OtherVirtio --&gt; HostKernel[host kernel resources]</code></pre></details></figure>
 <p>证据索引：</p>
 <ul>
 <li>API 线程由 <code>run_with_api</code> 创建，线程名为 <code>fc_api</code>：<code class="src-ref">src/firecracker/src/api_server_adapter.rs</code>。</li>
@@ -213,7 +236,7 @@
 <li>pre-boot 阶段：API 请求不断积累配置，直到 <code>StartMicroVm</code> 或 <code>LoadSnapshot</code>。</li>
 <li>runtime 阶段：microVM 已经构建，API 请求转给 <code>RuntimeApiController</code>，处理 pause/resume/snapshot/device update 等运行期动作。</li>
 </ol>
-<div class="mermaid">sequenceDiagram
+<figure class="diagram" aria-label="Mermaid 架构或流程图"><div class="mermaid">sequenceDiagram
     participant C as Client
     participant A as API thread
     participant P as PrebootApiController
@@ -221,22 +244,43 @@
     participant V as VMM/EventManager
     participant CPU as vCPU threads
 
-    C->>A: PUT /boot-source, /machine-config, /drives, /network-interfaces...
-    A->>A: ParsedRequest::try_from
-    A->>P: VmmAction via channel + eventfd
-    P->>P: update VmResources
-    P-->>A: ApiResponse
+    C-&gt;&gt;A: PUT /boot-source, /machine-config, /drives, /network-interfaces...
+    A-&gt;&gt;A: ParsedRequest::try_from
+    A-&gt;&gt;P: VmmAction via channel + eventfd
+    P-&gt;&gt;P: update VmResources
+    P--&gt;&gt;A: ApiResponse
 
-    C->>A: PUT /actions { InstanceStart }
-    A->>P: VmmAction::StartMicroVm
-    P->>B: build_and_boot_microvm
-    B->>V: create KVM VM, memory, devices
-    B->>CPU: start vCPU threads in Paused
-    B->>V: resume_vm
-    V->>CPU: VcpuEvent::Resume
-    CPU->>CPU: KVM_RUN loop
-    P-->>A: 204 No Content
-</div>
+    C-&gt;&gt;A: PUT /actions { InstanceStart }
+    A-&gt;&gt;P: VmmAction::StartMicroVm
+    P-&gt;&gt;B: build_and_boot_microvm
+    B-&gt;&gt;V: create KVM VM, memory, devices
+    B-&gt;&gt;CPU: start vCPU threads in Paused
+    B-&gt;&gt;V: resume_vm
+    V-&gt;&gt;CPU: VcpuEvent::Resume
+    CPU-&gt;&gt;CPU: KVM_RUN loop
+    P--&gt;&gt;A: 204 No Content</div><details class="diagram-source"><summary>查看图表文本</summary><pre><code>sequenceDiagram
+    participant C as Client
+    participant A as API thread
+    participant P as PrebootApiController
+    participant B as builder
+    participant V as VMM/EventManager
+    participant CPU as vCPU threads
+
+    C-&gt;&gt;A: PUT /boot-source, /machine-config, /drives, /network-interfaces...
+    A-&gt;&gt;A: ParsedRequest::try_from
+    A-&gt;&gt;P: VmmAction via channel + eventfd
+    P-&gt;&gt;P: update VmResources
+    P--&gt;&gt;A: ApiResponse
+
+    C-&gt;&gt;A: PUT /actions { InstanceStart }
+    A-&gt;&gt;P: VmmAction::StartMicroVm
+    P-&gt;&gt;B: build_and_boot_microvm
+    B-&gt;&gt;V: create KVM VM, memory, devices
+    B-&gt;&gt;CPU: start vCPU threads in Paused
+    B-&gt;&gt;V: resume_vm
+    V-&gt;&gt;CPU: VcpuEvent::Resume
+    CPU-&gt;&gt;CPU: KVM_RUN loop
+    P--&gt;&gt;A: 204 No Content</code></pre></details></figure>
 <p>关键源码：</p>
 <ul>
 <li>API server 接收请求后调用 <code>ParsedRequest::try_from</code>，再把解析出来的 <code>VmmAction</code> 发送给 VMM：<code class="src-ref">src/firecracker/src/api_server/mod.rs</code>。</li>
@@ -297,16 +341,23 @@
 <li>MMIO read/write exit 会交给 <code>mmio_bus</code>，这就是 guest 访问 MMIO virtio transport 时进入 VMM 的路径之一：<code class="src-ref">src/vmm/src/vstate/vcpu.rs</code>。</li>
 <li>system reset/shutdown event 会让 vCPU 进入 stopped，进而触发 VMM 停机：<code class="src-ref">src/vmm/src/vstate/vcpu.rs</code>。</li>
 </ul>
-<div class="mermaid">stateDiagram-v2
-    [*] --> Paused: vCPU thread starts
-    Paused --> Running: VcpuEvent::Resume
-    Running --> Paused: VcpuEvent::Pause
-    Running --> Running: KVM_RUN handled exit
-    Running --> Exited: shutdown/reset/error
-    Paused --> Paused: SaveState / DumpCpuConfig
-    Paused --> [*]: Finish
-    Exited --> [*]: Finish
-</div>
+<figure class="diagram" aria-label="Mermaid 架构或流程图"><div class="mermaid">stateDiagram-v2
+    [*] --&gt; Paused: vCPU thread starts
+    Paused --&gt; Running: VcpuEvent::Resume
+    Running --&gt; Paused: VcpuEvent::Pause
+    Running --&gt; Running: KVM_RUN handled exit
+    Running --&gt; Exited: shutdown/reset/error
+    Paused --&gt; Paused: SaveState / DumpCpuConfig
+    Paused --&gt; [*]: Finish
+    Exited --&gt; [*]: Finish</div><details class="diagram-source"><summary>查看图表文本</summary><pre><code>stateDiagram-v2
+    [*] --&gt; Paused: vCPU thread starts
+    Paused --&gt; Running: VcpuEvent::Resume
+    Running --&gt; Paused: VcpuEvent::Pause
+    Running --&gt; Running: KVM_RUN handled exit
+    Running --&gt; Exited: shutdown/reset/error
+    Paused --&gt; Paused: SaveState / DumpCpuConfig
+    Paused --&gt; [*]: Finish
+    Exited --&gt; [*]: Finish</code></pre></details></figure>
 <h2 id="7-arm64-x86_64">7. ARM64 与 x86_64 的第一层差异</h2>
 <p>Firecracker 用 <code>src/vmm/src/arch/{x86_64,aarch64}</code> 切分架构相关逻辑。两者共用 VMM 主体、API、资源模型、virtio 设备抽象，但 boot、CPU 配置、interrupt、内存布局和 KVM 能力检查不同。</p>
 <table>
@@ -364,42 +415,75 @@
 <p>Firecracker 的虚拟化执行链路可以压缩成一条主线：</p>
 <p><code>/dev/kvm</code> -&gt; <code>Kvm</code> -&gt; <code>VmFd</code>/<code>Vm</code> -&gt; guest memory slots -&gt; <code>VcpuFd</code>/<code>Vcpu</code> -&gt; vCPU thread -&gt; <code>KVM_RUN</code> -&gt; VM-exit -&gt; bus/device emulation -&gt; <code>KVM_RUN</code></p>
 <p>也就是说，Firecracker 自己不解释和执行 guest 指令。guest 指令在 KVM 中运行；Firecracker 在用户态负责搭建 KVM 所需对象、准备启动状态、挂接设备模型，并处理 KVM 返回给用户态的 exit。</p>
-<div class="mermaid">flowchart TB
-    Resources[VmResources] --> Builder[build_microvm_for_boot]
-    Builder --> KvmNew[Kvm::new]
-    KvmNew --> KvmFd[kvm_ioctls::Kvm fd]
-    KvmNew --> CapCheck[API version and capability checks]
-    KvmNew --> ArchKvmInit[arch Kvm::init_arch]
+<figure class="diagram" aria-label="Mermaid 架构或流程图"><div class="mermaid">flowchart TB
+    Resources[VmResources] --&gt; Builder[build_microvm_for_boot]
+    Builder --&gt; KvmNew[Kvm::new]
+    KvmNew --&gt; KvmFd[kvm_ioctls::Kvm fd]
+    KvmNew --&gt; CapCheck[API version and capability checks]
+    KvmNew --&gt; ArchKvmInit[arch Kvm::init_arch]
 
-    Builder --> VmNew[Vm::new]
-    VmNew --> CreateVm[KVM_CREATE_VM]
-    VmNew --> VmCommon[VmCommon]
+    Builder --&gt; VmNew[Vm::new]
+    VmNew --&gt; CreateVm[KVM_CREATE_VM]
+    VmNew --&gt; VmCommon[VmCommon]
 
-    Builder --> MemReg[register_dram_memory_regions]
-    MemReg --> Slots[KVM memory slots]
-    Slots --> SetUserMem[KVM_SET_USER_MEMORY_REGION]
+    Builder --&gt; MemReg[register_dram_memory_regions]
+    MemReg --&gt; Slots[KVM memory slots]
+    Slots --&gt; SetUserMem[KVM_SET_USER_MEMORY_REGION]
 
-    Builder --> CreateVcpus[Vm::create_vcpus]
-    CreateVcpus --> ArchPre[arch_pre_create_vcpus]
-    CreateVcpus --> VcpuNew[Vcpu::new]
-    VcpuNew --> KvmVcpuNew[arch KvmVcpu::new]
-    KvmVcpuNew --> CreateVcpu[KVM_CREATE_VCPU]
-    CreateVcpus --> ArchPost[arch_post_create_vcpus]
+    Builder --&gt; CreateVcpus[Vm::create_vcpus]
+    CreateVcpus --&gt; ArchPre[arch_pre_create_vcpus]
+    CreateVcpus --&gt; VcpuNew[Vcpu::new]
+    VcpuNew --&gt; KvmVcpuNew[arch KvmVcpu::new]
+    KvmVcpuNew --&gt; CreateVcpu[KVM_CREATE_VCPU]
+    CreateVcpus --&gt; ArchPost[arch_post_create_vcpus]
 
-    Builder --> ConfigureBoot[configure_system_for_boot]
-    ConfigureBoot --> VcpuConfigure[arch KvmVcpu::configure]
+    Builder --&gt; ConfigureBoot[configure_system_for_boot]
+    ConfigureBoot --&gt; VcpuConfigure[arch KvmVcpu::configure]
 
-    Builder --> StartThreads[Vmm::start_vcpus]
-    StartThreads --> VcpuThread[fc_vcpu thread]
-    VcpuThread --> Paused[Paused state]
-    Paused -->|VcpuEvent::Resume| RunLoop[KVM_RUN loop]
-    RunLoop --> VmExit[VM-exit]
-    VmExit --> MmioBus[MMIO bus]
-    VmExit --> PioBus[x86 PIO bus]
-    MmioBus --> Device[virtio or legacy device]
-    PioBus --> Device
-    Device --> RunLoop
-</div>
+    Builder --&gt; StartThreads[Vmm::start_vcpus]
+    StartThreads --&gt; VcpuThread[fc_vcpu thread]
+    VcpuThread --&gt; Paused[Paused state]
+    Paused --&gt;|VcpuEvent::Resume| RunLoop[KVM_RUN loop]
+    RunLoop --&gt; VmExit[VM-exit]
+    VmExit --&gt; MmioBus[MMIO bus]
+    VmExit --&gt; PioBus[x86 PIO bus]
+    MmioBus --&gt; Device[virtio or legacy device]
+    PioBus --&gt; Device
+    Device --&gt; RunLoop</div><details class="diagram-source"><summary>查看图表文本</summary><pre><code>flowchart TB
+    Resources[VmResources] --&gt; Builder[build_microvm_for_boot]
+    Builder --&gt; KvmNew[Kvm::new]
+    KvmNew --&gt; KvmFd[kvm_ioctls::Kvm fd]
+    KvmNew --&gt; CapCheck[API version and capability checks]
+    KvmNew --&gt; ArchKvmInit[arch Kvm::init_arch]
+
+    Builder --&gt; VmNew[Vm::new]
+    VmNew --&gt; CreateVm[KVM_CREATE_VM]
+    VmNew --&gt; VmCommon[VmCommon]
+
+    Builder --&gt; MemReg[register_dram_memory_regions]
+    MemReg --&gt; Slots[KVM memory slots]
+    Slots --&gt; SetUserMem[KVM_SET_USER_MEMORY_REGION]
+
+    Builder --&gt; CreateVcpus[Vm::create_vcpus]
+    CreateVcpus --&gt; ArchPre[arch_pre_create_vcpus]
+    CreateVcpus --&gt; VcpuNew[Vcpu::new]
+    VcpuNew --&gt; KvmVcpuNew[arch KvmVcpu::new]
+    KvmVcpuNew --&gt; CreateVcpu[KVM_CREATE_VCPU]
+    CreateVcpus --&gt; ArchPost[arch_post_create_vcpus]
+
+    Builder --&gt; ConfigureBoot[configure_system_for_boot]
+    ConfigureBoot --&gt; VcpuConfigure[arch KvmVcpu::configure]
+
+    Builder --&gt; StartThreads[Vmm::start_vcpus]
+    StartThreads --&gt; VcpuThread[fc_vcpu thread]
+    VcpuThread --&gt; Paused[Paused state]
+    Paused --&gt;|VcpuEvent::Resume| RunLoop[KVM_RUN loop]
+    RunLoop --&gt; VmExit[VM-exit]
+    VmExit --&gt; MmioBus[MMIO bus]
+    VmExit --&gt; PioBus[x86 PIO bus]
+    MmioBus --&gt; Device[virtio or legacy device]
+    PioBus --&gt; Device
+    Device --&gt; RunLoop</code></pre></details></figure>
 <p>证据索引：</p>
 <ul>
 <li><code>build_microvm_for_boot</code> 串起 KVM、VM、vCPU、memory、device 和 boot 配置：<code class="src-ref">src/vmm/src/builder.rs</code>。</li>
@@ -611,35 +695,61 @@ arch_post_create_vcpus
 <li><code>Running</code> 循环调用 <code>run_emulation</code>：<code class="src-ref">src/vmm/src/vstate/vcpu.rs</code>。</li>
 <li><code>run_emulation</code> 调 KVM_RUN：<code class="src-ref">src/vmm/src/vstate/vcpu.rs</code>。</li>
 </ul>
-<div class="mermaid">sequenceDiagram
+<figure class="diagram" aria-label="Mermaid 架构或流程图"><div class="mermaid">sequenceDiagram
     participant VMM as VMM thread
     participant Handle as VcpuHandle
     participant Thread as fc_vcpu thread
     participant KVM as KVM
     participant Bus as Bus/device
 
-    VMM->>Thread: start_threaded
-    Thread->>Thread: apply vCPU seccomp
-    Thread->>Thread: Paused state
-    VMM->>Handle: VcpuEvent::Resume
-    Handle->>Thread: event channel
-    Thread-->>Handle: VcpuResponse::Resumed
+    VMM-&gt;&gt;Thread: start_threaded
+    Thread-&gt;&gt;Thread: apply vCPU seccomp
+    Thread-&gt;&gt;Thread: Paused state
+    VMM-&gt;&gt;Handle: VcpuEvent::Resume
+    Handle-&gt;&gt;Thread: event channel
+    Thread--&gt;&gt;Handle: VcpuResponse::Resumed
     loop Running
-        Thread->>KVM: VcpuFd::run / KVM_RUN
-        KVM-->>Thread: VcpuExit
+        Thread-&gt;&gt;KVM: VcpuFd::run / KVM_RUN
+        KVM--&gt;&gt;Thread: VcpuExit
         alt MMIO read/write
-            Thread->>Bus: mmio_bus.read/write
-            Bus-->>Thread: handled
+            Thread-&gt;&gt;Bus: mmio_bus.read/write
+            Bus--&gt;&gt;Thread: handled
         else x86 PIO in/out
-            Thread->>Bus: pio_bus.read/write
-            Bus-->>Thread: handled
+            Thread-&gt;&gt;Bus: pio_bus.read/write
+            Bus--&gt;&gt;Thread: handled
         else shutdown/reset
-            Thread->>VMM: exit eventfd
+            Thread-&gt;&gt;VMM: exit eventfd
         else unexpected/error
-            Thread->>VMM: error exit eventfd
+            Thread-&gt;&gt;VMM: error exit eventfd
         end
-    end
-</div>
+    end</div><details class="diagram-source"><summary>查看图表文本</summary><pre><code>sequenceDiagram
+    participant VMM as VMM thread
+    participant Handle as VcpuHandle
+    participant Thread as fc_vcpu thread
+    participant KVM as KVM
+    participant Bus as Bus/device
+
+    VMM-&gt;&gt;Thread: start_threaded
+    Thread-&gt;&gt;Thread: apply vCPU seccomp
+    Thread-&gt;&gt;Thread: Paused state
+    VMM-&gt;&gt;Handle: VcpuEvent::Resume
+    Handle-&gt;&gt;Thread: event channel
+    Thread--&gt;&gt;Handle: VcpuResponse::Resumed
+    loop Running
+        Thread-&gt;&gt;KVM: VcpuFd::run / KVM_RUN
+        KVM--&gt;&gt;Thread: VcpuExit
+        alt MMIO read/write
+            Thread-&gt;&gt;Bus: mmio_bus.read/write
+            Bus--&gt;&gt;Thread: handled
+        else x86 PIO in/out
+            Thread-&gt;&gt;Bus: pio_bus.read/write
+            Bus--&gt;&gt;Thread: handled
+        else shutdown/reset
+            Thread-&gt;&gt;VMM: exit eventfd
+        else unexpected/error
+            Thread-&gt;&gt;VMM: error exit eventfd
+        end
+    end</code></pre></details></figure>
 <h3 id="89-vm-exit">8.9 VM-exit 如何进入设备模型</h3>
 <p>KVM_RUN 返回后，Firecracker 只处理一小组 exit：</p>
 <ul>
@@ -721,25 +831,41 @@ arch_post_create_vcpus
 <p>这一章回答一个关键问题：<code>curl --unix-socket ... PUT /machine-config</code> 这种请求，如何变成 Firecracker 内部的虚拟机状态？</p>
 <p>先给结论：Firecracker 的 API 是一个很薄的控制面。它把 HTTP 请求解析成 <code>VmmAction</code>，再通过 channel 和 eventfd 交给 VMM 线程。pre-boot 阶段主要写入 <code>VmResources</code>；runtime 阶段才操作已经构建好的 <code>Vmm</code>。</p>
 <h3 id="91">9.1 三层控制链路</h3>
-<div class="mermaid">flowchart LR
-    Client[Client] -->|HTTP over Unix socket| ApiServer[API server]
-    ApiServer --> Parser[ParsedRequest::try_from]
-    Parser -->|method + path + body| RequestParser[parse_get/put/patch_*]
-    RequestParser --> Action[VmmAction]
-    Action -->|mpsc channel| ApiEventFd[to_vmm EventFd]
-    ApiEventFd --> Controller{VMM stage}
-    Controller -->|pre-boot| Preboot[PrebootApiController]
-    Controller -->|runtime| Runtime[RuntimeApiController]
-    Preboot --> Resources[VmResources]
-    Preboot -->|StartMicroVm| Builder[build_and_boot_microvm]
-    Preboot -->|LoadSnapshot| Restore[restore_from_snapshot]
-    Builder --> Vmm[Vmm]
-    Restore --> Vmm
-    Runtime --> Vmm
-    Vmm --> Response[VmmData or VmmActionError]
-    Response -->|channel back| ApiServer
-    ApiServer -->|HTTP response| Client
-</div>
+<figure class="diagram" aria-label="Mermaid 架构或流程图"><div class="mermaid">flowchart LR
+    Client[Client] --&gt;|HTTP over Unix socket| ApiServer[API server]
+    ApiServer --&gt; Parser[ParsedRequest::try_from]
+    Parser --&gt;|method + path + body| RequestParser[parse_get/put/patch_*]
+    RequestParser --&gt; Action[VmmAction]
+    Action --&gt;|mpsc channel| ApiEventFd[to_vmm EventFd]
+    ApiEventFd --&gt; Controller{VMM stage}
+    Controller --&gt;|pre-boot| Preboot[PrebootApiController]
+    Controller --&gt;|runtime| Runtime[RuntimeApiController]
+    Preboot --&gt; Resources[VmResources]
+    Preboot --&gt;|StartMicroVm| Builder[build_and_boot_microvm]
+    Preboot --&gt;|LoadSnapshot| Restore[restore_from_snapshot]
+    Builder --&gt; Vmm[Vmm]
+    Restore --&gt; Vmm
+    Runtime --&gt; Vmm
+    Vmm --&gt; Response[VmmData or VmmActionError]
+    Response --&gt;|channel back| ApiServer
+    ApiServer --&gt;|HTTP response| Client</div><details class="diagram-source"><summary>查看图表文本</summary><pre><code>flowchart LR
+    Client[Client] --&gt;|HTTP over Unix socket| ApiServer[API server]
+    ApiServer --&gt; Parser[ParsedRequest::try_from]
+    Parser --&gt;|method + path + body| RequestParser[parse_get/put/patch_*]
+    RequestParser --&gt; Action[VmmAction]
+    Action --&gt;|mpsc channel| ApiEventFd[to_vmm EventFd]
+    ApiEventFd --&gt; Controller{VMM stage}
+    Controller --&gt;|pre-boot| Preboot[PrebootApiController]
+    Controller --&gt;|runtime| Runtime[RuntimeApiController]
+    Preboot --&gt; Resources[VmResources]
+    Preboot --&gt;|StartMicroVm| Builder[build_and_boot_microvm]
+    Preboot --&gt;|LoadSnapshot| Restore[restore_from_snapshot]
+    Builder --&gt; Vmm[Vmm]
+    Restore --&gt; Vmm
+    Runtime --&gt; Vmm
+    Vmm --&gt; Response[VmmData or VmmActionError]
+    Response --&gt;|channel back| ApiServer
+    ApiServer --&gt;|HTTP response| Client</code></pre></details></figure>
 <p>源码上可以分成三层：</p>
 <table>
 <thead>
@@ -970,20 +1096,31 @@ arch_post_create_vcpus
 <h3 id="93-pre-boot-vm">9.3 pre-boot 阶段：构建计划，不是 VM 本体</h3>
 <p>pre-boot 阶段最容易误解。此时还没有完整的 <code>Vmm</code> 在跑，API 请求主要是在填一份“启动计划”。</p>
 <p>这份计划就是 <code>VmResources</code>。它包含 machine config、boot source、block/net/vsock/balloon/pmem/rng/virtio-mem/MMDS 等待构建资源：<code class="src-ref">src/vmm/src/resources.rs</code>。</p>
-<div class="mermaid">flowchart TB
+<figure class="diagram" aria-label="Mermaid 架构或流程图"><div class="mermaid">flowchart TB
     VmResources[VmResources]
-    VmResources --> MachineConfig[MachineConfig<br/>vcpu_count, mem_size_mib, smt, cpu_template]
-    VmResources --> BootSource[BootSource<br/>kernel, initrd, boot_args]
-    VmResources --> BlockBuilder[BlockBuilder<br/>virtio-block configs]
-    VmResources --> NetBuilder[NetBuilder<br/>TAP backed net devices]
-    VmResources --> VsockBuilder[VsockBuilder]
-    VmResources --> BalloonBuilder[BalloonBuilder]
-    VmResources --> PmemBuilder[PmemBuilder]
-    VmResources --> EntropyBuilder[EntropyDeviceBuilder]
-    VmResources --> MemoryHotplug[MemoryHotplugConfig]
-    VmResources --> Mmds[MMDS datastore and network stack]
-    VmResources --> Serial[serial output path and limiter]
-</div>
+    VmResources --&gt; MachineConfig[MachineConfig&lt;br/&gt;vcpu_count, mem_size_mib, smt, cpu_template]
+    VmResources --&gt; BootSource[BootSource&lt;br/&gt;kernel, initrd, boot_args]
+    VmResources --&gt; BlockBuilder[BlockBuilder&lt;br/&gt;virtio-block configs]
+    VmResources --&gt; NetBuilder[NetBuilder&lt;br/&gt;TAP backed net devices]
+    VmResources --&gt; VsockBuilder[VsockBuilder]
+    VmResources --&gt; BalloonBuilder[BalloonBuilder]
+    VmResources --&gt; PmemBuilder[PmemBuilder]
+    VmResources --&gt; EntropyBuilder[EntropyDeviceBuilder]
+    VmResources --&gt; MemoryHotplug[MemoryHotplugConfig]
+    VmResources --&gt; Mmds[MMDS datastore and network stack]
+    VmResources --&gt; Serial[serial output path and limiter]</div><details class="diagram-source"><summary>查看图表文本</summary><pre><code>flowchart TB
+    VmResources[VmResources]
+    VmResources --&gt; MachineConfig[MachineConfig&lt;br/&gt;vcpu_count, mem_size_mib, smt, cpu_template]
+    VmResources --&gt; BootSource[BootSource&lt;br/&gt;kernel, initrd, boot_args]
+    VmResources --&gt; BlockBuilder[BlockBuilder&lt;br/&gt;virtio-block configs]
+    VmResources --&gt; NetBuilder[NetBuilder&lt;br/&gt;TAP backed net devices]
+    VmResources --&gt; VsockBuilder[VsockBuilder]
+    VmResources --&gt; BalloonBuilder[BalloonBuilder]
+    VmResources --&gt; PmemBuilder[PmemBuilder]
+    VmResources --&gt; EntropyBuilder[EntropyDeviceBuilder]
+    VmResources --&gt; MemoryHotplug[MemoryHotplugConfig]
+    VmResources --&gt; Mmds[MMDS datastore and network stack]
+    VmResources --&gt; Serial[serial output path and limiter]</code></pre></details></figure>
 <p><code>PrebootApiController::handle_preboot_request</code> 明确列出哪些动作 pre-boot 合法：<code class="src-ref">src/vmm/src/rpc_interface.rs</code>。</p>
 <p>合法动作主要是配置类动作：</p>
 <ul>
@@ -1073,16 +1210,23 @@ arch_post_create_vcpus
 <p>也就是说，想让 guest 通过网卡访问 MMDS，必须先配置对应的 network interface，再配置 <code>/mmds/config</code>。</p>
 <h3 id="95-runtime">9.5 runtime 阶段：只允许很窄的动态变更</h3>
 <p>runtime 阶段已经有 <code>Vmm</code>，所以控制器不再写 <code>VmResources</code>，而是拿 <code>Arc&lt;Mutex&lt;Vmm&gt;&gt;</code> 调运行期方法：<code class="src-ref">src/vmm/src/rpc_interface.rs</code>。</p>
-<div class="mermaid">stateDiagram-v2
-    [*] --> Preboot
-    Preboot --> Running: StartMicroVm
-    Preboot --> Paused: LoadSnapshot resume_vm=false
-    Preboot --> Running: LoadSnapshot resume_vm=true
-    Running --> Paused: PATCH /vm Paused
-    Paused --> Running: PATCH /vm Resumed
-    Paused --> Snapshot: PUT /snapshot/create
-    Snapshot --> Paused
-</div>
+<figure class="diagram" aria-label="Mermaid 架构或流程图"><div class="mermaid">stateDiagram-v2
+    [*] --&gt; Preboot
+    Preboot --&gt; Running: StartMicroVm
+    Preboot --&gt; Paused: LoadSnapshot resume_vm=false
+    Preboot --&gt; Running: LoadSnapshot resume_vm=true
+    Running --&gt; Paused: PATCH /vm Paused
+    Paused --&gt; Running: PATCH /vm Resumed
+    Paused --&gt; Snapshot: PUT /snapshot/create
+    Snapshot --&gt; Paused</div><details class="diagram-source"><summary>查看图表文本</summary><pre><code>stateDiagram-v2
+    [*] --&gt; Preboot
+    Preboot --&gt; Running: StartMicroVm
+    Preboot --&gt; Paused: LoadSnapshot resume_vm=false
+    Preboot --&gt; Running: LoadSnapshot resume_vm=true
+    Running --&gt; Paused: PATCH /vm Paused
+    Paused --&gt; Running: PATCH /vm Resumed
+    Paused --&gt; Snapshot: PUT /snapshot/create
+    Snapshot --&gt; Paused</code></pre></details></figure>
 <p><code>RuntimeApiController::handle_request</code> 允许的动作集中在运行期控制和小范围设备更新：<code class="src-ref">src/vmm/src/rpc_interface.rs</code>。</p>
 <table>
 <thead>
@@ -1170,26 +1314,43 @@ arch_post_create_vcpus
 <p>核心结论：Firecracker 的启动不是一步完成的。它先构建一个完整但处于 <code>Paused</code> 状态的 microVM，再统一 <code>resume_vm</code>。这样可以确保 KVM、guest memory、设备、vCPU register、boot 数据结构、seccomp 和 EventManager 都就绪后，guest 才开始执行。</p>
 <h3 id="101">10.1 启动主链路</h3>
 <p><code>StartMicroVm</code> 在 pre-boot controller 中进入 <code>start_microvm</code>，再调用 <code>build_and_boot_microvm</code>。后者先 <code>build_microvm_for_boot</code>，再 <code>resume_vm</code>：<code class="src-ref">src/vmm/src/rpc_interface.rs</code>，<code class="src-ref">src/vmm/src/builder.rs</code>。</p>
-<div class="mermaid">flowchart TB
-    Start[StartMicroVm] --> BuildAndBoot[build_and_boot_microvm]
-    BuildAndBoot --> Build[build_microvm_for_boot]
-    Build --> BootConfig[read BootConfig from VmResources]
-    Build --> GuestMemory[allocate guest memory]
-    Build --> Kvm[Kvm::new]
-    Kvm --> Vm[Vm::new / KVM_CREATE_VM]
-    Vm --> VcpuCreate[create_vcpus]
-    Vm --> Memslots[register DRAM memory regions]
-    Build --> Kernel[load_kernel]
-    Build --> Initrd[load initrd]
-    Build --> Devices[attach virtio and platform devices]
-    Devices --> ArchBoot[configure_system_for_boot]
-    ArchBoot --> VmmObj[Vmm object]
-    VmmObj --> StartVcpus[start_vcpus in Paused state]
-    StartVcpus --> Seccomp[apply VMM seccomp]
-    Seccomp --> EventManager[add VMM subscriber]
-    EventManager --> Resume[resume_vm]
-    Resume --> Running[guest starts running]
-</div>
+<figure class="diagram" aria-label="Mermaid 架构或流程图"><div class="mermaid">flowchart TB
+    Start[StartMicroVm] --&gt; BuildAndBoot[build_and_boot_microvm]
+    BuildAndBoot --&gt; Build[build_microvm_for_boot]
+    Build --&gt; BootConfig[read BootConfig from VmResources]
+    Build --&gt; GuestMemory[allocate guest memory]
+    Build --&gt; Kvm[Kvm::new]
+    Kvm --&gt; Vm[Vm::new / KVM_CREATE_VM]
+    Vm --&gt; VcpuCreate[create_vcpus]
+    Vm --&gt; Memslots[register DRAM memory regions]
+    Build --&gt; Kernel[load_kernel]
+    Build --&gt; Initrd[load initrd]
+    Build --&gt; Devices[attach virtio and platform devices]
+    Devices --&gt; ArchBoot[configure_system_for_boot]
+    ArchBoot --&gt; VmmObj[Vmm object]
+    VmmObj --&gt; StartVcpus[start_vcpus in Paused state]
+    StartVcpus --&gt; Seccomp[apply VMM seccomp]
+    Seccomp --&gt; EventManager[add VMM subscriber]
+    EventManager --&gt; Resume[resume_vm]
+    Resume --&gt; Running[guest starts running]</div><details class="diagram-source"><summary>查看图表文本</summary><pre><code>flowchart TB
+    Start[StartMicroVm] --&gt; BuildAndBoot[build_and_boot_microvm]
+    BuildAndBoot --&gt; Build[build_microvm_for_boot]
+    Build --&gt; BootConfig[read BootConfig from VmResources]
+    Build --&gt; GuestMemory[allocate guest memory]
+    Build --&gt; Kvm[Kvm::new]
+    Kvm --&gt; Vm[Vm::new / KVM_CREATE_VM]
+    Vm --&gt; VcpuCreate[create_vcpus]
+    Vm --&gt; Memslots[register DRAM memory regions]
+    Build --&gt; Kernel[load_kernel]
+    Build --&gt; Initrd[load initrd]
+    Build --&gt; Devices[attach virtio and platform devices]
+    Devices --&gt; ArchBoot[configure_system_for_boot]
+    ArchBoot --&gt; VmmObj[Vmm object]
+    VmmObj --&gt; StartVcpus[start_vcpus in Paused state]
+    StartVcpus --&gt; Seccomp[apply VMM seccomp]
+    Seccomp --&gt; EventManager[add VMM subscriber]
+    EventManager --&gt; Resume[resume_vm]
+    Resume --&gt; Running[guest starts running]</code></pre></details></figure>
 <p>源码顺序集中在 <code>build_microvm_for_boot</code>：<code class="src-ref">src/vmm/src/builder.rs</code>。</p>
 <table>
 <thead>
@@ -1272,15 +1433,21 @@ arch_post_create_vcpus
 <p>guest memory 的第一步不是 KVM ioctl，而是由 <code>VmResources</code> 根据架构 layout 计算内存区域：<code class="src-ref">src/vmm/src/resources.rs</code>。</p>
 <p><code>allocate_guest_memory</code> 调 <code>crate::arch::arch_memory_regions(mem_size)</code>。如果配置了 vhost-user-blk，Firecracker 用 memfd-backed shared memory；否则默认用 anonymous private memory：<code class="src-ref">src/vmm/src/resources.rs</code>。</p>
 <p>内存区域分配后，<code>Vm::register_dram_memory_regions</code> 会为每个 region 申请 KVM slot，并最终调用 <code>set_user_memory_region</code> 注册到 KVM：<code class="src-ref">src/vmm/src/vstate/vm.rs</code>。</p>
-<div class="mermaid">flowchart LR
-    MachineConfig[mem_size_mib / huge_pages / track_dirty_pages] --> ArchRegions[arch_memory_regions]
-    ArchRegions --> Alloc[anonymous or memfd-backed allocation]
-    Alloc --> GuestMemory[GuestMemoryMmap regions]
-    GuestMemory --> Register[Vm::register_dram_memory_regions]
-    Register --> Slot[next_kvm_slot]
-    Slot --> KvmMemslot[KVM_SET_USER_MEMORY_REGION]
-    KvmMemslot --> GuestPhys[guest physical address maps to host userspace memory]
-</div>
+<figure class="diagram" aria-label="Mermaid 架构或流程图"><div class="mermaid">flowchart LR
+    MachineConfig[mem_size_mib / huge_pages / track_dirty_pages] --&gt; ArchRegions[arch_memory_regions]
+    ArchRegions --&gt; Alloc[anonymous or memfd-backed allocation]
+    Alloc --&gt; GuestMemory[GuestMemoryMmap regions]
+    GuestMemory --&gt; Register[Vm::register_dram_memory_regions]
+    Register --&gt; Slot[next_kvm_slot]
+    Slot --&gt; KvmMemslot[KVM_SET_USER_MEMORY_REGION]
+    KvmMemslot --&gt; GuestPhys[guest physical address maps to host userspace memory]</div><details class="diagram-source"><summary>查看图表文本</summary><pre><code>flowchart LR
+    MachineConfig[mem_size_mib / huge_pages / track_dirty_pages] --&gt; ArchRegions[arch_memory_regions]
+    ArchRegions --&gt; Alloc[anonymous or memfd-backed allocation]
+    Alloc --&gt; GuestMemory[GuestMemoryMmap regions]
+    GuestMemory --&gt; Register[Vm::register_dram_memory_regions]
+    Register --&gt; Slot[next_kvm_slot]
+    Slot --&gt; KvmMemslot[KVM_SET_USER_MEMORY_REGION]
+    KvmMemslot --&gt; GuestPhys[guest physical address maps to host userspace memory]</code></pre></details></figure>
 <p>x86_64 和 aarch64 的 memory layout 从这一层就开始分叉：</p>
 <table>
 <thead>
@@ -1324,51 +1491,86 @@ arch_post_create_vcpus
 <p>设备 attach 是启动机制里最容易混淆的部分。Firecracker 的设备不是在 API 请求时就挂到 VM 里，而是在 <code>build_microvm_for_boot</code> 中按固定顺序 attach。</p>
 <p><code>build_microvm_for_boot</code> 会依次处理 boot timer、balloon、block、net、pmem、vsock、entropy、virtio-mem、aarch64 legacy devices、vmgenid、vmclock：<code class="src-ref">src/vmm/src/builder.rs</code>。</p>
 <p>virtio 设备最终都会进入 <code>DeviceManager::attach_virtio_device</code>。如果 PCI 已启用，就走 PCI transport；否则走 MMIO transport：<code class="src-ref">src/vmm/src/device_manager/mod.rs</code>。</p>
-<div class="mermaid">flowchart TB
-    Builder[build_microvm_for_boot] --> Block[attach_block_devices]
-    Builder --> Net[attach_net_devices]
-    Builder --> Pmem[attach_pmem_devices]
-    Builder --> Vsock[attach_unixsock_vsock_device]
-    Builder --> Balloon[attach_balloon_device]
-    Builder --> Entropy[attach_entropy_device]
-    Builder --> Mem[attach_virtio_mem_device]
-    Block --> Attach[DeviceManager::attach_virtio_device]
-    Net --> Attach
-    Pmem --> Attach
-    Vsock --> Attach
-    Balloon --> Attach
-    Entropy --> Attach
-    Mem --> Attach
-    Attach -->|pci_enabled| Pci[PCI virtio transport]
-    Attach -->|pci disabled| Mmio[MMIO virtio transport]
-    Mmio --> Cmdline[kernel cmdline virtio_mmio.device entries]
-    Attach --> EventManager[device EventManager subscribers]
-</div>
+<figure class="diagram" aria-label="Mermaid 架构或流程图"><div class="mermaid">flowchart TB
+    Builder[build_microvm_for_boot] --&gt; Block[attach_block_devices]
+    Builder --&gt; Net[attach_net_devices]
+    Builder --&gt; Pmem[attach_pmem_devices]
+    Builder --&gt; Vsock[attach_unixsock_vsock_device]
+    Builder --&gt; Balloon[attach_balloon_device]
+    Builder --&gt; Entropy[attach_entropy_device]
+    Builder --&gt; Mem[attach_virtio_mem_device]
+    Block --&gt; Attach[DeviceManager::attach_virtio_device]
+    Net --&gt; Attach
+    Pmem --&gt; Attach
+    Vsock --&gt; Attach
+    Balloon --&gt; Attach
+    Entropy --&gt; Attach
+    Mem --&gt; Attach
+    Attach --&gt;|pci_enabled| Pci[PCI virtio transport]
+    Attach --&gt;|pci disabled| Mmio[MMIO virtio transport]
+    Mmio --&gt; Cmdline[kernel cmdline virtio_mmio.device entries]
+    Attach --&gt; EventManager[device EventManager subscribers]</div><details class="diagram-source"><summary>查看图表文本</summary><pre><code>flowchart TB
+    Builder[build_microvm_for_boot] --&gt; Block[attach_block_devices]
+    Builder --&gt; Net[attach_net_devices]
+    Builder --&gt; Pmem[attach_pmem_devices]
+    Builder --&gt; Vsock[attach_unixsock_vsock_device]
+    Builder --&gt; Balloon[attach_balloon_device]
+    Builder --&gt; Entropy[attach_entropy_device]
+    Builder --&gt; Mem[attach_virtio_mem_device]
+    Block --&gt; Attach[DeviceManager::attach_virtio_device]
+    Net --&gt; Attach
+    Pmem --&gt; Attach
+    Vsock --&gt; Attach
+    Balloon --&gt; Attach
+    Entropy --&gt; Attach
+    Mem --&gt; Attach
+    Attach --&gt;|pci_enabled| Pci[PCI virtio transport]
+    Attach --&gt;|pci disabled| Mmio[MMIO virtio transport]
+    Mmio --&gt; Cmdline[kernel cmdline virtio_mmio.device entries]
+    Attach --&gt; EventManager[device EventManager subscribers]</code></pre></details></figure>
 <p>block 和 pmem 还会改 kernel cmdline。root block device 会写入 <code>root=/dev/vda</code> 或 <code>root=PARTUUID=...</code>，并追加 <code>ro/rw</code>；root pmem 会写入 <code>root=/dev/pmem{i}</code>：<code class="src-ref">src/vmm/src/builder.rs</code>，<code class="src-ref">src/vmm/src/builder.rs</code>。</p>
 <p>这解释了为什么 API 配置的 <code>is_root_device</code> 会影响 guest Linux 的 rootfs，而不是只影响设备模型。</p>
 <h3 id="105-boot-x86_64-aarch64">10.5 架构 boot 配置：x86_64 与 aarch64 的分叉点</h3>
 <p>所有通用构建完成后，代码进入 <code>configure_system_for_boot</code>。这个函数名相同，但由目标架构选择不同实现。</p>
-<div class="mermaid">flowchart TB
-    Common[Common builder path] --> Configure[configure_system_for_boot]
-    Configure --> X86[x86_64 implementation]
-    Configure --> Arm[aarch64 implementation]
+<figure class="diagram" aria-label="Mermaid 架构或流程图"><div class="mermaid">flowchart TB
+    Common[Common builder path] --&gt; Configure[configure_system_for_boot]
+    Configure --&gt; X86[x86_64 implementation]
+    Configure --&gt; Arm[aarch64 implementation]
 
-    X86 --> X86Cpu[build CPUID-based CpuConfiguration]
-    X86 --> X86Vcpu[configure each vCPU]
-    X86 --> Cmdline[write command line at CMDLINE_START]
-    X86 --> MpTable[write MP table]
-    X86 --> BootParams{entry protocol}
-    BootParams --> PVH[PVH hvm_start_info]
-    BootParams --> LinuxBoot[Linux boot_params zero page]
-    X86 --> Acpi[create ACPI tables]
+    X86 --&gt; X86Cpu[build CPUID-based CpuConfiguration]
+    X86 --&gt; X86Vcpu[configure each vCPU]
+    X86 --&gt; Cmdline[write command line at CMDLINE_START]
+    X86 --&gt; MpTable[write MP table]
+    X86 --&gt; BootParams{entry protocol}
+    BootParams --&gt; PVH[PVH hvm_start_info]
+    BootParams --&gt; LinuxBoot[Linux boot_params zero page]
+    X86 --&gt; Acpi[create ACPI tables]
 
-    Arm --> ArmCpu[build register-based CpuConfiguration]
-    Arm --> ArmVcpu[configure each vCPU]
-    Arm --> Clidr[override CLIDR_EL1 from host cache topology]
-    Arm --> Mpidr[collect MPIDR values]
-    Arm --> Fdt[create FDT with cmdline, devices, irqchip, initrd]
-    Fdt --> WriteFdt[write FDT near top of DRAM]
-</div>
+    Arm --&gt; ArmCpu[build register-based CpuConfiguration]
+    Arm --&gt; ArmVcpu[configure each vCPU]
+    Arm --&gt; Clidr[override CLIDR_EL1 from host cache topology]
+    Arm --&gt; Mpidr[collect MPIDR values]
+    Arm --&gt; Fdt[create FDT with cmdline, devices, irqchip, initrd]
+    Fdt --&gt; WriteFdt[write FDT near top of DRAM]</div><details class="diagram-source"><summary>查看图表文本</summary><pre><code>flowchart TB
+    Common[Common builder path] --&gt; Configure[configure_system_for_boot]
+    Configure --&gt; X86[x86_64 implementation]
+    Configure --&gt; Arm[aarch64 implementation]
+
+    X86 --&gt; X86Cpu[build CPUID-based CpuConfiguration]
+    X86 --&gt; X86Vcpu[configure each vCPU]
+    X86 --&gt; Cmdline[write command line at CMDLINE_START]
+    X86 --&gt; MpTable[write MP table]
+    X86 --&gt; BootParams{entry protocol}
+    BootParams --&gt; PVH[PVH hvm_start_info]
+    BootParams --&gt; LinuxBoot[Linux boot_params zero page]
+    X86 --&gt; Acpi[create ACPI tables]
+
+    Arm --&gt; ArmCpu[build register-based CpuConfiguration]
+    Arm --&gt; ArmVcpu[configure each vCPU]
+    Arm --&gt; Clidr[override CLIDR_EL1 from host cache topology]
+    Arm --&gt; Mpidr[collect MPIDR values]
+    Arm --&gt; Fdt[create FDT with cmdline, devices, irqchip, initrd]
+    Fdt --&gt; WriteFdt[write FDT near top of DRAM]</code></pre></details></figure>
 <p>x86_64 的实现做这些事：<code class="src-ref">src/vmm/src/arch/x86_64/mod.rs</code></p>
 <ul>
 <li>基于 KVM <code>supported_cpuid</code> 和 CPU template 生成 CPU config。</li>
@@ -1392,20 +1594,31 @@ arch_post_create_vcpus
 <p><code>build_microvm_for_boot</code> 的注释已经说明：构建好的 microVM 和 vCPU 初始都是 paused，要启动必须调用 <code>Vmm::resume_vm()</code>：<code class="src-ref">src/vmm/src/builder.rs</code>。</p>
 <p><code>Vmm::start_vcpus</code> 会启动每个 vCPU 线程，并把 <code>instance_info.state</code> 设为 <code>Paused</code>：<code class="src-ref">src/vmm/src/lib.rs</code>。</p>
 <p>vCPU 线程里的 <code>run</code> 也明确从 <code>Paused</code> 状态机开始：<code class="src-ref">src/vmm/src/vstate/vcpu.rs</code>。</p>
-<div class="mermaid">sequenceDiagram
+<figure class="diagram" aria-label="Mermaid 架构或流程图"><div class="mermaid">sequenceDiagram
     participant VMM as VMM thread
     participant VCPU as vCPU thread
     participant KVM as KVM
 
-    VMM->>VCPU: spawn thread
-    VCPU->>VCPU: apply vCPU seccomp
-    VCPU->>VCPU: enter Paused state
-    VMM->>VMM: apply VMM seccomp
-    VMM->>VMM: add VMM to EventManager
-    VMM->>VCPU: VcpuEvent::Resume
-    VCPU-->>VMM: VcpuResponse::Resumed
-    VCPU->>KVM: KVM_RUN loop
-</div>
+    VMM-&gt;&gt;VCPU: spawn thread
+    VCPU-&gt;&gt;VCPU: apply vCPU seccomp
+    VCPU-&gt;&gt;VCPU: enter Paused state
+    VMM-&gt;&gt;VMM: apply VMM seccomp
+    VMM-&gt;&gt;VMM: add VMM to EventManager
+    VMM-&gt;&gt;VCPU: VcpuEvent::Resume
+    VCPU--&gt;&gt;VMM: VcpuResponse::Resumed
+    VCPU-&gt;&gt;KVM: KVM_RUN loop</div><details class="diagram-source"><summary>查看图表文本</summary><pre><code>sequenceDiagram
+    participant VMM as VMM thread
+    participant VCPU as vCPU thread
+    participant KVM as KVM
+
+    VMM-&gt;&gt;VCPU: spawn thread
+    VCPU-&gt;&gt;VCPU: apply vCPU seccomp
+    VCPU-&gt;&gt;VCPU: enter Paused state
+    VMM-&gt;&gt;VMM: apply VMM seccomp
+    VMM-&gt;&gt;VMM: add VMM to EventManager
+    VMM-&gt;&gt;VCPU: VcpuEvent::Resume
+    VCPU--&gt;&gt;VMM: VcpuResponse::Resumed
+    VCPU-&gt;&gt;KVM: KVM_RUN loop</code></pre></details></figure>
 <p><code>resume_vm</code> 会先 kick virtio devices，再给所有 vCPU 发送 <code>VcpuEvent::Resume</code>，等待每个 vCPU 返回 <code>Resumed</code>，最后把实例状态改为 <code>Running</code>：<code class="src-ref">src/vmm/src/lib.rs</code>。</p>
 <p>这个顺序保证 guest 开始执行前，设备 eventfd、boot 参数、内存映射、vCPU register、seccomp 和 VMM event loop 都已经准备好。</p>
 <h3 id="107">10.7 启动机制小结</h3>
@@ -1423,34 +1636,59 @@ arch_post_create_vcpus
 <p>Firecracker 的设备模型可以用一句话概括：控制面只创建设备配置，启动阶段把设备 attach 到 transport，运行期由 EventManager 分发 eventfd/TAP/rate limiter 等事件，设备再通过 virtio queue 读写 guest memory。</p>
 <p>这里的重点不是“Firecracker 实现了多少设备”，而是所有 virtio 设备共享的骨架：<code>VirtioDevice</code> trait、MMIO/PCI transport、queue eventfd、interrupt、EventManager subscriber。</p>
 <h3 id="111">11.1 设备对象的层次</h3>
-<div class="mermaid">flowchart TB
-    VmResources[VmResources builders] --> Builder[build_microvm_for_boot]
-    Builder --> DeviceManager[DeviceManager]
-    DeviceManager --> MmioMgr[MMIODeviceManager]
-    DeviceManager --> PciMgr[PciDevices]
-    DeviceManager --> AcpiMgr[ACPIDeviceManager]
-    DeviceManager --> Legacy[legacy serial / i8042 on x86_64]
+<figure class="diagram" aria-label="Mermaid 架构或流程图"><div class="mermaid">flowchart TB
+    VmResources[VmResources builders] --&gt; Builder[build_microvm_for_boot]
+    Builder --&gt; DeviceManager[DeviceManager]
+    DeviceManager --&gt; MmioMgr[MMIODeviceManager]
+    DeviceManager --&gt; PciMgr[PciDevices]
+    DeviceManager --&gt; AcpiMgr[ACPIDeviceManager]
+    DeviceManager --&gt; Legacy[legacy serial / i8042 on x86_64]
 
-    Builder --> Block[Block]
-    Builder --> Net[Net]
-    Builder --> Vsock[Vsock]
-    Builder --> Balloon[Balloon]
-    Builder --> Pmem[Pmem]
-    Builder --> Rng[Entropy]
-    Builder --> VirtioMem[VirtioMem]
+    Builder --&gt; Block[Block]
+    Builder --&gt; Net[Net]
+    Builder --&gt; Vsock[Vsock]
+    Builder --&gt; Balloon[Balloon]
+    Builder --&gt; Pmem[Pmem]
+    Builder --&gt; Rng[Entropy]
+    Builder --&gt; VirtioMem[VirtioMem]
 
-    Block --> VirtioDevice[VirtioDevice trait]
-    Net --> VirtioDevice
-    Vsock --> VirtioDevice
-    Balloon --> VirtioDevice
-    Pmem --> VirtioDevice
-    Rng --> VirtioDevice
-    VirtioMem --> VirtioDevice
+    Block --&gt; VirtioDevice[VirtioDevice trait]
+    Net --&gt; VirtioDevice
+    Vsock --&gt; VirtioDevice
+    Balloon --&gt; VirtioDevice
+    Pmem --&gt; VirtioDevice
+    Rng --&gt; VirtioDevice
+    VirtioMem --&gt; VirtioDevice
 
-    VirtioDevice --> Transport{transport}
-    Transport -->|default| Mmio[MmioTransport]
-    Transport -->|--enable-pci| Pci[VirtioPciDevice]
-</div>
+    VirtioDevice --&gt; Transport{transport}
+    Transport --&gt;|default| Mmio[MmioTransport]
+    Transport --&gt;|--enable-pci| Pci[VirtioPciDevice]</div><details class="diagram-source"><summary>查看图表文本</summary><pre><code>flowchart TB
+    VmResources[VmResources builders] --&gt; Builder[build_microvm_for_boot]
+    Builder --&gt; DeviceManager[DeviceManager]
+    DeviceManager --&gt; MmioMgr[MMIODeviceManager]
+    DeviceManager --&gt; PciMgr[PciDevices]
+    DeviceManager --&gt; AcpiMgr[ACPIDeviceManager]
+    DeviceManager --&gt; Legacy[legacy serial / i8042 on x86_64]
+
+    Builder --&gt; Block[Block]
+    Builder --&gt; Net[Net]
+    Builder --&gt; Vsock[Vsock]
+    Builder --&gt; Balloon[Balloon]
+    Builder --&gt; Pmem[Pmem]
+    Builder --&gt; Rng[Entropy]
+    Builder --&gt; VirtioMem[VirtioMem]
+
+    Block --&gt; VirtioDevice[VirtioDevice trait]
+    Net --&gt; VirtioDevice
+    Vsock --&gt; VirtioDevice
+    Balloon --&gt; VirtioDevice
+    Pmem --&gt; VirtioDevice
+    Rng --&gt; VirtioDevice
+    VirtioMem --&gt; VirtioDevice
+
+    VirtioDevice --&gt; Transport{transport}
+    Transport --&gt;|default| Mmio[MmioTransport]
+    Transport --&gt;|--enable-pci| Pci[VirtioPciDevice]</code></pre></details></figure>
 <p><code>DeviceManager</code> 持有四类设备管理器：MMIO virtio、x86_64 legacy、ACPI、PCIe：<code class="src-ref">src/vmm/src/device_manager/mod.rs</code>。</p>
 <p>每个 virtio 设备都实现 <code>VirtioDevice</code>。这个 trait 要求设备暴露 feature、queue、queue eventfd、interrupt、config space 和 <code>activate</code> 生命周期：<code class="src-ref">src/vmm/src/devices/virtio/device.rs</code>。</p>
 <p>关键点：具体设备负责“业务语义”，transport 负责“guest 如何看见这个设备”。同一个 block/net 设备可以挂到 MMIO transport，也可以挂到 PCI transport。</p>
@@ -1458,18 +1696,27 @@ arch_post_create_vcpus
 <p>transport 的选择只看 <code>DeviceManager::is_pci_enabled()</code>。如果启用了 PCI，就调用 <code>attach_pci_virtio_device</code>；否则调用 <code>attach_mmio_virtio_device</code>：<code class="src-ref">src/vmm/src/device_manager/mod.rs</code>。</p>
 <p><code>--enable-pci</code> 来自 Firecracker 进程参数，在 main 中设置为 <code>pci_enabled</code>，最终写入 <code>VmResources.pci_enabled</code>：<code class="src-ref">src/firecracker/src/main.rs</code>，<code class="src-ref">src/firecracker/src/main.rs</code>。</p>
 <p>启动时，如果 <code>vm_resources.pci_enabled</code> 为真，builder 先调用 <code>device_manager.enable_pci(&amp;vm)</code>；否则向 kernel cmdline 插入 <code>pci=off</code>：<code class="src-ref">src/vmm/src/builder.rs</code>。</p>
-<div class="mermaid">flowchart LR
-    CLI[--enable-pci] --> Main[pci_enabled]
-    Main --> VmResources[VmResources.pci_enabled]
-    VmResources --> Builder[build_microvm_for_boot]
-    Builder --> Decision{pci_enabled?}
-    Decision -->|yes| EnablePci[DeviceManager::enable_pci]
-    EnablePci --> PciSegment[PciDevices::attach_pci_segment]
-    Decision -->|no| Cmdline[pci=off]
-    Builder --> Attach[attach_virtio_device]
-    Attach -->|PCI enabled| PciDevice[attach_pci_virtio_device]
-    Attach -->|PCI disabled| MmioDevice[attach_mmio_virtio_device]
-</div>
+<figure class="diagram" aria-label="Mermaid 架构或流程图"><div class="mermaid">flowchart LR
+    CLI[--enable-pci] --&gt; Main[pci_enabled]
+    Main --&gt; VmResources[VmResources.pci_enabled]
+    VmResources --&gt; Builder[build_microvm_for_boot]
+    Builder --&gt; Decision{pci_enabled?}
+    Decision --&gt;|yes| EnablePci[DeviceManager::enable_pci]
+    EnablePci --&gt; PciSegment[PciDevices::attach_pci_segment]
+    Decision --&gt;|no| Cmdline[pci=off]
+    Builder --&gt; Attach[attach_virtio_device]
+    Attach --&gt;|PCI enabled| PciDevice[attach_pci_virtio_device]
+    Attach --&gt;|PCI disabled| MmioDevice[attach_mmio_virtio_device]</div><details class="diagram-source"><summary>查看图表文本</summary><pre><code>flowchart LR
+    CLI[--enable-pci] --&gt; Main[pci_enabled]
+    Main --&gt; VmResources[VmResources.pci_enabled]
+    VmResources --&gt; Builder[build_microvm_for_boot]
+    Builder --&gt; Decision{pci_enabled?}
+    Decision --&gt;|yes| EnablePci[DeviceManager::enable_pci]
+    EnablePci --&gt; PciSegment[PciDevices::attach_pci_segment]
+    Decision --&gt;|no| Cmdline[pci=off]
+    Builder --&gt; Attach[attach_virtio_device]
+    Attach --&gt;|PCI enabled| PciDevice[attach_pci_virtio_device]
+    Attach --&gt;|PCI disabled| MmioDevice[attach_mmio_virtio_device]</code></pre></details></figure>
 <p>MMIO 路径会做四件事：</p>
 <table>
 <thead>
@@ -1509,22 +1756,35 @@ arch_post_create_vcpus
 <h3 id="113-mmio-transport">11.3 MMIO transport 如何激活设备</h3>
 <p><code>MmioTransport</code> 是 guest driver 看到的 virtio-mmio register 面。它包装一个 <code>Arc&lt;Mutex&lt;dyn VirtioDevice&gt;&gt;</code>，并保存 queue select、features select、device status、guest memory 和 interrupt：<code class="src-ref">src/vmm/src/devices/virtio/transport/mmio.rs</code>。</p>
 <p>guest driver 会按 virtio 状态机写 MMIO status register。当状态变成 <code>DRIVER_OK</code>，<code>MmioTransport::set_device_status</code> 调用 inner device 的 <code>activate(mem, interrupt)</code>：<code class="src-ref">src/vmm/src/devices/virtio/transport/mmio.rs</code>。</p>
-<div class="mermaid">sequenceDiagram
+<figure class="diagram" aria-label="Mermaid 架构或流程图"><div class="mermaid">sequenceDiagram
     participant G as Guest virtio driver
     participant T as MmioTransport
     participant D as VirtioDevice
     participant E as EventManager
 
-    G->>T: negotiate features
-    G->>T: write queue addresses
-    G->>T: set FEATURES_OK
-    G->>T: set DRIVER_OK
-    T->>D: activate(GuestMemoryMmap, interrupt)
-    D->>D: initialize queues
-    D->>D: write activate_evt
-    E->>D: process activate event
-    D->>E: register queue/rate/backend events
-</div>
+    G-&gt;&gt;T: negotiate features
+    G-&gt;&gt;T: write queue addresses
+    G-&gt;&gt;T: set FEATURES_OK
+    G-&gt;&gt;T: set DRIVER_OK
+    T-&gt;&gt;D: activate(GuestMemoryMmap, interrupt)
+    D-&gt;&gt;D: initialize queues
+    D-&gt;&gt;D: write activate_evt
+    E-&gt;&gt;D: process activate event
+    D-&gt;&gt;E: register queue/rate/backend events</div><details class="diagram-source"><summary>查看图表文本</summary><pre><code>sequenceDiagram
+    participant G as Guest virtio driver
+    participant T as MmioTransport
+    participant D as VirtioDevice
+    participant E as EventManager
+
+    G-&gt;&gt;T: negotiate features
+    G-&gt;&gt;T: write queue addresses
+    G-&gt;&gt;T: set FEATURES_OK
+    G-&gt;&gt;T: set DRIVER_OK
+    T-&gt;&gt;D: activate(GuestMemoryMmap, interrupt)
+    D-&gt;&gt;D: initialize queues
+    D-&gt;&gt;D: write activate_evt
+    E-&gt;&gt;D: process activate event
+    D-&gt;&gt;E: register queue/rate/backend events</code></pre></details></figure>
 <p>具体设备的 <code>activate</code> 都会初始化 queue 指针。以 block 为例，它遍历 queues 调 <code>q.initialize(&amp;mem)</code>，启用 event idx notification suppression，并写 <code>activate_evt</code>，最后保存 <code>ActiveState { mem, interrupt }</code>：<code class="src-ref">src/vmm/src/devices/virtio/block/virtio/device.rs</code>。</p>
 <p>net 的 <code>activate</code> 同样初始化 queue，设置 TAP offload，初始化 RX buffer size，写 <code>activate_evt</code>：<code class="src-ref">src/vmm/src/devices/virtio/net/device.rs</code>。</p>
 <p><code>activate_evt</code> 的作用是把“设备已激活”这个状态变化送回 EventManager，让设备 subscriber 从只监听 activate event，切换为监听运行期事件。</p>
@@ -1532,19 +1792,29 @@ arch_post_create_vcpus
 <p>virtio queue 是 guest 和 VMM 之间共享的 descriptor/ring 结构。Firecracker 的 <code>Queue</code> 保存 descriptor table、available ring、used ring 的 guest physical address 和 host virtual pointer：<code class="src-ref">src/vmm/src/devices/virtio/queue.rs</code>。</p>
 <p>设备激活时，<code>Queue::initialize</code> 会校验 queue ready、size、地址对齐，并把 guest memory 中的 queue 三段映射成可访问指针：<code class="src-ref">src/vmm/src/devices/virtio/queue.rs</code>。</p>
 <p>运行期的关键路径是：</p>
-<div class="mermaid">flowchart TB
-    Guest[Guest driver] -->|write descriptors| Avail[Avail ring in guest memory]
-    Guest -->|write notify register| IoEvent[KVM ioeventfd]
-    IoEvent --> QueueEvt[device queue EventFd]
-    QueueEvt --> EventManager[EventManager epoll]
-    EventManager --> Subscriber[device MutEventSubscriber::process]
-    Subscriber --> QueuePop[Queue::pop_or_enable_notification]
-    QueuePop --> Desc[DescriptorChain]
-    Desc --> Backend[device backend: file/TAP/vsock/balloon]
-    Backend --> Used[write used ring]
-    Used --> Kick[interrupt.trigger]
-    Kick --> Guest
-</div>
+<figure class="diagram" aria-label="Mermaid 架构或流程图"><div class="mermaid">flowchart TB
+    Guest[Guest driver] --&gt;|write descriptors| Avail[Avail ring in guest memory]
+    Guest --&gt;|write notify register| IoEvent[KVM ioeventfd]
+    IoEvent --&gt; QueueEvt[device queue EventFd]
+    QueueEvt --&gt; EventManager[EventManager epoll]
+    EventManager --&gt; Subscriber[device MutEventSubscriber::process]
+    Subscriber --&gt; QueuePop[Queue::pop_or_enable_notification]
+    QueuePop --&gt; Desc[DescriptorChain]
+    Desc --&gt; Backend[device backend: file/TAP/vsock/balloon]
+    Backend --&gt; Used[write used ring]
+    Used --&gt; Kick[interrupt.trigger]
+    Kick --&gt; Guest</div><details class="diagram-source"><summary>查看图表文本</summary><pre><code>flowchart TB
+    Guest[Guest driver] --&gt;|write descriptors| Avail[Avail ring in guest memory]
+    Guest --&gt;|write notify register| IoEvent[KVM ioeventfd]
+    IoEvent --&gt; QueueEvt[device queue EventFd]
+    QueueEvt --&gt; EventManager[EventManager epoll]
+    EventManager --&gt; Subscriber[device MutEventSubscriber::process]
+    Subscriber --&gt; QueuePop[Queue::pop_or_enable_notification]
+    QueuePop --&gt; Desc[DescriptorChain]
+    Desc --&gt; Backend[device backend: file/TAP/vsock/balloon]
+    Backend --&gt; Used[write used ring]
+    Used --&gt; Kick[interrupt.trigger]
+    Kick --&gt; Guest</code></pre></details></figure>
 <p><code>Queue::pop_or_enable_notification</code> 会从 avail ring 取 descriptor chain；如果启用了 notification suppression，则会先尝试设置 used ring 的 <code>avail_event</code>，减少不必要通知：<code class="src-ref">src/vmm/src/devices/virtio/queue.rs</code>。</p>
 <p>处理完成后，设备调用 <code>Queue::add_used</code>/<code>advance_used_ring_idx</code> 更新 used ring；<code>Queue::prepare_kick</code> 决定是否需要中断 guest：<code class="src-ref">src/vmm/src/devices/virtio/queue.rs</code>。</p>
 <p>这条路径回答了“guest 写 queue eventfd 后哪个 subscriber 被唤醒”：KVM ioeventfd 先写设备的 queue eventfd，EventManager 监听该 fd，最终调用对应设备的 <code>MutEventSubscriber::process</code>。</p>
@@ -1645,20 +1915,31 @@ arch_post_create_vcpus
 <p>这也解释了它的边界：snapshot 捕获的是 Firecracker 认为可序列化、可重建的虚拟机状态，不是任意 host 资源、任意外部 fd 或任意设备后端状态。</p>
 <h3 id="121-snapshot">12.1 Snapshot 的状态对象</h3>
 <p>核心结构是 <code>MicrovmState</code>：<code class="src-ref">src/vmm/src/persist.rs</code>。</p>
-<div class="mermaid">flowchart TB
-    MicrovmState[MicrovmState] --> VmInfo[vm_info]
-    MicrovmState --> KvmState[kvm_state]
-    MicrovmState --> VmState[vm_state]
-    MicrovmState --> VcpuStates[vcpu_states]
-    MicrovmState --> DeviceStates[device_states]
+<figure class="diagram" aria-label="Mermaid 架构或流程图"><div class="mermaid">flowchart TB
+    MicrovmState[MicrovmState] --&gt; VmInfo[vm_info]
+    MicrovmState --&gt; KvmState[kvm_state]
+    MicrovmState --&gt; VmState[vm_state]
+    MicrovmState --&gt; VcpuStates[vcpu_states]
+    MicrovmState --&gt; DeviceStates[device_states]
 
-    VmInfo --> Config[vcpu/mem/smt/cpu_template/boot_source/huge_pages]
-    KvmState --> CapMods[kvm_cap_modifiers]
-    VmState --> Memory[guest memory layout]
-    VmState --> ArchVm[x86 PIT/PIC/IOAPIC/clock or arm64 GIC]
-    VcpuStates --> CpuRegs[arch-specific vCPU registers]
-    DeviceStates --> Devices[MMIO + PCI + ACPI + serial/device states]
-</div>
+    VmInfo --&gt; Config[vcpu/mem/smt/cpu_template/boot_source/huge_pages]
+    KvmState --&gt; CapMods[kvm_cap_modifiers]
+    VmState --&gt; Memory[guest memory layout]
+    VmState --&gt; ArchVm[x86 PIT/PIC/IOAPIC/clock or arm64 GIC]
+    VcpuStates --&gt; CpuRegs[arch-specific vCPU registers]
+    DeviceStates --&gt; Devices[MMIO + PCI + ACPI + serial/device states]</div><details class="diagram-source"><summary>查看图表文本</summary><pre><code>flowchart TB
+    MicrovmState[MicrovmState] --&gt; VmInfo[vm_info]
+    MicrovmState --&gt; KvmState[kvm_state]
+    MicrovmState --&gt; VmState[vm_state]
+    MicrovmState --&gt; VcpuStates[vcpu_states]
+    MicrovmState --&gt; DeviceStates[device_states]
+
+    VmInfo --&gt; Config[vcpu/mem/smt/cpu_template/boot_source/huge_pages]
+    KvmState --&gt; CapMods[kvm_cap_modifiers]
+    VmState --&gt; Memory[guest memory layout]
+    VmState --&gt; ArchVm[x86 PIT/PIC/IOAPIC/clock or arm64 GIC]
+    VcpuStates --&gt; CpuRegs[arch-specific vCPU registers]
+    DeviceStates --&gt; Devices[MMIO + PCI + ACPI + serial/device states]</code></pre></details></figure>
 <p>字段含义：</p>
 <table>
 <thead>
@@ -1700,7 +1981,7 @@ arch_post_create_vcpus
 <p>这意味着 snapshot 天然带架构边界。x86_64 snapshot 不会被 aarch64 按同一种格式接受，反过来也一样。</p>
 <h3 id="122-snapshot">12.2 创建 snapshot 的控制流</h3>
 <p>API 层的 <code>CreateSnapshot</code> 只在 runtime controller 中支持；<code>LoadSnapshot</code> 在 post-boot 会被拒绝：<code class="src-ref">src/vmm/src/rpc_interface.rs</code>。创建入口会记录耗时并调用 <code>persist::create_snapshot</code>：<code class="src-ref">src/vmm/src/rpc_interface.rs</code>。</p>
-<div class="mermaid">sequenceDiagram
+<figure class="diagram" aria-label="Mermaid 架构或流程图"><div class="mermaid">sequenceDiagram
     participant API as RuntimeApiController
     participant VMM as Vmm
     participant Dev as DeviceManager
@@ -1708,18 +1989,35 @@ arch_post_create_vcpus
     participant VM as Vm/GuestMemory
     participant File as snapshot files
 
-    API->>VMM: create_snapshot(params)
-    VMM->>Dev: check_unsnapshottable_devices
-    VMM->>Dev: save device states
-    VMM->>VCPU: VcpuEvent::SaveState
-    VCPU-->>VMM: VcpuResponse::SavedState
-    VMM->>VMM: save KVM + VM arch state
-    VMM-->>API: MicrovmState
-    API->>File: write state file
-    API->>VM: snapshot_memory_to_file
-    VM->>File: full dump or dirty pages
-    API->>Dev: mark_virtio_queue_memory_dirty
-</div>
+    API-&gt;&gt;VMM: create_snapshot(params)
+    VMM-&gt;&gt;Dev: check_unsnapshottable_devices
+    VMM-&gt;&gt;Dev: save device states
+    VMM-&gt;&gt;VCPU: VcpuEvent::SaveState
+    VCPU--&gt;&gt;VMM: VcpuResponse::SavedState
+    VMM-&gt;&gt;VMM: save KVM + VM arch state
+    VMM--&gt;&gt;API: MicrovmState
+    API-&gt;&gt;File: write state file
+    API-&gt;&gt;VM: snapshot_memory_to_file
+    VM-&gt;&gt;File: full dump or dirty pages
+    API-&gt;&gt;Dev: mark_virtio_queue_memory_dirty</div><details class="diagram-source"><summary>查看图表文本</summary><pre><code>sequenceDiagram
+    participant API as RuntimeApiController
+    participant VMM as Vmm
+    participant Dev as DeviceManager
+    participant VCPU as vCPU threads
+    participant VM as Vm/GuestMemory
+    participant File as snapshot files
+
+    API-&gt;&gt;VMM: create_snapshot(params)
+    VMM-&gt;&gt;Dev: check_unsnapshottable_devices
+    VMM-&gt;&gt;Dev: save device states
+    VMM-&gt;&gt;VCPU: VcpuEvent::SaveState
+    VCPU--&gt;&gt;VMM: VcpuResponse::SavedState
+    VMM-&gt;&gt;VMM: save KVM + VM arch state
+    VMM--&gt;&gt;API: MicrovmState
+    API-&gt;&gt;File: write state file
+    API-&gt;&gt;VM: snapshot_memory_to_file
+    VM-&gt;&gt;File: full dump or dirty pages
+    API-&gt;&gt;Dev: mark_virtio_queue_memory_dirty</code></pre></details></figure>
 <p><code>persist::create_snapshot</code> 的顺序很明确：<code class="src-ref">src/vmm/src/persist.rs</code>。</p>
 <ol>
 <li><code>vmm.save_state(vm_info)</code> 生成 <code>MicrovmState</code>。</li>
@@ -1742,20 +2040,31 @@ arch_post_create_vcpus
 <li>校验版本：major 必须相同，minor 不能高于当前版本。</li>
 <li>校验 CRC64：<code class="src-ref">src/vmm/src/snapshot/mod.rs</code>。</li>
 </ol>
-<div class="mermaid">flowchart LR
-    State[MicrovmState] --> Wrap[Snapshot header]
-    Wrap --> Bitcode[bitcode serialize]
-    Bitcode --> Crc[append CRC64]
-    Crc --> File[state snapshot file]
+<figure class="diagram" aria-label="Mermaid 架构或流程图"><div class="mermaid">flowchart LR
+    State[MicrovmState] --&gt; Wrap[Snapshot header]
+    Wrap --&gt; Bitcode[bitcode serialize]
+    Bitcode --&gt; Crc[append CRC64]
+    Crc --&gt; File[state snapshot file]
 
-    File --> Read[read with 10MB limit]
-    Read --> Split[split data and CRC]
-    Split --> Decode[bitcode deserialize]
-    Decode --> Magic[check arch magic]
-    Magic --> Version[check version]
-    Version --> CrcCheck[check CRC64]
-    CrcCheck --> Restored[MicrovmState]
-</div>
+    File --&gt; Read[read with 10MB limit]
+    Read --&gt; Split[split data and CRC]
+    Split --&gt; Decode[bitcode deserialize]
+    Decode --&gt; Magic[check arch magic]
+    Magic --&gt; Version[check version]
+    Version --&gt; CrcCheck[check CRC64]
+    CrcCheck --&gt; Restored[MicrovmState]</div><details class="diagram-source"><summary>查看图表文本</summary><pre><code>flowchart LR
+    State[MicrovmState] --&gt; Wrap[Snapshot header]
+    Wrap --&gt; Bitcode[bitcode serialize]
+    Bitcode --&gt; Crc[append CRC64]
+    Crc --&gt; File[state snapshot file]
+
+    File --&gt; Read[read with 10MB limit]
+    Read --&gt; Split[split data and CRC]
+    Split --&gt; Decode[bitcode deserialize]
+    Decode --&gt; Magic[check arch magic]
+    Magic --&gt; Version[check version]
+    Version --&gt; CrcCheck[check CRC64]
+    CrcCheck --&gt; Restored[MicrovmState]</code></pre></details></figure>
 <p>因此兼容策略不是“任意旧版本都能恢复”。当前源码只接受同 major、minor 不高于当前的格式；结构字段变化仍要受 bitcode 类型匹配约束。</p>
 <h3 id="124-guest-memory-fulldiff-uffd">12.4 guest memory 文件：Full、Diff 与 UFFD</h3>
 <p>创建 snapshot 时，内存文件路径来自 <code>CreateSnapshotParams.mem_file_path</code>。<code>SnapshotType</code> 有 <code>Full</code> 和 <code>Diff</code> 两种：<code class="src-ref">src/vmm/src/vmm_config/snapshot.rs</code>。</p>
@@ -1787,7 +2096,7 @@ arch_post_create_vcpus
 <h3 id="125-snapshot">12.5 恢复 snapshot 的控制流</h3>
 <p><code>LoadSnapshot</code> 只能在 pre-boot controller 中执行。如果此前已经走过普通 boot 配置路径，<code>boot_path</code> 为真，load 会被拒绝：<code class="src-ref">src/vmm/src/rpc_interface.rs</code>。</p>
 <p><code>restore_from_snapshot</code> 的主路径是：<code class="src-ref">src/vmm/src/persist.rs</code></p>
-<div class="mermaid">sequenceDiagram
+<figure class="diagram" aria-label="Mermaid 架构或流程图"><div class="mermaid">sequenceDiagram
     participant API as PrebootApiController
     participant Persist as restore_from_snapshot
     participant Mem as guest memory backend
@@ -1795,21 +2104,41 @@ arch_post_create_vcpus
     participant Dev as DeviceManager
     participant VCPU as vCPU threads
 
-    API->>Persist: LoadSnapshot(params)
-    Persist->>Persist: Snapshot::load -> MicrovmState
-    Persist->>Persist: apply net/vsock overrides
-    Persist->>Persist: update VmResources machine config
-    Persist->>Persist: snapshot_state_sanity_check
-    Persist->>Mem: guest_memory_from_file or guest_memory_from_uffd
-    Persist->>Builder: build_microvm_from_snapshot
-    Builder->>Builder: create KVM + VM + vCPUs
-    Builder->>Builder: restore memory regions
-    Builder->>VCPU: restore vCPU KVM state
-    Builder->>Builder: restore VM arch state
-    Builder->>Dev: DeviceManager::restore
-    Builder->>VCPU: start_vcpus paused
-    API->>API: optionally resume_vm
-</div>
+    API-&gt;&gt;Persist: LoadSnapshot(params)
+    Persist-&gt;&gt;Persist: Snapshot::load -&gt; MicrovmState
+    Persist-&gt;&gt;Persist: apply net/vsock overrides
+    Persist-&gt;&gt;Persist: update VmResources machine config
+    Persist-&gt;&gt;Persist: snapshot_state_sanity_check
+    Persist-&gt;&gt;Mem: guest_memory_from_file or guest_memory_from_uffd
+    Persist-&gt;&gt;Builder: build_microvm_from_snapshot
+    Builder-&gt;&gt;Builder: create KVM + VM + vCPUs
+    Builder-&gt;&gt;Builder: restore memory regions
+    Builder-&gt;&gt;VCPU: restore vCPU KVM state
+    Builder-&gt;&gt;Builder: restore VM arch state
+    Builder-&gt;&gt;Dev: DeviceManager::restore
+    Builder-&gt;&gt;VCPU: start_vcpus paused
+    API-&gt;&gt;API: optionally resume_vm</div><details class="diagram-source"><summary>查看图表文本</summary><pre><code>sequenceDiagram
+    participant API as PrebootApiController
+    participant Persist as restore_from_snapshot
+    participant Mem as guest memory backend
+    participant Builder as build_microvm_from_snapshot
+    participant Dev as DeviceManager
+    participant VCPU as vCPU threads
+
+    API-&gt;&gt;Persist: LoadSnapshot(params)
+    Persist-&gt;&gt;Persist: Snapshot::load -&gt; MicrovmState
+    Persist-&gt;&gt;Persist: apply net/vsock overrides
+    Persist-&gt;&gt;Persist: update VmResources machine config
+    Persist-&gt;&gt;Persist: snapshot_state_sanity_check
+    Persist-&gt;&gt;Mem: guest_memory_from_file or guest_memory_from_uffd
+    Persist-&gt;&gt;Builder: build_microvm_from_snapshot
+    Builder-&gt;&gt;Builder: create KVM + VM + vCPUs
+    Builder-&gt;&gt;Builder: restore memory regions
+    Builder-&gt;&gt;VCPU: restore vCPU KVM state
+    Builder-&gt;&gt;Builder: restore VM arch state
+    Builder-&gt;&gt;Dev: DeviceManager::restore
+    Builder-&gt;&gt;VCPU: start_vcpus paused
+    API-&gt;&gt;API: optionally resume_vm</code></pre></details></figure>
 <p>恢复前会做几个关键动作：</p>
 <ol>
 <li>读状态文件：<code>snapshot_state_from_file</code> 打开 snapshot 并 <code>Snapshot::load</code>：<code class="src-ref">src/vmm/src/persist.rs</code>。</li>
@@ -1824,19 +2153,29 @@ arch_post_create_vcpus
 <h3 id="126">12.6 设备状态如何保存和恢复</h3>
 <p><code>DeviceManager::save</code> 保存四块状态：MMIO、ACPI、PCI、serial：<code class="src-ref">src/vmm/src/device_manager/mod.rs</code>。</p>
 <p>MMIO 侧的 <code>DeviceStates</code> 包含 block、net、vsock、balloon、MMDS、entropy、pmem、virtio-mem，以及 aarch64 的 legacy MMIO 设备：<code class="src-ref">src/vmm/src/device_manager/persist.rs</code>。</p>
-<div class="mermaid">flowchart TB
-    DeviceManager[DeviceManager::save] --> Mmio[mmio_devices.save]
-    DeviceManager --> Acpi[acpi_devices.save]
-    DeviceManager --> Pci[pci_devices.save]
-    DeviceManager --> Serial[serial_state]
+<figure class="diagram" aria-label="Mermaid 架构或流程图"><div class="mermaid">flowchart TB
+    DeviceManager[DeviceManager::save] --&gt; Mmio[mmio_devices.save]
+    DeviceManager --&gt; Acpi[acpi_devices.save]
+    DeviceManager --&gt; Pci[pci_devices.save]
+    DeviceManager --&gt; Serial[serial_state]
 
-    Mmio --> Transport[MmioTransportState]
-    Mmio --> DevState[per-device state]
-    Pci --> PciTransport[VirtioPciDeviceState]
-    Pci --> PciDevState[per-device state]
-    Acpi --> Vmgenid[VMGenIDState]
-    Acpi --> Vmclock[VmClockState]
-</div>
+    Mmio --&gt; Transport[MmioTransportState]
+    Mmio --&gt; DevState[per-device state]
+    Pci --&gt; PciTransport[VirtioPciDeviceState]
+    Pci --&gt; PciDevState[per-device state]
+    Acpi --&gt; Vmgenid[VMGenIDState]
+    Acpi --&gt; Vmclock[VmClockState]</div><details class="diagram-source"><summary>查看图表文本</summary><pre><code>flowchart TB
+    DeviceManager[DeviceManager::save] --&gt; Mmio[mmio_devices.save]
+    DeviceManager --&gt; Acpi[acpi_devices.save]
+    DeviceManager --&gt; Pci[pci_devices.save]
+    DeviceManager --&gt; Serial[serial_state]
+
+    Mmio --&gt; Transport[MmioTransportState]
+    Mmio --&gt; DevState[per-device state]
+    Pci --&gt; PciTransport[VirtioPciDeviceState]
+    Pci --&gt; PciDevState[per-device state]
+    Acpi --&gt; Vmgenid[VMGenIDState]
+    Acpi --&gt; Vmclock[VmClockState]</code></pre></details></figure>
 <p>MMIO 保存每个 virtio 设备时，会先调用设备的 <code>prepare_save()</code>，再保存 transport state。注释解释原因：设备 prepare 可能修改 transport state 或触发 guest interrupt，所以必须先 prepare，再保存 transport：<code class="src-ref">src/vmm/src/device_manager/persist.rs</code>。</p>
 <p>恢复时，MMIO 路径会 restore 具体设备对象，restore <code>MmioTransport</code>，重新注册 MMIO bus、ioeventfd、irqfd 和 EventManager subscriber；如果设备原先是 activated，还会重新调用 <code>activate(mem, interrupt)</code>：<code class="src-ref">src/vmm/src/device_manager/persist.rs</code>。</p>
 <p>PCI 路径类似，但先恢复 PCI segment，再按保存的 PCI transport/SBDF 恢复各类 virtio PCI device：<code class="src-ref">src/vmm/src/device_manager/pci_mngr.rs</code>。</p>
@@ -1902,46 +2241,75 @@ arch_post_create_vcpus
 </ol>
 <p>换句话说，KVM 负责“guest 和 host 内核之间的虚拟化边界”，Firecracker 负责“用户态设备模型边界”，jailer/seccomp 负责“Firecracker 进程本身的 host 侧攻击面边界”。</p>
 <h3 id="131">13.1 两层隔离模型</h3>
-<div class="mermaid">flowchart TB
-    Host[Host OS] --> Jailer[jailer process]
-    Jailer -->|copy binary + chroot + uid/gid + cgroup + namespace| FC[firecracker process]
-    FC --> API[API thread]
-    FC --> VMM[VMM/EventManager thread]
-    FC --> VCPU[vCPU threads]
+<figure class="diagram" aria-label="Mermaid 架构或流程图"><div class="mermaid">flowchart TB
+    Host[Host OS] --&gt; Jailer[jailer process]
+    Jailer --&gt;|copy binary + chroot + uid/gid + cgroup + namespace| FC[firecracker process]
+    FC --&gt; API[API thread]
+    FC --&gt; VMM[VMM/EventManager thread]
+    FC --&gt; VCPU[vCPU threads]
 
-    API -->|api seccomp| ApiFilter[seccomp api]
-    VMM -->|vmm seccomp| VmmFilter[seccomp vmm]
-    VCPU -->|vcpu seccomp| VcpuFilter[seccomp vcpu]
+    API --&gt;|api seccomp| ApiFilter[seccomp api]
+    VMM --&gt;|vmm seccomp| VmmFilter[seccomp vmm]
+    VCPU --&gt;|vcpu seccomp| VcpuFilter[seccomp vcpu]
 
-    VMM --> KVM[/dev/kvm]
-    VCPU --> KVM
-    VMM --> Tun[/dev/net/tun]
-    VMM --> Uffd[/dev/userfaultfd optional]
-</div>
+    VMM --&gt; KVM[/dev/kvm]
+    VCPU --&gt; KVM
+    VMM --&gt; Tun[/dev/net/tun]
+    VMM --&gt; Uffd[/dev/userfaultfd optional]</div><details class="diagram-source"><summary>查看图表文本</summary><pre><code>flowchart TB
+    Host[Host OS] --&gt; Jailer[jailer process]
+    Jailer --&gt;|copy binary + chroot + uid/gid + cgroup + namespace| FC[firecracker process]
+    FC --&gt; API[API thread]
+    FC --&gt; VMM[VMM/EventManager thread]
+    FC --&gt; VCPU[vCPU threads]
+
+    API --&gt;|api seccomp| ApiFilter[seccomp api]
+    VMM --&gt;|vmm seccomp| VmmFilter[seccomp vmm]
+    VCPU --&gt;|vcpu seccomp| VcpuFilter[seccomp vcpu]
+
+    VMM --&gt; KVM[/dev/kvm]
+    VCPU --&gt; KVM
+    VMM --&gt; Tun[/dev/net/tun]
+    VMM --&gt; Uffd[/dev/userfaultfd optional]</code></pre></details></figure>
 <p>jailer 是独立二进制，它最终 <code>exec</code> Firecracker。Firecracker 自己并不在源码里调用 jailer；jailer 先整理进程环境，再把 Firecracker 放进受限目录与身份下运行。</p>
 <p>seccomp 则在 Firecracker 进程内部安装。它按线程类别分成 <code>api</code>、<code>vmm</code>、<code>vcpu</code> 三类：<code class="src-ref">src/firecracker/src/seccomp.rs</code>。</p>
 <h3 id="132-jailer">13.2 jailer 的主流程</h3>
 <p>jailer 启动后先 <code>sanitize_process</code>：关闭继承来的 fd，只保留 stdin/stdout/stderr，并清理环境变量：<code class="src-ref">src/jailer/src/main.rs</code>。</p>
 <p>随后 <code>Env::run</code> 执行真正隔离流程：<code class="src-ref">src/jailer/src/env.rs</code>。</p>
-<div class="mermaid">sequenceDiagram
+<figure class="diagram" aria-label="Mermaid 架构或流程图"><div class="mermaid">sequenceDiagram
     participant J as jailer
     participant FS as filesystem
     participant CG as cgroup
     participant NS as namespace
     participant FC as firecracker
 
-    J->>J: sanitize_process
-    J->>FS: copy firecracker binary into chroot
-    J->>NS: join netns if configured
-    J->>J: install rlimits
-    J->>CG: write cgroup values and attach pid
-    J->>FS: copy arm64 cache/MIDR info if needed
-    J->>NS: unshare mount namespace
-    J->>FS: pivot_root into jail
-    J->>FS: create /dev/kvm /dev/net/tun /dev/urandom /dev/userfaultfd
-    J->>J: optional daemonize
-    J->>FC: exec with uid/gid and Firecracker args
-</div>
+    J-&gt;&gt;J: sanitize_process
+    J-&gt;&gt;FS: copy firecracker binary into chroot
+    J-&gt;&gt;NS: join netns if configured
+    J-&gt;&gt;J: install rlimits
+    J-&gt;&gt;CG: write cgroup values and attach pid
+    J-&gt;&gt;FS: copy arm64 cache/MIDR info if needed
+    J-&gt;&gt;NS: unshare mount namespace
+    J-&gt;&gt;FS: pivot_root into jail
+    J-&gt;&gt;FS: create /dev/kvm /dev/net/tun /dev/urandom /dev/userfaultfd
+    J-&gt;&gt;J: optional daemonize
+    J-&gt;&gt;FC: exec with uid/gid and Firecracker args</div><details class="diagram-source"><summary>查看图表文本</summary><pre><code>sequenceDiagram
+    participant J as jailer
+    participant FS as filesystem
+    participant CG as cgroup
+    participant NS as namespace
+    participant FC as firecracker
+
+    J-&gt;&gt;J: sanitize_process
+    J-&gt;&gt;FS: copy firecracker binary into chroot
+    J-&gt;&gt;NS: join netns if configured
+    J-&gt;&gt;J: install rlimits
+    J-&gt;&gt;CG: write cgroup values and attach pid
+    J-&gt;&gt;FS: copy arm64 cache/MIDR info if needed
+    J-&gt;&gt;NS: unshare mount namespace
+    J-&gt;&gt;FS: pivot_root into jail
+    J-&gt;&gt;FS: create /dev/kvm /dev/net/tun /dev/urandom /dev/userfaultfd
+    J-&gt;&gt;J: optional daemonize
+    J-&gt;&gt;FC: exec with uid/gid and Firecracker args</code></pre></details></figure>
 <p>关键步骤如下：</p>
 <table>
 <thead>
@@ -2034,20 +2402,31 @@ arch_post_create_vcpus
 <h3 id="136-seccomp">13.6 seccomp 在哪些线程安装</h3>
 <p><code>apply_filter</code> 的实现很直接：空 filter 直接返回；非空 filter 先检查长度不超过 Linux BPF 4096 条指令上限，再 <code>prctl(PR_SET_NO_NEW_PRIVS, 1)</code>，最后 <code>seccomp(SECCOMP_SET_MODE_FILTER, ...)</code>：<code class="src-ref">src/vmm/src/seccomp.rs</code>。</p>
 <p>三类 filter 的安装点如下：</p>
-<div class="mermaid">flowchart TB
-    Main[firecracker main] --> Filters[get_filters -> BpfThreadMap]
-    Filters --> ApiFilter[api]
-    Filters --> VmmFilter[vmm]
-    Filters --> VcpuFilter[vcpu]
+<figure class="diagram" aria-label="Mermaid 架构或流程图"><div class="mermaid">flowchart TB
+    Main[firecracker main] --&gt; Filters[get_filters -&gt; BpfThreadMap]
+    Filters --&gt; ApiFilter[api]
+    Filters --&gt; VmmFilter[vmm]
+    Filters --&gt; VcpuFilter[vcpu]
 
-    ApiFilter --> ApiThread[ApiServer::run]
-    VcpuFilter --> VcpuThread[Vcpu::run]
-    VmmFilter --> Builder[build_microvm_for_boot / build_microvm_from_snapshot]
+    ApiFilter --&gt; ApiThread[ApiServer::run]
+    VcpuFilter --&gt; VcpuThread[Vcpu::run]
+    VmmFilter --&gt; Builder[build_microvm_for_boot / build_microvm_from_snapshot]
 
-    ApiThread --> ApplyApi[apply_filter api]
-    VcpuThread --> ApplyVcpu[apply_filter vcpu]
-    Builder --> ApplyVmm[apply_filter vmm]
-</div>
+    ApiThread --&gt; ApplyApi[apply_filter api]
+    VcpuThread --&gt; ApplyVcpu[apply_filter vcpu]
+    Builder --&gt; ApplyVmm[apply_filter vmm]</div><details class="diagram-source"><summary>查看图表文本</summary><pre><code>flowchart TB
+    Main[firecracker main] --&gt; Filters[get_filters -&gt; BpfThreadMap]
+    Filters --&gt; ApiFilter[api]
+    Filters --&gt; VmmFilter[vmm]
+    Filters --&gt; VcpuFilter[vcpu]
+
+    ApiFilter --&gt; ApiThread[ApiServer::run]
+    VcpuFilter --&gt; VcpuThread[Vcpu::run]
+    VmmFilter --&gt; Builder[build_microvm_for_boot / build_microvm_from_snapshot]
+
+    ApiThread --&gt; ApplyApi[apply_filter api]
+    VcpuThread --&gt; ApplyVcpu[apply_filter vcpu]
+    Builder --&gt; ApplyVmm[apply_filter vmm]</code></pre></details></figure>
 <p>API 线程在 <code>ApiServer::run</code> 启动 HTTP server 前安装 <code>api</code> filter：<code class="src-ref">src/firecracker/src/api_server/mod.rs</code>。</p>
 <p>vCPU 线程在 <code>Vcpu::run</code> 一进入线程主循环时安装 <code>vcpu</code> filter，随后才进入 paused/running 状态机：<code class="src-ref">src/vmm/src/vstate/vcpu.rs</code>。</p>
 <p>VMM 线程的 filter 在 microVM 构建末尾安装。普通 boot 路径在 <code>build_microvm_for_boot</code> 中，vCPU 线程已经启动并停在 paused 状态后，VMM 线程安装 <code>vmm</code> filter，源码注释要求它是 resume vCPU 前的最后步骤：<code class="src-ref">src/vmm/src/builder.rs</code>。</p>
@@ -2068,44 +2447,73 @@ arch_post_create_vcpus
 <p>Firecracker 在两种架构上共享大量 VMM 骨架：API、VMM action、KVM fd/VM fd/vCPU fd、guest memory、EventManager、virtio device、snapshot 框架和 jailer/seccomp 都是同一套抽象。</p>
 <p>真正分叉发生在 <code>src/vmm/src/arch/{aarch64,x86_64}</code>、<code>cpu_config/{aarch64,x86_64}</code> 和少量设备/启动描述代码里。可以把差异压缩成一句话：x86_64 更像“精简 PC 平台”，ARM64 更像“virt machine + FDT + GIC”。</p>
 <h3 id="141">14.1 分叉地图</h3>
-<div class="mermaid">flowchart TB
-    Shared[shared VMM core] --> Builder[builder.rs]
-    Builder --> ArchBoot[arch::configure_system_for_boot]
-    Builder --> ArchVm[arch VM]
-    Builder --> ArchVcpu[arch vCPU]
-    Builder --> CpuConfig[cpu_config]
-    Builder --> Snapshot[snapshot state]
+<figure class="diagram" aria-label="Mermaid 架构或流程图"><div class="mermaid">flowchart TB
+    Shared[shared VMM core] --&gt; Builder[builder.rs]
+    Builder --&gt; ArchBoot[arch::configure_system_for_boot]
+    Builder --&gt; ArchVm[arch VM]
+    Builder --&gt; ArchVcpu[arch vCPU]
+    Builder --&gt; CpuConfig[cpu_config]
+    Builder --&gt; Snapshot[snapshot state]
 
-    ArchBoot --> ABoot[aarch64: FDT boot]
-    ArchBoot --> XBoot[x86_64: cmdline + MPTable + PVH/Linux boot + ACPI]
+    ArchBoot --&gt; ABoot[aarch64: FDT boot]
+    ArchBoot --&gt; XBoot[x86_64: cmdline + MPTable + PVH/Linux boot + ACPI]
 
-    ArchVm --> AVm[aarch64: GIC device after vCPU create]
-    ArchVm --> XVm[x86_64: irqchip/PIT before vCPU create + PIO bus]
+    ArchVm --&gt; AVm[aarch64: GIC device after vCPU create]
+    ArchVm --&gt; XVm[x86_64: irqchip/PIT before vCPU create + PIO bus]
 
-    ArchVcpu --> AVcpu[aarch64: KVI + one-regs + MPIDR + pvtime]
-    ArchVcpu --> XVcpu[x86_64: CPUID + MSRs + LAPIC + XSAVE + TSC]
+    ArchVcpu --&gt; AVcpu[aarch64: KVI + one-regs + MPIDR + pvtime]
+    ArchVcpu --&gt; XVcpu[x86_64: CPUID + MSRs + LAPIC + XSAVE + TSC]
 
-    CpuConfig --> ACpu[aarch64: register modifiers]
-    CpuConfig --> XCpu[x86_64: CPUID/MSR modifiers]
-</div>
+    CpuConfig --&gt; ACpu[aarch64: register modifiers]
+    CpuConfig --&gt; XCpu[x86_64: CPUID/MSR modifiers]</div><details class="diagram-source"><summary>查看图表文本</summary><pre><code>flowchart TB
+    Shared[shared VMM core] --&gt; Builder[builder.rs]
+    Builder --&gt; ArchBoot[arch::configure_system_for_boot]
+    Builder --&gt; ArchVm[arch VM]
+    Builder --&gt; ArchVcpu[arch vCPU]
+    Builder --&gt; CpuConfig[cpu_config]
+    Builder --&gt; Snapshot[snapshot state]
+
+    ArchBoot --&gt; ABoot[aarch64: FDT boot]
+    ArchBoot --&gt; XBoot[x86_64: cmdline + MPTable + PVH/Linux boot + ACPI]
+
+    ArchVm --&gt; AVm[aarch64: GIC device after vCPU create]
+    ArchVm --&gt; XVm[x86_64: irqchip/PIT before vCPU create + PIO bus]
+
+    ArchVcpu --&gt; AVcpu[aarch64: KVI + one-regs + MPIDR + pvtime]
+    ArchVcpu --&gt; XVcpu[x86_64: CPUID + MSRs + LAPIC + XSAVE + TSC]
+
+    CpuConfig --&gt; ACpu[aarch64: register modifiers]
+    CpuConfig --&gt; XCpu[x86_64: CPUID/MSR modifiers]</code></pre></details></figure>
 <h3 id="142-guest-memory-layout">14.2 guest memory layout</h3>
 <p>ARM64 的 DRAM 从 <code>0x8000_0000</code>，也就是 2GiB 开始；最大 RAM 是 1022GiB：<code class="src-ref">src/vmm/src/arch/aarch64/layout.rs</code>。它的 <code>arch_memory_regions</code> 从 <code>DRAM_MEM_START</code> 开始分配，并避开 256GiB 起的 64-bit MMIO gap：<code class="src-ref">src/vmm/src/arch/aarch64/mod.rs</code>。</p>
 <p>x86_64 的 guest memory 从 0 开始，但需要避开 32-bit 地址末尾的 1GiB MMIO gap，以及 256GiB 位置的 256GiB 64-bit MMIO gap：<code class="src-ref">src/vmm/src/arch/x86_64/mod.rs</code>。</p>
-<div class="mermaid">flowchart LR
+<figure class="diagram" aria-label="Mermaid 架构或流程图"><div class="mermaid">flowchart LR
     subgraph A[aarch64]
-        A0[0..1GiB ROM/RAM/I/O area] --> A1[1GiB..2GiB MMIO32 + PCI config]
-        A1 --> A2[2GiB DRAM start]
-        A2 --> A3[256GiB MMIO64 gap]
-        A3 --> A4[DRAM may continue]
+        A0[0..1GiB ROM/RAM/I/O area] --&gt; A1[1GiB..2GiB MMIO32 + PCI config]
+        A1 --&gt; A2[2GiB DRAM start]
+        A2 --&gt; A3[256GiB MMIO64 gap]
+        A3 --&gt; A4[DRAM may continue]
     end
 
     subgraph X[x86_64]
-        X0[0..640KiB RAM] --> X1[system data / EBDA / RSDP area]
-        X1 --> X2[1MiB kernel high memory start]
-        X2 --> X3[32-bit MMIO gap before 4GiB]
-        X3 --> X4[256GiB MMIO64 gap]
+        X0[0..640KiB RAM] --&gt; X1[system data / EBDA / RSDP area]
+        X1 --&gt; X2[1MiB kernel high memory start]
+        X2 --&gt; X3[32-bit MMIO gap before 4GiB]
+        X3 --&gt; X4[256GiB MMIO64 gap]
+    end</div><details class="diagram-source"><summary>查看图表文本</summary><pre><code>flowchart LR
+    subgraph A[aarch64]
+        A0[0..1GiB ROM/RAM/I/O area] --&gt; A1[1GiB..2GiB MMIO32 + PCI config]
+        A1 --&gt; A2[2GiB DRAM start]
+        A2 --&gt; A3[256GiB MMIO64 gap]
+        A3 --&gt; A4[DRAM may continue]
     end
-</div>
+
+    subgraph X[x86_64]
+        X0[0..640KiB RAM] --&gt; X1[system data / EBDA / RSDP area]
+        X1 --&gt; X2[1MiB kernel high memory start]
+        X2 --&gt; X3[32-bit MMIO gap before 4GiB]
+        X3 --&gt; X4[256GiB MMIO64 gap]
+    end</code></pre></details></figure>
 <table>
 <thead>
 <tr>
@@ -2177,26 +2585,43 @@ arch_post_create_vcpus
 <p>x86_64 源码则在 <code>arch_pre_create_vcpus</code> 中创建 irqchip/PIT，并设置 dummy speaker port，避免 port <code>0x61</code> 写操作触发 userspace exit：<code class="src-ref">src/vmm/src/arch/x86_64/vm.rs</code>。</p>
 <h3 id="144-boot-fdt-vs-pc-boot-structures">14.4 boot 配置：FDT vs PC boot structures</h3>
 <p>两端都通过 <code>configure_system_for_boot</code> 完成最后的架构 boot 配置，但内容完全不同。</p>
-<div class="mermaid">sequenceDiagram
+<figure class="diagram" aria-label="Mermaid 架构或流程图"><div class="mermaid">sequenceDiagram
     participant B as builder
     participant A as aarch64 configure_system_for_boot
     participant X as x86_64 configure_system_for_boot
     participant M as guest memory
 
-    B->>A: configure_system_for_boot(...)
-    A->>A: build CpuConfiguration from one-regs
-    A->>A: configure vCPU boot regs
-    A->>A: override CLIDR_EL1 from host sysfs
-    A->>M: write FDT with CPUs/memory/chosen/GIC/timer/devices/PCI
+    B-&gt;&gt;A: configure_system_for_boot(...)
+    A-&gt;&gt;A: build CpuConfiguration from one-regs
+    A-&gt;&gt;A: configure vCPU boot regs
+    A-&gt;&gt;A: override CLIDR_EL1 from host sysfs
+    A-&gt;&gt;M: write FDT with CPUs/memory/chosen/GIC/timer/devices/PCI
 
-    B->>X: configure_system_for_boot(...)
-    X->>X: build CpuConfiguration from CPUID + MSRs
-    X->>X: configure vCPU regs/sregs/cpuid/msrs
-    X->>M: write kernel cmdline
-    X->>M: write MPTable
-    X->>M: write PVH start info or Linux zero page
-    X->>M: write ACPI tables
-</div>
+    B-&gt;&gt;X: configure_system_for_boot(...)
+    X-&gt;&gt;X: build CpuConfiguration from CPUID + MSRs
+    X-&gt;&gt;X: configure vCPU regs/sregs/cpuid/msrs
+    X-&gt;&gt;M: write kernel cmdline
+    X-&gt;&gt;M: write MPTable
+    X-&gt;&gt;M: write PVH start info or Linux zero page
+    X-&gt;&gt;M: write ACPI tables</div><details class="diagram-source"><summary>查看图表文本</summary><pre><code>sequenceDiagram
+    participant B as builder
+    participant A as aarch64 configure_system_for_boot
+    participant X as x86_64 configure_system_for_boot
+    participant M as guest memory
+
+    B-&gt;&gt;A: configure_system_for_boot(...)
+    A-&gt;&gt;A: build CpuConfiguration from one-regs
+    A-&gt;&gt;A: configure vCPU boot regs
+    A-&gt;&gt;A: override CLIDR_EL1 from host sysfs
+    A-&gt;&gt;M: write FDT with CPUs/memory/chosen/GIC/timer/devices/PCI
+
+    B-&gt;&gt;X: configure_system_for_boot(...)
+    X-&gt;&gt;X: build CpuConfiguration from CPUID + MSRs
+    X-&gt;&gt;X: configure vCPU regs/sregs/cpuid/msrs
+    X-&gt;&gt;M: write kernel cmdline
+    X-&gt;&gt;M: write MPTable
+    X-&gt;&gt;M: write PVH start info or Linux zero page
+    X-&gt;&gt;M: write ACPI tables</code></pre></details></figure>
 <p>ARM64 把 kernel command line 放进 FDT 的 <code>/chosen</code>，并把 CPU、memory、GIC、timer、clock、PSCI、devices、VMGenID、VMClock 和 PCI 节点写入 FDT：<code class="src-ref">src/vmm/src/arch/aarch64/fdt.rs</code>。</p>
 <p>x86_64 则先把 command line 写到 <code>CMDLINE_START</code>，再写 MPTable；根据 kernel entry protocol 分成 PVH boot 或 Linux boot，最后写 ACPI tables：<code class="src-ref">src/vmm/src/arch/x86_64/mod.rs</code>。</p>
 <p>x86_64 的 PVH 路径会构造 <code>hvm_start_info</code>、module list 和 memory map，并写到 <code>PVH_INFO_START</code>/<code>MEMMAP_START</code>：<code class="src-ref">src/vmm/src/arch/x86_64/mod.rs</code>。Linux boot 路径会构造 zero page boot params、E820 map、cmdline/initrd 信息：<code class="src-ref">src/vmm/src/arch/x86_64/mod.rs</code>。</p>
@@ -2243,17 +2668,25 @@ arch_post_create_vcpus
 <p>这也解释了为什么前面的设备模型章节里，x86_64 的 MMIO virtio 设备还需要追加 kernel cmdline/ACPI DSDT data，而 ARM64 更自然地通过 FDT 表达设备节点。</p>
 <h3 id="147-snapshot">14.7 snapshot 差异回看</h3>
 <p>snapshot 顶层 <code>MicrovmState</code> 一样，但里面的 arch state 不一样。</p>
-<div class="mermaid">flowchart TB
-    MicrovmState[MicrovmState] --> Common[common: vm_info/kvm_state/device_states]
-    MicrovmState --> ArchVmState[vm_state]
-    MicrovmState --> ArchVcpuState[vcpu_states]
+<figure class="diagram" aria-label="Mermaid 架构或流程图"><div class="mermaid">flowchart TB
+    MicrovmState[MicrovmState] --&gt; Common[common: vm_info/kvm_state/device_states]
+    MicrovmState --&gt; ArchVmState[vm_state]
+    MicrovmState --&gt; ArchVcpuState[vcpu_states]
 
-    ArchVmState --> AState[aarch64: memory + GIC + resource_allocator]
-    ArchVmState --> XState[x86_64: memory + resource_allocator + PIT + clock + PIC + IOAPIC]
+    ArchVmState --&gt; AState[aarch64: memory + GIC + resource_allocator]
+    ArchVmState --&gt; XState[x86_64: memory + resource_allocator + PIT + clock + PIC + IOAPIC]
 
-    ArchVcpuState --> AVState[aarch64: mp_state + regs + MPIDR + KVI + pvtime]
-    ArchVcpuState --> XVState[x86_64: CPUID + MSRs + LAPIC + regs/sregs + events + XSAVE + TSC]
-</div>
+    ArchVcpuState --&gt; AVState[aarch64: mp_state + regs + MPIDR + KVI + pvtime]
+    ArchVcpuState --&gt; XVState[x86_64: CPUID + MSRs + LAPIC + regs/sregs + events + XSAVE + TSC]</div><details class="diagram-source"><summary>查看图表文本</summary><pre><code>flowchart TB
+    MicrovmState[MicrovmState] --&gt; Common[common: vm_info/kvm_state/device_states]
+    MicrovmState --&gt; ArchVmState[vm_state]
+    MicrovmState --&gt; ArchVcpuState[vcpu_states]
+
+    ArchVmState --&gt; AState[aarch64: memory + GIC + resource_allocator]
+    ArchVmState --&gt; XState[x86_64: memory + resource_allocator + PIT + clock + PIC + IOAPIC]
+
+    ArchVcpuState --&gt; AVState[aarch64: mp_state + regs + MPIDR + KVI + pvtime]
+    ArchVcpuState --&gt; XVState[x86_64: CPUID + MSRs + LAPIC + regs/sregs + events + XSAVE + TSC]</code></pre></details></figure>
 <p>恢复时 x86_64 会按 snapshot 中的 TSC 频率判断是否需要 TSC scaling；aarch64 会用 MPIDR 列表恢复 GIC state，并拒绝 <code>clock_realtime</code>：<code class="src-ref">src/vmm/src/builder.rs</code>。</p>
 <p>snapshot 文件本身也有架构 magic：x86_64 和 aarch64 的 magic 常量不同，所以跨架构不是兼容目标。</p>
 <h3 id="148-jailer">14.8 jailer 与运行环境差异</h3>
@@ -2316,23 +2749,37 @@ arch_post_create_vcpus
 <h2 id="15-vsockballoonpmemrngvirtio-mem">15. 设备细节补充：vsock、balloon、pmem、rng、virtio-mem</h2>
 <p>第 11 章已经建立了 Firecracker 设备模型的共性：API 配置生成 <code>VmResources</code>，builder 创建 virtio device，DeviceManager 选择 MMIO 或 PCI transport，event-manager 监听 eventfd，设备解析 virtqueue 并通过 interrupt 通知 guest。</p>
 <p>本章下钻五类容易被一句“virtio 设备”带过的设备：vsock、balloon、pmem、rng 和 virtio-mem。它们共享 virtio transport，但设备语义差别很大：有的是 socket 转发，有的是内存回收，有的是 host 文件映射，有的是随机数供给，有的直接改变 KVM memory slot 可访问性。</p>
-<div class="mermaid">flowchart TB
-    Guest[guest virtio driver] --> Transport[MMIO/PCI transport]
-    Transport --> Queue[virtqueue + queue eventfd]
-    Queue --> Handler[event_manager subscriber]
+<figure class="diagram" aria-label="Mermaid 架构或流程图"><div class="mermaid">flowchart TB
+    Guest[guest virtio driver] --&gt; Transport[MMIO/PCI transport]
+    Transport --&gt; Queue[virtqueue + queue eventfd]
+    Queue --&gt; Handler[event_manager subscriber]
 
-    Handler --> Vsock[vsock: RX/TX/EVQ + Unix backend fd]
-    Handler --> Balloon[balloon: inflate/deflate/stats/hint/report]
-    Handler --> Pmem[pmem: flush queue + mmap host file]
-    Handler --> Rng[rng: entropy queue + rate limiter]
-    Handler --> Vmem[virtio-mem: plug/unplug/state requests]
+    Handler --&gt; Vsock[vsock: RX/TX/EVQ + Unix backend fd]
+    Handler --&gt; Balloon[balloon: inflate/deflate/stats/hint/report]
+    Handler --&gt; Pmem[pmem: flush queue + mmap host file]
+    Handler --&gt; Rng[rng: entropy queue + rate limiter]
+    Handler --&gt; Vmem[virtio-mem: plug/unplug/state requests]
 
-    Vsock --> Snapshot[Persist state]
-    Balloon --> Snapshot
-    Pmem --> Snapshot
-    Rng --> Snapshot
-    Vmem --> Snapshot
-</div>
+    Vsock --&gt; Snapshot[Persist state]
+    Balloon --&gt; Snapshot
+    Pmem --&gt; Snapshot
+    Rng --&gt; Snapshot
+    Vmem --&gt; Snapshot</div><details class="diagram-source"><summary>查看图表文本</summary><pre><code>flowchart TB
+    Guest[guest virtio driver] --&gt; Transport[MMIO/PCI transport]
+    Transport --&gt; Queue[virtqueue + queue eventfd]
+    Queue --&gt; Handler[event_manager subscriber]
+
+    Handler --&gt; Vsock[vsock: RX/TX/EVQ + Unix backend fd]
+    Handler --&gt; Balloon[balloon: inflate/deflate/stats/hint/report]
+    Handler --&gt; Pmem[pmem: flush queue + mmap host file]
+    Handler --&gt; Rng[rng: entropy queue + rate limiter]
+    Handler --&gt; Vmem[virtio-mem: plug/unplug/state requests]
+
+    Vsock --&gt; Snapshot[Persist state]
+    Balloon --&gt; Snapshot
+    Pmem --&gt; Snapshot
+    Rng --&gt; Snapshot
+    Vmem --&gt; Snapshot</code></pre></details></figure>
 <h3 id="151-activate-event-runtime-event">15.1 共同骨架：activate event 到 runtime event</h3>
 <p>这五类设备都实现 <code>VirtioDevice</code> 和 <code>MutEventSubscriber</code>，共同生命周期是：</p>
 <ol>
@@ -2415,60 +2862,95 @@ arch_post_create_vcpus
 </tbody>
 </table>
 <p>事件处理链路如下：</p>
-<div class="mermaid">sequenceDiagram
+<figure class="diagram" aria-label="Mermaid 架构或流程图"><div class="mermaid">sequenceDiagram
     participant G as guest vsock driver
     participant Q as virtqueue eventfd
     participant V as Vsock device
     participant B as Vsock backend
 
-    G->>Q: notify TXQ
-    Q->>V: PROCESS_TXQ
-    V->>V: process_tx parses guest packet
-    V->>B: send_pkt(packet)
-    B-->>V: may queue response
-    V->>V: if pending RX, process_rx
-    V-->>G: signal used TXQ/RXQ
+    G-&gt;&gt;Q: notify TXQ
+    Q-&gt;&gt;V: PROCESS_TXQ
+    V-&gt;&gt;V: process_tx parses guest packet
+    V-&gt;&gt;B: send_pkt(packet)
+    B--&gt;&gt;V: may queue response
+    V-&gt;&gt;V: if pending RX, process_rx
+    V--&gt;&gt;G: signal used TXQ/RXQ
 
-    B->>V: backend fd event
-    V->>B: notify(evset)
-    V->>V: retry TX + drain pending RX
-    V-->>G: signal used queues
-</div>
+    B-&gt;&gt;V: backend fd event
+    V-&gt;&gt;B: notify(evset)
+    V-&gt;&gt;V: retry TX + drain pending RX
+    V--&gt;&gt;G: signal used queues</div><details class="diagram-source"><summary>查看图表文本</summary><pre><code>sequenceDiagram
+    participant G as guest vsock driver
+    participant Q as virtqueue eventfd
+    participant V as Vsock device
+    participant B as Vsock backend
+
+    G-&gt;&gt;Q: notify TXQ
+    Q-&gt;&gt;V: PROCESS_TXQ
+    V-&gt;&gt;V: process_tx parses guest packet
+    V-&gt;&gt;B: send_pkt(packet)
+    B--&gt;&gt;V: may queue response
+    V-&gt;&gt;V: if pending RX, process_rx
+    V--&gt;&gt;G: signal used TXQ/RXQ
+
+    B-&gt;&gt;V: backend fd event
+    V-&gt;&gt;B: notify(evset)
+    V-&gt;&gt;V: retry TX + drain pending RX
+    V--&gt;&gt;G: signal used queues</code></pre></details></figure>
 <p><code>process_tx()</code> 从 TXQ pop descriptor，解析 guest packet；如果 backend 暂时不能接收，就 <code>undo_pop()</code> 并停止处理，等待 backend fd 再通知：<code class="src-ref">src/vmm/src/devices/virtio/vsock/device.rs</code>。event handler 在 TXQ 事件后还会检查 backend 是否产生了响应，如果有就继续 <code>process_rx()</code>：<code class="src-ref">src/vmm/src/devices/virtio/vsock/event_handler.rs</code>。</p>
 <p>snapshot 边界很重要：vsock 保存 frontend 的 CID/virtio state 和 backend 的 UDS path/local port counter，但不保存连接内的 in-flight packet 或活跃连接。<code>kick()</code> 里的注释明确说 vsock 不支持通过 snapshot 保持连接，恢复后是“empty”，只是让 guest 处理 snapshot 前注入的 <code>TRANSPORT_RESET_EVENT</code>：<code class="src-ref">src/vmm/src/devices/virtio/vsock/device.rs</code>。持久化结构也能看到只保存 <code>cid</code>、<code>virtio_state</code>、<code>uds_path</code>、<code>local_port_last</code>：<code class="src-ref">src/vmm/src/devices/virtio/vsock/persist.rs</code>。</p>
 <h3 id="153-balloon">15.3 balloon：内存压力的协商设备，不是强制回收器</h3>
 <p>balloon 设备的本质是 VMM 与 guest 协商内存占用。Firecracker 不能在 guest 不配合的情况下可靠地“拿回任意 guest page”；它通过 virtio-balloon 请求 guest inflate/deflate，并可选收集 stats、free-page-hinting、free-page-reporting。</p>
 <p><code>Balloon::new()</code> 会根据配置动态决定队列数量：最少 inflate/deflate 两条队列；开启 stats polling 后增加 stats queue；开启 free-page-hinting 或 reporting 后继续增加对应队列：<code class="src-ref">src/vmm/src/devices/virtio/balloon/device.rs</code>。event handler 对应注册 inflate、deflate、stats、stats timer、free-page-hinting、free-page-reporting 事件：<code class="src-ref">src/vmm/src/devices/virtio/balloon/event_handler.rs</code>。</p>
-<div class="mermaid">flowchart LR
-    API[PATCH balloon amount/stats] --> Config[Balloon config_space]
-    Config --> IRQ[config interrupt]
-    Guest[guest balloon driver] --> Inflate[inflate queue]
-    Guest --> Deflate[deflate queue]
-    Guest --> Stats[stats queue]
-    Guest --> Hint[free-page hint/report queues]
-    Inflate --> VMM[Balloon handler]
-    Deflate --> VMM
-    Stats --> VMM
-    Hint --> VMM
-    VMM --> Memory[guest memory pages / stats / discard hints]
-</div>
+<figure class="diagram" aria-label="Mermaid 架构或流程图"><div class="mermaid">flowchart LR
+    API[PATCH balloon amount/stats] --&gt; Config[Balloon config_space]
+    Config --&gt; IRQ[config interrupt]
+    Guest[guest balloon driver] --&gt; Inflate[inflate queue]
+    Guest --&gt; Deflate[deflate queue]
+    Guest --&gt; Stats[stats queue]
+    Guest --&gt; Hint[free-page hint/report queues]
+    Inflate --&gt; VMM[Balloon handler]
+    Deflate --&gt; VMM
+    Stats --&gt; VMM
+    Hint --&gt; VMM
+    VMM --&gt; Memory[guest memory pages / stats / discard hints]</div><details class="diagram-source"><summary>查看图表文本</summary><pre><code>flowchart LR
+    API[PATCH balloon amount/stats] --&gt; Config[Balloon config_space]
+    Config --&gt; IRQ[config interrupt]
+    Guest[guest balloon driver] --&gt; Inflate[inflate queue]
+    Guest --&gt; Deflate[deflate queue]
+    Guest --&gt; Stats[stats queue]
+    Guest --&gt; Hint[free-page hint/report queues]
+    Inflate --&gt; VMM[Balloon handler]
+    Deflate --&gt; VMM
+    Stats --&gt; VMM
+    Hint --&gt; VMM
+    VMM --&gt; Memory[guest memory pages / stats / discard hints]</code></pre></details></figure>
 <p>snapshot 保存 balloon 的 <code>stats_polling_interval_s</code>、<code>stats_desc_index</code>、<code>latest_stats</code>、<code>hinting_state</code>、<code>config_space.num_pages</code>、<code>config_space.actual_pages</code> 和 virtio state：<code class="src-ref">src/vmm/src/devices/virtio/balloon/persist.rs</code>。恢复时会从 feature bits 反推出是否启用了 free-page-hinting/reporting，再根据 stats/hint/reporting 重建 queue 数量：<code class="src-ref">src/vmm/src/devices/virtio/balloon/persist.rs</code>。如果设备已激活并启用 stats，恢复还会恢复 stats descriptor 并重新 arm timer：<code class="src-ref">src/vmm/src/devices/virtio/balloon/persist.rs</code>。</p>
 <p>因此 balloon 的能力边界是：Firecracker 保存的是设备协商状态，不是“每个 guest page 的所有权历史”。真正哪些 page 可回收，仍取决于 guest balloon driver 的响应和 guest kernel 内存管理。</p>
 <h3 id="154-pmemhost-mmap-guest-persistent-memory">15.4 pmem：host 文件 mmap 成 guest persistent memory</h3>
 <p>pmem 的实现很直接：配置指定 host 文件，Firecracker 将其 <code>mmap</code> 后作为 guest 可见的 persistent memory 区域，并暴露 virtio-pmem 的 config space：起始地址和大小。设备对象保存 config space、host file、file length、mmap pointer、rate limiter 和原始 <code>PmemConfig</code>：<code class="src-ref">src/vmm/src/devices/virtio/pmem/device.rs</code>。</p>
 <p>pmem 队列只有一种请求：flush。<code>process_chain()</code> 读取 guest 提供的 4-byte request，要求请求类型为 <code>VIRTIO_PMEM_REQ_TYPE_FLUSH</code>，然后对 mmap 区域调用 <code>msync(..., MS_SYNC)</code>，再把成功/失败 status 写回 response descriptor：<code class="src-ref">src/vmm/src/devices/virtio/pmem/device.rs</code>。</p>
-<div class="mermaid">sequenceDiagram
+<figure class="diagram" aria-label="Mermaid 架构或流程图"><div class="mermaid">sequenceDiagram
     participant G as guest pmem driver
     participant Q as pmem queue
     participant P as Pmem device
     participant F as host backing file mmap
 
-    G->>Q: FLUSH request
-    Q->>P: queue eventfd
-    P->>P: validate request + status descriptor
-    P->>F: msync(mmap_ptr, file_len, MS_SYNC)
-    P->>G: write status + queue interrupt
-</div>
+    G-&gt;&gt;Q: FLUSH request
+    Q-&gt;&gt;P: queue eventfd
+    P-&gt;&gt;P: validate request + status descriptor
+    P-&gt;&gt;F: msync(mmap_ptr, file_len, MS_SYNC)
+    P-&gt;&gt;G: write status + queue interrupt</div><details class="diagram-source"><summary>查看图表文本</summary><pre><code>sequenceDiagram
+    participant G as guest pmem driver
+    participant Q as pmem queue
+    participant P as Pmem device
+    participant F as host backing file mmap
+
+    G-&gt;&gt;Q: FLUSH request
+    Q-&gt;&gt;P: queue eventfd
+    P-&gt;&gt;P: validate request + status descriptor
+    P-&gt;&gt;F: msync(mmap_ptr, file_len, MS_SYNC)
+    P-&gt;&gt;G: write status + queue interrupt</code></pre></details></figure>
 <p>pmem 的 rate limiter 只约束 queue 处理节奏；如果 queue event 到来时 limiter blocked，设备不处理队列，等 limiter event 后再 <code>handle_queue()</code>：<code class="src-ref">src/vmm/src/devices/virtio/pmem/device.rs</code>。event handler 只注册 queue event 和 rate-limiter event：<code class="src-ref">src/vmm/src/devices/virtio/pmem/event_handler.rs</code>。</p>
 <p>snapshot 保存 <code>virtio_state</code>、<code>config_space</code>、<code>PmemConfig</code> 和 <code>rate_limiter_state</code>：<code class="src-ref">src/vmm/src/devices/virtio/pmem/persist.rs</code>。恢复时用同一个配置重新打开/映射 host 文件，并调用 <code>set_mem_region(vm)</code> 把 pmem 区域重新注册到 VM：<code class="src-ref">src/vmm/src/devices/virtio/pmem/persist.rs</code>。这说明 pmem snapshot 并不把 backing file 内容写进 snapshot state；host 文件路径和内容必须在恢复环境中仍然可用且语义一致。</p>
 <h3 id="155-rng">15.5 rng：单队列随机数填充器</h3>
@@ -2478,15 +2960,21 @@ arch_post_create_vcpus
 <li>单次生成长度被 <code>MAX_ENTROPY_BYTES</code> 限制，避免 guest 构造异常 descriptor 触发 host 侧巨大分配。</li>
 <li>每次处理前检查 rate limiter；预算不足时 <code>undo_pop()</code>，保留 descriptor 等待 limiter event：<code class="src-ref">src/vmm/src/devices/virtio/rng/device.rs</code>。</li>
 </ol>
-<div class="mermaid">flowchart LR
-    Guest[guest rng driver] --> Queue[entropy queue]
-    Queue --> Parse[load writable descriptor chain]
-    Parse --> Limit{rate limiter budget?}
-    Limit -- no --> Undo[undo_pop and wait]
-    Limit -- yes --> Fill[rand::fill bytes]
-    Fill --> Used[add_used + interrupt]
-    Limiter[rate limiter event] --> Queue
-</div>
+<figure class="diagram" aria-label="Mermaid 架构或流程图"><div class="mermaid">flowchart LR
+    Guest[guest rng driver] --&gt; Queue[entropy queue]
+    Queue --&gt; Parse[load writable descriptor chain]
+    Parse --&gt; Limit{rate limiter budget?}
+    Limit -- no --&gt; Undo[undo_pop and wait]
+    Limit -- yes --&gt; Fill[rand::fill bytes]
+    Fill --&gt; Used[add_used + interrupt]
+    Limiter[rate limiter event] --&gt; Queue</div><details class="diagram-source"><summary>查看图表文本</summary><pre><code>flowchart LR
+    Guest[guest rng driver] --&gt; Queue[entropy queue]
+    Queue --&gt; Parse[load writable descriptor chain]
+    Parse --&gt; Limit{rate limiter budget?}
+    Limit -- no --&gt; Undo[undo_pop and wait]
+    Limit -- yes --&gt; Fill[rand::fill bytes]
+    Fill --&gt; Used[add_used + interrupt]
+    Limiter[rate limiter event] --&gt; Queue</code></pre></details></figure>
 <p>RNG 没有配置空间读写逻辑，<code>read_config</code> 和 <code>write_config</code> 都是空实现：<code class="src-ref">src/vmm/src/devices/virtio/rng/device.rs</code>。snapshot 只保存 virtio state 和 rate limiter state：<code class="src-ref">src/vmm/src/devices/virtio/rng/persist.rs</code>。这符合它的设备语义：随机数输出本身不是可恢复状态，恢复后继续从 host RNG 取新随机数即可。</p>
 <h3 id="156-virtio-mem-kvm-memory-slot">15.6 virtio-mem：会改变 KVM memory slot 的设备</h3>
 <p>virtio-mem 与前几个设备不同，它不是单纯的 I/O 转发，而是 guest memory hotplug 的控制面。设备保存 virtio config、slot size、plugged block bitmap 和 VM 引用：<code class="src-ref">src/vmm/src/devices/virtio/mem/device.rs</code>。</p>
@@ -2518,20 +3006,31 @@ arch_post_create_vcpus
 </tbody>
 </table>
 <p><code>process_mem_queue()</code> 从 queue pop descriptor，解析请求和 response descriptor，然后按请求类型调用 state/plug/unplug/unplug-all handler：<code class="src-ref">src/vmm/src/devices/virtio/mem/device.rs</code>。真正改变内存可访问性的逻辑在 <code>update_range()</code>：它更新 <code>plugged_blocks</code> bitmap 和 <code>config.plugged_size</code>，unplug 时调用 <code>guest_memory().discard_range()</code>，最后调用 <code>update_kvm_slots()</code> 按 block 状态启用或禁用相交的 hotpluggable KVM slot：<code class="src-ref">src/vmm/src/devices/virtio/mem/device.rs</code>。</p>
-<div class="mermaid">sequenceDiagram
+<figure class="diagram" aria-label="Mermaid 架构或流程图"><div class="mermaid">sequenceDiagram
     participant API as API update requested_size
     participant D as VirtioMem device
     participant G as guest virtio-mem driver
     participant K as KVM memory slots
 
-    API->>D: update_requested_size(MiB)
-    D->>D: validate block alignment and region size
-    D->>G: config interrupt
-    G->>D: Plug/Unplug/State request on MEM_QUEUE
-    D->>D: update plugged_blocks bitmap
-    D->>K: enable/disable intersecting hotplug slots
-    D->>G: response + queue interrupt
-</div>
+    API-&gt;&gt;D: update_requested_size(MiB)
+    D-&gt;&gt;D: validate block alignment and region size
+    D-&gt;&gt;G: config interrupt
+    G-&gt;&gt;D: Plug/Unplug/State request on MEM_QUEUE
+    D-&gt;&gt;D: update plugged_blocks bitmap
+    D-&gt;&gt;K: enable/disable intersecting hotplug slots
+    D-&gt;&gt;G: response + queue interrupt</div><details class="diagram-source"><summary>查看图表文本</summary><pre><code>sequenceDiagram
+    participant API as API update requested_size
+    participant D as VirtioMem device
+    participant G as guest virtio-mem driver
+    participant K as KVM memory slots
+
+    API-&gt;&gt;D: update_requested_size(MiB)
+    D-&gt;&gt;D: validate block alignment and region size
+    D-&gt;&gt;G: config interrupt
+    G-&gt;&gt;D: Plug/Unplug/State request on MEM_QUEUE
+    D-&gt;&gt;D: update plugged_blocks bitmap
+    D-&gt;&gt;K: enable/disable intersecting hotplug slots
+    D-&gt;&gt;G: response + queue interrupt</code></pre></details></figure>
 <p><code>update_requested_size()</code> 只能在设备 active 后调用，并要求 size 按 block size 对齐且不超过 region size；增加 requested size 时，它可能扩大 <code>usable_region_size</code>，然后触发 config interrupt 让 guest driver 继续 plug block：<code class="src-ref">src/vmm/src/devices/virtio/mem/device.rs</code>。</p>
 <p>激活也有一个硬边界：guest 必须 ack <code>VIRTIO_MEM_F_UNPLUGGED_INACCESSIBLE</code>，否则 activate 失败：<code class="src-ref">src/vmm/src/devices/virtio/mem/device.rs</code>。这意味着 Firecracker 的 virtio-mem 语义依赖 guest 支持“未插入内存不可访问”的模型。</p>
 <p>snapshot 保存 <code>addr</code>、<code>region_size</code>、<code>block_size</code>、<code>usable_region_size</code>、<code>requested_size</code>、<code>slot_size</code> 和完整 <code>plugged_blocks</code> bitmap：<code class="src-ref">src/vmm/src/devices/virtio/mem/persist.rs</code>。恢复时根据 bitmap 重算 <code>plugged_size</code>，再用 <code>VirtioMem::from_state()</code> 重建设备：<code class="src-ref">src/vmm/src/devices/virtio/mem/persist.rs</code>。</p>
@@ -2583,7 +3082,7 @@ arch_post_create_vcpus
 <p>block 设备是 Firecracker 最能体现“少设备、深路径”的地方。guest 看到的是一个 virtio-blk 设备；VMM 内部真正要解决的是：如何把 virtqueue descriptor 变成 host backing file 的 read/write/flush，并在同步、异步、限速、snapshot 之间保持一致语义。</p>
 <h3 id="161-virtqueue-block-request">16.1 从 virtqueue 到 block request</h3>
 <p>block 设备只有一条 virtqueue。guest driver 把 request header、可选 data descriptor、status descriptor 串成 descriptor chain；Firecracker 在 <code>process_queue()</code> 中循环 <code>pop_or_enable_notification()</code>，解析请求并执行：<code class="src-ref">src/vmm/src/devices/virtio/block/virtio/device.rs</code>。</p>
-<div class="mermaid">sequenceDiagram
+<figure class="diagram" aria-label="Mermaid 架构或流程图"><div class="mermaid">sequenceDiagram
     participant G as guest virtio-blk driver
     participant Q as block virtqueue
     participant B as VirtioBlock
@@ -2591,34 +3090,60 @@ arch_post_create_vcpus
     participant E as FileEngine
     participant F as backing file
 
-    G->>Q: header + data + status descriptors
-    Q->>B: queue eventfd
-    B->>Q: pop_or_enable_notification
-    B->>R: parse descriptor chain
-    R->>E: read/write/flush/get_id
-    E->>F: host file operation or io_uring submit
-    E-->>R: executed or submitted
-    R-->>Q: write status + add_used
-    B-->>G: queue interrupt
-</div>
+    G-&gt;&gt;Q: header + data + status descriptors
+    Q-&gt;&gt;B: queue eventfd
+    B-&gt;&gt;Q: pop_or_enable_notification
+    B-&gt;&gt;R: parse descriptor chain
+    R-&gt;&gt;E: read/write/flush/get_id
+    E-&gt;&gt;F: host file operation or io_uring submit
+    E--&gt;&gt;R: executed or submitted
+    R--&gt;&gt;Q: write status + add_used
+    B--&gt;&gt;G: queue interrupt</div><details class="diagram-source"><summary>查看图表文本</summary><pre><code>sequenceDiagram
+    participant G as guest virtio-blk driver
+    participant Q as block virtqueue
+    participant B as VirtioBlock
+    participant R as Request
+    participant E as FileEngine
+    participant F as backing file
+
+    G-&gt;&gt;Q: header + data + status descriptors
+    Q-&gt;&gt;B: queue eventfd
+    B-&gt;&gt;Q: pop_or_enable_notification
+    B-&gt;&gt;R: parse descriptor chain
+    R-&gt;&gt;E: read/write/flush/get_id
+    E-&gt;&gt;F: host file operation or io_uring submit
+    E--&gt;&gt;R: executed or submitted
+    R--&gt;&gt;Q: write status + add_used
+    B--&gt;&gt;G: queue interrupt</code></pre></details></figure>
 <p><code>Request::parse()</code> 做三类校验：descriptor 方向必须符合 request type；read/write 数据长度必须是 512 字节扇区大小的倍数；sector + length 不能越过 backing file 暴露的 <code>nsectors</code>：<code class="src-ref">src/vmm/src/devices/virtio/block/virtio/request.rs</code>。</p>
 <p>请求类型只有四类被支持：<code>IN</code>、<code>OUT</code>、<code>FLUSH</code>、<code>GET_ID</code>。<code>GET_ID</code> 不进入 file engine，而是直接把 <code>disk.image_id</code> 写到 guest data buffer；unsupported request 会以 <code>VIRTIO_BLK_S_UNSUPP</code> 结束：<code class="src-ref">src/vmm/src/devices/virtio/block/virtio/request.rs</code>。</p>
 <h3 id="162-fileengine">16.2 FileEngine 是同步/异步的分界线</h3>
 <p><code>DiskProperties</code> 保存 backing file 路径、<code>FileEngine</code>、扇区数和 image id：<code class="src-ref">src/vmm/src/devices/virtio/block/virtio/device.rs</code>。<code>FileEngineType</code> 只有两种：<code>Async</code> 使用 io_uring，<code>Sync</code> 使用 blocking system calls，且默认是 <code>Sync</code>：<code class="src-ref">src/vmm/src/devices/virtio/block/virtio/device.rs</code>。</p>
-<div class="mermaid">flowchart TB
-    Request[Request::process] --> Engine[FileEngine]
-    Engine --> Sync[SyncFileEngine]
-    Engine --> Async[AsyncFileEngine]
+<figure class="diagram" aria-label="Mermaid 架构或流程图"><div class="mermaid">flowchart TB
+    Request[Request::process] --&gt; Engine[FileEngine]
+    Engine --&gt; Sync[SyncFileEngine]
+    Engine --&gt; Async[AsyncFileEngine]
 
-    Sync --> SRead[seek + read_exact_volatile]
-    Sync --> SWrite[seek + write_all_volatile]
-    Sync --> SFlush[file.flush + sync_all]
+    Sync --&gt; SRead[seek + read_exact_volatile]
+    Sync --&gt; SWrite[seek + write_all_volatile]
+    Sync --&gt; SFlush[file.flush + sync_all]
 
-    Async --> ARead[io_uring read]
-    Async --> AWrite[io_uring write]
-    Async --> AFlush[io_uring fsync]
-    Async --> CQ[completion eventfd + CQE]
-</div>
+    Async --&gt; ARead[io_uring read]
+    Async --&gt; AWrite[io_uring write]
+    Async --&gt; AFlush[io_uring fsync]
+    Async --&gt; CQ[completion eventfd + CQE]</div><details class="diagram-source"><summary>查看图表文本</summary><pre><code>flowchart TB
+    Request[Request::process] --&gt; Engine[FileEngine]
+    Engine --&gt; Sync[SyncFileEngine]
+    Engine --&gt; Async[AsyncFileEngine]
+
+    Sync --&gt; SRead[seek + read_exact_volatile]
+    Sync --&gt; SWrite[seek + write_all_volatile]
+    Sync --&gt; SFlush[file.flush + sync_all]
+
+    Async --&gt; ARead[io_uring read]
+    Async --&gt; AWrite[io_uring write]
+    Async --&gt; AFlush[io_uring fsync]
+    Async --&gt; CQ[completion eventfd + CQE]</code></pre></details></figure>
 <p>同步路径非常直观：read/write 先 <code>seek()</code> 到 sector 对应 offset，再通过 guest memory slice 做 volatile transfer；flush 先 <code>file.flush()</code>，再 <code>file.sync_all()</code>：<code class="src-ref">src/vmm/src/devices/virtio/block/virtio/io/sync_io.rs</code>。这条路径简单、默认、可预期，但会在 VMM 设备处理线程里执行阻塞 I/O。</p>
 <p>异步路径把 read/write/fsync 推入 io_uring。<code>AsyncFileEngine::new_ring()</code> 创建 128 entries 的 ring，限制只能使用预注册 fd，并只 allowlist <code>Read</code>、<code>Write</code>、<code>Fsync</code> 三类 opcode：<code class="src-ref">src/vmm/src/devices/virtio/block/virtio/io/async_io.rs</code>。</p>
 <p>异步 read 会把 guest memory slice 的 host pointer 作为 io_uring buffer，并在 user data 中携带 <code>PendingRequest</code> 和需要 dirty tracking 的 guest address；completion pop 时会对 read 写入的 guest memory 调 <code>mark_dirty()</code>：<code class="src-ref">src/vmm/src/devices/virtio/block/virtio/io/async_io.rs</code>。write/flush 不需要标记 guest memory dirty，只携带 pending request：<code class="src-ref">src/vmm/src/devices/virtio/block/virtio/io/async_io.rs</code>。</p>
@@ -2655,19 +3180,29 @@ arch_post_create_vcpus
 <li>io_uring submission/completion 队列暂时满了。</li>
 </ol>
 <p>request-level rate limiter 在真正执行 file engine 前发生。每个 request 先消费 1 个 <code>Ops</code> token；如果是 read/write，再消费 <code>data_len</code> 个 <code>Bytes</code> token。Bytes 不足时会手动补回刚消费的 Ops token：<code class="src-ref">src/vmm/src/devices/virtio/block/virtio/request.rs</code>。</p>
-<div class="mermaid">flowchart TD
-    Pop[pop descriptor] --> Parse[parse Request]
-    Parse --> RL{rate_limit?}
-    RL -- yes --> Undo1[undo_pop, wait rate limiter event]
-    RL -- no --> Engine[FileEngine read/write/flush]
-    Engine --> SyncDone[Executed]
-    Engine --> AsyncSubmitted[Submitted]
-    Engine --> AsyncFull{io_uring throttling error?}
-    AsyncFull -- yes --> Undo2[undo_pop, set is_io_engine_throttled]
-    AsyncSubmitted --> Submit[kick_submission_queue]
-    Submit --> CQ[completion event]
-    CQ --> Resume[clear engine throttle and process queue]
-</div>
+<figure class="diagram" aria-label="Mermaid 架构或流程图"><div class="mermaid">flowchart TD
+    Pop[pop descriptor] --&gt; Parse[parse Request]
+    Parse --&gt; RL{rate_limit?}
+    RL -- yes --&gt; Undo1[undo_pop, wait rate limiter event]
+    RL -- no --&gt; Engine[FileEngine read/write/flush]
+    Engine --&gt; SyncDone[Executed]
+    Engine --&gt; AsyncSubmitted[Submitted]
+    Engine --&gt; AsyncFull{io_uring throttling error?}
+    AsyncFull -- yes --&gt; Undo2[undo_pop, set is_io_engine_throttled]
+    AsyncSubmitted --&gt; Submit[kick_submission_queue]
+    Submit --&gt; CQ[completion event]
+    CQ --&gt; Resume[clear engine throttle and process queue]</div><details class="diagram-source"><summary>查看图表文本</summary><pre><code>flowchart TD
+    Pop[pop descriptor] --&gt; Parse[parse Request]
+    Parse --&gt; RL{rate_limit?}
+    RL -- yes --&gt; Undo1[undo_pop, wait rate limiter event]
+    RL -- no --&gt; Engine[FileEngine read/write/flush]
+    Engine --&gt; SyncDone[Executed]
+    Engine --&gt; AsyncSubmitted[Submitted]
+    Engine --&gt; AsyncFull{io_uring throttling error?}
+    AsyncFull -- yes --&gt; Undo2[undo_pop, set is_io_engine_throttled]
+    AsyncSubmitted --&gt; Submit[kick_submission_queue]
+    Submit --&gt; CQ[completion event]
+    CQ --&gt; Resume[clear engine throttle and process queue]</code></pre></details></figure>
 <p>如果 queue event 到来时 rate limiter 已经 blocked，Firecracker 只计数并不处理队列：<code class="src-ref">src/vmm/src/devices/virtio/block/virtio/device.rs</code>。rate limiter event 到来后，先调用 <code>rate_limiter.event_handler()</code>，再重新 <code>process_queue(0)</code>：<code class="src-ref">src/vmm/src/devices/virtio/block/virtio/device.rs</code>。</p>
 <p>io_uring backpressure 是另一套状态。<code>BlockIoError::is_throttling_err()</code> 只把 async io_uring 的 throttling error 视为 engine throttling：<code class="src-ref">src/vmm/src/devices/virtio/block/virtio/io/mod.rs</code>。遇到它时，<code>process_queue()</code> 会 <code>undo_pop()</code>，设置 <code>is_io_engine_throttled = true</code>，停止继续取 descriptor：<code class="src-ref">src/vmm/src/devices/virtio/block/virtio/device.rs</code>。</p>
 <p>completion event 到来后，Firecracker 先处理完成队列；如果此前处于 <code>is_io_engine_throttled</code>，就清掉该标志并再次 <code>process_queue(0)</code>，继续处理之前 <code>undo_pop()</code> 留在 avail ring 里的请求：<code class="src-ref">src/vmm/src/devices/virtio/block/virtio/device.rs</code>。</p>
@@ -2730,16 +3265,23 @@ arch_post_create_vcpus
 <p>API parser 会拒绝同时传 <code>mem_backend</code> 和 <code>mem_file_path</code>，也会拒绝两者都不传；如果使用旧 <code>mem_file_path</code>，它会被转换成 <code>MemBackendType::File</code>：<code class="src-ref">src/firecracker/src/api_server/request/snapshot.rs</code>。测试用例也覆盖了 <code>backend_type: Uffd</code> 会生成 <code>LoadSnapshotParams</code>：<code class="src-ref">src/firecracker/src/api_server/request/snapshot.rs</code>。</p>
 <h3 id="172-restore">17.2 restore 主路径：先恢复结构，内存按需填充</h3>
 <p><code>restore_from_snapshot()</code> 先从 state file 读出 <code>MicrovmState</code>，处理 network/vsock override，更新 machine config，再根据 <code>params.mem_backend.backend_type</code> 选择 guest memory 创建方式：<code class="src-ref">src/vmm/src/persist.rs</code>。</p>
-<div class="mermaid">flowchart TB
-    API[PUT /snapshot/load] --> Params[LoadSnapshotParams]
-    Params --> State[snapshot_state_from_file]
-    State --> MemBackend{mem_backend type}
-    MemBackend -- File --> FileMem[guest_memory_from_file]
-    MemBackend -- Uffd --> UffdMem[guest_memory_from_uffd]
-    FileMem --> Build[build_microvm_from_snapshot]
-    UffdMem --> Build
-    Build --> VMM[VMM holds guest memory and optional UFFD fd]
-</div>
+<figure class="diagram" aria-label="Mermaid 架构或流程图"><div class="mermaid">flowchart TB
+    API[PUT /snapshot/load] --&gt; Params[LoadSnapshotParams]
+    Params --&gt; State[snapshot_state_from_file]
+    State --&gt; MemBackend{mem_backend type}
+    MemBackend -- File --&gt; FileMem[guest_memory_from_file]
+    MemBackend -- Uffd --&gt; UffdMem[guest_memory_from_uffd]
+    FileMem --&gt; Build[build_microvm_from_snapshot]
+    UffdMem --&gt; Build
+    Build --&gt; VMM[VMM holds guest memory and optional UFFD fd]</div><details class="diagram-source"><summary>查看图表文本</summary><pre><code>flowchart TB
+    API[PUT /snapshot/load] --&gt; Params[LoadSnapshotParams]
+    Params --&gt; State[snapshot_state_from_file]
+    State --&gt; MemBackend{mem_backend type}
+    MemBackend -- File --&gt; FileMem[guest_memory_from_file]
+    MemBackend -- Uffd --&gt; UffdMem[guest_memory_from_uffd]
+    FileMem --&gt; Build[build_microvm_from_snapshot]
+    UffdMem --&gt; Build
+    Build --&gt; VMM[VMM holds guest memory and optional UFFD fd]</code></pre></details></figure>
 <p><code>File</code> 分支有一个硬限制：hugetlbfs guest memory snapshot 不能通过 file backend 恢复；如果 snapshot 来自 huge page guest memory，就必须使用 UFFD：<code class="src-ref">src/vmm/src/persist.rs</code>。官方 hugepages 文档也明确说 huge pages microVM snapshot 只能通过 UFFD 恢复：<code class="src-ref">docs/hugepages.md</code>。</p>
 <p><code>Uffd</code> 分支调用 <code>guest_memory_from_uffd(mem_backend_path, mem_state, track_dirty_pages, huge_pages)</code>，返回 <code>(guest_memory, Some(uffd))</code>，再传给 <code>build_microvm_from_snapshot()</code>：<code class="src-ref">src/vmm/src/persist.rs</code>。builder 在 <code>Vmm</code> 结构里保存这个 <code>uffd</code>，注释说明目的只是保持它在 Firecracker 进程中 open：<code class="src-ref">src/vmm/src/lib.rs</code>。</p>
 <h3 id="173-firecracker-uffd">17.3 Firecracker 做了什么：匿名内存、注册 UFFD、发送握手</h3>
@@ -2750,22 +3292,35 @@ arch_post_create_vcpus
 <li>把每个 guest memory region 的 host virtual address range 注册到 UFFD。</li>
 <li>连接 handler 的 UDS，把 mapping JSON 和 UFFD fd 发送过去。</li>
 </ol>
-<div class="mermaid">sequenceDiagram
+<figure class="diagram" aria-label="Mermaid 架构或流程图"><div class="mermaid">sequenceDiagram
     participant H as page fault handler
     participant FC as Firecracker restore
     participant U as UFFD object
     participant M as anonymous guest memory
     participant S as UDS socket
 
-    H->>S: bind/listen backend_path
-    FC->>M: create anonymous guest memory regions
-    FC->>U: create UFFD with EVENT_REMOVE
-    FC->>U: register each guest memory region
-    FC->>S: connect backend_path
-    FC->>H: send mapping JSON + UFFD fd
-    FC->>FC: continue build_microvm_from_snapshot
-    H->>U: poll pagefault/remove events
-</div>
+    H-&gt;&gt;S: bind/listen backend_path
+    FC-&gt;&gt;M: create anonymous guest memory regions
+    FC-&gt;&gt;U: create UFFD with EVENT_REMOVE
+    FC-&gt;&gt;U: register each guest memory region
+    FC-&gt;&gt;S: connect backend_path
+    FC-&gt;&gt;H: send mapping JSON + UFFD fd
+    FC-&gt;&gt;FC: continue build_microvm_from_snapshot
+    H-&gt;&gt;U: poll pagefault/remove events</div><details class="diagram-source"><summary>查看图表文本</summary><pre><code>sequenceDiagram
+    participant H as page fault handler
+    participant FC as Firecracker restore
+    participant U as UFFD object
+    participant M as anonymous guest memory
+    participant S as UDS socket
+
+    H-&gt;&gt;S: bind/listen backend_path
+    FC-&gt;&gt;M: create anonymous guest memory regions
+    FC-&gt;&gt;U: create UFFD with EVENT_REMOVE
+    FC-&gt;&gt;U: register each guest memory region
+    FC-&gt;&gt;S: connect backend_path
+    FC-&gt;&gt;H: send mapping JSON + UFFD fd
+    FC-&gt;&gt;FC: continue build_microvm_from_snapshot
+    H-&gt;&gt;U: poll pagefault/remove events</code></pre></details></figure>
 <p>mapping 的结构叫 <code>GuestRegionUffdMapping</code>，字段包括 Firecracker 进程内 guest memory 的 <code>base_host_virt_addr</code>、region <code>size</code>、memfile 中的 <code>offset</code>、region page size，以及兼容字段 <code>page_size_kib</code>：<code class="src-ref">src/vmm/src/persist.rs</code>。<code>create_guest_memory()</code> 会按 guest memory region 顺序累计 offset，并把这些 mapping 发给 handler：<code class="src-ref">src/vmm/src/persist.rs</code>。</p>
 <p>Firecracker 通过 <code>UnixStream::connect(mem_uds_path)</code> 连接 handler，再用 <code>send_with_fd()</code> 发送 mapping JSON 和 UFFD fd：<code class="src-ref">src/vmm/src/persist.rs</code>。注释里特别说明：如果 handler 崩溃而 Firecracker 关闭了自己的 fd，guest memory 可能退回 anon-mem 行为导致静默错误；所以 Firecracker 也持有 fd，handler 应该用 <code>SO_PEERCRED</code> 获得 Firecracker PID，并在异常时通知或杀掉 Firecracker：<code class="src-ref">src/vmm/src/persist.rs</code>。</p>
 <h3 id="174-handler-mmap-memfilepoll-uffduffdio_copy">17.4 handler 做了什么：mmap memfile、poll UFFD、UFFDIO_COPY</h3>
@@ -2775,12 +3330,15 @@ arch_post_create_vcpus
 dst = fault_page_addr
 </code></pre>
 <p>然后调用 <code>uffd.copy(src, dst, len, true)</code>，也就是 <code>UFFDIO_COPY</code>，把 memfile 中对应页复制进 Firecracker 的 guest memory：<code class="src-ref">src/firecracker/examples/uffd/uffd_utils.rs</code>。</p>
-<div class="mermaid">flowchart LR
-    PF[UFFD Pagefault addr] --> Find[find GuestRegionUffdMapping]
-    Find --> Calc[compute memfile offset]
-    Calc --> Copy[UFFDIO_COPY src->dst]
-    Copy --> Resume[blocked faulting thread resumes]
-</div>
+<figure class="diagram" aria-label="Mermaid 架构或流程图"><div class="mermaid">flowchart LR
+    PF[UFFD Pagefault addr] --&gt; Find[find GuestRegionUffdMapping]
+    Find --&gt; Calc[compute memfile offset]
+    Calc --&gt; Copy[UFFDIO_COPY src-&gt;dst]
+    Copy --&gt; Resume[blocked faulting thread resumes]</div><details class="diagram-source"><summary>查看图表文本</summary><pre><code>flowchart LR
+    PF[UFFD Pagefault addr] --&gt; Find[find GuestRegionUffdMapping]
+    Find --&gt; Calc[compute memfile offset]
+    Calc --&gt; Copy[UFFDIO_COPY src-&gt;dst]
+    Copy --&gt; Resume[blocked faulting thread resumes]</code></pre></details></figure>
 <p><code>Runtime::run()</code> 同时 poll UDS 和所有 UFFD fd。UDS 可接收新的 UFFD 握手；UFFD fd 有事件时调用 handler 逻辑处理 page fault：<code class="src-ref">src/firecracker/examples/uffd/uffd_utils.rs</code>。这解释了为什么一个 handler 进程可以服务多个恢复中的 Firecracker 连接。</p>
 <h3 id="175-balloon-event_removeuffd-page-fault">17.5 balloon 与 <code>EVENT_REMOVE</code>：UFFD 不只是 page fault</h3>
 <p>Firecracker 创建 UFFD 时无条件要求 <code>FeatureFlags::EVENT_REMOVE</code>。源码注释解释：只有存在 balloon 设备时才真正需要它，但提前启用不会改变普通 UFFD 行为；kernel 只在类似 <code>madvise</code> hook 里被动发 remove event：<code class="src-ref">src/vmm/src/persist.rs</code>。</p>
@@ -2824,22 +3382,35 @@ dst = fault_page_addr
 <p>第 14 章已经说明：aarch64 是 GIC 平台，x86_64 是精简 PC 平台。这一章继续下钻 snapshot/restore 的中断控制器状态。核心差异是：aarch64 的中断控制器是 KVM device，需要按 GIC register group 逐项保存；x86_64 的 PIT/PIC/IOAPIC 是 KVM in-kernel irqchip/PIT 模型，Firecracker 直接保存 KVM 提供的 C struct。</p>
 <h3 id="181-vm-state">18.1 VM state 里的字段差异</h3>
 <p>ARM64 的 <code>VmState</code> 只有三类：guest memory 描述、<code>GicState</code>、resource allocator：<code class="src-ref">src/vmm/src/arch/aarch64/vm.rs</code>。x86_64 的 <code>VmState</code> 则保存 guest memory、resource allocator、<code>kvm_pit_state2</code>、<code>kvm_clock_data</code>、PIC master/slave 和 IOAPIC：<code class="src-ref">src/vmm/src/arch/x86_64/vm.rs</code>。</p>
-<div class="mermaid">flowchart TB
-    Snapshot[MicrovmState.vm_state] --> A[aarch64 VmState]
-    Snapshot --> X[x86_64 VmState]
+<figure class="diagram" aria-label="Mermaid 架构或流程图"><div class="mermaid">flowchart TB
+    Snapshot[MicrovmState.vm_state] --&gt; A[aarch64 VmState]
+    Snapshot --&gt; X[x86_64 VmState]
 
-    A --> AMem[GuestMemoryState]
-    A --> AGic[GicState]
-    A --> ARes[ResourceAllocator]
+    A --&gt; AMem[GuestMemoryState]
+    A --&gt; AGic[GicState]
+    A --&gt; ARes[ResourceAllocator]
 
-    X --> XMem[GuestMemoryState]
-    X --> XRes[ResourceAllocator]
-    X --> XPit[kvm_pit_state2]
-    X --> XClock[kvm_clock_data]
-    X --> XPicM[kvm_irqchip PIC master]
-    X --> XPicS[kvm_irqchip PIC slave]
-    X --> XIoapic[kvm_irqchip IOAPIC]
-</div>
+    X --&gt; XMem[GuestMemoryState]
+    X --&gt; XRes[ResourceAllocator]
+    X --&gt; XPit[kvm_pit_state2]
+    X --&gt; XClock[kvm_clock_data]
+    X --&gt; XPicM[kvm_irqchip PIC master]
+    X --&gt; XPicS[kvm_irqchip PIC slave]
+    X --&gt; XIoapic[kvm_irqchip IOAPIC]</div><details class="diagram-source"><summary>查看图表文本</summary><pre><code>flowchart TB
+    Snapshot[MicrovmState.vm_state] --&gt; A[aarch64 VmState]
+    Snapshot --&gt; X[x86_64 VmState]
+
+    A --&gt; AMem[GuestMemoryState]
+    A --&gt; AGic[GicState]
+    A --&gt; ARes[ResourceAllocator]
+
+    X --&gt; XMem[GuestMemoryState]
+    X --&gt; XRes[ResourceAllocator]
+    X --&gt; XPit[kvm_pit_state2]
+    X --&gt; XClock[kvm_clock_data]
+    X --&gt; XPicM[kvm_irqchip PIC master]
+    X --&gt; XPicS[kvm_irqchip PIC slave]
+    X --&gt; XIoapic[kvm_irqchip IOAPIC]</code></pre></details></figure>
 <p>ARM64 save 时需要 vCPU 的 MPIDR 列表，因为 GIC 的 CPU interface/redistributor state 是按 vCPU identity 访问的。<code>ArchVm::save_state(mpidrs)</code> 调 <code>get_irqchip().save_device(mpidrs)</code>；restore 时也传入同一组 MPIDR：<code class="src-ref">src/vmm/src/arch/aarch64/vm.rs</code>。</p>
 <p>x86_64 save 不需要类似 MPIDR 参数。它在 VM fd 上调用 <code>get_pit2()</code>、<code>get_clock()</code>，再分别以 <code>KVM_IRQCHIP_PIC_MASTER</code>、<code>KVM_IRQCHIP_PIC_SLAVE</code>、<code>KVM_IRQCHIP_IOAPIC</code> 填充 <code>kvm_irqchip</code>：<code class="src-ref">src/vmm/src/arch/x86_64/vm.rs</code>。</p>
 <h3 id="182-aarch64-gic-state">18.2 aarch64 GIC state 的三层结构</h3>
@@ -2867,15 +3438,21 @@ dst = fault_page_addr
 </tbody>
 </table>
 <p>这些字段定义在 <code class="src-ref">src/vmm/src/arch/aarch64/gic/regs.rs</code>。<code>GicVcpuState</code> 又分成 <code>rdist</code> 和 <code>icc</code>；GICv2 没有 redistributor，所以 <code>rdist</code> 为空，只有 CPU interface ICC 状态：<code class="src-ref">src/vmm/src/arch/aarch64/gic/gicv2/regs/mod.rs</code>。</p>
-<div class="mermaid">flowchart TB
-    GicState --> Dist[dist: distributor]
-    GicState --> PerVcpu[gic_vcpu_states]
-    GicState --> ITS[its_state optional]
+<figure class="diagram" aria-label="Mermaid 架构或流程图"><div class="mermaid">flowchart TB
+    GicState --&gt; Dist[dist: distributor]
+    GicState --&gt; PerVcpu[gic_vcpu_states]
+    GicState --&gt; ITS[its_state optional]
 
-    PerVcpu --> GICv2[GICv2: ICC only, rdist empty]
-    PerVcpu --> GICv3[GICv3: redistributor + ICC]
-    ITS --> OnlyV3[GICv3 ITS only]
-</div>
+    PerVcpu --&gt; GICv2[GICv2: ICC only, rdist empty]
+    PerVcpu --&gt; GICv3[GICv3: redistributor + ICC]
+    ITS --&gt; OnlyV3[GICv3 ITS only]</div><details class="diagram-source"><summary>查看图表文本</summary><pre><code>flowchart TB
+    GicState --&gt; Dist[dist: distributor]
+    GicState --&gt; PerVcpu[gic_vcpu_states]
+    GicState --&gt; ITS[its_state optional]
+
+    PerVcpu --&gt; GICv2[GICv2: ICC only, rdist empty]
+    PerVcpu --&gt; GICv3[GICv3: redistributor + ICC]
+    ITS --&gt; OnlyV3[GICv3 ITS only]</code></pre></details></figure>
 <p>GIC device 创建也体现了这个差异。<code>create_gic(..., None)</code> 会优先尝试 GICv3，失败后 fallback 到 GICv2：<code class="src-ref">src/vmm/src/arch/aarch64/gic/mod.rs</code>。这不是 snapshot fallback，而是启动时选择 host KVM 支持的 GIC 版本。</p>
 <h3 id="183-gicv2distributor-cpu-interface">18.3 GICv2：distributor + CPU interface</h3>
 <p>GICv2 snapshot 保存两部分：</p>
@@ -2884,19 +3461,29 @@ dst = fault_page_addr
 <li>每 vCPU CPU interface registers：<code>GICC_CTLR</code>、<code>GICC_PMR</code>、<code>GICC_BPR</code>、<code>GICC_APBR</code>、<code>GICC_APR1..APR4</code>。</li>
 </ol>
 <p>GICv2 distributor 列表明确只保存 R/W 且非 implementation-specific 的寄存器，并跳过 SGI/PPI 对应的 shared IRQ register 前 32 个 interrupt 位：<code class="src-ref">src/vmm/src/arch/aarch64/gic/gicv2/regs/dist_regs.rs</code>。CPU interface 注释也明确不保存 <code>GICC_NSAPR</code>，因为它只存在于带 security extensions 的实现上，盲目读取可能在某些系统崩溃：<code class="src-ref">src/vmm/src/arch/aarch64/gic/gicv2/regs/icc_regs.rs</code>。</p>
-<div class="mermaid">sequenceDiagram
+<figure class="diagram" aria-label="Mermaid 架构或流程图"><div class="mermaid">sequenceDiagram
     participant VM as aarch64 VmState save
     participant G as GICv2 DeviceFd
     participant D as DIST_REGS
     participant C as CPU_REGS per MPIDR
 
-    VM->>G: save_device(mpidrs)
-    G->>D: get_dist_regs
+    VM-&gt;&gt;G: save_device(mpidrs)
+    G-&gt;&gt;D: get_dist_regs
     loop each MPIDR
-        G->>C: get_icc_regs(mpidr)
+        G-&gt;&gt;C: get_icc_regs(mpidr)
     end
-    G-->>VM: GicState { dist, gic_vcpu_states, its_state=None }
-</div>
+    G--&gt;&gt;VM: GicState { dist, gic_vcpu_states, its_state=None }</div><details class="diagram-source"><summary>查看图表文本</summary><pre><code>sequenceDiagram
+    participant VM as aarch64 VmState save
+    participant G as GICv2 DeviceFd
+    participant D as DIST_REGS
+    participant C as CPU_REGS per MPIDR
+
+    VM-&gt;&gt;G: save_device(mpidrs)
+    G-&gt;&gt;D: get_dist_regs
+    loop each MPIDR
+        G-&gt;&gt;C: get_icc_regs(mpidr)
+    end
+    G--&gt;&gt;VM: GicState { dist, gic_vcpu_states, its_state=None }</code></pre></details></figure>
 <p>restore 顺序是先 distributor，再校验 MPIDR 数量和 saved vCPU 数量一致，最后按 MPIDR 写回 CPU interface registers：<code class="src-ref">src/vmm/src/arch/aarch64/gic/gicv2/regs/mod.rs</code>。</p>
 <h3 id="184-gicv3distributor-redistributor-system-icc-its">18.4 GICv3：distributor + redistributor + system ICC + ITS</h3>
 <p>GICv3 比 GICv2 多了两类状态：redistributor 和 ITS。</p>
@@ -2904,24 +3491,39 @@ dst = fault_page_addr
 <p>redistributor 保存 PPI/SGI 相关寄存器：<code>GICR_STATUSR</code>、<code>GICR_WAKER</code>、<code>GICR_PROPBASER</code>、<code>GICR_PENDBASER</code>、<code>GICR_CTLR</code>，以及 SGI 的 group、enable、pending、active、priority、config 等：<code class="src-ref">src/vmm/src/arch/aarch64/gic/gicv3/regs/redist_regs.rs</code>。</p>
 <p>GICv3 ICC 不是 GICv2 那种 MMIO CPU interface，而是 system register 形式：<code>ICC_SRE_EL1</code>、<code>ICC_CTLR_EL1</code>、<code>ICC_IGRPEN0/1_EL1</code>、<code>ICC_PMR_EL1</code>、<code>ICC_BPR0/1_EL1</code>，以及按 priority bits 条件保存的 <code>ICC_AP0R*</code>/<code>ICC_AP1R*</code>：<code class="src-ref">src/vmm/src/arch/aarch64/gic/gicv3/regs/icc_regs.rs</code>。</p>
 <p>GICv3 save 顺序也更复杂：先 flush redistributor pending tables 到 guest RAM，再 flush ITS tables 到 guest memory，然后保存每个 vCPU 的 redistributor 和 ICC，最后保存 ITS registers：<code class="src-ref">src/vmm/src/arch/aarch64/gic/gicv3/regs/mod.rs</code>。</p>
-<div class="mermaid">sequenceDiagram
+<figure class="diagram" aria-label="Mermaid 架构或流程图"><div class="mermaid">sequenceDiagram
     participant VM as aarch64 VmState save
     participant G as GICv3 DeviceFd
     participant I as ITS DeviceFd
     participant R as per-vCPU redistributor
     participant C as per-vCPU ICC sysregs
 
-    VM->>G: save_device(mpidrs)
-    G->>G: save_pending_tables
-    G->>I: its_save_tables
-    G->>G: get_dist_regs
+    VM-&gt;&gt;G: save_device(mpidrs)
+    G-&gt;&gt;G: save_pending_tables
+    G-&gt;&gt;I: its_save_tables
+    G-&gt;&gt;G: get_dist_regs
     loop each MPIDR
-        G->>R: get_redist_regs(mpidr)
-        G->>C: get_icc_regs(mpidr)
+        G-&gt;&gt;R: get_redist_regs(mpidr)
+        G-&gt;&gt;C: get_icc_regs(mpidr)
     end
-    G->>I: ItsRegisterState::save
-    G-->>VM: GicState { dist, rdist+icc, its_state }
-</div>
+    G-&gt;&gt;I: ItsRegisterState::save
+    G--&gt;&gt;VM: GicState { dist, rdist+icc, its_state }</div><details class="diagram-source"><summary>查看图表文本</summary><pre><code>sequenceDiagram
+    participant VM as aarch64 VmState save
+    participant G as GICv3 DeviceFd
+    participant I as ITS DeviceFd
+    participant R as per-vCPU redistributor
+    participant C as per-vCPU ICC sysregs
+
+    VM-&gt;&gt;G: save_device(mpidrs)
+    G-&gt;&gt;G: save_pending_tables
+    G-&gt;&gt;I: its_save_tables
+    G-&gt;&gt;G: get_dist_regs
+    loop each MPIDR
+        G-&gt;&gt;R: get_redist_regs(mpidr)
+        G-&gt;&gt;C: get_icc_regs(mpidr)
+    end
+    G-&gt;&gt;I: ItsRegisterState::save
+    G--&gt;&gt;VM: GicState { dist, rdist+icc, its_state }</code></pre></details></figure>
 <p>ITS restore 有严格顺序。源码注释说明必须先恢复 <code>GITS_IIDR</code>、<code>GITS_CBASER</code>、<code>GITS_CREADR</code>、<code>GITS_CWRITER</code>、<code>GITS_BASER[]</code>，再 restore ITS tables，最后写 <code>GITS_CTLR</code>：<code class="src-ref">src/vmm/src/arch/aarch64/gic/gicv3/regs/its_regs.rs</code>。</p>
 <h3 id="185-x86_64kvm-in-kernel-irqchip">18.5 x86_64：KVM in-kernel irqchip 的整体状态</h3>
 <p>x86_64 的中断控制器模型更像“把 PC 兼容硬件状态整体问 KVM 要出来”。Firecracker 在 pre-vCPU 阶段先 <code>create_irq_chip()</code>，再 <code>create_pit2(KVM_PIT_SPEAKER_DUMMY)</code>，避免 speaker port <code>0x61</code> 写入导致 userspace exit：<code class="src-ref">src/vmm/src/arch/x86_64/vm.rs</code>。</p>
@@ -2963,23 +3565,37 @@ dst = fault_page_addr
 </tbody>
 </table>
 <p>restore 时按 PIT、clock、PIC master、PIC slave、IOAPIC 的顺序写回 KVM：<code class="src-ref">src/vmm/src/arch/x86_64/vm.rs</code>。<code>clock_realtime</code> 是 x86_64 特有恢复选项；如果请求该选项但 snapshot 的 clock flags 没有 <code>KVM_CLOCK_REALTIME</code>，restore 会报错：<code class="src-ref">src/vmm/src/arch/x86_64/vm.rs</code>。</p>
-<div class="mermaid">sequenceDiagram
+<figure class="diagram" aria-label="Mermaid 架构或流程图"><div class="mermaid">sequenceDiagram
     participant VM as x86_64 VmState
     participant K as KVM VM fd
 
-    VM->>K: get_pit2
-    VM->>K: get_clock
-    VM->>K: get_irqchip(PIC_MASTER)
-    VM->>K: get_irqchip(PIC_SLAVE)
-    VM->>K: get_irqchip(IOAPIC)
-    K-->>VM: VmState structs
+    VM-&gt;&gt;K: get_pit2
+    VM-&gt;&gt;K: get_clock
+    VM-&gt;&gt;K: get_irqchip(PIC_MASTER)
+    VM-&gt;&gt;K: get_irqchip(PIC_SLAVE)
+    VM-&gt;&gt;K: get_irqchip(IOAPIC)
+    K--&gt;&gt;VM: VmState structs
 
-    VM->>K: set_pit2
-    VM->>K: set_clock
-    VM->>K: set_irqchip(PIC_MASTER)
-    VM->>K: set_irqchip(PIC_SLAVE)
-    VM->>K: set_irqchip(IOAPIC)
-</div>
+    VM-&gt;&gt;K: set_pit2
+    VM-&gt;&gt;K: set_clock
+    VM-&gt;&gt;K: set_irqchip(PIC_MASTER)
+    VM-&gt;&gt;K: set_irqchip(PIC_SLAVE)
+    VM-&gt;&gt;K: set_irqchip(IOAPIC)</div><details class="diagram-source"><summary>查看图表文本</summary><pre><code>sequenceDiagram
+    participant VM as x86_64 VmState
+    participant K as KVM VM fd
+
+    VM-&gt;&gt;K: get_pit2
+    VM-&gt;&gt;K: get_clock
+    VM-&gt;&gt;K: get_irqchip(PIC_MASTER)
+    VM-&gt;&gt;K: get_irqchip(PIC_SLAVE)
+    VM-&gt;&gt;K: get_irqchip(IOAPIC)
+    K--&gt;&gt;VM: VmState structs
+
+    VM-&gt;&gt;K: set_pit2
+    VM-&gt;&gt;K: set_clock
+    VM-&gt;&gt;K: set_irqchip(PIC_MASTER)
+    VM-&gt;&gt;K: set_irqchip(PIC_SLAVE)
+    VM-&gt;&gt;K: set_irqchip(IOAPIC)</code></pre></details></figure>
 <p>注意 LAPIC 不在 x86_64 <code>VmState</code> 里，而在每个 vCPU state 中保存。第 14 章提到的 x86 vCPU state 包含 LAPIC、vcpu events、MSRs、XSAVE/TSC 等；也就是说 x86 的 interrupt state 被拆成 VM 级 PIC/IOAPIC/PIT/clock 和 vCPU 级 LAPIC。</p>
 <h3 id="186">18.6 为什么两端保存方式不同</h3>
 <table>
@@ -3027,25 +3643,41 @@ dst = fault_page_addr
 <h2 id="19-firecrackercubesandboxcloud-hypervisorcrosvmkata-containers">19. 横向比较：Firecracker、CubeSandbox、Cloud Hypervisor、crosvm、Kata Containers</h2>
 <p>这一章不是泛泛比较项目介绍，而是把 Firecracker 放回同一类 Micro-VM / VM-based sandbox 项目里，看它到底“少做了什么、因此获得了什么”，以及 ARM64 和 x86_64 在这些项目里的真实位置。</p>
 <h3 id="191">19.1 一张定位图</h3>
-<div class="mermaid">flowchart LR
-    subgraph VMM["VMM / Hypervisor 进程"]
-        FC["Firecracker\n极简 microVM VMM"]
-        CH["Cloud Hypervisor\n通用 cloud workload VMM"]
-        CVM["crosvm\nChromeOS/Android 强隔离 VMM"]
+<figure class="diagram" aria-label="Mermaid 架构或流程图"><div class="mermaid">flowchart LR
+    subgraph VMM[&quot;VMM / Hypervisor 进程&quot;]
+        FC[&quot;Firecracker\n极简 microVM VMM&quot;]
+        CH[&quot;Cloud Hypervisor\n通用 cloud workload VMM&quot;]
+        CVM[&quot;crosvm\nChromeOS/Android 强隔离 VMM&quot;]
     end
 
-    subgraph Runtime["容器运行时 / sandbox 平台"]
-        KATA["Kata Containers\ncontainerd shim + hypervisor 插件 + guest agent"]
-        CUBE["CubeSandbox\nE2B-compatible sandbox 平台 + CubeShim/CubeHypervisor"]
+    subgraph Runtime[&quot;容器运行时 / sandbox 平台&quot;]
+        KATA[&quot;Kata Containers\ncontainerd shim + hypervisor 插件 + guest agent&quot;]
+        CUBE[&quot;CubeSandbox\nE2B-compatible sandbox 平台 + CubeShim/CubeHypervisor&quot;]
     end
 
-    KATA --> FC
-    KATA --> CH
-    KATA --> DB["Dragonball/QEMU/Remote"]
-    CUBE --> CubeShim["CubeShim"]
-    CubeShim --> CubeHyp["CubeHypervisor"]
-    CubeHyp -.代码形态接近 Cloud Hypervisor 设备/迁移模型.-> CH
-</div>
+    KATA --&gt; FC
+    KATA --&gt; CH
+    KATA --&gt; DB[&quot;Dragonball/QEMU/Remote&quot;]
+    CUBE --&gt; CubeShim[&quot;CubeShim&quot;]
+    CubeShim --&gt; CubeHyp[&quot;CubeHypervisor&quot;]
+    CubeHyp -.代码形态接近 Cloud Hypervisor 设备/迁移模型.-&gt; CH</div><details class="diagram-source"><summary>查看图表文本</summary><pre><code>flowchart LR
+    subgraph VMM[&quot;VMM / Hypervisor 进程&quot;]
+        FC[&quot;Firecracker\n极简 microVM VMM&quot;]
+        CH[&quot;Cloud Hypervisor\n通用 cloud workload VMM&quot;]
+        CVM[&quot;crosvm\nChromeOS/Android 强隔离 VMM&quot;]
+    end
+
+    subgraph Runtime[&quot;容器运行时 / sandbox 平台&quot;]
+        KATA[&quot;Kata Containers\ncontainerd shim + hypervisor 插件 + guest agent&quot;]
+        CUBE[&quot;CubeSandbox\nE2B-compatible sandbox 平台 + CubeShim/CubeHypervisor&quot;]
+    end
+
+    KATA --&gt; FC
+    KATA --&gt; CH
+    KATA --&gt; DB[&quot;Dragonball/QEMU/Remote&quot;]
+    CUBE --&gt; CubeShim[&quot;CubeShim&quot;]
+    CubeShim --&gt; CubeHyp[&quot;CubeHypervisor&quot;]
+    CubeHyp -.代码形态接近 Cloud Hypervisor 设备/迁移模型.-&gt; CH</code></pre></details></figure>
 <p>第一层结论：</p>
 <table>
 <thead>
@@ -3092,24 +3724,39 @@ dst = fault_page_addr
 <li>CubeSandbox README 将其定义为基于 RustVMM/KVM 的 sandbox service，并说明 CubeAPI、CubeMaster、CubeProxy、Cubelet、CubeVS、CubeHypervisor/CubeShim 的职责：<code class="src-ref">../../CubeSandbox/README.md</code>。</li>
 </ul>
 <h3 id="192">19.2 控制面与进程模型</h3>
-<div class="mermaid">flowchart TB
-    FCAPI["Firecracker HTTP over UDS API"] --> FCVMM["VMM EventManager"]
-    FCVMM --> FCVCPU["vCPU threads"]
-    FCVMM --> FCDEV["in-process virtio devices"]
+<figure class="diagram" aria-label="Mermaid 架构或流程图"><div class="mermaid">flowchart TB
+    FCAPI[&quot;Firecracker HTTP over UDS API&quot;] --&gt; FCVMM[&quot;VMM EventManager&quot;]
+    FCVMM --&gt; FCVCPU[&quot;vCPU threads&quot;]
+    FCVMM --&gt; FCDEV[&quot;in-process virtio devices&quot;]
 
-    CHCLI["cloud-hypervisor CLI / API socket / DBus"] --> CHAPI["API thread"]
-    CHAPI --> CHVMM["VMM thread"]
-    CHVMM --> CHDM["DeviceManager"]
-    CHDM --> CHDEV["virtio-pci / vhost-user / VFIO / vDPA"]
+    CHCLI[&quot;cloud-hypervisor CLI / API socket / DBus&quot;] --&gt; CHAPI[&quot;API thread&quot;]
+    CHAPI --&gt; CHVMM[&quot;VMM thread&quot;]
+    CHVMM --&gt; CHDM[&quot;DeviceManager&quot;]
+    CHDM --&gt; CHDEV[&quot;virtio-pci / vhost-user / VFIO / vDPA&quot;]
 
-    CVMCLI["crosvm CLI / control socket"] --> CVMMAIN["main process control loop"]
-    CVMMAIN --> CVMDEV["forked sandboxed device processes"]
-    CVMDEV --> CVMJAIL["Minijail + seccomp + namespaces"]
+    CVMCLI[&quot;crosvm CLI / control socket&quot;] --&gt; CVMMAIN[&quot;main process control loop&quot;]
+    CVMMAIN --&gt; CVMDEV[&quot;forked sandboxed device processes&quot;]
+    CVMDEV --&gt; CVMJAIL[&quot;Minijail + seccomp + namespaces&quot;]
 
-    CTRD["containerd"] --> KSHIM["Kata/Cube shim v2"]
-    KSHIM --> HV["selected VMM"]
-    KSHIM --> AGENT["guest agent over vsock/ttrpc"]
-</div>
+    CTRD[&quot;containerd&quot;] --&gt; KSHIM[&quot;Kata/Cube shim v2&quot;]
+    KSHIM --&gt; HV[&quot;selected VMM&quot;]
+    KSHIM --&gt; AGENT[&quot;guest agent over vsock/ttrpc&quot;]</div><details class="diagram-source"><summary>查看图表文本</summary><pre><code>flowchart TB
+    FCAPI[&quot;Firecracker HTTP over UDS API&quot;] --&gt; FCVMM[&quot;VMM EventManager&quot;]
+    FCVMM --&gt; FCVCPU[&quot;vCPU threads&quot;]
+    FCVMM --&gt; FCDEV[&quot;in-process virtio devices&quot;]
+
+    CHCLI[&quot;cloud-hypervisor CLI / API socket / DBus&quot;] --&gt; CHAPI[&quot;API thread&quot;]
+    CHAPI --&gt; CHVMM[&quot;VMM thread&quot;]
+    CHVMM --&gt; CHDM[&quot;DeviceManager&quot;]
+    CHDM --&gt; CHDEV[&quot;virtio-pci / vhost-user / VFIO / vDPA&quot;]
+
+    CVMCLI[&quot;crosvm CLI / control socket&quot;] --&gt; CVMMAIN[&quot;main process control loop&quot;]
+    CVMMAIN --&gt; CVMDEV[&quot;forked sandboxed device processes&quot;]
+    CVMDEV --&gt; CVMJAIL[&quot;Minijail + seccomp + namespaces&quot;]
+
+    CTRD[&quot;containerd&quot;] --&gt; KSHIM[&quot;Kata/Cube shim v2&quot;]
+    KSHIM --&gt; HV[&quot;selected VMM&quot;]
+    KSHIM --&gt; AGENT[&quot;guest agent over vsock/ttrpc&quot;]</code></pre></details></figure>
 <p>Firecracker 的控制面最窄：API server 接收 UDS HTTP 请求，转换成 VMM action，VMM 和设备逻辑在同一 microVM 进程内运转，vCPU 独立线程进入 KVM_RUN。它的优势是路径短、状态少、审计面小；代价是它不会变成“通用虚拟机管理器”。</p>
 <p>Cloud Hypervisor 在启动时创建 hypervisor backend，然后启动 VMM thread 和 API thread；如果命令行给了 kernel/firmware 会发送 <code>VmCreate</code> 和 <code>VmBoot</code>，如果给了 restore 参数则发送 <code>VmRestore</code>：<code class="src-ref">../../cloud-hypervisor/cloud-hypervisor/src/main.rs</code>。这说明它的控制面比 Firecracker 更接近“长期可管理 VM”：API 层面包含 create/boot/restore/hotplug/snapshot 等动作。</p>
 <p>crosvm 的架构文档把主路径写得很清楚：<code>main.rs</code> 解析命令行构造 <code>Config</code>，然后进入平台 <code>run_config</code>，加载 kernel，创建控制 socket，调用架构相关 <code>Arch::build_vm</code>，再 <code>create_devices</code> 并为设备准备 Minijail 配置，最后运行 <code>RunnableLinuxVm</code>：<code class="src-ref">../../crosvm/ARCHITECTURE.md</code>。它还有内部 VM control socket；外部 <code>--socket</code> 只应通过 <code>crosvm stop</code> 或 <code>crosvm_control</code> 使用，因为协议内部且不稳定：<code class="src-ref">../../crosvm/ARCHITECTURE.md</code>。</p>
@@ -3235,13 +3882,11 @@ dst = fault_page_addr
 <li>CubeSandbox 深挖：CubeAPI/CubeMaster/Cubelet/CubeShim/CubeHypervisor、模板构建、snapshot clone、CubeVS/eBPF 网络隔离、PVM 部署模型。</li>
 </ol>
 <h2 id="21_1">21. 当前未展开的问题</h2>
-<p>本轮 Firecracker 深入探索范围内没有遗留的“未展开问题”。后续未展开内容已经转化为新的横向源码阅读任务：分别为 Cloud Hypervisor、crosvm、Kata Containers、CubeSandbox 建立同等级别的深入文档，再与 Firecracker 做矩阵式对照。</p>
-    </article>
-    <footer class="page-foot">源文件: <code>firecracker/analysis/deep-dive.md</code></footer>
+<p>本轮 Firecracker 深入探索范围内没有遗留的“未展开问题”。后续未展开内容已经转化为新的横向源码阅读任务：分别为 Cloud Hypervisor、crosvm、Kata Containers、CubeSandbox 建立同等级别的深入文档，再与 Firecracker 做矩阵式对照。</p></article>
+    <footer class="page-foot">公开来源：<code>analysis/projects/firecracker/deep-dive.md</code> · 文档 ID：<code>firecracker.deep-dive</code></footer>
   </main>
 </div>
-<script src="../../assets/mermaid.min.js"></script>
-<script>window.mermaid && mermaid.initialize({startOnLoad:true, theme:'neutral', securityLevel:'loose'});</script>
-<script src="../../assets/wiki.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/mermaid@10.9.6/dist/mermaid.min.js" referrerpolicy="no-referrer"></script>
+<script defer src="../../assets/wiki.js"></script>
 </body>
 </html>
