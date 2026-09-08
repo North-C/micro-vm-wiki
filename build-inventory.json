@@ -11,218 +11,218 @@
   },
   {
     "path": "CubeSandbox-sandbox-clone/analysis/api-master-cubelet-create-chain.html",
-    "size": 42990,
-    "sha256": "6e9d94690fbac194f2efdaac66dd6e7f10862d32608aeba183a6c07cb2352dee"
+    "size": 46481,
+    "sha256": "0d2d2b8136510d28b79dfd7b02b776bede2d4e53d87b7cfbc65e1d65e014bccc"
   },
   {
     "path": "CubeSandbox-sandbox-clone/analysis/arch-arm64-x86-chain.html",
-    "size": 30536,
-    "sha256": "a0fd011cff1316d01c8fa188361252e618c111acf34bbb3538833132008231d1"
+    "size": 34030,
+    "sha256": "3225b2e412ed1f91a3ad8c05e1e17fec77286d0b9fcb61b9bbbfb755e566f5ef"
   },
   {
     "path": "CubeSandbox-sandbox-clone/analysis/cpu-vcpu-resource-boundary-chain.html",
-    "size": 35790,
-    "sha256": "3601296fe3d2f4cb2e2da9a70758037e00542000195a2abc1f5e037e9c57a86f"
+    "size": 39284,
+    "sha256": "11f5e13289fdf0faba2ed7b2e79829932cf72997bd7c3a1033b4176ab5fcc7fb"
   },
   {
     "path": "CubeSandbox-sandbox-clone/analysis/cubeapi-long-operation-contract-chain.html",
-    "size": 28441,
-    "sha256": "749d8408544a2a43e569e0a8cfaded3a161f9865915ed1be6ba433449c27b9f3"
+    "size": 31932,
+    "sha256": "1b54f266e05c4faa94f9650c67592af034be9c7cd6258b0202eacf03b5a73c25"
   },
   {
     "path": "CubeSandbox-sandbox-clone/analysis/cubebox-action-containerd-chain.html",
-    "size": 30795,
-    "sha256": "0888b941aa25d84c004e70e2924ebec604b6194bfbf243adbde1fa8752767409"
+    "size": 34286,
+    "sha256": "8f7eb93c9084ac14cc7910564c4a565c4c85242034a4daf0c2c0df97f4145dc1"
   },
   {
     "path": "CubeSandbox-sandbox-clone/analysis/cubecow-storage-engine-chain.html",
-    "size": 45467,
-    "sha256": "96839d7f88b3ea62a3ff35b144d7f3c23949a7f8b169d03db0a25cd032db82f9"
+    "size": 48956,
+    "sha256": "46ccc9598216148b17e673a0b451f6b9d15eaee6637003eb9c99d8964337c6d0"
   },
   {
     "path": "CubeSandbox-sandbox-clone/analysis/cubehypervisor-api-request-chain.html",
-    "size": 47637,
-    "sha256": "e763e71b91ecf70cfa64ac84431f0878d072f2c427f66324be1fbeaf5181ac11"
+    "size": 51128,
+    "sha256": "67032cf211509643432e4a8f8135505cda1df2cca6b9818fbf8702f65dc8f231"
   },
   {
     "path": "CubeSandbox-sandbox-clone/analysis/cubelet-workflow-create-chain.html",
-    "size": 42837,
-    "sha256": "59800147e047ed0ed884480b6ba27b16d0526e101cd5bde133989c1e23c964aa"
+    "size": 46328,
+    "sha256": "d58705807d6b6c3e9bedf9078f23a0a65a83603c0b1aefcf97b9803b704e6eb3"
   },
   {
     "path": "CubeSandbox-sandbox-clone/analysis/cubemaster-cache-consistency-boundary-chain.html",
-    "size": 43185,
-    "sha256": "24cf05b6dfd1d4180952facd0f269a78f3926648f4280d34ef356fee0c61b0e5"
+    "size": 46676,
+    "sha256": "93fc907b8fdf7c705a4729aa5660b27dec53c37372ed3bdb4b69cb57b54ba5f3"
   },
   {
     "path": "CubeSandbox-sandbox-clone/analysis/cubemaster-scheduler-task-chain.html",
-    "size": 30041,
-    "sha256": "b5356fb1e83eced2d28c34a3ad893b053e12ef4909f209b12a6864efe8333628"
+    "size": 33532,
+    "sha256": "8b449d20b197f63cb0e5a774a162a4338f3fb528197602325a0a4f367bb28ac4"
   },
   {
     "path": "CubeSandbox-sandbox-clone/analysis/cubemaster-snapshot-job-contract-chain.html",
-    "size": 29276,
-    "sha256": "1c207d1cc6b4cc9cce303b3d50b72093d51c0ca8e919a27701eede796bd5f65c"
+    "size": 32775,
+    "sha256": "d156d979e94e50d7f0e7bba1ca6e6a36a7828850bc75cb4e36cf17f576c71979"
   },
   {
     "path": "CubeSandbox-sandbox-clone/analysis/cubesandbox-redis-hugepages-report-20260627.html",
-    "size": 36066,
-    "sha256": "100eb0b5b577150ddae1688a70a29c2616ba42a238bb165e03318f676d72a52e"
+    "size": 39556,
+    "sha256": "184154300c388ca6e182cbb1e1b504cef8fe0c088a3f54ddfffda6371ff4c1f8"
   },
   {
     "path": "CubeSandbox-sandbox-clone/analysis/cubesandbox-unixbench-hugepages-report-20260626.html",
-    "size": 36527,
-    "sha256": "1aafbe80c820aab80e7ae039eb453b3a6618baf6d25e6606e648db5bf4439c52"
+    "size": 40017,
+    "sha256": "1295663f1600620cbd35f4e7128c1105b143692114fd545fdde768a25a60db49"
   },
   {
     "path": "CubeSandbox-sandbox-clone/analysis/cubesandbox_unixbench_hugepages_runbook.html",
-    "size": 28524,
-    "sha256": "30886f6e02cfa804a40847bfb682c8d8d7fba580bfc0eba0e43e8c32c1d784b6"
+    "size": 32005,
+    "sha256": "006d932f0ccfed66350bcfa12af4b571ca807724935aeda54a28d74751d82985"
   },
   {
     "path": "CubeSandbox-sandbox-clone/analysis/cubeshim-container-agent-lifecycle-chain.html",
-    "size": 45132,
-    "sha256": "4bce3fb74192c2e6b9a27f002ba866113c15d6353a4daca6c2d9b55b44648ae6"
+    "size": 48623,
+    "sha256": "a7d5015932063aba9e3e09269dac24921da4a2b854ae86ef87c381a0fb7cdf37"
   },
   {
     "path": "CubeSandbox-sandbox-clone/analysis/cubeshim-sandbox-hypervisor-chain.html",
-    "size": 30377,
-    "sha256": "6f55bb6d438da1cdaee511d9f8d66b8345f00b1ade024e43e78ac9eb1edbc1b2"
+    "size": 33868,
+    "sha256": "94b00c873a7054a65eaff717310a1a367ad531eca22eb932c4bf1436164316c5"
   },
   {
     "path": "CubeSandbox-sandbox-clone/analysis/cubevs-ebpf-data-plane-chain.html",
-    "size": 30252,
-    "sha256": "dc14f2d86672844b887005f41eea2e1d3c1e24bb1e28eb95ed6f1116597c4a21"
+    "size": 33734,
+    "sha256": "f31dece35d00ae24c0790487111d6910623cb72ffb7b5b8e9ee19e54a48bf93a"
   },
   {
     "path": "CubeSandbox-sandbox-clone/analysis/deep-dive.html",
-    "size": 63867,
-    "sha256": "9595d655dc7a747e4e866d94869d1f228c6b90404fd386f6d14a4ceaf6ab666d"
+    "size": 67331,
+    "sha256": "77b493c122a6b8ef666d50cb38ae5bd2e1cd1c2ee274aef630ad3fa38ddb01c6"
   },
   {
     "path": "CubeSandbox-sandbox-clone/analysis/deep-routes.html",
-    "size": 51829,
-    "sha256": "7189da5c928cc064201f3e40117cc8641979f380352fc00524580ebfb2f15392"
+    "size": 55293,
+    "sha256": "bfb0d3439cb0f2fc9d6b0861ebade2024298dfebea56a29ffddfdd010106b5bf"
   },
   {
     "path": "CubeSandbox-sandbox-clone/analysis/guest-agent-network-config-chain.html",
-    "size": 29686,
-    "sha256": "c76090b86bb9c00071ffa88fc45cbd64323e003d6ee255bb7cb709c953c442cb"
+    "size": 33168,
+    "sha256": "4c0ddf3eb7f0cdda855d0fa55301215f5899a88d9fce7a18ddbb77fe7ddd246a"
   },
   {
     "path": "CubeSandbox-sandbox-clone/analysis/interrupt-event-notification-chain.html",
-    "size": 49265,
-    "sha256": "fbd7ff28125c6de8e2c13661175a93aefba386059988adfb99962e93446147d7"
+    "size": 52754,
+    "sha256": "500356e834f5564f28d6f9f0dfacfe8b35d68490e4e8dbdb47f987eb24b5fb65"
   },
   {
     "path": "CubeSandbox-sandbox-clone/analysis/interrupt-state-restore-chain.html",
-    "size": 47433,
-    "sha256": "5d2ad02f47f37c95f50910e61fefb636dea53dbed7ff475d61abea3d52212a98"
+    "size": 50932,
+    "sha256": "e11f2813a05f02ada203d92b6c3ab5e1936de204383b031a518bfcaf39867e9b"
   },
   {
     "path": "CubeSandbox-sandbox-clone/analysis/network-agent-ensure-network-chain.html",
-    "size": 29989,
-    "sha256": "10c0dfab36d28250e2e73b15406126fddeb22c95cb7a84949c3ae634cd95d47d"
+    "size": 33471,
+    "sha256": "c4bd2bf48d880ffba056735a493550166c0e7d9b3fb7464708f7a7d32e0519e0"
   },
   {
     "path": "CubeSandbox-sandbox-clone/analysis/network-data-plane-interrupt-wakeup-chain.html",
-    "size": 46395,
-    "sha256": "b0eb94c578761c0d1d91f9ece444602476af2d7141a6b4ec76a560e50906f462"
+    "size": 49877,
+    "sha256": "21cf296a905c7c213d225b450d4f548b7a41bbb2d1bdba0e88d8b97e9ebbff1e"
   },
   {
     "path": "CubeSandbox-sandbox-clone/analysis/observability-diagnostics-chain.html",
-    "size": 30846,
-    "sha256": "fb4910b60ab4d36cfe766ea1694f577979d3a1d29d4480f28c86b4dd9b353029"
+    "size": 34343,
+    "sha256": "a0c7eac2624b7fa80b21e8e22a99e26421b61e05b882bfd7aa0d0867546709fa"
   },
   {
     "path": "CubeSandbox-sandbox-clone/analysis/performance-mechanisms-community-benchmark-analysis.html",
-    "size": 101395,
-    "sha256": "9e4947ea6b18c45ef298cce6e95798b070b1bbb7b423af84e65c94e76fd70b93"
+    "size": 104892,
+    "sha256": "a66c147a154a40cac184a935ec1458fa59088948549e901c79e2380fd727716f"
   },
   {
     "path": "CubeSandbox-sandbox-clone/analysis/rollback-runtime-update-chain.html",
-    "size": 30474,
-    "sha256": "6f3ae41954a71fd74bad86c35f2b2af7b30e8fc98e7856c509f32c2f04148832"
+    "size": 33973,
+    "sha256": "6e91e112be2f3c63b76fa613124c6c38421cd0a3a6164105f7c075bf1d62a033"
   },
   {
     "path": "CubeSandbox-sandbox-clone/analysis/runtime-control-vmm-update-chain.html",
-    "size": 30652,
-    "sha256": "a9ee01b5b7780ad4f5c4f6b920360e41ae7809a7283761df2ca613c3223f1660"
+    "size": 34143,
+    "sha256": "576a68cfa812d83d20bfcf8355948e18b8984bce9c2c1f527d328ec472a3a58a"
   },
   {
     "path": "CubeSandbox-sandbox-clone/analysis/sandbox-ready-lifecycle-chain.html",
-    "size": 30075,
-    "sha256": "63a339016497d61370ce4ec8685054a402d659aefb2c5d23330c1bc04fdd7c69"
+    "size": 33566,
+    "sha256": "f47a8e71fc04489e36c34c073fcc1a57602386130fe581005ff70e8ec5bb1370"
   },
   {
     "path": "CubeSandbox-sandbox-clone/analysis/sandbox-vm-container-template-runtime-hierarchy.html",
-    "size": 110680,
-    "sha256": "3fe8f31e44837c5fad19ed5c409791bc8ea4c05d1746e9fa3e26db361e2d8c16"
+    "size": 114171,
+    "sha256": "03be3693dff8b5aa6c46ce450f705d1b099d7c4dcb905771bdc46c54e7427b62"
   },
   {
     "path": "CubeSandbox-sandbox-clone/analysis/snapshot-catalog-restore-binding-chain.html",
-    "size": 29988,
-    "sha256": "48501252a5fdea3de4423bc11edd2550bbb3daf73aad0af2b569320f202b05f4"
+    "size": 33487,
+    "sha256": "777f3e09b4e56fec84f10422d989d6ba166af1b0ddccbd0e6372dda54c9e45e6"
   },
   {
     "path": "CubeSandbox-sandbox-clone/analysis/snapshot-create-commit-chain.html",
-    "size": 47051,
-    "sha256": "677ee78a8293a89fbd43ca6503991e8daaab91e609cc48cb7dba8e0d6be568a3"
+    "size": 50550,
+    "sha256": "28be691433a03badf8aa952a80a29b31afb834f9b351f514d64a79b013fe89be"
   },
   {
     "path": "CubeSandbox-sandbox-clone/analysis/snapshot-replica-reconciler-chain.html",
-    "size": 29450,
-    "sha256": "7033bac6d8a4e72fdc3eb801db4fa6d884cf4b5e81f1cc8409ec6a65ab70391c"
+    "size": 32949,
+    "sha256": "c2d72c99e4ec5b70933197e446e788b6119c735e809ff036820b8c489674dc51"
   },
   {
     "path": "CubeSandbox-sandbox-clone/analysis/snapshot-restore-network-chain.html",
-    "size": 30173,
-    "sha256": "73c372c82a7906126b789fdf9c47df0dce2b31ae6aa9a46836108d7930a4fcd1"
+    "size": 33672,
+    "sha256": "5983a28e892c166c15af3008f248016d757a9806d2a0a76de51e6804105ad8f2"
   },
   {
     "path": "CubeSandbox-sandbox-clone/analysis/snapshot-template-storage-format-chain.html",
-    "size": 57807,
-    "sha256": "bbeefba8e84d99f935f712710f5e6e4dc47b3012f84e06fea769d7fce5129554"
+    "size": 61306,
+    "sha256": "7e7340e2b6b0c3a96c044f1d207d3ff0f0fa77dc0a00f91478e9b6bd306f5a33"
   },
   {
     "path": "CubeSandbox-sandbox-clone/analysis/tap-fd-networkinfo-chain.html",
-    "size": 30533,
-    "sha256": "c8d915d74e5e3184dcb9afd3cf33a3cea7d29460abe187526635b462b43d075b"
+    "size": 34015,
+    "sha256": "6575dd3caf297a503ca2e64123ea2b8d33c8b099614df6ef6a6024b1f55f5099"
   },
   {
     "path": "CubeSandbox-sandbox-clone/analysis/tap-fd-unavailable-case-study.html",
-    "size": 36784,
-    "sha256": "d4ebe6e82dd3c6b39eb461c52d4d471041849033d544c2fddba0d8f8cdc82fca"
+    "size": 40266,
+    "sha256": "d63a10600cd57b5c9a9d14a67df3d426363483f172e4f295d84dff6ab9714ecc"
   },
   {
     "path": "CubeSandbox-sandbox-clone/analysis/template-build-from-oci-chain.html",
-    "size": 50041,
-    "sha256": "3d0b1ed7d05db0bac67e882db40ecb0255a43733cca5b3da9df90e0967b7af83"
+    "size": 53532,
+    "sha256": "32312066bdeb7b104bc3b14a8dbe702f1986115e947161d7339834a31f9f0b37"
   },
   {
     "path": "CubeSandbox-sandbox-clone/analysis/template-restore-msix-chain.html",
-    "size": 70659,
-    "sha256": "cfe306a5b317349a9e4fb480e3f7f00ec1cf40e7874e53f658ab25335b016ba9"
+    "size": 74158,
+    "sha256": "c55033112a603e0bf6653b670ff53493562af7e433d82f700e1db3f5319d0525"
   },
   {
     "path": "CubeSandbox-sandbox-clone/analysis/virtio-interrupt-injection-trace.html",
-    "size": 60703,
-    "sha256": "9dea5bfe074f0f3c8971b9f9b53d436d1618bcd2fe79a50024a2383e293309e5"
+    "size": 64192,
+    "sha256": "41e62216b53fa9c4dce274c1de04401f80430bd5afc3290496c49e1d9589856c"
   },
   {
     "path": "CubeSandbox-sandbox-clone/analysis/virtio-net-fs-restore-chain.html",
-    "size": 44311,
-    "sha256": "b54d8f9edd2ea08266e6f6cfb70bd1951e596c876920b41f5b4dabaf20ade9ae"
+    "size": 47810,
+    "sha256": "215a7f5a915cd545df24b41690eead4f0ad719944b389e79a9c720b0695c4c67"
   },
   {
     "path": "CubeSandbox-sandbox-clone/analysis/vmm-device-restore-chain.html",
-    "size": 43752,
-    "sha256": "ba8f5f8f9b42578a90a2918a1d4809ea7797728378b1fabb4280edafa654e489"
+    "size": 47251,
+    "sha256": "8ba89c321c5c508b48286b666e0d5c5dfcbe0a22fb26e54566b2f7d0e8a334e2"
   },
   {
     "path": "CubeSandbox-sandbox-clone/analysis/vmm-snapshot-restore-state-chain.html",
-    "size": 46326,
-    "sha256": "fbcf34c74a1f645d9614d9b55e3be2242db4886e4db959b05ce742cf1f6f9796"
+    "size": 49825,
+    "sha256": "0281dbd5db902f4c0fcddbe2286c5919fd8c6e9e4bd9309533bcf3ef08c961f1"
   },
   {
     "path": "README.md",
@@ -231,168 +231,168 @@
   },
   {
     "path": "analysis/README.html",
-    "size": 35139,
-    "sha256": "f3546f724f446cfa0c6c2ba59766e21c5bd8b0df4b0464f806909904390cdd51"
+    "size": 38603,
+    "sha256": "951313c75c1e2b3c2979549fd1b22e3a62c7df4abaf5fdeb3d7a1b0920372ad2"
   },
   {
     "path": "analysis/analysis-improvement-recommendations.html",
-    "size": 43149,
-    "sha256": "f58ae72b08c3311aed02df580cf1a1dc4034a2f0d2f87f4ad1444d373e533c9d"
+    "size": 46613,
+    "sha256": "d47524a3ada038b62453989004446d64c9e48ce61cd50fa629dc6156d6157a91"
   },
   {
     "path": "analysis/arm64-x86-cross-project-matrix.html",
-    "size": 54956,
-    "sha256": "c959f3679deb5607f47d3f7c492a61db7cf3615f96933c9141bd9b7ee7fa6dd5"
+    "size": 58420,
+    "sha256": "4d7df601facc277530735d512bde8a28eeb9c9293b712aa6a0179dd0989143ca"
   },
   {
     "path": "analysis/boot-control-plane-cross-project.html",
-    "size": 49848,
-    "sha256": "26d380c84756b1c05b33abfd7c7b3eaee405a8ddad2652bf5a794ac4b556a57f"
+    "size": 53312,
+    "sha256": "3da0681475ddb5897c6847b9b63c4bdc3b5bed3546f0d6c14cf9e0c78e482c71"
   },
   {
     "path": "analysis/ch-cubesandbox-backend-notifier-restore-crossline.html",
-    "size": 35841,
-    "sha256": "59207e92e8444e9d0e0138ae89a24165bc69a7897d8dd3b6c4e5325a870328fc"
+    "size": 39305,
+    "sha256": "f1b4c9fc482a1faf9a5bfe46d22cec32d4cfad4381fc0f7dfca3157c85493ec6"
   },
   {
     "path": "analysis/ch-cubesandbox-restore-guest-unavailability-checklist.html",
-    "size": 39431,
-    "sha256": "1e5dc663729f82553f756df7999c8cb9a8327e99f3005b42eb8783d05028d2e9"
+    "size": 42895,
+    "sha256": "4d1b473dac66f1c746547f22b12aae8b97a8f352771c97434aadcc755f13a93c"
   },
   {
     "path": "analysis/claude-code-research-workflow.html",
-    "size": 34258,
-    "sha256": "be3175be5a141f76eace9064c66b059640180f53c2c8b185097c16eaa0edc295"
+    "size": 37722,
+    "sha256": "60960defe1eca1caa53e0a3cfd8736cc261b928a01dcb821eb31110e40bf7eb9"
   },
   {
     "path": "analysis/coco-pvm-protected-vm-cross-project.html",
-    "size": 42462,
-    "sha256": "35826683abe0666371764370ea2c6064fd93df90e061859e4f3fddadd99632b9"
+    "size": 45926,
+    "sha256": "e94cde8a1912230471803099d0153f83393cf5baa8da62db8f86ae4bd2d03d87"
   },
   {
     "path": "analysis/cpu-interrupt-machine-cross-project.html",
-    "size": 57426,
-    "sha256": "57293f80630ac14a26226a56a1101f16e9471d4ac14e0376293b412842c4715d"
+    "size": 60890,
+    "sha256": "84cb7a9d0d1a4c027f12791e7ec5d4954c206a47a1d5b363bf261a51f2dfeed7"
   },
   {
     "path": "analysis/device-model-isolation-cross-project.html",
-    "size": 50391,
-    "sha256": "4a9e8d96d8511e5bf270c00c6d26539806467c8081659e7f6fe9d1cd5b2e52fd"
+    "size": 53855,
+    "sha256": "35c02074462de13a6a7357fc1cacef96e2b9a7de5dd33811d119abb6d1aed0d1"
   },
   {
     "path": "analysis/fc-kata-storage-semantics-crossline.html",
-    "size": 32067,
-    "sha256": "799e3421a4d40b8dd98e778e357d4d1ff87e73bf2d5c03d8af225908c5dd72be"
+    "size": 35531,
+    "sha256": "38dc9946cccefc2868bd70ecaca348235c677d8744d2c710b2d865d542671b53"
   },
   {
     "path": "analysis/four-project-deep-routes.html",
-    "size": 86251,
-    "sha256": "d11dcd65813e5a28f90c2421148407c321bf4c55b80d3065523b00974f8cf6d8"
+    "size": 89715,
+    "sha256": "126f08c88d42bcde36d9af79e4dfcdf6e0d8761925d6d93fcdb5ba28c6896bda"
   },
   {
     "path": "analysis/four-project-route-coverage-matrix.html",
-    "size": 35918,
-    "sha256": "fedf0876176f89919cb479cbcb65f0618b7c43b103b27324778392e3fda0291a"
+    "size": 39382,
+    "sha256": "000c86a1bb4f59943bebdd0b75511d2b34e795b19ca0ec3267febb7e1567e18e"
   },
   {
     "path": "analysis/guest-agent-runtime-cross-project.html",
-    "size": 40648,
-    "sha256": "a79d085f112ab7cf04d33f73e57edba023656c8c7e46333471750f51c9055a53"
+    "size": 44112,
+    "sha256": "c313654a2bda97fb663934b84d772e0526d10e8ca59ee602971f17a87014e20c"
   },
   {
     "path": "analysis/guest-memory-dma-iommu-cross-project.html",
-    "size": 44373,
-    "sha256": "9eb5f42f868e4cd432009ce0dc6efc80d87f65b364212195372dd4083bca1b45"
+    "size": 47837,
+    "sha256": "c744628bfc61f4b8c0452726974183b28d9ac83e68a7b142946f5e51a1b84f86"
   },
   {
     "path": "analysis/hypervisor-kvm-vcpu-cross-project.html",
-    "size": 45644,
-    "sha256": "df3b49579492d1a5ec18b91dfa0f8d27fe3334568cf870ab3c60db4d9edcd0d9"
+    "size": 49108,
+    "sha256": "8f5d13241a2fa668a2171844c662fb9105dae2369b8e8fada14c8c9d01da4dd3"
   },
   {
     "path": "analysis/interrupt-event-notification-cross-project.html",
-    "size": 53647,
-    "sha256": "b5912051c781641707e97e4dac3bcde4b6c9327737b5459c05a56b4b0a581bd8"
+    "size": 57111,
+    "sha256": "28b90f6a82527a75314380cb0af2cacb1a4117b21a3e9b9458d8903802e97b43"
   },
   {
     "path": "analysis/network-connectivity-cross-project.html",
-    "size": 49837,
-    "sha256": "faf13254f0d41a7285c71bb2dd5a7e2308a4ae54ad67be378b80db88832d1c91"
+    "size": 53301,
+    "sha256": "248cff2eef71f6f81bf23b1dc68b40db476ea51f9f492603d14e08ffb64f0d50"
   },
   {
     "path": "analysis/observability-diagnostics-cross-project.html",
-    "size": 42770,
-    "sha256": "4eec0fa8a6cf53b365a7e19c3fae195df8f3e242805a031f8fda6f73d3013c05"
+    "size": 46234,
+    "sha256": "584c2fc0448be4d57e61fa0836a8b2eb7cb1b0225121177aa99bfe6c73800c36"
   },
   {
     "path": "analysis/performance-design-basis-cross-project.html",
-    "size": 53899,
-    "sha256": "e67fba4943eb5fc124e3f4e79b2796c447a64727f831ed69fbb51243eb58662b"
+    "size": 57363,
+    "sha256": "552973f8870e1d734ace04d2d3173fe2d09aa86349ada38bab39823c4c4185d4"
   },
   {
     "path": "analysis/protected-vm-snapshot-migration-cross-project.html",
-    "size": 39582,
-    "sha256": "5149513194265bc6fe127dfd570c56947293e521d97726d04784f9f09fe7874c"
+    "size": 43046,
+    "sha256": "aabdc3639dd951e6f96b7c4c43ec885107598e36c997032303f0ca25baf830a7"
   },
   {
     "path": "analysis/resource-qos-cross-project.html",
-    "size": 43771,
-    "sha256": "93e5bc0920ec5be7350503f0c2c7e539ac0737b4b981070587c41babdb10ad99"
+    "size": 47235,
+    "sha256": "0fabcf1ac946f7f561444135649fb7f158013135e559778f03a2e7d92f439258"
   },
   {
     "path": "analysis/runtime-control-hotplug-cross-project.html",
-    "size": 44921,
-    "sha256": "b948d1a03d5ae8857f04e3bc22bbb5af60f42eab0c0210194aac7d725a19a32c"
+    "size": 48385,
+    "sha256": "e5846358d068a4a886fee7151e136bfdec933c179971400071995a9d9f1e92aa"
   },
   {
     "path": "analysis/security-design-basis-cross-project.html",
-    "size": 46757,
-    "sha256": "e26ab52a17c1b4d155525ee8c1cefffbc4a675cb8d6a3323d57ff971e2b4c2ff"
+    "size": 50221,
+    "sha256": "49ab469460a4b71e6e75385b55ec5d365d657b60a91dfeb0df74221423f5bb73"
   },
   {
     "path": "analysis/security-isolation-cross-project.html",
-    "size": 45784,
-    "sha256": "7f7d0945bad1f155631d236c959e5d48b3d5a3891b744567a734c3b3deadb8c4"
+    "size": 49248,
+    "sha256": "d4b30ebb140f17554fc70b8ac2170677266893136736dc902455a67737718eaa"
   },
   {
     "path": "analysis/snapshot-device-save-restore-deep-dive.html",
-    "size": 48943,
-    "sha256": "9317a018324dd117ca984c7599078e9c9e0a36602e3540dcba70beb16c846129"
+    "size": 52407,
+    "sha256": "e9d0d57f543dbcdd136c041356e831c625ab8db2c626c02a7b82409e74003d9c"
   },
   {
     "path": "analysis/snapshot-memory-save-restore-deep-dive.html",
-    "size": 57723,
-    "sha256": "c36270e7b20437728f5811dea96670cc4a6755f30a15053525264f911a441140"
+    "size": 61187,
+    "sha256": "1d52b915182bd4dd796b10b0671d4af7bf5be032171b7047c5d7ba1fa7a740e2"
   },
   {
     "path": "analysis/snapshot-restore-cross-project.html",
-    "size": 58376,
-    "sha256": "88864725f038188230deed0d4d9cb6cfe0ff15e88e000e92e9de483f425f0a48"
+    "size": 61840,
+    "sha256": "c66d87ed633b964ab95934e46a758027f91005d049ff458a8b327356dac7f0fe"
   },
   {
     "path": "analysis/snapshot-restore-kernel-deep-dive.html",
-    "size": 64317,
-    "sha256": "f513bf28dd23d51925d7117fe8ffd2a0bf86829d0338e3b26e2f0db0f851aa14"
+    "size": 67781,
+    "sha256": "3ffb2c3c0dfdc86ceea4419d654bc24d6102cec398c9abc821e479e29a0d78bc"
   },
   {
     "path": "analysis/storage-rootfs-sharefs-cross-project.html",
-    "size": 57455,
-    "sha256": "6e0277b3ade1076f282741ebe9f3cf19ec6a9a491a6c7f9a75d8f457aeeb8e9b"
+    "size": 60919,
+    "sha256": "5cbe894a6ac196123dfd551e0abf1db0491b924848029b92c1e25a96458e2185"
   },
   {
     "path": "analysis/virtio-data-path-cross-project.html",
-    "size": 55545,
-    "sha256": "9f8c656801af949a74c0e0a71e9e03478ac2be6d226468a900e7dcfee7268af4"
+    "size": 59009,
+    "sha256": "c8e7621a672afaac915bdf0e15a118db61194cf57b947020975c5d59aab87cf4"
   },
   {
     "path": "analysis/vm-design-landscape-overview.html",
-    "size": 49053,
-    "sha256": "82e129df99ad5eb885c69b74d0883308bdadba752bed63685059d2e6329ba5d0"
+    "size": 52517,
+    "sha256": "eedb727ce7316d27d33b5e379b2b9a31d7cfd7dfec137eed290dbccdd0f8f974"
   },
   {
     "path": "assets/search.json",
-    "size": 222909,
-    "sha256": "b86313c5056fcd1a3eaea78cdfa36e35892790803ed62210e712ef07030220e5"
+    "size": 226503,
+    "sha256": "56f3b327c2a9deaf9c40f91afa77bfab5eb79936b687e2079733c3d6c4a9f5a8"
   },
   {
     "path": "assets/style.css",
@@ -406,457 +406,457 @@
   },
   {
     "path": "cloud-hypervisor/analysis/02-Cloud-Hypervisor-架构分析报告.html",
-    "size": 77878,
-    "sha256": "daeff178cdb5aebb726ca590e590d4caa0ff030e58bf05271b013fbb9a1b021e"
+    "size": 81342,
+    "sha256": "d2216a44339a8c72b09e31700c762d7ddf72ce330a5949c5b658ffc712221464"
   },
   {
     "path": "cloud-hypervisor/analysis/acpi-fdt-machine-description-chain.html",
-    "size": 30332,
-    "sha256": "219e535f45280a9d2ddc955cc99da1b506cf42ccea069ca57c4041ba1719e3da"
+    "size": 33826,
+    "sha256": "b428c967e8cb3d6372588daf79049606e20900cb6c7967ca155c8ad74306ce5b"
   },
   {
     "path": "cloud-hypervisor/analysis/api-vmm-thread-control-chain.html",
-    "size": 45964,
-    "sha256": "2c599f3b81b80ccac9873471f5b41595f9d3989d8bf0198f314e0b31201bc3e2"
+    "size": 49455,
+    "sha256": "0a2e804612cc9a6aa004bf8e71d41431dd2ba6ecdf3bedfbde4db3518c372013"
   },
   {
     "path": "cloud-hypervisor/analysis/arch-arm64-x86-chain.html",
-    "size": 30306,
-    "sha256": "c6b6f8307192b105717867af914f31ef7929aa3ff9c1b0efd8fdfa6aef86dfa0"
+    "size": 33800,
+    "sha256": "356c2abdd36ad99a58f61f8be5bad08d18f86dd0bb888b75746732a5095ec041"
   },
   {
     "path": "cloud-hypervisor/analysis/coco-tdx-sev-snp-chain.html",
-    "size": 30217,
-    "sha256": "6738279060e1f5a5e460fb168f930e73d61f0c07739972c0a3340de9c41ccb75"
+    "size": 33699,
+    "sha256": "157ad70293bae06550a30b19a3e40fa9115b87540b756291db21968729dd74bc"
   },
   {
     "path": "cloud-hypervisor/analysis/cpu-boot-chain.html",
-    "size": 29668,
-    "sha256": "d03cc5fa31ee2322466c95274ca13685ed0bff19ca7fde1225237f0671e059f6"
+    "size": 33162,
+    "sha256": "5524b97e47171262126ffb2036ca93c75c9c8b37f90b3d1d579133b16c6f354f"
   },
   {
     "path": "cloud-hypervisor/analysis/cpu-runtime-hotplug-migration-chain.html",
-    "size": 43742,
-    "sha256": "46aae3bb75429fcfa84935a7847aa734569c554692922fd1201b85738387f1d6"
+    "size": 47241,
+    "sha256": "b5a37b6a247e4a69996765587ff46836f105e904c57c871bc3007314443bf784"
   },
   {
     "path": "cloud-hypervisor/analysis/deep-dive.html",
-    "size": 67000,
-    "sha256": "6a9cbc69174cf5661216a6ed2146b5eb459dfdb632e93aafa9bc061c69bb32dd"
+    "size": 70464,
+    "sha256": "bd4f6985d279e06deb81c2f9cd322edd778833eef7a139638a956f3c7e0f8fc7"
   },
   {
     "path": "cloud-hypervisor/analysis/deep-routes.html",
-    "size": 51592,
-    "sha256": "f74b357f0d76a9c58dd7bc3c46b582d0bb78c3623d6cc684f840596716f612cb"
+    "size": 55056,
+    "sha256": "073bfca7bbc18a9e1312028a34545ab4eb682ee1dc62132a14bd2886f0bc32fa"
   },
   {
     "path": "cloud-hypervisor/analysis/device-creation-matrix-chain.html",
-    "size": 29638,
-    "sha256": "b6ca5fc5f159e3c42f973acb158fb7b10ca055593ab2ca8969907938e04934fc"
+    "size": 33127,
+    "sha256": "fd50e92706d7d458f33cf4cf24d0569cff2320a1a8e85ec157df14399ff37862"
   },
   {
     "path": "cloud-hypervisor/analysis/device-manager-chain.html",
-    "size": 30053,
-    "sha256": "790ba9a8385c9890e4eafca8d6c829a92c04020c8eab3de17e8f7b32d6f5ea91"
+    "size": 33542,
+    "sha256": "039cf3891f9f60fd7887796abbf3cde1938ebea55da1b35e63129ec77b8966d7"
   },
   {
     "path": "cloud-hypervisor/analysis/device-tree-hotplug-restore-chain.html",
-    "size": 29626,
-    "sha256": "7a7e85d1db2ea09c2140ce818e45eb15ba8a3130d4ecb49bfbc370590b039e1c"
+    "size": 33125,
+    "sha256": "36adcd79347e6f7a96d161144502f093617e6eebae5372240edbdf75728b558d"
   },
   {
     "path": "cloud-hypervisor/analysis/interrupt-event-notification-chain.html",
-    "size": 30969,
-    "sha256": "ca7fb16233a4109b19a6d6380a0111e58842eba33a2d9da11658b1c597c25ec1"
+    "size": 34458,
+    "sha256": "1d4c515d4ea79acf8e169b4be309a1c7d4abf3d9d0a618bb30fa1a3a6b11765b"
   },
   {
     "path": "cloud-hypervisor/analysis/io-device-data-path-chain.html",
-    "size": 49982,
-    "sha256": "7241567fa591076386db83805d153aa0768a40480ae64e892455b72cfdfc325a"
+    "size": 53471,
+    "sha256": "6fd22312e8ba96b628f93f2a8bc3f893efe0b838f66468c3f5d765ed94431f9a"
   },
   {
     "path": "cloud-hypervisor/analysis/isolation-seccomp-landlock-chain.html",
-    "size": 31004,
-    "sha256": "5153aab76c309d272714edda776bc18bf8498e374a9e9924eb900a06242cfdfc"
+    "size": 34486,
+    "sha256": "ca4e55ba2d0b0225179e719b41e4c16aaedad9d15dcf57716701e1da4f2c3da9"
   },
   {
     "path": "cloud-hypervisor/analysis/memory-address-hotplug-topology-chain.html",
-    "size": 29540,
-    "sha256": "f28883535a78827d581702b8dd970d500c961ca57af6988b6d875a584e5283c0"
+    "size": 33034,
+    "sha256": "3f970f5fb7d3901999b080e0b810535dc9e8e27f8c95442fb769c90e2bfa1814"
   },
   {
     "path": "cloud-hypervisor/analysis/memory-manager-chain.html",
-    "size": 31727,
-    "sha256": "59dc269098429a886969aec788fd8e05dd234bf2dea9cbecda8b28a523d00a48"
+    "size": 35221,
+    "sha256": "d44322469ee9f5e67d1e628aab31fbe2b8efeabbbb8f158118f5c424e564b895"
   },
   {
     "path": "cloud-hypervisor/analysis/migration-memory-transport-chain.html",
-    "size": 43848,
-    "sha256": "d5a92af7e8ab4180a19208a541381e53b969b060f8daaad380043e5db1ae1c0b"
+    "size": 47347,
+    "sha256": "de75703ed2597aceaab448f2c8c4dfa97b31ea48562107601dab7cf7c24420bb"
   },
   {
     "path": "cloud-hypervisor/analysis/observability-diagnostics-chain.html",
-    "size": 30550,
-    "sha256": "73076204d500210b243a220328e55f27ad9384357eeb9f3b82fc6faa3cd2a8d7"
+    "size": 34047,
+    "sha256": "1036c92fa6eadcf5660b5abd33b0ef7d2d190afe1cd0f4bebbc98179e02fdf2e"
   },
   {
     "path": "cloud-hypervisor/analysis/runtime-control-hotplug-chain.html",
-    "size": 30569,
-    "sha256": "6c5ca575c14e593a77e4979d84e27c74b0c47be55a2b285fce970f527a51feba"
+    "size": 34060,
+    "sha256": "315ddbc401bb73f333c7b06b4b688372dd08551b3477419879f816cc7f407461"
   },
   {
     "path": "cloud-hypervisor/analysis/sev-snp-igvm-vmsa-chain.html",
-    "size": 28800,
-    "sha256": "5e03c7609883ead3c1a4b273e2ffb1601177d073bbebfc8764af37e8104e789e"
+    "size": 32282,
+    "sha256": "17ac9d71bb93ba0aad1ab9a6c20036836ddf50e7e938b34929900de1aa954356"
   },
   {
     "path": "cloud-hypervisor/analysis/storage-rootfs-sharefs-boundary-chain.html",
-    "size": 39172,
-    "sha256": "189b9885a08ee8e3097b6ad271773938ac40d769691b235045a9465fab6ea3cf"
+    "size": 42661,
+    "sha256": "3911ddb47b8d03c46bbb14e3d6b57acb87308af33f4929142895907bbe1ba7ff"
   },
   {
     "path": "cloud-hypervisor/analysis/tdx-lifecycle-limit-chain.html",
-    "size": 28932,
-    "sha256": "5fbe60d15b8e7075192fdd6970fde63f290b36a12a6f84b7c2a02ec31a7e2f1e"
+    "size": 32414,
+    "sha256": "3bb32d923f86292eac32cc510f84fe7c299902646961bc72767257c48b86957c"
   },
   {
     "path": "cloud-hypervisor/analysis/tdx-tdvf-hob-chain.html",
-    "size": 29211,
-    "sha256": "c4ea9c090a79cf2986ee9e3b782abcfe76dbc1951f2108e33ba5108130c0558b"
+    "size": 32693,
+    "sha256": "cf060a2e48c28672c719f67f2147259c7efe861b099129303570e8659b55c73a"
   },
   {
     "path": "cloud-hypervisor/analysis/tdx-vcpu-exit-vmcall-chain.html",
-    "size": 28746,
-    "sha256": "dc80226f371f21a6544da92ee32f9cf5c9bad3861b57ea836b268fff521f6d51"
+    "size": 32228,
+    "sha256": "24b75069e0dee73bb15c3c52251c3e051b8757f35ff6d3e4e54fbed07b7aed4b"
   },
   {
     "path": "cloud-hypervisor/analysis/vfio-vfio-user-iommu-migration-chain.html",
-    "size": 31053,
-    "sha256": "96031539817edb03aef8b3b077f4bd6a4c7e5c4aecb9257a0e482dc21e448d44"
+    "size": 34552,
+    "sha256": "861ecfb6ba93eabdb1ea8cf011715644d29293eee170cabe35e2380bffc3bd2a"
   },
   {
     "path": "cloud-hypervisor/analysis/vm-create-boot-chain.html",
-    "size": 43456,
-    "sha256": "d8b5fcdd1b16224d1097e4b0faa3ea0972e0ec2f0fc54ae65fe347bc991e330e"
+    "size": 46947,
+    "sha256": "03dd193dcc3ec97b51ee6b57e43e54f85a93bd65d093e067da9b23c31be5c0d2"
   },
   {
     "path": "crosvm/analysis/arch-arm64-x86-chain.html",
-    "size": 43090,
-    "sha256": "d3b73e9169081fc02ed41d5ceb39d262e7381e7596c5a488d6c97e99a68478e8"
+    "size": 46584,
+    "sha256": "272e86e85f653de190cd802271ab115c520aaf533039f0f460b285078514b439"
   },
   {
     "path": "crosvm/analysis/boot-control-chain.html",
-    "size": 49303,
-    "sha256": "1dda934c59fc27d1eb3cd5d987a40ba4267babcf8dee111fc1dbedf8e16e259c"
+    "size": 52794,
+    "sha256": "5871527c28417ebcc4cc74dced1f30918e60420ce6516697c7bb60d09b37f1f6"
   },
   {
     "path": "crosvm/analysis/create-devices-matrix-chain.html",
-    "size": 38931,
-    "sha256": "d1a7f321950d5e8cae5035eb73e8410b05ab72d54e37c48925bb6c7da07692ae"
+    "size": 42420,
+    "sha256": "962d13df59949ab1840d8300d0b58fba50efd0271c87b1f45d7e3737fffd5818"
   },
   {
     "path": "crosvm/analysis/deep-dive.html",
-    "size": 58095,
-    "sha256": "860c2d70bcb7f83c19f18a83529a00a29ebc65f0d8dca3757eb9291a6094ab56"
+    "size": 61559,
+    "sha256": "5968425bd5cfb17297e76ee88ec29d517d19f4255cae0d85d4829ac365af5db7"
   },
   {
     "path": "crosvm/analysis/deep-routes.html",
-    "size": 43040,
-    "sha256": "8bf94595137e432e6bc921e8328390a67ba622978a98d807f5a2ea6f2c20a9c3"
+    "size": 46504,
+    "sha256": "fe71b484775d73dee0e1afa9f9ddab9409aeb9bde8be24231b90745c5dd35c1d"
   },
   {
     "path": "crosvm/analysis/device-isolation-chain.html",
-    "size": 49229,
-    "sha256": "f5f62c2b6ab9098f64937e96e6dfcb1b25aa86bed7612f7122b69af83d773b46"
+    "size": 52711,
+    "sha256": "bc8904f251d8444444fdcbb4e4e669565621821306d00af2cd0e30e72643ffd9"
   },
   {
     "path": "crosvm/analysis/protected-vm-block-net-fs-data-path-chain.html",
-    "size": 40704,
-    "sha256": "0eb4666b87c73587860c9c4c53cabd2f42936a9f653adef96a51e18afade2463"
+    "size": 44186,
+    "sha256": "5131193685ad7f7f1387982c037596b93476f436c9e1dd7a9f3a7d518c25cd63"
   },
   {
     "path": "crosvm/analysis/protected-vm-device-boundary-chain.html",
-    "size": 39337,
-    "sha256": "450b74d8226257c4842d8d5d540423636b0ce9568e960eae70687e0497800c70"
+    "size": 42819,
+    "sha256": "8ec0fb25403ad1f713dcc166fabf2851036db9991758af369430bbd4c1b97869"
   },
   {
     "path": "crosvm/analysis/protected-vm-hypervisor-backend-chain.html",
-    "size": 42613,
-    "sha256": "df8677af56baa96169466f302e0ff8bf0fbec02e39211ec81ff800efe725ba82"
+    "size": 46095,
+    "sha256": "92f423cf4c1f127b6481f39dedcc9f3f13ad3d043304ae510eeeb0f2653d424f"
   },
   {
     "path": "crosvm/analysis/protected-vm-iommu-vfio-memory-mapper-chain.html",
-    "size": 42188,
-    "sha256": "1d9060dee99708e9dfd32b8ac1244f677f8ebf566e5e97849010ecd1b456dfce"
+    "size": 45670,
+    "sha256": "5ef2be3f858d53f4d2cab2c04a214d0e5f9b2e087ad9acc1c78db037371074a9"
   },
   {
     "path": "crosvm/analysis/protected-vm-pvm-chain.html",
-    "size": 42288,
-    "sha256": "4a46542375b3e356f81e62d7a601bdb10505125b93c0b6659a3a4232305a8589"
+    "size": 45770,
+    "sha256": "922dbdc56d8f93603110eec452ed30bd77dbe26a8b71f592fa81665d51cca42f"
   },
   {
     "path": "crosvm/analysis/protected-vm-snapshot-restore-boundary-chain.html",
-    "size": 41708,
-    "sha256": "d9224c42c4511f47fb4dc75bf6d20bf12a53d24121596188e99b97517308fe72"
+    "size": 45207,
+    "sha256": "20c6c051170cd20e8aed3822ed0f0ac812b27100060c3f963c78c065833c7e51"
   },
   {
     "path": "crosvm/analysis/protected-vm-vhost-user-memory-iotlb-chain.html",
-    "size": 40947,
-    "sha256": "b25a0688004dd5cf13743c16658cd1209531fab39250ca9c82d93adb8da527c1"
+    "size": 44429,
+    "sha256": "55fab6cd8ae09b19dabbb88831ae836f166d834f6d6ade899da4bd7ce02a51b8"
   },
   {
     "path": "crosvm/analysis/runtime-control-tube-chain.html",
-    "size": 47567,
-    "sha256": "16ebae25a26e5da6f9962be43d80e2ec57c529e38f77953085b3da5afbf04917"
+    "size": 51058,
+    "sha256": "338bd5ba8a7d3ea2b25acb39ec84a98e825deec2c10a1a68f7626652b59fa59d"
   },
   {
     "path": "crosvm/analysis/snapshot-suspend-chain.html",
-    "size": 48948,
-    "sha256": "4840903fd5af2bce67b331ed5166e984f763160b87c93de65e41f134852a9518"
+    "size": 52447,
+    "sha256": "be8fec4690e247bb1e9b7c368ce4da663bfb0a59e23f7861b4efb49a16ed8825"
   },
   {
     "path": "crosvm/analysis/virtio-queue-worker-chain.html",
-    "size": 43570,
-    "sha256": "26ffd1b68cb997817619ebcafe27a6a81fd548f29fa5ae68db65c302b0361ee1"
+    "size": 47059,
+    "sha256": "914b2b96a41fb74f8786bd03246c7e92f790fbe10747b8233897b87cdf568f3a"
   },
   {
     "path": "firecracker/analysis/api-event-loop-thread-chain.html",
-    "size": 44370,
-    "sha256": "55f345082a2cecffbc8ac38fe34f4decaa4a489082f92067190a7713ed930336"
+    "size": 47861,
+    "sha256": "443e398cd521abbca94896fc6c7160570a43639dd1b16963bb7fec0d5ebf8ed7"
   },
   {
     "path": "firecracker/analysis/api-start-boot-chain.html",
-    "size": 30684,
-    "sha256": "e9e9637162fbd4cee13330e51c111d04d0c40752f2f17a59b09df862a3012e15"
+    "size": 34175,
+    "sha256": "0ca505ae49ddeada8cc02ac5dee283062a508399d2537316778b17a7ceecb670"
   },
   {
     "path": "firecracker/analysis/arch-arm64-x86-chain.html",
-    "size": 32677,
-    "sha256": "271dfd9c2d9cdcbb896588ff2a37f1adeb8dab2500253df062698ec03da02678"
+    "size": 36171,
+    "sha256": "75c1f3abe89f7a28cba7ec2853b8ecb9eed5ce4a4f85254a4b68c5889233ec41"
   },
   {
     "path": "firecracker/analysis/balloon-virtio-mem-guest-chain.html",
-    "size": 31169,
-    "sha256": "ecf46a8d1b08cb6e24ba9242513e56dd5f3b9fc861b217168266e05e9d9c1409"
+    "size": 34658,
+    "sha256": "c078eed8509bb1f2f1ec6bb95d5781b2345bdfa05deb44eb8b3ea8589d3ec9a0"
   },
   {
     "path": "firecracker/analysis/build-microvm-boot-chain.html",
-    "size": 41143,
-    "sha256": "950156bc53c5b17ce6cba00f693f0b0b62bd74a04a398a7b8752f53db630fb48"
+    "size": 44634,
+    "sha256": "5ebc8c0f67d4f53d1dac3d54b237ebfa540fec6dbf42c9089bbb9297961db11c"
   },
   {
     "path": "firecracker/analysis/deep-dive.html",
-    "size": 267157,
-    "sha256": "cb2fcd1797eb7479537dfbc676d025eb7acf9034737cdc34ed24a1be279679f1"
+    "size": 270621,
+    "sha256": "bb2a2333c00940f535e43cecc30dd916a7e8b99371ef1a705837ec7f70ea6e28"
   },
   {
     "path": "firecracker/analysis/deep-routes.html",
-    "size": 52292,
-    "sha256": "a9a68bd47de5d8934d0611ed6751fd6b56b4e9340c7ee06347b6b46350773537"
+    "size": 55756,
+    "sha256": "99a376481a01b530d337eae37339e99fb4f63e418105569f63837dba13f27292"
   },
   {
     "path": "firecracker/analysis/device-capability-boundary-chain.html",
-    "size": 32663,
-    "sha256": "95fc07522b9659e36b2e3a7b51bf3300f0c3d7eae1a8eea1ece8fc906629ff18"
+    "size": 36152,
+    "sha256": "b3b0bc0c5b759b88b66bbca92326c283e072bb77de76599271c2f6091b854e87"
   },
   {
     "path": "firecracker/analysis/device-manager-id-transport-chain.html",
-    "size": 31410,
-    "sha256": "7ff61ec8e0e438fae0e9663f57fd506d9b1846eafa0ef3667b1f164eaad78b91"
+    "size": 34899,
+    "sha256": "3430b3d6a38d15873d142fc3e63fae0a015ceceec66e525927c108c975693c25"
   },
   {
     "path": "firecracker/analysis/device-manager-virtio-transport-chain.html",
-    "size": 39098,
-    "sha256": "b52861dcbada43c3ac61463188edb117793eaaf520a05c6417406cc2b9540063"
+    "size": 42587,
+    "sha256": "c1dc725ccebb554115fe69d517ead8d60bc3a1dcb58fcc30d58f7366a2f5f80a"
   },
   {
     "path": "firecracker/analysis/interrupt-event-notification-chain.html",
-    "size": 34149,
-    "sha256": "06c64d0c6e7512863ddd01d198bde456eed476a6fa657112e84f3445523dbf59"
+    "size": 37638,
+    "sha256": "33eb1c71c8de4408e249123c1b2bdbcae208c08c37f93dfd1a4b357708a637bf"
   },
   {
     "path": "firecracker/analysis/isolation-seccomp-jailer-chain.html",
-    "size": 32546,
-    "sha256": "58c16df2aa6add3c43990882926f533aff7fc5c8b3f9b72db68a0639904cbb90"
+    "size": 36028,
+    "sha256": "68c1559e2730a319dbad892db4271804ed246171b93c07b6031a31f6e6b9fd27"
   },
   {
     "path": "firecracker/analysis/machine-description-acpi-fdt-chain.html",
-    "size": 30676,
-    "sha256": "c9789cef5a6da48fa1c88c15e1d8b095e006e3e7cb9d0a85d8a25152633f7afd"
+    "size": 34170,
+    "sha256": "e9207574a6d8843eefcde82b92952b92bb956669a0541a73291e2837161c2887"
   },
   {
     "path": "firecracker/analysis/memory-device-snapshot-chain.html",
-    "size": 29959,
-    "sha256": "33187516055aa58f793df54334be0b2a90ccbac3767752742c6dd5820717de9a"
+    "size": 33458,
+    "sha256": "613d80d9c2c4991189ff5b4ba78f07c7668877e373057cf0551e59cca4575a9a"
   },
   {
     "path": "firecracker/analysis/mmds-metadata-network-chain.html",
-    "size": 30289,
-    "sha256": "ce9a0100015b21ca42686df7d83cc4fe7a2f27211ee0d8c27a958faa9034a9e5"
+    "size": 33771,
+    "sha256": "6a4b9edc1ca2d929c9b1d66524d7f5727e809e05e7934fe4c3d55b0eb91ed54f"
   },
   {
     "path": "firecracker/analysis/observability-diagnostics-chain.html",
-    "size": 32408,
-    "sha256": "1b75419ac4b51bb6ed2985f29b538f650866b3397c2ef74f5f4e289923e48793"
+    "size": 35905,
+    "sha256": "5cf0f3908fc5dea212f92e678295ad60dd7a9b4b2613ccc9260c7d218cb85cdd"
   },
   {
     "path": "firecracker/analysis/runtime-device-update-chain.html",
-    "size": 32165,
-    "sha256": "f86077db21ac3a0b47812922c01d5160fe3d0e723bc1965c1800364607814e9d"
+    "size": 35654,
+    "sha256": "4d4f47845cef56a3aa4be981db71e86030f4bf6846798a28176629a7c5eae41a"
   },
   {
     "path": "firecracker/analysis/snapshot-restore-chain.html",
-    "size": 44669,
-    "sha256": "72667b2b2e1c640cfd1d78c92022dc4007b58b4f8044f3ae78a93908b589b898"
+    "size": 48168,
+    "sha256": "35573ee38bfd0d55e6abe7994c5a444dcb67c41111aafbb5c47b921d66dd1a4d"
   },
   {
     "path": "firecracker/analysis/storage-rootfs-sharefs-boundary-chain.html",
-    "size": 38378,
-    "sha256": "475c696c07a33a97c9dd568f491f906f54da302ff5f76e140be6fafa7d4d87af"
+    "size": 41867,
+    "sha256": "c6592e512c996488520fe5fb5148f60a45d0a4b90db1d3aa616eaffdb71db39d"
   },
   {
     "path": "firecracker/analysis/uffd-memory-restore-chain.html",
-    "size": 32769,
-    "sha256": "b308a216d2fae5eb684ab2dd4524e46e539d0108670ec9fef02fc308abf26c93"
+    "size": 36268,
+    "sha256": "1f8126cc4596d850c108c9f00eb900f25626b252b7f6187e8b5c0a8490d1dad6"
   },
   {
     "path": "firecracker/analysis/vcpu-kvm-run-chain.html",
-    "size": 44688,
-    "sha256": "0773519cc9c59a1cd82320415322602161647f9d59de438b265b30e49ce74e36"
+    "size": 48182,
+    "sha256": "43a9c4585d02bfb1000a733e9759563a5187342f46ce0af31ee1c5cf6ff1de83"
   },
   {
     "path": "firecracker/analysis/virtio-block-data-path-chain.html",
-    "size": 37611,
-    "sha256": "2ba6b48a1ef261165b216f845d3b3166cc9d7879e72dc11192723ef60613e3b5"
+    "size": 41100,
+    "sha256": "43bff567623c65b8d2cadf109df3e981c9446eeb45c3311ad6c6b243c1f1105d"
   },
   {
     "path": "firecracker/analysis/virtio-device-work-chain.html",
-    "size": 41869,
-    "sha256": "a624bac2b24ea5c1f4479344723e3eee77f22f6a39e52ba009c26e10ce74ae77"
+    "size": 45358,
+    "sha256": "d8a587edf6982a4ced7a7aaf7829a8ac2f6997d3ecdb438088ce4d6e30a99e44"
   },
   {
     "path": "firecracker/analysis/virtio-net-data-path-chain.html",
-    "size": 34708,
-    "sha256": "d5190bd044c076097563fa06d7bc81cf56b95cd8b649ddef8211d66a8fe9d5f7"
+    "size": 38197,
+    "sha256": "6a30ce643d7da1ef3e1d2ae0755389d61940903a8516c4568549ba3fbc9b45c3"
   },
   {
     "path": "firecracker/analysis/vmresources-config-boundary-chain.html",
-    "size": 44571,
-    "sha256": "7c11f49bbda327fa50bd476f302ede75a413e4f04d073d92e90c4ab2713c51fb"
+    "size": 48062,
+    "sha256": "6203d1e11f5642bc10efa81680579c7b9424467257f1d0b2b6bcb532fdaba5f3"
   },
   {
     "path": "index.html",
-    "size": 27329,
-    "sha256": "85d8c0517a2b23b3d673565b4cdbb9d01f472427186a85da785aa581bc148d9f"
+    "size": 31050,
+    "sha256": "7ee280440dfeb1938ed2748c021188bb6dbe5ea0b13d8ebbef40b6ba99120f49"
   },
   {
     "path": "kata-containers/analysis/agent-container-lifecycle-chain.html",
-    "size": 45814,
-    "sha256": "cb9a4e52e500c9f978599f5439c22bbb11e61642705fdaf7591e452b25d7f1eb"
+    "size": 49305,
+    "sha256": "96a5bbdf3a13ac38740fc150ccfbc28ce61382c2e1109fd7baae1d2e055edc13"
   },
   {
     "path": "kata-containers/analysis/agent-rpc-boundary-chain.html",
-    "size": 29501,
-    "sha256": "9e61079403319874a866f595a6abedfff6e7808a09b3a849e72d636b4ac7e597"
+    "size": 32992,
+    "sha256": "364f445172ea3177d5f4b6e20ce6e5cdc895dcfc0e78174ecc5b5a1199b07442"
   },
   {
     "path": "kata-containers/analysis/arch-arm64-x86-chain.html",
-    "size": 29949,
-    "sha256": "951b01a192225756ee132242fd4e83ce1380d815df6ea841112722feac6dc84d"
+    "size": 33443,
+    "sha256": "97e95d5301c8f368908f0e98fd2dd5313ec64e68423f1e5b257dcd6240863db2"
   },
   {
     "path": "kata-containers/analysis/arm64-feature-test-coverage-chain.html",
-    "size": 29248,
-    "sha256": "5a85a16986c4a5a4dce81373e1964f095aee42ae5c2be69916996b13cf88833e"
+    "size": 32745,
+    "sha256": "edd0f64bc933b4f327413fd1d67b2c770369069b6c9ac49a6dc1555fbc93bccf"
   },
   {
     "path": "kata-containers/analysis/configuration-hypervisor-capability-chain.html",
-    "size": 28817,
-    "sha256": "05ef0ba48f725b24e372d822ffff59f2f14cd52ef29e577faf3f73e6401a8421"
+    "size": 32308,
+    "sha256": "005bf520e5dc4b15ccd26c75b9c0217f865cbb2194f2c9b832a53f4dfb56d6f4"
   },
   {
     "path": "kata-containers/analysis/cpu-scheduling-boundary-chain.html",
-    "size": 29430,
-    "sha256": "af6e6776eed7161414ca9ba4a74202e41cbf44542ecc316cb0057f36e545bc98"
+    "size": 32924,
+    "sha256": "e101a1c70709d63b74d488d9f72366c6fd98ee053830fbffcda84dc96b1170bf"
   },
   {
     "path": "kata-containers/analysis/deep-dive.html",
-    "size": 53724,
-    "sha256": "ef8d701a065d687d3f8af8d5a5c91796cd5d6f24d505ee92a69a97637f6b6f19"
+    "size": 57188,
+    "sha256": "e21e24357e776631ea57bcfa10af6e07784a4ed08de2d76e3a96d1832bd3b95b"
   },
   {
     "path": "kata-containers/analysis/deep-routes.html",
-    "size": 48419,
-    "sha256": "5c6e5ad55b8bc31cc1bf13a2edb4cb7fccde8cc41b735650592d8dd745821807"
+    "size": 51883,
+    "sha256": "47e907800e8b0d09bc797b88493672e50c7274cffe3420cfd26c0b4238fdaffc"
   },
   {
     "path": "kata-containers/analysis/guest-agent-create-container-chain.html",
-    "size": 29864,
-    "sha256": "444b54877512aeb0762612c8b6f65e6cf8b10e412fff9a5853c8e8f2172e7699"
+    "size": 33355,
+    "sha256": "5f874057f09ab6539383364d96196527b9a0fec6c50abba507f8210a52b5d7ec"
   },
   {
     "path": "kata-containers/analysis/hypervisor-plugin-lifecycle-chain.html",
-    "size": 30375,
-    "sha256": "4b603177ad83a3ea582c1d047f5a86a80be4c9bf70c5ee313bdfe2ef04bf758c"
+    "size": 33866,
+    "sha256": "f8986a94961a9cb6c83c55cdef6cf8c087cdc63d4b8842eefcadf79a20e44f59"
   },
   {
     "path": "kata-containers/analysis/interrupt-event-notification-chain.html",
-    "size": 29188,
-    "sha256": "ba17d1c8ad3474ff0b663707ebdb945a80240421dcb057bae7349fe77b0c0b6a"
+    "size": 32677,
+    "sha256": "60f004a6b05763fe0ec461d7cc979ba93036a4362adc20f6298fc722fade39e9"
   },
   {
     "path": "kata-containers/analysis/network-endpoint-agent-chain.html",
-    "size": 29499,
-    "sha256": "54fe2bd865da1ae21ec6469c567eaea308024604e5c3e1218edab3ce1dfd4d45"
+    "size": 32981,
+    "sha256": "35d29e478323b385956810d3bb49d743d5a25543798369dd35bdd2a6840a4edf"
   },
   {
     "path": "kata-containers/analysis/observability-diagnostics-chain.html",
-    "size": 29520,
-    "sha256": "fa99127c409c6f692a36ba83bf222087b2d872680a37183de6bc9123c81a83b3"
+    "size": 33017,
+    "sha256": "fffbebbcfe84a142ce6a42a206ac6d35f2d3c241232ea8368bdd00dbfc33481f"
   },
   {
     "path": "kata-containers/analysis/qemu-launch-params-chain.html",
-    "size": 28750,
-    "sha256": "85c69e1368bf2c7cb80479aaf4820a9cd415ac381885151275820cc86b1f5c30"
+    "size": 32244,
+    "sha256": "da9db8d2db9312dd6103934a291ef458f9357b859cf743bc5d4bc0847d82a70d"
   },
   {
     "path": "kata-containers/analysis/runtime-control-agent-hotplug-chain.html",
-    "size": 30641,
-    "sha256": "5720c2ab379eee5acf6972e93508148586d7d1900449f762744a50b90f33ea21"
+    "size": 34132,
+    "sha256": "05c7dcb9aef48d804a7fc9566efec0dca22d171fd0bd4827d77c59dad3c7380c"
   },
   {
     "path": "kata-containers/analysis/runtime-rs-manager-request-chain.html",
-    "size": 48145,
-    "sha256": "d43dd1e9ff41a837892f17b5d5eb7111a316531c4593edb4d6e1dc51f432c0ee"
+    "size": 51636,
+    "sha256": "46dd4f2d4b29593fefc8a6d4fc27af85da7bc1852088cb58c67d67c10449375e"
   },
   {
     "path": "kata-containers/analysis/runtime-rs-resource-device-agent-chain.html",
-    "size": 43213,
-    "sha256": "e0a0f15278ec5e24ca8d2fc673655f1508a379cfc6e30765723b07e1bc6e1070"
+    "size": 46702,
+    "sha256": "4e3285dbf9ffa982d9b23c9d5606293bfb5aa15ab05eb159b119aded3a957c5e"
   },
   {
     "path": "kata-containers/analysis/sharefs-rootfs-volume-agent-chain.html",
-    "size": 45835,
-    "sha256": "9542567a5b1dd2450c62a095173623e90449c0a5f9dc78ba83f68f0432d74ed6"
+    "size": 49324,
+    "sha256": "6788897e1131f7d69a3fb872ae15da1bbba2a87384231ac1cae3aabf48ac0f74"
   },
   {
     "path": "kata-containers/analysis/shim-exit-event-recovery-chain.html",
-    "size": 41379,
-    "sha256": "b679c95ab86084d37d4c4498c0682c79949f47eb3f8c7c23b556c371e5a6620f"
+    "size": 44870,
+    "sha256": "e4a73840784d803544b5925b46f24448676736bb0fae67a455472b732482e417"
   },
   {
     "path": "kata-containers/analysis/shim-sandbox-lifecycle-chain.html",
-    "size": 30051,
-    "sha256": "c5b430f43cf6eea896787b437d5c7c7a4a63370f7990f05aa7ec35d355b006f4"
+    "size": 33542,
+    "sha256": "083dce4638b6f5a3008d62e9177e67baa63f270d4d8dc8c1bc77609d15e9f78e"
   },
   {
     "path": "kata-containers/analysis/snapshot-restore-persist-chain.html",
-    "size": 29297,
-    "sha256": "a45904ab4dd453f149d510659b0464475f328e2b1f04b613bf36dfa672c9eb45"
+    "size": 32796,
+    "sha256": "8035712be15da0082b8dc614bd9517a2af39755b47f1c5dcf8d662c26e35f520"
   },
   {
     "path": "kata-containers/analysis/storage-device-agent-chain.html",
-    "size": 28622,
-    "sha256": "374800503e8a4ebd150b84b29d34d1df5b468b339b8777daceb8b8d5f23309ad"
+    "size": 32111,
+    "sha256": "b616a0c4550250cf0e7b02a9ffff61a95f7fe7b7beeaffeda2fd8f83e4cb7c84"
   }
 ]

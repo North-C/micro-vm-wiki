@@ -24,7 +24,9 @@
     "projects": [
       "cubesandbox"
     ],
-    "topics": [],
+    "topics": [
+      "lifecycle-control-plane"
+    ],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -52,7 +54,9 @@
     "projects": [
       "cubesandbox"
     ],
-    "topics": [],
+    "topics": [
+      "cpu-memory-machine"
+    ],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -84,7 +88,9 @@
     "projects": [
       "cubesandbox"
     ],
-    "topics": [],
+    "topics": [
+      "cpu-memory-machine"
+    ],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -110,7 +116,9 @@
     "projects": [
       "cubesandbox"
     ],
-    "topics": [],
+    "topics": [
+      "lifecycle-control-plane"
+    ],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -138,7 +146,9 @@
     "projects": [
       "cubesandbox"
     ],
-    "topics": [],
+    "topics": [
+      "lifecycle-control-plane"
+    ],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -175,7 +185,7 @@
       "cubesandbox"
     ],
     "topics": [
-      "storage"
+      "storage-device-io"
     ],
     "baselines": [],
     "status": "unconfirmed",
@@ -213,7 +223,9 @@
     "projects": [
       "cubesandbox"
     ],
-    "topics": [],
+    "topics": [
+      "lifecycle-control-plane"
+    ],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -246,7 +258,9 @@
     "projects": [
       "cubesandbox"
     ],
-    "topics": [],
+    "topics": [
+      "lifecycle-control-plane"
+    ],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "how-to",
@@ -280,7 +294,9 @@
     "projects": [
       "cubesandbox"
     ],
-    "topics": [],
+    "topics": [
+      "lifecycle-control-plane"
+    ],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -308,7 +324,9 @@
     "projects": [
       "cubesandbox"
     ],
-    "topics": [],
+    "topics": [
+      "lifecycle-control-plane"
+    ],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -334,7 +352,7 @@
       "cubesandbox"
     ],
     "topics": [
-      "snapshot"
+      "snapshot-restore-migration"
     ],
     "baselines": [],
     "status": "unconfirmed",
@@ -364,7 +382,9 @@
     "projects": [
       "cubesandbox"
     ],
-    "topics": [],
+    "topics": [
+      "operations-observability-performance"
+    ],
     "baselines": [],
     "status": "historical",
     "kind": "reference",
@@ -392,7 +412,9 @@
     "projects": [
       "cubesandbox"
     ],
-    "topics": [],
+    "topics": [
+      "operations-observability-performance"
+    ],
     "baselines": [],
     "status": "historical",
     "kind": "reference",
@@ -418,7 +440,9 @@
     "projects": [
       "cubesandbox"
     ],
-    "topics": [],
+    "topics": [
+      "operations-observability-performance"
+    ],
     "baselines": [],
     "status": "historical",
     "kind": "how-to",
@@ -458,7 +482,9 @@
     "projects": [
       "cubesandbox"
     ],
-    "topics": [],
+    "topics": [
+      "lifecycle-control-plane"
+    ],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -485,7 +511,9 @@
     "projects": [
       "cubesandbox"
     ],
-    "topics": [],
+    "topics": [
+      "lifecycle-control-plane"
+    ],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -512,7 +540,9 @@
     "projects": [
       "cubesandbox"
     ],
-    "topics": [],
+    "topics": [
+      "network-isolation"
+    ],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -550,7 +580,9 @@
     "projects": [
       "cubesandbox"
     ],
-    "topics": [],
+    "topics": [
+      "overview"
+    ],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -577,7 +609,9 @@
     "projects": [
       "cubesandbox"
     ],
-    "topics": [],
+    "topics": [
+      "overview"
+    ],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "reference",
@@ -603,7 +637,7 @@
       "cubesandbox"
     ],
     "topics": [
-      "network"
+      "network-isolation"
     ],
     "baselines": [],
     "status": "unconfirmed",
@@ -639,7 +673,7 @@
       "cubesandbox"
     ],
     "topics": [
-      "interrupt"
+      "storage-device-io"
     ],
     "baselines": [],
     "status": "unconfirmed",
@@ -674,8 +708,7 @@
       "cubesandbox"
     ],
     "topics": [
-      "restore",
-      "interrupt"
+      "snapshot-restore-migration"
     ],
     "baselines": [],
     "status": "unconfirmed",
@@ -703,7 +736,7 @@
       "cubesandbox"
     ],
     "topics": [
-      "network"
+      "network-isolation"
     ],
     "baselines": [],
     "status": "unconfirmed",
@@ -742,8 +775,7 @@
       "cubesandbox"
     ],
     "topics": [
-      "interrupt",
-      "network"
+      "network-isolation"
     ],
     "baselines": [],
     "status": "unconfirmed",
@@ -773,7 +805,7 @@
       "cubesandbox"
     ],
     "topics": [
-      "observability"
+      "operations-observability-performance"
     ],
     "baselines": [],
     "status": "unconfirmed",
@@ -818,7 +850,7 @@
       "cubesandbox"
     ],
     "topics": [
-      "performance"
+      "operations-observability-performance"
     ],
     "baselines": [],
     "status": "unconfirmed",
@@ -848,7 +880,9 @@
     "projects": [
       "cubesandbox"
     ],
-    "topics": [],
+    "topics": [
+      "snapshot-restore-migration"
+    ],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -873,7 +907,9 @@
     "projects": [
       "cubesandbox"
     ],
-    "topics": [],
+    "topics": [
+      "lifecycle-control-plane"
+    ],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -899,7 +935,9 @@
     "projects": [
       "cubesandbox"
     ],
-    "topics": [],
+    "topics": [
+      "lifecycle-control-plane"
+    ],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -943,7 +981,9 @@
     "projects": [
       "cubesandbox"
     ],
-    "topics": [],
+    "topics": [
+      "lifecycle-control-plane"
+    ],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -974,8 +1014,7 @@
       "cubesandbox"
     ],
     "topics": [
-      "snapshot",
-      "restore"
+      "snapshot-restore-migration"
     ],
     "baselines": [],
     "status": "unconfirmed",
@@ -1014,7 +1053,7 @@
       "cubesandbox"
     ],
     "topics": [
-      "snapshot"
+      "snapshot-restore-migration"
     ],
     "baselines": [],
     "status": "unconfirmed",
@@ -1041,7 +1080,7 @@
       "cubesandbox"
     ],
     "topics": [
-      "snapshot"
+      "snapshot-restore-migration"
     ],
     "baselines": [],
     "status": "unconfirmed",
@@ -1068,9 +1107,7 @@
       "cubesandbox"
     ],
     "topics": [
-      "snapshot",
-      "restore",
-      "network"
+      "snapshot-restore-migration"
     ],
     "baselines": [],
     "status": "unconfirmed",
@@ -1116,8 +1153,7 @@
       "cubesandbox"
     ],
     "topics": [
-      "snapshot",
-      "storage"
+      "snapshot-restore-migration"
     ],
     "baselines": [],
     "status": "unconfirmed",
@@ -1146,7 +1182,7 @@
       "cubesandbox"
     ],
     "topics": [
-      "network"
+      "network-isolation"
     ],
     "baselines": [],
     "status": "unconfirmed",
@@ -1178,7 +1214,9 @@
     "projects": [
       "cubesandbox"
     ],
-    "topics": [],
+    "topics": [
+      "network-isolation"
+    ],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -1224,7 +1262,9 @@
     "projects": [
       "cubesandbox"
     ],
-    "topics": [],
+    "topics": [
+      "lifecycle-control-plane"
+    ],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -1264,7 +1304,7 @@
       "cubesandbox"
     ],
     "topics": [
-      "restore"
+      "snapshot-restore-migration"
     ],
     "baselines": [],
     "status": "unconfirmed",
@@ -1310,8 +1350,7 @@
       "cubesandbox"
     ],
     "topics": [
-      "virtio",
-      "interrupt"
+      "storage-device-io"
     ],
     "baselines": [],
     "status": "unconfirmed",
@@ -1349,8 +1388,7 @@
       "cubesandbox"
     ],
     "topics": [
-      "restore",
-      "virtio"
+      "snapshot-restore-migration"
     ],
     "baselines": [],
     "status": "unconfirmed",
@@ -1387,7 +1425,7 @@
       "cubesandbox"
     ],
     "topics": [
-      "restore"
+      "snapshot-restore-migration"
     ],
     "baselines": [],
     "status": "unconfirmed",
@@ -1423,8 +1461,7 @@
       "cubesandbox"
     ],
     "topics": [
-      "snapshot",
-      "restore"
+      "snapshot-restore-migration"
     ],
     "baselines": [],
     "status": "unconfirmed",
@@ -1454,7 +1491,9 @@
     ],
     "summary": "Analysis 导航入口 本目录是顶层分析入口。 项目级源码链路统一放在 analysis/projects/ / ，由私有分析控制仓维护。 各源码仓库是只读研究输入；旧项目内 analysis/ 只在明确任务中作为迁移输入或私有证据根。 顶层 analysis/ 只放四类内容： 1. 项目路线总览 2. 跨项目专题判断 3. ARM64 网络线索引与样本体系 4. 样本资产入口 当前 CubeSandbox 源码基线 从 2026-07-31 起，新的 CubeSandbox 分析默认以 canonical 工",
     "projects": [],
-    "topics": [],
+    "topics": [
+      "learning"
+    ],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "reference",
@@ -1486,7 +1525,9 @@
     ],
     "summary": "分析框架改进意见 本文是对当前 Micro-VM 分析框架的坦诚评估与改进建议。 它不是新的机制分析，而是对“框架本身”的元层面反思：哪里已经做得好、哪里还有真实缺口、结构上怎么改进、优先级怎么排。目的是让后续研究更有效，也让读者更清楚这套材料的边界。 源码基线：当前工作树。评估基于本次系统盘点的结果。 1. 先肯定：框架已经做得很好的地方 在提改进之前，必须承认这套框架已经达到的成熟度，否则改进建议会失真。 1. 证据标准严格且一致 。每个结论都要求 文件路径:行号 / 符号名，区分事实、源码推断、工程判断（ A",
     "projects": [],
-    "topics": [],
+    "topics": [
+      "evidence-version"
+    ],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -1528,7 +1569,9 @@
     ],
     "summary": "ARM64 与 x86 64 跨项目架构差异专题分析 本文从当前工作树源码出发，对 Firecracker、Cloud Hypervisor、Kata Containers、CubeSandbox 在 arm64/aarch64 与 x86 64 下的差异做横向分析。 关联总表： ARM64 网络验证与观测总表 ./arm64-network-validation-observation-matrix.md 。 关联签名表： ARM64 网络失败签名总表 ./arm64-network-failure-signat",
     "projects": [],
-    "topics": [],
+    "topics": [
+      "lifecycle-control-plane"
+    ],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "reference",
@@ -1555,7 +1598,7 @@
     "summary": "启动路径与控制面跨项目专题分析 本文沿着四个项目的深入路线，横向比较“一个 sandbox/VM 请求如何变成可运行 guest”的真实路径。 这里的启动不是同一层概念。Cloud Hypervisor 和 crosvm 是 VMM 启动；Kata Containers 是 containerd 请求映射到 VM sandbox；CubeSandbox 是平台 API 经过调度、节点工作流、shim 后再落到 VM。 源码基线：当前仓库工作树。 相关项目路线： - Cloud Hypervisor 深入路线 pro",
     "projects": [],
     "topics": [
-      "boot"
+      "lifecycle-control-plane"
     ],
     "baselines": [],
     "status": "unconfirmed",
@@ -1584,7 +1627,7 @@
     "summary": "Cloud Hypervisor 与 CubeSandbox：Backend / Notifier / Restore 交叉线 本文聚焦一个容易在三条横线里重复出现、但又最容易说散的问题： Cloud Hypervisor 与 CubeSandbox 在外部 backend、notifier 复用、restore 重建、guest-visible state 收敛上，到底是同一类问题，还是两类问题。 源码基线：当前工作树。 关联横线： - Virtio 传输与设备数据路径跨项目专题分析 ./virtio-data-",
     "projects": [],
     "topics": [
-      "restore"
+      "snapshot-restore-migration"
     ],
     "baselines": [],
     "status": "unconfirmed",
@@ -1620,7 +1663,7 @@
     "summary": "Cloud Hypervisor 与 CubeSandbox：Restore 后 Guest 不可用验证清单 本文承接： - Cloud Hypervisor 与 CubeSandbox：Backend / Notifier / Restore 交叉线 ./ch-cubesandbox-backend-notifier-restore-crossline.md - Virtio 传输与设备数据路径跨项目专题分析 ./virtio-data-path-cross-project.md - 中断与事件通知跨项目专题分析",
     "projects": [],
     "topics": [
-      "restore"
+      "operations-validation"
     ],
     "baselines": [],
     "status": "unconfirmed",
@@ -1650,7 +1693,9 @@
     ],
     "summary": "Claude Code 协同研究工作流 本文定义后续深入研究的协作方式。主线程负责路线规划、任务拆解、交叉核验、文档组织和最终校验；Claude Code 主要负责源码阅读、文档材料、文档初稿和只读审阅。 1. 分工原则 主线程不再把所有源码细读都串行完成。每次选择一条深入路线后，先产出问题清单、证据需求、源码范围和预期文档结构。 Claude Code 承担三类任务。第一类是源码解析，回答限定范围内的调用链、状态机、架构差异和能力边界。第二类是文档材料或初稿，按主线程给出的结构整理证据。第三类是只读审阅，检查文档",
     "projects": [],
-    "topics": [],
+    "topics": [
+      "operations-validation"
+    ],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "how-to",
@@ -1679,7 +1724,9 @@
     ],
     "summary": "CoCo / pVM / 受保护 VM 跨项目专题分析 本文只讨论能改变 VM 信任边界的机制：TDX、SEV-SNP、Arm CCA/RME、crosvm protected VM、CubeSandbox PVM。普通 jail、seccomp、Minijail、Landlock 属于进程隔离，不等同于 confidential guest。 核心问题不是“是否安全”，而是配置如何进入 hypervisor，guest 内存何时变成 host 不可直接访问，启动固件如何被度量或接管，设备 DMA 如何受限，以及迁",
     "projects": [],
-    "topics": [],
+    "topics": [
+      "history-deferred"
+    ],
     "baselines": [],
     "status": "historical",
     "kind": "explanation",
@@ -1719,7 +1766,7 @@
     "summary": "CPU、中断控制器与机器描述跨项目专题分析 本文继续沿着深入路线，把 Firecracker、Cloud Hypervisor、Kata Containers、CubeSandbox 在 CPU 初始化、中断控制器、guest 机器描述和 snapshot/restore 状态边界上的实现放在一起比较。 crosvm 相关内容保留为历史参考，但当前已暂停继续分析，不作为后续路线的推进对象。 这条线是理解 ARM64 与 x86 64 差异的底层主线。设备、热插拔、snapshot、runtime 能力最终都会回到这",
     "projects": [],
     "topics": [
-      "interrupt"
+      "cpu-memory-machine"
     ],
     "baselines": [],
     "status": "unconfirmed",
@@ -1763,7 +1810,7 @@
     "summary": "设备模型与隔离边界跨项目专题分析 本文沿四个项目文档中的深入路线，专门分析设备模型、设备隔离、hotplug 和 guest 可见设备状态。核心结论：四个项目都在“设备”上做抽象，但抽象层级不同。 源码基线：当前工作树。 覆盖项目：Cloud Hypervisor、crosvm、Kata Containers、CubeSandbox。 1. 先定义设备模型边界 设备模型至少包含五层： 层级 含义 --- --- guest-visible device guest 内看到的 virtio/vfio/pci/mmio",
     "projects": [],
     "topics": [
-      "isolation"
+      "network-isolation"
     ],
     "baselines": [],
     "status": "unconfirmed",
@@ -1789,7 +1836,7 @@
     "summary": "Firecracker 与 Kata：Rootfs / Backing / Guest-Visible Storage 交叉线 本文聚焦一个和 Cloud Hypervisor + CubeSandbox 很不同、但同样容易被混掉的问题： Firecracker 与 Kata 虽然都会让 guest 看到 block 或共享目录相关对象，但两者在“rootfs 语义到底由谁成立”这件事上，处在完全不同的层级。 源码基线：当前工作树。 关联专题： - 存储、rootfs 与共享文件系统跨项目专题分析 ./storag",
     "projects": [],
     "topics": [
-      "storage"
+      "storage-device-io"
     ],
     "baselines": [],
     "status": "unconfirmed",
@@ -1820,7 +1867,9 @@
     ],
     "summary": "Micro-VM 项目深入路线总览 本文把重点 Micro-VM 项目的路线展开文档横向对齐，帮助后续研究时避免“每个项目各看各的”。项目文档分别是： - Firecracker 深入路线 projects/firecracker/deep-routes.md - Cloud Hypervisor 深入路线 projects/cloud-hypervisor/deep-routes.md - Kata Containers 深入路线 projects/kata-containers/deep-routes.md -",
     "projects": [],
-    "topics": [],
+    "topics": [
+      "learning"
+    ],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "reference",
@@ -1849,7 +1898,9 @@
     ],
     "summary": "四项目深入路线完成度矩阵 本文承接 Micro-VM 项目深入路线总览 ./four-project-deep-routes.md 。 前面的总览已经把四个项目的研究路线横向对齐。 但随着文档增多，一个新的问题开始变得更重要： 哪些路线已经真正展开到位，哪些路线还只停在入口级别。 本文的目标就是把这一点收清楚。 源码基线：当前工作树。 1. 核心结论 当前四个项目的研究线，整体上已经从“缺入口图”进入“缺覆盖盘点”的阶段。 尤其是 Firecracker、Cloud Hypervisor、Kata，这三家的主干路线",
     "projects": [],
-    "topics": [],
+    "topics": [
+      "evidence-version"
+    ],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "reference",
@@ -1878,7 +1929,9 @@
     ],
     "summary": "Guest Agent 与 Runtime 语义跨项目专题分析 本文比较 Firecracker、Cloud Hypervisor、crosvm、Kata Containers 和 CubeSandbox 的 guest agent 边界。 核心问题：Micro-VM 项目是否“需要 agent”，不能只看有没有 vsock。vsock 只是通道；agent 是运行在 guest 内、理解容器或平台语义的长期服务。 1. 总结结论 Firecracker、Cloud Hypervisor 和 crosvm 本体不绑",
     "projects": [],
-    "topics": [],
+    "topics": [
+      "lifecycle-control-plane"
+    ],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -1921,7 +1974,7 @@
     "summary": "Guest Memory、DMA/IOMMU 与地址转换跨项目专题分析 本文从源码出发，对比 Firecracker、Cloud Hypervisor、crosvm、Kata Containers 与 CubeSandbox 的 guest memory、DMA、IOMMU、dirty tracking 和 guest 内存热插拔语义。 这条路线要先分清三层：host 用户态内存映射、hypervisor memory slot、设备 DMA 可见地址。VMM 层通常只负责前两层，IOMMU 与 runtime 层",
     "projects": [],
     "topics": [
-      "memory"
+      "cpu-memory-machine"
     ],
     "baselines": [],
     "status": "unconfirmed",
@@ -1965,7 +2018,9 @@
     ],
     "summary": "Hypervisor/KVM/vCPU 执行边界跨项目专题分析 本文从源码出发，对比 Firecracker、Cloud Hypervisor、crosvm、Kata Containers 与 CubeSandbox 的 hypervisor 抽象、KVM 绑定、vCPU 创建、vCPU run loop 和 ARM64/x86 64 差异。 这条路线的核心问题是：项目是否直接面向 KVM，还是先抽象出 hypervisor trait；vCPU exit 是在 hypervisor 层处理，还是返回到 VMM/c",
     "projects": [],
-    "topics": [],
+    "topics": [
+      "cpu-memory-machine"
+    ],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -2008,7 +2063,7 @@
     "summary": "中断与事件通知跨项目专题分析 本文从源码比较当前四个重点项目的中断与事件通知路径：Firecracker、Cloud Hypervisor、Kata Containers、CubeSandbox。核心问题是：guest 如何通知 host 有新队列工作，host 设备完成后又如何把中断送回 guest。 这条路径连接 virtqueue、eventfd、ioeventfd、irqfd、MSI/MSI-X、IOAPIC/APIC、GIC/ITS 和 vCPU run loop。它决定设备延迟、vhost 后端接入、热",
     "projects": [],
     "topics": [
-      "interrupt"
+      "storage-device-io"
     ],
     "baselines": [],
     "status": "unconfirmed",
@@ -2036,7 +2091,7 @@
     "summary": "网络与连接模型跨项目专题分析 本文横向比较四个项目中“网络如何从 host 进入 guest，并变成 guest 内可用接口、路由和策略”的真实路径。 源码基线：当前仓库工作树。 关联总表： ARM64 网络验证与观测总表 ./arm64-network-validation-observation-matrix.md 。 关联签名表： ARM64 网络失败签名总表 ./arm64-network-failure-signature-matrix.md 。 关联命令表： ARM64 网络测试与取证命令总表 ./ar",
     "projects": [],
     "topics": [
-      "network"
+      "network-isolation"
     ],
     "baselines": [],
     "status": "unconfirmed",
@@ -2065,7 +2120,7 @@
     "summary": "可观测性与故障诊断跨项目专题分析 本文比较五个项目如何暴露日志、指标、事件、guest console、runtime event 和诊断材料。它回答一个实际问题：Micro-VM 出问题时，证据从哪里来，能证明到哪一层。 关联签名表： ARM64 网络失败签名总表 ./arm64-network-failure-signature-matrix.md 。 关联命令表： ARM64 网络测试与取证命令总表 ./arm64-network-test-observation-command-matrix.md 。 关联",
     "projects": [],
     "topics": [
-      "observability"
+      "operations-observability-performance"
     ],
     "baselines": [],
     "status": "unconfirmed",
@@ -2108,7 +2163,7 @@
     "summary": "性能设计依据跨项目专题分析 本文回答一个问题： 轻量化虚拟机的性能，到底从哪些设计决策里来？ 它是综合层，不是机制层。机制（ioeventfd 怎么注册、dirty log 怎么聚合、UFFD 怎么握手）已经在各自链路文档里讲清楚；本文的作用是把这些机制 重新按性能杠杆组织 ，说明每个杠杆为什么影响性能、五个项目怎么取舍、实测数字落在哪，最后提炼成可复用的设计原则。 配套阅读： - 机制基础： Virtio 传输与设备数据路径 ./virtio-data-path-cross-project.md 、 中断与事件通",
     "projects": [],
     "topics": [
-      "performance"
+      "operations-observability-performance"
     ],
     "baselines": [],
     "status": "unconfirmed",
@@ -2137,8 +2192,7 @@
     "summary": "Protected VM 与 snapshot/migration 跨项目专题分析 本文承接 CoCo / pVM / 受保护 VM 跨项目专题分析 ./coco-pvm-protected-vm-cross-project.md 、 Snapshot / Restore / Clone 跨项目专题分析 ./snapshot-restore-cross-project.md 和 Guest Memory、DMA/IOMMU 与地址转换跨项目专题分析 ./guest-memory-dma-iommu-cross-pr",
     "projects": [],
     "topics": [
-      "snapshot",
-      "migration"
+      "history-deferred"
     ],
     "baselines": [],
     "status": "historical",
@@ -2181,7 +2235,9 @@
     ],
     "summary": "资源管理与 QoS 跨项目专题分析 本文从源码出发，比较 Firecracker、Cloud Hypervisor、crosvm、Kata Containers 和 CubeSandbox 的资源管理边界。 这里的资源管理不只包括 vCPU 和内存大小，也包括 balloon、virtio-mem、设备限速、宿主 cgroup、调度 quota、guest 内 cgroup 更新。 1. 分层模型 这条链路的关键问题是：资源限制发生在 VM 内还是 VM 外，发生在启动前还是运行中，以及是否需要 guest age",
     "projects": [],
-    "topics": [],
+    "topics": [
+      "lifecycle-control-plane"
+    ],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -2208,7 +2264,9 @@
     ],
     "summary": "运行期控制面与热插拔跨项目专题分析 本文比较 Firecracker、Cloud Hypervisor、crosvm、Kata Containers 和 CubeSandbox 的运行期控制面。重点不是“如何启动 VM”，而是 VM 或 sandbox 已经运行后，控制命令如何进入系统，最终谁改变 vCPU、内存、设备、guest agent 或平台状态。 源码基线：当前仓库工作树。 相关文档： - 启动路径与控制面跨项目专题分析 ./boot-control-plane-cross-project.md - 设备",
     "projects": [],
-    "topics": [],
+    "topics": [
+      "lifecycle-control-plane"
+    ],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -2241,7 +2299,7 @@
     "summary": "安全设计依据跨项目专题分析 本文回答一个问题： 设计一个轻量化虚拟机时，安全应该怎么推理、怎么取舍？ 它是综合层，不是机制层。机制（jailer 怎么 pivot root、seccomp 怎么按线程生成、Landlock 怎么建 ruleset、agent policy 怎么 check）已经在机制文档里讲清楚： - 机制基础： 安全隔离边界跨项目专题分析 ./security-isolation-cross-project.md （五个项目的隔离机制清单与源码锚点）。 - 项目级新补充： Cloud Hyper",
     "projects": [],
     "topics": [
-      "security"
+      "lifecycle-control-plane"
     ],
     "baselines": [],
     "status": "unconfirmed",
@@ -2283,8 +2341,7 @@
     "summary": "安全隔离边界跨项目专题分析 本文比较 Firecracker、Cloud Hypervisor、crosvm、Kata Containers 和 CubeSandbox 的安全隔离机制。 核心问题：Micro-VM 的安全边界不是单点。KVM 提供 guest/host 执行边界，VMM 提供设备模型边界，seccomp/jailer/minijail/Landlock 限制 host 侧攻击面，runtime/agent/platform 再约束业务语义。 本文是机制清单。安全 设计推理 （威胁模型、纵深防御原理",
     "projects": [],
     "topics": [
-      "security",
-      "isolation"
+      "network-isolation"
     ],
     "baselines": [],
     "status": "unconfirmed",
@@ -2327,8 +2384,7 @@
     "summary": "Snapshot 设备状态保存与恢复专题 本文聚焦 snapshot/restore 中设备状态的部分——保存什么、按什么顺序、restore 时如何重建设备对象 + transport + 中断路由 + 事件订阅。 源码基线：Linux 6.6.0 内核 + Firecracker/Cloud Hypervisor/CubeSandbox VMM 源码。 相关： Snapshot/Restore 底层内核技术深度解读 ./snapshot-restore-kernel-deep-dive.md 、 Snapsho",
     "projects": [],
     "topics": [
-      "snapshot",
-      "restore"
+      "snapshot-restore-migration"
     ],
     "baselines": [],
     "status": "unconfirmed",
@@ -2373,9 +2429,7 @@
     "summary": "Snapshot 内存保存与恢复专题 本文聚焦 snapshot/restore 中最复杂、最核心的部分—— guest memory 的保存与恢复 。从 VMM 用户态实现到内核 KVM/userfaultfd 底层机制，逐层展开。 源码基线：Linux 6.6.0 内核 + Firecracker/Cloud Hypervisor/CubeSandbox VMM 源码。 相关： Snapshot/Restore 底层内核技术深度解读 ./snapshot-restore-kernel-deep-dive.md ",
     "projects": [],
     "topics": [
-      "snapshot",
-      "restore",
-      "memory"
+      "snapshot-restore-migration"
     ],
     "baselines": [],
     "status": "unconfirmed",
@@ -2422,8 +2476,7 @@
     "summary": "Snapshot / Restore / Clone 跨项目专题分析 本文从源码出发，系统比较 Firecracker、Cloud Hypervisor、crosvm、Kata Containers 和 CubeSandbox 五个项目的 snapshot、restore、clone、migration 能力。 核心问题：五个项目都用\"snapshot\"这个词，但 保存的状态层级完全不同 ——VMM 级 snapshot 保存 CPU/内存/设备寄存器；runtime 级 save 额外保存 sandbox/con",
     "projects": [],
     "topics": [
-      "snapshot",
-      "restore"
+      "snapshot-restore-migration"
     ],
     "baselines": [],
     "status": "unconfirmed",
@@ -2466,8 +2519,7 @@
     "summary": "Snapshot / Restore 底层内核技术深度解读 本文从 Linux 6.6.0 内核源码出发，深入解读 Micro-VM snapshot/restore 用到的全部底层内核机制。不是再次描述 VMM 侧架构——而是回答\"内核里到底怎么实现的\"。 源码基线： kernel/ （Linux 6.6.0）+ Firecracker/Cloud Hypervisor/CubeSandbox VMM 源码。 相关： Snapshot/Restore/Clone 横向专题 ./snapshot-restore-c",
     "projects": [],
     "topics": [
-      "snapshot",
-      "restore"
+      "snapshot-restore-migration"
     ],
     "baselines": [],
     "status": "unconfirmed",
@@ -2499,7 +2551,7 @@
     "summary": "存储、rootfs 与共享文件系统跨项目专题分析 本文横向比较当前四个重点项目中“guest 如何看到磁盘、rootfs、共享目录和可持久化状态”。这条路线直接影响启动、设备模型、snapshot/clone、恢复和 ARM64 支持。 源码基线：当前仓库工作树。 相关项目路线： - Firecracker 深入路线 projects/firecracker/deep-routes.md - Cloud Hypervisor 深入路线 projects/cloud-hypervisor/deep-routes.md",
     "projects": [],
     "topics": [
-      "storage"
+      "storage-device-io"
     ],
     "baselines": [],
     "status": "unconfirmed",
@@ -2530,7 +2582,7 @@
     "summary": "Virtio 传输与设备数据路径跨项目专题分析 本文从源码出发，比较当前四个重点项目的 virtio 传输、队列、事件、中断和设备 worker 边界：Firecracker、Cloud Hypervisor、Kata Containers、CubeSandbox。 这里的核心问题不是“支持哪些 virtio 设备”，而是 guest driver 写 queue notify 以后，请求如何到达 host 设备后端，又如何通过 used ring 和 interrupt 返回 guest。 1. 通用数据路径 v",
     "projects": [],
     "topics": [
-      "virtio"
+      "storage-device-io"
     ],
     "baselines": [],
     "status": "unconfirmed",
@@ -2564,7 +2616,9 @@
     ],
     "summary": "轻量化虚拟机设计全景与学习路线 本文是面向“想完整理解轻量化虚拟机（MicroVM）设计”的读者入口。 它与 Analysis 导航入口 ./README.md 的区别在于： README.md 是按“项目路线 / 跨项目专题 / ARM64 网络 / 样本”组织的 导航索引 ，而本文是按 学习目标 组织的 课程路线 ——先建立完整面貌，再说明每个设计维度为什么这样取舍，最后给出一条从源码到性能与安全的设计依据路径。 源码基线：当前工作树。本文只综合已有专题与链路文档的结论，不重复展开函数级调用链；需要深入时一律跳",
     "projects": [],
-    "topics": [],
+    "topics": [
+      "learning"
+    ],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "tutorial",
@@ -2609,7 +2663,9 @@
     "projects": [
       "cloud-hypervisor"
     ],
-    "topics": [],
+    "topics": [
+      "overview"
+    ],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -2634,7 +2690,9 @@
     "projects": [
       "cloud-hypervisor"
     ],
-    "topics": [],
+    "topics": [
+      "cpu-memory-machine"
+    ],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -2668,7 +2726,9 @@
     "projects": [
       "cloud-hypervisor"
     ],
-    "topics": [],
+    "topics": [
+      "lifecycle-control-plane"
+    ],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -2693,7 +2753,9 @@
     "projects": [
       "cloud-hypervisor"
     ],
-    "topics": [],
+    "topics": [
+      "cpu-memory-machine"
+    ],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -2719,7 +2781,9 @@
     "projects": [
       "cloud-hypervisor"
     ],
-    "topics": [],
+    "topics": [
+      "network-isolation"
+    ],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -2745,7 +2809,7 @@
       "cloud-hypervisor"
     ],
     "topics": [
-      "boot"
+      "cpu-memory-machine"
     ],
     "baselines": [],
     "status": "unconfirmed",
@@ -2784,7 +2848,7 @@
       "cloud-hypervisor"
     ],
     "topics": [
-      "migration"
+      "snapshot-restore-migration"
     ],
     "baselines": [],
     "status": "unconfirmed",
@@ -2823,7 +2887,9 @@
     "projects": [
       "cloud-hypervisor"
     ],
-    "topics": [],
+    "topics": [
+      "overview"
+    ],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -2848,7 +2914,9 @@
     "projects": [
       "cloud-hypervisor"
     ],
-    "topics": [],
+    "topics": [
+      "overview"
+    ],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "reference",
@@ -2872,7 +2940,9 @@
     "projects": [
       "cloud-hypervisor"
     ],
-    "topics": [],
+    "topics": [
+      "storage-device-io"
+    ],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "reference",
@@ -2898,7 +2968,9 @@
     "projects": [
       "cloud-hypervisor"
     ],
-    "topics": [],
+    "topics": [
+      "storage-device-io"
+    ],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -2924,7 +2996,7 @@
       "cloud-hypervisor"
     ],
     "topics": [
-      "restore"
+      "snapshot-restore-migration"
     ],
     "baselines": [],
     "status": "unconfirmed",
@@ -2954,7 +3026,7 @@
       "cloud-hypervisor"
     ],
     "topics": [
-      "interrupt"
+      "storage-device-io"
     ],
     "baselines": [],
     "status": "unconfirmed",
@@ -2993,7 +3065,9 @@
     "projects": [
       "cloud-hypervisor"
     ],
-    "topics": [],
+    "topics": [
+      "storage-device-io"
+    ],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -3021,7 +3095,7 @@
       "cloud-hypervisor"
     ],
     "topics": [
-      "isolation"
+      "network-isolation"
     ],
     "baselines": [],
     "status": "unconfirmed",
@@ -3050,7 +3124,7 @@
       "cloud-hypervisor"
     ],
     "topics": [
-      "memory"
+      "cpu-memory-machine"
     ],
     "baselines": [],
     "status": "unconfirmed",
@@ -3080,7 +3154,7 @@
       "cloud-hypervisor"
     ],
     "topics": [
-      "memory"
+      "cpu-memory-machine"
     ],
     "baselines": [],
     "status": "unconfirmed",
@@ -3117,8 +3191,7 @@
       "cloud-hypervisor"
     ],
     "topics": [
-      "migration",
-      "memory"
+      "snapshot-restore-migration"
     ],
     "baselines": [],
     "status": "unconfirmed",
@@ -3146,7 +3219,7 @@
       "cloud-hypervisor"
     ],
     "topics": [
-      "observability"
+      "operations-observability-performance"
     ],
     "baselines": [],
     "status": "unconfirmed",
@@ -3173,7 +3246,9 @@
     "projects": [
       "cloud-hypervisor"
     ],
-    "topics": [],
+    "topics": [
+      "lifecycle-control-plane"
+    ],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -3198,7 +3273,9 @@
     "projects": [
       "cloud-hypervisor"
     ],
-    "topics": [],
+    "topics": [
+      "network-isolation"
+    ],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -3234,7 +3311,7 @@
       "cloud-hypervisor"
     ],
     "topics": [
-      "storage"
+      "storage-device-io"
     ],
     "baselines": [],
     "status": "unconfirmed",
@@ -3260,7 +3337,9 @@
     "projects": [
       "cloud-hypervisor"
     ],
-    "topics": [],
+    "topics": [
+      "network-isolation"
+    ],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -3286,7 +3365,9 @@
     "projects": [
       "cloud-hypervisor"
     ],
-    "topics": [],
+    "topics": [
+      "network-isolation"
+    ],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -3310,7 +3391,9 @@
     "projects": [
       "cloud-hypervisor"
     ],
-    "topics": [],
+    "topics": [
+      "network-isolation"
+    ],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -3338,7 +3421,7 @@
       "cloud-hypervisor"
     ],
     "topics": [
-      "migration"
+      "snapshot-restore-migration"
     ],
     "baselines": [],
     "status": "unconfirmed",
@@ -3376,7 +3459,7 @@
       "cloud-hypervisor"
     ],
     "topics": [
-      "boot"
+      "lifecycle-control-plane"
     ],
     "baselines": [],
     "status": "unconfirmed",
@@ -3409,7 +3492,9 @@
     "projects": [
       "crosvm"
     ],
-    "topics": [],
+    "topics": [
+      "cpu-memory-machine"
+    ],
     "baselines": [],
     "status": "historical",
     "kind": "explanation",
@@ -3442,7 +3527,7 @@
       "crosvm"
     ],
     "topics": [
-      "boot"
+      "lifecycle-control-plane"
     ],
     "baselines": [],
     "status": "historical",
@@ -3471,7 +3556,9 @@
     "projects": [
       "crosvm"
     ],
-    "topics": [],
+    "topics": [
+      "storage-device-io"
+    ],
     "baselines": [],
     "status": "historical",
     "kind": "reference",
@@ -3506,7 +3593,9 @@
     "projects": [
       "crosvm"
     ],
-    "topics": [],
+    "topics": [
+      "overview"
+    ],
     "baselines": [],
     "status": "historical",
     "kind": "explanation",
@@ -3531,7 +3620,9 @@
     "projects": [
       "crosvm"
     ],
-    "topics": [],
+    "topics": [
+      "overview"
+    ],
     "baselines": [],
     "status": "historical",
     "kind": "reference",
@@ -3563,7 +3654,7 @@
       "crosvm"
     ],
     "topics": [
-      "isolation"
+      "network-isolation"
     ],
     "baselines": [],
     "status": "historical",
@@ -3597,7 +3688,9 @@
     "projects": [
       "crosvm"
     ],
-    "topics": [],
+    "topics": [
+      "network-isolation"
+    ],
     "baselines": [],
     "status": "historical",
     "kind": "explanation",
@@ -3631,7 +3724,9 @@
     "projects": [
       "crosvm"
     ],
-    "topics": [],
+    "topics": [
+      "network-isolation"
+    ],
     "baselines": [],
     "status": "historical",
     "kind": "explanation",
@@ -3666,7 +3761,9 @@
     "projects": [
       "crosvm"
     ],
-    "topics": [],
+    "topics": [
+      "network-isolation"
+    ],
     "baselines": [],
     "status": "historical",
     "kind": "explanation",
@@ -3704,7 +3801,7 @@
       "crosvm"
     ],
     "topics": [
-      "memory"
+      "network-isolation"
     ],
     "baselines": [],
     "status": "historical",
@@ -3741,7 +3838,9 @@
     "projects": [
       "crosvm"
     ],
-    "topics": [],
+    "topics": [
+      "network-isolation"
+    ],
     "baselines": [],
     "status": "historical",
     "kind": "explanation",
@@ -3778,8 +3877,7 @@
       "crosvm"
     ],
     "topics": [
-      "snapshot",
-      "restore"
+      "snapshot-restore-migration"
     ],
     "baselines": [],
     "status": "historical",
@@ -3815,7 +3913,7 @@
       "crosvm"
     ],
     "topics": [
-      "memory"
+      "network-isolation"
     ],
     "baselines": [],
     "status": "historical",
@@ -3855,7 +3953,9 @@
     "projects": [
       "crosvm"
     ],
-    "topics": [],
+    "topics": [
+      "lifecycle-control-plane"
+    ],
     "baselines": [],
     "status": "historical",
     "kind": "explanation",
@@ -3888,7 +3988,7 @@
       "crosvm"
     ],
     "topics": [
-      "snapshot"
+      "snapshot-restore-migration"
     ],
     "baselines": [],
     "status": "historical",
@@ -3929,7 +4029,7 @@
       "crosvm"
     ],
     "topics": [
-      "virtio"
+      "storage-device-io"
     ],
     "baselines": [],
     "status": "historical",
@@ -3968,7 +4068,9 @@
     "projects": [
       "firecracker"
     ],
-    "topics": [],
+    "topics": [
+      "lifecycle-control-plane"
+    ],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -3996,7 +4098,7 @@
       "firecracker"
     ],
     "topics": [
-      "boot"
+      "lifecycle-control-plane"
     ],
     "baselines": [],
     "status": "unconfirmed",
@@ -4024,7 +4126,9 @@
     "projects": [
       "firecracker"
     ],
-    "topics": [],
+    "topics": [
+      "cpu-memory-machine"
+    ],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -4052,7 +4156,7 @@
       "firecracker"
     ],
     "topics": [
-      "virtio"
+      "storage-device-io"
     ],
     "baselines": [],
     "status": "unconfirmed",
@@ -4087,7 +4191,7 @@
       "firecracker"
     ],
     "topics": [
-      "boot"
+      "lifecycle-control-plane"
     ],
     "baselines": [],
     "status": "unconfirmed",
@@ -4132,7 +4236,9 @@
     "projects": [
       "firecracker"
     ],
-    "topics": [],
+    "topics": [
+      "overview"
+    ],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -4164,7 +4270,9 @@
     "projects": [
       "firecracker"
     ],
-    "topics": [],
+    "topics": [
+      "overview"
+    ],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "reference",
@@ -4191,7 +4299,9 @@
     "projects": [
       "firecracker"
     ],
-    "topics": [],
+    "topics": [
+      "storage-device-io"
+    ],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -4218,7 +4328,9 @@
     "projects": [
       "firecracker"
     ],
-    "topics": [],
+    "topics": [
+      "storage-device-io"
+    ],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -4254,7 +4366,7 @@
       "firecracker"
     ],
     "topics": [
-      "virtio"
+      "storage-device-io"
     ],
     "baselines": [],
     "status": "unconfirmed",
@@ -4288,7 +4400,7 @@
       "firecracker"
     ],
     "topics": [
-      "interrupt"
+      "storage-device-io"
     ],
     "baselines": [],
     "status": "unconfirmed",
@@ -4318,7 +4430,7 @@
       "firecracker"
     ],
     "topics": [
-      "isolation"
+      "network-isolation"
     ],
     "baselines": [],
     "status": "unconfirmed",
@@ -4344,7 +4456,9 @@
     "projects": [
       "firecracker"
     ],
-    "topics": [],
+    "topics": [
+      "cpu-memory-machine"
+    ],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -4371,8 +4485,7 @@
       "firecracker"
     ],
     "topics": [
-      "snapshot",
-      "memory"
+      "snapshot-restore-migration"
     ],
     "baselines": [],
     "status": "unconfirmed",
@@ -4400,7 +4513,7 @@
       "firecracker"
     ],
     "topics": [
-      "network"
+      "network-isolation"
     ],
     "baselines": [],
     "status": "unconfirmed",
@@ -4429,7 +4542,7 @@
       "firecracker"
     ],
     "topics": [
-      "observability"
+      "operations-observability-performance"
     ],
     "baselines": [],
     "status": "unconfirmed",
@@ -4455,7 +4568,9 @@
     "projects": [
       "firecracker"
     ],
-    "topics": [],
+    "topics": [
+      "storage-device-io"
+    ],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -4494,8 +4609,7 @@
       "firecracker"
     ],
     "topics": [
-      "snapshot",
-      "restore"
+      "snapshot-restore-migration"
     ],
     "baselines": [],
     "status": "unconfirmed",
@@ -4530,7 +4644,7 @@
       "firecracker"
     ],
     "topics": [
-      "storage"
+      "storage-device-io"
     ],
     "baselines": [],
     "status": "unconfirmed",
@@ -4562,8 +4676,7 @@
       "firecracker"
     ],
     "topics": [
-      "restore",
-      "memory"
+      "snapshot-restore-migration"
     ],
     "baselines": [],
     "status": "unconfirmed",
@@ -4601,7 +4714,9 @@
     "projects": [
       "firecracker"
     ],
-    "topics": [],
+    "topics": [
+      "cpu-memory-machine"
+    ],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -4636,7 +4751,7 @@
       "firecracker"
     ],
     "topics": [
-      "virtio"
+      "storage-device-io"
     ],
     "baselines": [],
     "status": "unconfirmed",
@@ -4676,7 +4791,7 @@
       "firecracker"
     ],
     "topics": [
-      "virtio"
+      "storage-device-io"
     ],
     "baselines": [],
     "status": "unconfirmed",
@@ -4709,7 +4824,7 @@
       "firecracker"
     ],
     "topics": [
-      "virtio"
+      "storage-device-io"
     ],
     "baselines": [],
     "status": "unconfirmed",
@@ -4748,7 +4863,9 @@
     "projects": [
       "firecracker"
     ],
-    "topics": [],
+    "topics": [
+      "lifecycle-control-plane"
+    ],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -4784,7 +4901,9 @@
     "projects": [
       "kata-containers"
     ],
-    "topics": [],
+    "topics": [
+      "lifecycle-control-plane"
+    ],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -4810,7 +4929,9 @@
     "projects": [
       "kata-containers"
     ],
-    "topics": [],
+    "topics": [
+      "lifecycle-control-plane"
+    ],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -4836,7 +4957,9 @@
     "projects": [
       "kata-containers"
     ],
-    "topics": [],
+    "topics": [
+      "cpu-memory-machine"
+    ],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -4860,7 +4983,9 @@
     "projects": [
       "kata-containers"
     ],
-    "topics": [],
+    "topics": [
+      "operations-observability-performance"
+    ],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -4885,7 +5010,9 @@
     "projects": [
       "kata-containers"
     ],
-    "topics": [],
+    "topics": [
+      "lifecycle-control-plane"
+    ],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -4910,7 +5037,9 @@
     "projects": [
       "kata-containers"
     ],
-    "topics": [],
+    "topics": [
+      "cpu-memory-machine"
+    ],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -4943,7 +5072,9 @@
     "projects": [
       "kata-containers"
     ],
-    "topics": [],
+    "topics": [
+      "overview"
+    ],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -4968,7 +5099,9 @@
     "projects": [
       "kata-containers"
     ],
-    "topics": [],
+    "topics": [
+      "overview"
+    ],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "reference",
@@ -4992,7 +5125,9 @@
     "projects": [
       "kata-containers"
     ],
-    "topics": [],
+    "topics": [
+      "lifecycle-control-plane"
+    ],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -5019,7 +5154,9 @@
     "projects": [
       "kata-containers"
     ],
-    "topics": [],
+    "topics": [
+      "lifecycle-control-plane"
+    ],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -5046,7 +5183,7 @@
       "kata-containers"
     ],
     "topics": [
-      "interrupt"
+      "storage-device-io"
     ],
     "baselines": [],
     "status": "unconfirmed",
@@ -5073,7 +5210,7 @@
       "kata-containers"
     ],
     "topics": [
-      "network"
+      "network-isolation"
     ],
     "baselines": [],
     "status": "unconfirmed",
@@ -5101,7 +5238,7 @@
       "kata-containers"
     ],
     "topics": [
-      "observability"
+      "operations-observability-performance"
     ],
     "baselines": [],
     "status": "unconfirmed",
@@ -5125,7 +5262,9 @@
     "projects": [
       "kata-containers"
     ],
-    "topics": [],
+    "topics": [
+      "cpu-memory-machine"
+    ],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -5151,7 +5290,9 @@
     "projects": [
       "kata-containers"
     ],
-    "topics": [],
+    "topics": [
+      "lifecycle-control-plane"
+    ],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -5189,7 +5330,9 @@
     "projects": [
       "kata-containers"
     ],
-    "topics": [],
+    "topics": [
+      "lifecycle-control-plane"
+    ],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -5224,7 +5367,9 @@
     "projects": [
       "kata-containers"
     ],
-    "topics": [],
+    "topics": [
+      "storage-device-io"
+    ],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -5261,7 +5406,9 @@
     "projects": [
       "kata-containers"
     ],
-    "topics": [],
+    "topics": [
+      "storage-device-io"
+    ],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -5296,7 +5443,9 @@
     "projects": [
       "kata-containers"
     ],
-    "topics": [],
+    "topics": [
+      "lifecycle-control-plane"
+    ],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -5322,7 +5471,9 @@
     "projects": [
       "kata-containers"
     ],
-    "topics": [],
+    "topics": [
+      "lifecycle-control-plane"
+    ],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -5348,8 +5499,7 @@
       "kata-containers"
     ],
     "topics": [
-      "snapshot",
-      "restore"
+      "snapshot-restore-migration"
     ],
     "baselines": [],
     "status": "unconfirmed",
@@ -5375,7 +5525,7 @@
       "kata-containers"
     ],
     "topics": [
-      "storage"
+      "storage-device-io"
     ],
     "baselines": [],
     "status": "unconfirmed",
