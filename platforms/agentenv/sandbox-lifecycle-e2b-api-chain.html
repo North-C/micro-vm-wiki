@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="AgentENV Sandbox 生命周期与 E2B-shaped API 链路 问题与结论 问题 ：一个 E2B-shaped sandbox 请求如何进入 AgentENV、变成 ready sandbox，pause/resume/snapshot/fork 又如何处理状态和失败？ 结论 ：固定提交 00ba6cb74f309a0cbd65f6ec415640e9e674a371 的链路是 API handler → SnapshotManager /request translation → Orchest">
+<meta property="og:type" content="article">
+<meta property="og:title" content="AgentENV Sandbox 生命周期与 E2B-shaped API 链路">
+<meta property="og:description" content="AgentENV Sandbox 生命周期与 E2B-shaped API 链路 问题与结论 问题 ：一个 E2B-shaped sandbox 请求如何进入 AgentENV、变成 ready sandbox，pause/resume/snapshot/fork 又如何处理状态和失败？ 结论 ：固定提交 00ba6cb74f309a0cbd65f6ec415640e9e674a371 的链路是 API handler → SnapshotManager /request translation → Orchest">
+<link rel="canonical" href="https://north-c.github.io/micro-vm-wiki/platforms/agentenv/sandbox-lifecycle-e2b-api-chain.html">
+<title>AgentENV Sandbox 生命周期与 E2B-shaped API 链路 · Micro-VM 技术研究 Wiki</title>
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body data-root="../../">
+<a class="skip-link" href="#main-content">跳到正文</a>
+<div class="layout">
+  <aside class="sidebar" id="site-sidebar" aria-label="站点导航" aria-hidden="false">
+    <a class="brand" href="../../index.html">Micro-VM 技术研究 Wiki</a>
+    <label class="search-label" for="search">搜索公开文档</label>
+    <input id="search" type="search" autocomplete="off" aria-controls="search-results" aria-expanded="false">
+    <div id="search-status" class="search-status" role="status" aria-live="polite"></div>
+    <div id="search-results" class="search-results" role="listbox"></div>
+    <nav aria-label="主要导航" data-global-nav="true"><ul class="nav-tree"><li><a href="../../index.html">首页</a></li><li><details class="nav-group" open><summary>开始</summary><ul><li><a href="../../analysis/vm-design-landscape-overview.html">从零理解 Micro-VM</a></li><li><a href="../../projects/index.html">按项目查实现</a></li><li><a href="../../topics/index.html">按机制做比较</a></li></ul></details></li><li><details class="nav-group"><summary>项目</summary><ul><li><a href="../../projects/firecracker.html">Firecracker</a></li><li><a href="../../projects/cloud-hypervisor.html">Cloud Hypervisor</a></li><li><a href="../../projects/kata-containers.html">Kata Containers</a></li><li><a href="../../projects/cubesandbox.html">CubeSandbox</a></li><li><a href="../../projects/crosvm.html">crosvm（历史参考）</a></li></ul></details></li><li><details class="nav-group"><summary>沙箱平台</summary><ul><li><a href="../../platforms/index.html">沙箱平台与基础设施</a></li></ul></details></li><li><details class="nav-group"><summary>专题</summary><ul><li><a href="../../topics/lifecycle-control-plane.html">生命周期与控制面</a></li><li><a href="../../topics/cpu-memory-machine.html">CPU、内存与机器模型</a></li><li><a href="../../topics/snapshot-restore-migration.html">Snapshot、Restore 与 Migration</a></li><li><a href="../../topics/storage-device-io.html">存储、设备与 I/O</a></li><li><a href="../../topics/network-isolation.html">网络与隔离</a></li><li><a href="../../topics/operations-observability-performance.html">操作、可观测性与性能</a></li></ul></details></li><li><details class="nav-group"><summary>方法与索引</summary><ul><li><a href="../../methodology/status-and-evidence.html">研究状态与证据方法</a></li><li><a href="../../sitemap.html">站点地图</a></li></ul></details></li></ul></nav>
+  </aside>
+  <button class="sidebar-scrim" id="sidebar-scrim" aria-label="关闭导航"></button>
+  <main class="content" id="main-content" tabindex="-1">
+    <div class="topbar">
+      <button class="menu-toggle" id="menu-toggle" aria-controls="site-sidebar" aria-expanded="false">目录</button>
+      <button id="theme-toggle" aria-label="切换到深色模式">🌙</button>
+      <a class="back-home" href="../../index.html">首页</a>
+    </div>
+<nav class="breadcrumbs" aria-label="面包屑"><ol><li><a href="../../index.html">首页</a></li><li><a href="../index.html">沙箱平台与基础设施</a></li><li><a href="../agentenv.html">AgentENV</a></li><li><a href="../../topics/lifecycle-control-plane.html">生命周期与控制面</a></li><li aria-current="page">AgentENV Sandbox 生命周期与 E2B-shaped API 链路</li></ol></nav>
+<div class="page-meta" aria-label="文档元数据"><span class="badge">机制解析</span><a class="badge badge-status" href="../../methodology/status-and-evidence.html#status">状态：源码已固定，运行未验证</a><span class="badge">层级：沙箱平台</span><span class="badge">平台：AgentENV</span><span class="badge">集成：Firecracker</span><span class="badge">agentenv@00ba6cb74f30</span><span class="badge">架构：x86_64</span><span class="badge">架构：aarch64</span></div><p class="status-explainer"><strong>源码已固定，运行未验证</strong>表示本文已按显示的组件提交复核源码，但本任务没有执行 build、runtime、device 或 cloud E2E；机器状态仍为 <code>unconfirmed</code>，不表示文章内容为假，也不表示平台已经运行验证。</p>
+    <article class="markdown-body"><h1 id="agentenv-sandbox-e2b-shaped-api">AgentENV Sandbox 生命周期与 E2B-shaped API 链路</h1>
+<h2 id="_1">问题与结论</h2>
+<p><strong>问题</strong>：一个 E2B-shaped sandbox 请求如何进入 AgentENV、变成 ready sandbox，pause/resume/snapshot/fork 又如何处理状态和失败？</p>
+<p><strong>结论</strong>：固定提交 <code>00ba6cb74f309a0cbd65f6ec415640e9e674a371</code> 的链路是 API handler → <code>SnapshotManager</code>/request translation → <code>Orchestrator</code> 状态机 → <code>SandboxBackend</code> → Firecracker backend。Create 可以从 committed snapshot 或 explicit image 启动；pause、resume、snapshot 和 fork 都有显式状态转换及 recoverable/terminal failure 区分。</p>
+<p>本文确认的是源码 contract 和仓内 test/CI 配置。没有运行 E2B SDK、AgentENV server 或 Firecracker，因此不能表述为“本轮验证与所有当前 E2B SDK 完全兼容”。</p>
+<h2 id="_2">范围与版本</h2>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>本文范围</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>AgentENV baseline</td>
+<td><code>00ba6cb74f309a0cbd65f6ec415640e9e674a371</code></td>
+</tr>
+<tr>
+<td>API 定位</td>
+<td>固定源码中的 <code>E2B API</code> OpenAPI、routes、header alias 与 proxy contract</td>
+</tr>
+<tr>
+<td>架构范围</td>
+<td><code>x86_64</code>、<code>aarch64</code> source branches；无本轮 runtime validation</td>
+</tr>
+<tr>
+<td>证据类型</td>
+<td>Local source fact、upstream-doc observation、inference、engineering judgment、unconfirmed</td>
+</tr>
+<tr>
+<td>复核日期</td>
+<td>2026-09-09</td>
+</tr>
+</tbody>
+</table>
+<h2 id="api-surface-compatibility">一、API surface 与 compatibility 边界</h2>
+<p>OpenAPI title 是 <code>E2B API</code>，并声明 API-key、bearer 与 team auth scheme；同一 spec包含 sandbox create/list/get/delete/pause/resume/fork/snapshot，以及 template、snapshot、node routes。</p>
+<p>证据：</p>
+<ul>
+<li><a href="https://github.com/kvcache-ai/AgentENV/blob/00ba6cb74f309a0cbd65f6ec415640e9e674a371/src/api/openapi.yml#L1-L28">src/api/openapi.yml:1-28</a></li>
+<li><a href="https://github.com/kvcache-ai/AgentENV/blob/00ba6cb74f309a0cbd65f6ec415640e9e674a371/src/api/openapi.yml#L1282-L1585">src/api/openapi.yml:1282-1585</a></li>
+<li><a href="https://github.com/kvcache-ai/AgentENV/blob/00ba6cb74f309a0cbd65f6ec415640e9e674a371/src/api/openapi.yml#L1819-L2215">src/api/openapi.yml:1819-2215</a></li>
+</ul>
+<p>Proxy 接受 AgentENV 与 E2B alias headers，并在转发前移除内部 routing headers；对应单测覆盖 alias 和移除逻辑。</p>
+<p>证据：</p>
+<ul>
+<li><a href="https://github.com/kvcache-ai/AgentENV/blob/00ba6cb74f309a0cbd65f6ec415640e9e674a371/src/api/proxy.rs#L76-L95">src/api/proxy.rs:76-95</a></li>
+<li><a href="https://github.com/kvcache-ai/AgentENV/blob/00ba6cb74f309a0cbd65f6ec415640e9e674a371/src/api/proxy.rs#L777-L793">src/api/proxy.rs:777-793</a></li>
+<li><a href="https://github.com/kvcache-ai/AgentENV/blob/00ba6cb74f309a0cbd65f6ec415640e9e674a371/src/api/proxy.rs#L1651-L1693">src/api/proxy.rs:1651-1693</a></li>
+</ul>
+<p><strong>边界</strong>：这证明 compatibility shape 与测试代码存在，不证明本会话执行了这些测试，也不证明未来 SDK 版本不会改变。</p>
+<h2 id="warm-createtemplate-id-runnable-snapshot">二、warm create：Template ID 到 runnable snapshot</h2>
+<p>warm <code>POST /sandboxes</code> 首先调用 <code>SnapshotManager::load_runnable(template_id)</code>，把 committed template/snapshot解析成当前节点可用的 runnable artifact；handler随后构造 <code>CreateSandboxRequest</code> 并调用 <code>Orchestrator::create_sandbox</code>。</p>
+<p>证据：<a href="https://github.com/kvcache-ai/AgentENV/blob/00ba6cb74f309a0cbd65f6ec415640e9e674a371/src/api/impls/sandbox.rs#L561-L647">src/api/impls/sandbox.rs:561-647</a>。</p>
+<figure class="diagram" aria-label="Mermaid 架构或流程图"><div class="mermaid">sequenceDiagram
+    participant Client as E2B-shaped client
+    participant API as Sandbox API
+    participant SM as SnapshotManager
+    participant O as Orchestrator
+    participant B as SandboxBackend
+    participant FC as Firecracker
+
+    Client-&gt;&gt;API: POST /sandboxes
+    API-&gt;&gt;SM: load_runnable(template_id)
+    SM--&gt;&gt;API: runnable snapshot
+    API-&gt;&gt;O: create_sandbox(request)
+    O-&gt;&gt;B: start(launch source)
+    B-&gt;&gt;FC: create/configure/start
+    FC--&gt;&gt;B: readiness result
+    B--&gt;&gt;O: running backend
+    O--&gt;&gt;API: sandbox response</div><details class="diagram-source"><summary>查看图表文本</summary><pre><code>sequenceDiagram
+    participant Client as E2B-shaped client
+    participant API as Sandbox API
+    participant SM as SnapshotManager
+    participant O as Orchestrator
+    participant B as SandboxBackend
+    participant FC as Firecracker
+
+    Client-&gt;&gt;API: POST /sandboxes
+    API-&gt;&gt;SM: load_runnable(template_id)
+    SM--&gt;&gt;API: runnable snapshot
+    API-&gt;&gt;O: create_sandbox(request)
+    O-&gt;&gt;B: start(launch source)
+    B-&gt;&gt;FC: create/configure/start
+    FC--&gt;&gt;B: readiness result
+    B--&gt;&gt;O: running backend
+    O--&gt;&gt;API: sandbox response</code></pre></details></figure>
+<p>Orchestrator create 同时支持 committed snapshot 与 explicit image launch source，并校验 snapshot 与 node 的 virtualization mode。状态 enum包括 <code>Creating</code>、<code>Resuming</code>、<code>Running</code>、<code>Snapshotting</code>、<code>Forking</code>、<code>Pausing</code>、<code>Paused</code>、<code>Killing</code>。</p>
+<p>证据：</p>
+<ul>
+<li><a href="https://github.com/kvcache-ai/AgentENV/blob/00ba6cb74f309a0cbd65f6ec415640e9e674a371/src/orchestrator/types.rs#L56-L66">src/orchestrator/types.rs:56-66</a></li>
+<li><a href="https://github.com/kvcache-ai/AgentENV/blob/00ba6cb74f309a0cbd65f6ec415640e9e674a371/src/orchestrator/service.rs#L315-L480">src/orchestrator/service.rs:315-480</a></li>
+</ul>
+<h2 id="pause-resumeartifact">三、pause 与 resume：状态、artifact 和失败语义</h2>
+<p>Pause 使用 compare-and-set 状态、artifact protection、paused-state capture 与 persistence。recoverable failure 会把状态恢复为 <code>Running</code>；terminal failure 则不再把 backend 当作安全可运行实例。</p>
+<p>证据：<a href="https://github.com/kvcache-ai/AgentENV/blob/00ba6cb74f309a0cbd65f6ec415640e9e674a371/src/orchestrator/service.rs#L985-L1145">src/orchestrator/service.rs:985-1145</a>。</p>
+<p>Resume 会对并发重复调用进行 join/复用，校验 virtualization mode，并从 persisted paused state重新 launch。</p>
+<p>证据：<a href="https://github.com/kvcache-ai/AgentENV/blob/00ba6cb74f309a0cbd65f6ec415640e9e674a371/src/orchestrator/service.rs#L1210-L1345">src/orchestrator/service.rs:1210-1345</a>。</p>
+<p><strong>合理推断</strong>：CAS、join 和 recoverable/terminal 分类共同保护的是“一个生命周期操作的状态所有权”，不能简化成所有失败都 retry，也不能把 HTTP 成功直接等同于远端 artifact 已 durable。</p>
+<h2 id="snapshot-fork">四、snapshot 与 fork</h2>
+<p>Orchestrator snapshot 使用 <code>Running → Snapshotting → Running</code>；recoverable failure 回滚状态，terminal failure会 stop/remove backend。</p>
+<p>证据：<a href="https://github.com/kvcache-ai/AgentENV/blob/00ba6cb74f309a0cbd65f6ec415640e9e674a371/src/orchestrator/service.rs#L1348-L1462">src/orchestrator/service.rs:1348-1462</a>。</p>
+<p><code>SandboxBackend</code> contract分别定义 start/readiness、pause/resume、snapshot、fork 与 stop。Firecracker实现的 snapshot先 pause-to-dir，再 resume源实例，最后返回 opaque captured handle；fork会 capture源实例、resume源实例并并发启动 children。</p>
+<p>证据：</p>
+<ul>
+<li><a href="https://github.com/kvcache-ai/AgentENV/blob/00ba6cb74f309a0cbd65f6ec415640e9e674a371/src/sandbox/backend.rs#L49-L80">src/sandbox/backend.rs:49-80</a></li>
+<li><a href="https://github.com/kvcache-ai/AgentENV/blob/00ba6cb74f309a0cbd65f6ec415640e9e674a371/src/sandbox/backend.rs#L122-L236">src/sandbox/backend.rs:122-236</a></li>
+<li><a href="https://github.com/kvcache-ai/AgentENV/blob/00ba6cb74f309a0cbd65f6ec415640e9e674a371/src/sandbox/firecracker/sandbox.rs#L273-L383">src/sandbox/firecracker/sandbox.rs:273-383</a></li>
+</ul>
+<p>捕获结果如何成为 committed snapshot/template，见 <a href="snapshot-template-overlaybd-ublk-chain.html">Snapshot、Template、OverlayBD 与 ublk 链路</a>。</p>
+<h2 id="e2b-sdk">五、E2B SDK 证据的窄结论</h2>
+<p>固定仓库 CI 配置会安装 E2B CLI/Python SDK 并运行 E2E target，另有手动 E2B benchmark workflow。上游 integration 文档还声明官方 SDK 的使用方式。</p>
+<ul>
+<li><a href="https://github.com/kvcache-ai/AgentENV/blob/00ba6cb74f309a0cbd65f6ec415640e9e674a371/.github/workflows/integration-tests.yml#L112-L131">.github/workflows/integration-tests.yml:112-131</a></li>
+<li><a href="https://github.com/kvcache-ai/AgentENV/blob/00ba6cb74f309a0cbd65f6ec415640e9e674a371/.github/workflows/e2b-benchmark.yml#L1-L31">.github/workflows/e2b-benchmark.yml:1-31</a></li>
+<li><a href="https://github.com/kvcache-ai/AgentENV/blob/00ba6cb74f309a0cbd65f6ec415640e9e674a371/docs/src/integration/e2b.md#L1-L17">docs/src/integration/e2b.md:1-17</a></li>
+</ul>
+<p>CI/workflow 是 <strong>Local source fact</strong>，文档声明是 <strong>upstream-doc observation</strong>。本任务没有运行 E2E/benchmark，所以“SDK compatibility 已在本轮通过”仍是 <strong>unconfirmed</strong>。</p>
+<h2 id="_3">证据账本</h2>
+<table>
+<thead>
+<tr>
+<th>判断</th>
+<th>分类</th>
+<th>固定证据</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>API spec包含 E2B-shaped auth 与 sandbox/template/snapshot/node routes</td>
+<td>Local source fact</td>
+<td><code>src/api/openapi.yml:1-28,1282-1585,1819-2215</code></td>
+</tr>
+<tr>
+<td>warm create先解析 runnable snapshot再进入 Orchestrator</td>
+<td>Local source fact</td>
+<td><code>src/api/impls/sandbox.rs:561-647</code></td>
+</tr>
+<tr>
+<td>create支持 snapshot/image source并校验 virtualization mode</td>
+<td>Local source fact</td>
+<td><code>src/orchestrator/service.rs:315-480</code></td>
+</tr>
+<tr>
+<td>pause/resume/snapshot 有 CAS、join 与 recoverable/terminal failure 语义</td>
+<td>Local source fact</td>
+<td><code>src/orchestrator/service.rs:985-1462</code></td>
+</tr>
+<tr>
+<td>AgentENV 对全部当前 E2B SDK 完全兼容</td>
+<td>Unconfirmed</td>
+<td>本任务没有运行 SDK E2E</td>
+</tr>
+<tr>
+<td>E2B-shaped API 是平台 compatibility 层，不改变 Firecracker 自身 API</td>
+<td>Engineering judgment</td>
+<td>API/Orchestrator/Backend 分层</td>
+</tr>
+</tbody>
+</table>
+<h2 id="_4">限制与未确认</h2>
+<ol>
+<li>没有运行 server、API、SDK、Firecracker 或 guest readiness test。</li>
+<li>没有确认 fixed commit 对应哪个上游 release/default branch；<code>Cargo.toml</code> version不能替代 commit identity。</li>
+<li>没有把 auth header值、实际 key/token、私有 endpoint、session或日志复制进本文。</li>
+<li>没有把 API route存在外推为每个 route在所有架构和部署模式下都已验证。</li>
+</ol></article>
+<aside class="related-reading" aria-labelledby="related-title"><h2 id="related-title">继续阅读</h2><ul><li><strong>平台目录：</strong><a href="../agentenv.html">AgentENV</a></li><li><strong>专题目录：</strong><a href="../../topics/lifecycle-control-plane.html">生命周期与控制面</a></li><li><strong>底层项目：</strong><a href="../../projects/firecracker.html">Firecracker</a></li><li><strong>明确关联：</strong><a href="architecture-runtime-boundaries.html">AgentENV 架构层级与运行时边界</a></li><li><strong>明确关联：</strong><a href="../../firecracker/analysis/api-start-boot-chain.html">Firecracker API 到 MicroVM 启动链路</a></li></ul></aside>
+    <footer class="page-foot">公开来源：<code>analysis/projects/agentenv/sandbox-lifecycle-e2b-api-chain.md</code> · 文档 ID：<code>agentenv.sandbox-lifecycle-e2b-api-chain</code></footer>
+  </main>
+</div>
+<script defer src="https://cdn.jsdelivr.net/npm/mermaid@10.9.6/dist/mermaid.min.js" referrerpolicy="no-referrer"></script>
+<script defer src="../../assets/wiki.js"></script>
+</body>
+</html>

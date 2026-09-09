@@ -21,12 +21,17 @@
       "11. ARM64 与 x86_64 观察点"
     ],
     "summary": "CubeSandbox API 到 Cubelet 创建链路 本文沿 POST /sandboxes 追踪 CubeSandbox 从 CubeAPI、CubeMaster 到 Cubelet 的创建路径，解释平台控制面如何把外部请求变成节点上的 containerd/CubeShim 启动。 源码基线：当前仓库工作树。 相关： Cubebox Action 到 Containerd/CubeShim cubebox-action-containerd-chain.md 、 CubeMaster Scheduler",
+    "scope": "project",
     "projects": [
       "cubesandbox"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "lifecycle-control-plane"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -35,7 +40,10 @@
       "master",
       "cubelet",
       "create"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "cubesandbox.arch-arm64-x86-chain",
@@ -51,12 +59,17 @@
       "3. 能力边界"
     ],
     "summary": "CubeSandbox ARM64 与 x86 64 架构差异链路 本文分析 CubeSandbox 在 ARM64 与 x86 64 的能力边界、虚拟化机制和实现差异。 源码基线：当前仓库工作树。 相关： CubeShim sandbox hypervisor cubeshim-sandbox-hypervisor-chain.md 、 CubeVS eBPF 数据面 cubevs-ebpf-data-plane-chain.md 、 横向 ARM64/x86 64 差异 ../../arm64-x86-cros",
+    "scope": "project",
     "projects": [
       "cubesandbox"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "cpu-memory-machine"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -64,7 +77,10 @@
       "arch",
       "arm64",
       "x86"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "cubesandbox.cpu-vcpu-resource-boundary-chain",
@@ -85,12 +101,17 @@
       "9. 结论与已知证据边界"
     ],
     "summary": "CubeSandbox CPU / vCPU 资源边界链路 本文承接 运行期控制与 VMM 更新链路 runtime-control-vmm-update-chain.md 、 CubeHypervisor API Request 内部调度链路 cubehypervisor-api-request-chain.md 和 ARM64 与 x86 64 架构差异链路 arch-arm64-x86-chain.md ，回答：CubeSandbox 的 CPU/vCPU 资源语义跨了哪几层，哪些是 VMM 级、哪些是平台或",
+    "scope": "project",
     "projects": [
       "cubesandbox"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "cpu-memory-machine"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -99,7 +120,10 @@
       "vcpu",
       "resource",
       "boundary"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "cubesandbox.cubeapi-long-operation-contract-chain",
@@ -113,12 +137,17 @@
       "2. 能力边界"
     ],
     "summary": "CubeAPI Long Operation Contract 链路 本文聚焦 CubeAPI 的长操作契约：哪些路由走 240s 预算、哪些操作要求 CubeMaster 返回同步终态、AgentHub 如何包装。 源码基线：当前仓库工作树。 相关： CubeMaster snapshot job contract cubemaster-snapshot-job-contract-chain.md 、 API 到 Cubelet 创建链路 api-master-cubelet-create-chain.md 。 ",
+    "scope": "project",
     "projects": [
       "cubesandbox"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "lifecycle-control-plane"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -127,7 +156,10 @@
       "long",
       "operation",
       "contract"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "cubesandbox.cubebox-action-containerd-chain",
@@ -143,12 +175,17 @@
       "4. 能力边界"
     ],
     "summary": "Cubebox Action 到 Containerd / CubeShim 链路 本文承接 Cubelet workflow create 编排链路 cubelet-workflow-create-chain.md ，展开 create flow 最后一个 cubebox action：前面 workflow action 产出的 StorageInfo / NetworkInfo / CgroupInfo / NetFile 如何被转成 CubeBox 元数据/OCI spec annotations/cont",
+    "scope": "project",
     "projects": [
       "cubesandbox"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "lifecycle-control-plane"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -156,7 +193,10 @@
       "cubebox",
       "action",
       "containerd"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "cubesandbox.cubecow-storage-engine-chain",
@@ -181,12 +221,17 @@
       "12. 与其它文档关系"
     ],
     "summary": "CubeCoW 存储引擎链路 本文补齐 CubeSandbox snapshot 路线的存储引擎层——聚焦 CubeCoW 对象、Go FFI、Rust ReflinkEngine 、启动恢复（snapshot 生成/catalog 绑定/VMM restore 见各自文档）。 源码基线：当前仓库工作树。 相关： Snapshot Create/Commit 生成链路 snapshot-create-commit-chain.md 、 snapshot catalog restore binding snapsho",
+    "scope": "project",
     "projects": [
       "cubesandbox"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "storage-device-io"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -194,7 +239,10 @@
       "cubecow",
       "storage",
       "engine"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "cubesandbox.cubehypervisor-api-request-chain",
@@ -220,12 +268,17 @@
       "13. 下一步阅读路线"
     ],
     "summary": "CubeHypervisor API Request 内部调度链路 本文解释 CubeShim 如何把 sandbox 操作变成 ApiRequest ，以及这些请求如何在内嵌 VMM 线程中串行落到 VM 方法。 源码基线：当前仓库工作树。 控制面事件（ApiRequest 唤醒 / NotifyEvent 状态通道）的分层辨析见 中断与事件通知链路 interrupt-event-notification-chain.md ； VmRestore 内部状态恢复见 VMM Snapshot Restore 状态恢",
+    "scope": "project",
     "projects": [
       "cubesandbox"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "lifecycle-control-plane"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -233,7 +286,10 @@
       "cubehypervisor",
       "api",
       "request"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "cubesandbox.cubelet-workflow-create-chain",
@@ -255,12 +311,17 @@
       "9. 下一步深入路线"
     ],
     "summary": "Cubelet Workflow Create 编排链路 本文承接 API 到 Cubelet 创建链路 api-master-cubelet-create-chain.md 和 CubeShim sandbox 与 CubeHypervisor 创建链路 cubeshim-sandbox-hypervisor-chain.md ，展开 Cubelet 进入 CubeShim 之前的 create workflow。 源码基线：当前仓库工作树。 相关： Cubebox Action 到 Containerd/Cub",
+    "scope": "project",
     "projects": [
       "cubesandbox"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "lifecycle-control-plane"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "how-to",
@@ -268,7 +329,10 @@
       "cubelet",
       "workflow",
       "create"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "cubesandbox.cubemaster-cache-consistency-boundary-chain",
@@ -291,12 +355,17 @@
       "11. 继续阅读"
     ],
     "summary": "CubeMaster 缓存一致性边界链路 本文聚焦 CubeMaster 内部缓存如何影响创建调度、运行时控制和实例状态。结论只覆盖当前源码，不把缓存能力外推成强一致控制面。 调度插件与重试整体路径见 CubeMaster Scheduler 与 Task Retry 链路 cubemaster-scheduler-task-chain.md ；物理副本收敛见 Snapshot Replica Reconciler 链路 snapshot-replica-reconciler-chain.md 。 --- 0. 术",
+    "scope": "project",
     "projects": [
       "cubesandbox"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "lifecycle-control-plane"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -305,7 +374,10 @@
       "cache",
       "consistency",
       "boundary"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "cubesandbox.cubemaster-scheduler-task-chain",
@@ -321,12 +393,17 @@
       "3. 能力边界"
     ],
     "summary": "CubeMaster Scheduler 与 Task Retry 链路 本文展开 CubeMaster 控制面：metadata 如何进入 scheduler、创建请求如何选节点并调用 Cubelet、后台 task retry 的真实作用范围。 源码基线：当前仓库工作树。 相关： API 到 Cubelet 创建链路 api-master-cubelet-create-chain.md 、 CubeMaster 缓存一致性 cubemaster-cache-consistency-boundary-chain.",
+    "scope": "project",
     "projects": [
       "cubesandbox"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "lifecycle-control-plane"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -334,7 +411,10 @@
       "cubemaster",
       "scheduler",
       "task"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "cubesandbox.cubemaster-snapshot-job-contract-chain",
@@ -348,12 +428,17 @@
       "2. 能力边界"
     ],
     "summary": "CubeMaster Snapshot Job Contract 链路 本文展开 CubeMaster templatecenter 如何把同步 API 转成 snapshot job、Cubelet gRPC 和 READY/FAILED 终态。 源码基线：当前仓库工作树。 相关： CubeAPI Long Operation Contract cubeapi-long-operation-contract-chain.md 、 snapshot create/commit snapshot-create-com",
+    "scope": "project",
     "projects": [
       "cubesandbox"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "snapshot-restore-migration"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -362,7 +447,10 @@
       "snapshot",
       "job",
       "contract"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "cubesandbox.cubesandbox-redis-hugepages-report-20260627",
@@ -379,12 +467,17 @@
       "结论"
     ],
     "summary": "CubeSandbox Redis Benchmark 静态大页/zram 对比报告 测试条件 项目 值 --- --- 远端机器 私有 ARM64 benchmark host（已脱敏） 主机 aarch64 , Linux 6.6.0-132.0.0.111.oe2403sp3.aarch64 CubeSandbox 模板 tpl-irqbypass-xarray-envd-shm2g-20260624101600 沙箱规格 2 vCPU / 2G （模板资源 cpu=2000m,mem=2000Mi ） Re",
+    "scope": "project",
     "projects": [
       "cubesandbox"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "operations-observability-performance"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "historical",
     "kind": "reference",
@@ -394,7 +487,10 @@
       "hugepages",
       "report",
       "20260627"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "cubesandbox.cubesandbox-unixbench-hugepages-report-20260626",
@@ -409,12 +505,17 @@
       "清理状态"
     ],
     "summary": "CubeSandbox UnixBench 静态大页影响测试报告 测试环境 项目 值 --- --- 远端机器 私有 ARM64 benchmark host（已脱敏） 主机 aarch64 , Linux 6.6.0-132.0.0.111.oe2403sp3.aarch64 CubeSandbox 模板 tpl-irqbypass-xarray-envd-shm2g-20260624101600 沙箱规格 2 vCPU / 2G （模板资源 cpu=2000m,mem=2000Mi ） UnixBench BY",
+    "scope": "project",
     "projects": [
       "cubesandbox"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "operations-observability-performance"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "historical",
     "kind": "reference",
@@ -424,7 +525,10 @@
       "hugepages",
       "report",
       "20260626"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "cubesandbox.cubeshim-container-agent-lifecycle-chain",
@@ -452,12 +556,17 @@
       "14. 与已有文档关系"
     ],
     "summary": "CubeShim Container 到 Guest Agent 生命周期链路 本文下钻 CubeShim sandbox 与 CubeHypervisor 创建链路 cubeshim-sandbox-hypervisor-chain.md ，分析 containerd task lifecycle 如何变成 guest cube-agent 的 container/process RPC。 源码基线：当前仓库工作树。 上游 Cubelet→containerd→CubeShim 的触发见 Cubebox Acti",
+    "scope": "project",
     "projects": [
       "cubesandbox"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "lifecycle-control-plane"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -466,7 +575,10 @@
       "container",
       "agent",
       "lifecycle"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "cubesandbox.cubeshim-sandbox-hypervisor-chain",
@@ -481,12 +593,17 @@
       "3. 能力边界"
     ],
     "summary": "CubeShim sandbox 与 CubeHypervisor 创建链路 本文承接 API 到 Cubelet 创建链路 api-master-cubelet-create-chain.md ，从 containerd NewTask 之后追踪 CubeShim 如何创建 VM、连接 guest agent、完成 sandbox/container 生命周期。 源码基线：当前仓库工作树。 相关： cubehypervisor API request cubehypervisor-api-request-chai",
+    "scope": "project",
     "projects": [
       "cubesandbox"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "lifecycle-control-plane"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -494,7 +611,10 @@
       "cubeshim",
       "sandbox",
       "hypervisor"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "cubesandbox.cubevs-ebpf-data-plane-chain",
@@ -510,12 +630,17 @@
       "3. 能力边界"
     ],
     "summary": "CubeVS eBPF 数据面链路 本文深入 CubeVS：Go API、pinned map、TC program 和包路径分开说明，避免把控制面动作误认为数据面动作。 源码基线：当前仓库工作树。 相关： network-agent EnsureNetwork network-agent-ensure-network-chain.md 、 CubeShim container agent lifecycle cubeshim-container-agent-lifecycle-chain.md 。 --- 0. ",
+    "scope": "project",
     "projects": [
       "cubesandbox"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "network-isolation"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -524,7 +649,10 @@
       "ebpf",
       "data",
       "plane"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "cubesandbox.deep-dive",
@@ -550,19 +678,27 @@
       "16. 后续深入路线"
     ],
     "summary": "CubeSandbox-sandbox-clone 深入探索文档 本文档基于 CubeSandbox-sandbox-clone 仓库分析 CubeSandbox 0.3.0 方向的架构。结论从源码和仓库文档出发：CubeSandbox 不是单个 Micro-VM VMM，而是一套面向 AI Agent sandbox 的平台系统；虚拟化只是其中的执行边界，真正的产品能力来自 CubeAPI、CubeMaster、Cubelet、network-agent、CubeCoW、CubeShim、CubeHypervis",
+    "scope": "project",
     "projects": [
       "cubesandbox"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "overview"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
     "tags": [
       "deep",
       "dive"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "cubesandbox.deep-routes",
@@ -579,19 +715,27 @@
       "8. ARM64：kernel、guest image、VMM、CubeVS 验证"
     ],
     "summary": "CubeSandbox 深入路线展开 本文承接 deep-dive.md deep-dive.md 的“后续深入路线”。 这里继续把 CubeSandbox 的平台控制面、节点执行面、CubeShim/CubeHypervisor、CubeCoW、network-agent/CubeVS 和 ARM64 路线拆成可执行的源码分析计划。 源码基线：当前仓库工作树。 项目级深挖： API 到 Cubelet 创建链路 api-master-cubelet-create-chain.md 。 项目级深挖： CubeAPI",
+    "scope": "project",
     "projects": [
       "cubesandbox"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "overview"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "reference",
     "tags": [
       "deep",
       "routes"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "cubesandbox.guest-agent-network-config-chain",
@@ -606,12 +750,17 @@
       "3. 能力边界"
     ],
     "summary": "Guest Agent 网络配置链路 本文解释 CreateSandboxRequest 中的 interfaces/routes/ARPNeighbors/dns 如何落成 guest 内的 eth0 /IP/路由/ARP/ /etc/resolv.conf 。 源码基线：当前仓库工作树。 相关： TAP FD NetworkInfo tap-fd-networkinfo-chain.md 、 cubeshim sandbox hypervisor cubeshim-sandbox-hypervisor-chai",
+    "scope": "project",
     "projects": [
       "cubesandbox"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "network-isolation"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -620,7 +769,10 @@
       "agent",
       "network",
       "config"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "cubesandbox.interrupt-event-notification-chain",
@@ -642,12 +794,17 @@
       "12. 后续深入路线"
     ],
     "summary": "CubeSandbox 中断与事件通知链路 本文承接 CubeHypervisor API Request 内部调度链路 cubehypervisor-api-request-chain.md 、 TAP FD 与 NetworkInfo 闭环 tap-fd-networkinfo-chain.md 和 CubeVS eBPF 数据面链路 cubevs-ebpf-data-plane-chain.md 。 CubeSandbox 里有好几样东西都叫\"事件\"或\"通知\"，极易混淆。本文把它们分层讲清： eventfd ",
+    "scope": "project",
     "projects": [
       "cubesandbox"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "storage-device-io"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -655,7 +812,10 @@
       "interrupt",
       "event",
       "notification"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "cubesandbox.interrupt-state-restore-chain",
@@ -677,12 +837,17 @@
       "10. 继续深入点"
     ],
     "summary": "CubeSandbox 中断状态恢复链路（snapshot → restore → route re-enable） 本文承接 CubeSandbox 深入路线 deep-routes.md ，沿一条具体链路做函数级分析： MsixConfig snapshot → VirtioPciDevice restore → GIC/IOAPIC route re-enable 研究目标：说清 CubeSandbox（Cloud Hypervisor 派生 VMM）在 snapshot/restore 时，PCI 设备的 ",
+    "scope": "project",
     "projects": [
       "cubesandbox"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "snapshot-restore-migration"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -690,7 +855,10 @@
       "interrupt",
       "state",
       "restore"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "cubesandbox.network-agent-ensure-network-chain",
@@ -705,12 +873,17 @@
       "3. 能力边界"
     ],
     "summary": "Network-Agent EnsureNetwork 链路 本文展开 CubeSandbox 的网络创建路径：Cubelet network action 如何把 sandbox 网络意图交给 network-agent，network-agent 如何分配 TAP、注册 CubeVS、处理端口映射和状态持久化，最后返回 CubeShim 可消费的 NetworkInfo 。 源码基线：当前仓库工作树。 相关： Cubelet workflow create cubelet-workflow-create-cha",
+    "scope": "project",
     "projects": [
       "cubesandbox"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "network-isolation"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -718,7 +891,10 @@
       "network",
       "agent",
       "ensure"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "cubesandbox.network-data-plane-interrupt-wakeup-chain",
@@ -743,12 +919,17 @@
       "12. 下一步"
     ],
     "summary": "CubeSandbox 网络数据面与中断唤醒链路 本文承接 CubeVS eBPF 数据面链路 cubevs-ebpf-data-plane-chain.md 、 TAP FD 与 NetworkInfo 闭环 tap-fd-networkinfo-chain.md 、 Guest Agent 网络配置链路 guest-agent-network-config-chain.md 和 中断与事件通知链路 interrupt-event-notification-chain.md 。 目标：把 CubeVS → TAP",
+    "scope": "project",
     "projects": [
       "cubesandbox"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "network-isolation"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -758,7 +939,10 @@
       "plane",
       "interrupt",
       "wakeup"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "cubesandbox.observability-diagnostics-chain",
@@ -773,19 +957,27 @@
       "3. 能力边界"
     ],
     "summary": "CubeSandbox 可观测性与诊断机制链路 本文回答：CubeSandbox 出故障时证据从哪里来，能证明到哪一层。 源码基线：当前仓库工作树。 相关： arm64-log-source-map arm64-log-source-map.md 、 arm64-log-collection-gap arm64-log-collection-gap.md 、 中断与事件通知 interrupt-event-notification-chain.md 。 --- 0. 术语与背景 多组件平台 = 多组件日志 Cube",
+    "scope": "project",
     "projects": [
       "cubesandbox"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "operations-observability-performance"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
     "tags": [
       "observability",
       "diagnostics"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "cubesandbox.performance-mechanisms-community-benchmark-analysis",
@@ -818,12 +1010,17 @@
       "5.4 局限与进一步优化"
     ],
     "summary": "CubeSandbox 性能机制与社区基准测试项分析 结论摘要 本文回答的问题是：CubeSandbox 当前源码已经用哪些设计降低 Template 创建、单机密度、Snapshot、Restore、Rollback、Clone、Pause / Resume 的成本，这些成本被消除、共享、延迟或转移到哪里，社区基准报告又实际观察到了什么。 结论是，CubeSandbox 的共同优化主线不是“把完整 VM 操作做得更快”，而是改变请求路径上的工作量：用预制状态 restore 代替 guest 冷启动，用 MAP ",
+    "scope": "project",
     "projects": [
       "cubesandbox"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "operations-observability-performance"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -833,7 +1030,10 @@
       "community",
       "benchmark",
       "analysis"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "cubesandbox.rollback-runtime-update-chain",
@@ -849,12 +1049,17 @@
       "3. 能力边界"
     ],
     "summary": "CubeSandbox Rollback / Runtime Update 链路 本文展开 rollback 到 snapshot 与运行时 fs update 的关系——两者都穿过 shim/VMM，但语义完全不同。 源码基线：当前仓库工作树。 相关： virtio net/fs restore virtio-net-fs-restore-chain.md 、 snapshot catalog restore binding snapshot-catalog-restore-binding-chain.md 、 ",
+    "scope": "project",
     "projects": [
       "cubesandbox"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "snapshot-restore-migration"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -862,7 +1067,10 @@
       "rollback",
       "runtime",
       "update"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "cubesandbox.runtime-control-vmm-update-chain",
@@ -876,12 +1084,17 @@
       "3. 能力边界"
     ],
     "summary": "CubeSandbox 运行期控制与 VMM 更新链路 本文分析 pause/resume、exec、Task.Update、virtio-fs 更新、设备热插拔和 rollback update 如何从平台 API 落到 CubeShim 与 VMM。 源码基线：当前仓库工作树。 相关： Rollback/Runtime Update rollback-runtime-update-chain.md 、 VMM device restore vmm-device-restore-chain.md 、 横向 run",
+    "scope": "project",
     "projects": [
       "cubesandbox"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "lifecycle-control-plane"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -890,7 +1103,10 @@
       "control",
       "vmm",
       "update"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "cubesandbox.sandbox-ready-lifecycle-chain",
@@ -904,12 +1120,17 @@
       "2. 能力边界"
     ],
     "summary": "CubeSandbox Sandbox Ready 生命周期链路 本文追踪创建请求如何从 Cubelet workflow 进入 containerd/CubeShim/VM/guest agent，回答：平台返回成功时哪些层级已 ready。 源码基线：当前仓库工作树。 相关： cubeshim sandbox hypervisor cubeshim-sandbox-hypervisor-chain.md 、 Cubelet workflow create cubelet-workflow-create-chai",
+    "scope": "project",
     "projects": [
       "cubesandbox"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "lifecycle-control-plane"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -917,7 +1138,10 @@
       "sandbox",
       "ready",
       "lifecycle"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "cubesandbox.sandbox-vm-container-template-runtime-hierarchy",
@@ -950,12 +1174,17 @@
       "两个生命周期的逐项对照"
     ],
     "summary": "CubeSandbox Sandbox / VM / Container 层次与 OCI Template 运行链路 结论摘要 本文回答两个问题：CubeSandbox 中 Sandbox 、VM、Container 到底如何对应，以及 OCI image 变成 Template 后又如何恢复成一个新 Sandbox。读者是需要定位控制面、节点状态、VMM 和 guest workload 边界的工程师。 源码基线固定为 CubeSandbox canonical 工作树提交 5135a40d86c94a85fe2",
+    "scope": "project",
     "projects": [
       "cubesandbox"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "lifecycle-control-plane"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -966,7 +1195,10 @@
       "template",
       "runtime",
       "hierarchy"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "cubesandbox.snapshot-catalog-restore-binding-chain",
@@ -982,12 +1214,17 @@
       "3. 能力边界"
     ],
     "summary": "Snapshot Catalog / Restore Binding 链路 本文分析 logical snapshot id 如何变成 Cubelet 本地物理对象，并最终注入到新 sandbox 或 running rollback 中。 源码基线：当前仓库工作树。 相关： snapshot create/commit snapshot-create-commit-chain.md 、 CubeCoW 存储引擎 cubecow-storage-engine-chain.md 、 rollback runtime ",
+    "scope": "project",
     "projects": [
       "cubesandbox"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "snapshot-restore-migration"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -996,7 +1233,10 @@
       "catalog",
       "restore",
       "binding"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "cubesandbox.snapshot-create-commit-chain",
@@ -1021,12 +1261,17 @@
       "11. 下一步深挖"
     ],
     "summary": "Snapshot Create / Commit 生成链路 本文分析 CubeSandbox 的 snapshot 如何被创建——重点不是 API 名称，而是 VM state、guest memory、rootfs、CubeCoW 对象和本地 catalog 如何组合成可 restore/rollback 的平台级快照。 源码基线：当前仓库工作树。 相关： CubeCoW storage engine cubecow-storage-engine-chain.md 、 snapshot catalog resto",
+    "scope": "project",
     "projects": [
       "cubesandbox"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "snapshot-restore-migration"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -1034,7 +1279,10 @@
       "snapshot",
       "create",
       "commit"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "cubesandbox.snapshot-replica-reconciler-chain",
@@ -1048,12 +1296,17 @@
       "2. 能力边界"
     ],
     "summary": "Snapshot Replica Reconciler 链路 本文分析 snapshot/template replica 如何被 Master 发现、缓存、校验和用于调度——承接 catalog/restore binding：如果 Cubelet local catalog 是物理权威，Master 的 replica ready 状态就必须能被 catalog 证明。 源码基线：当前仓库工作树。 相关： snapshot catalog restore binding snapshot-catalog-res",
+    "scope": "project",
     "projects": [
       "cubesandbox"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "snapshot-restore-migration"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -1061,7 +1314,10 @@
       "snapshot",
       "replica",
       "reconciler"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "cubesandbox.snapshot-restore-network-chain",
@@ -1075,12 +1331,17 @@
       "2. 能力边界"
     ],
     "summary": "Snapshot Restore 网络恢复链路 本文聚焦 CubeSandbox 恢复 VM 时网络如何恢复——核心问题不是\"snapshot 是否包含网卡\"，而是恢复时 host 侧 TAP、VMM virtio-net 后端、guest 内接口状态分别由谁负责。 源码基线：当前仓库工作树。 相关： snapshot create/commit snapshot-create-commit-chain.md 、 rollback runtime update rollback-runtime-update-cha",
+    "scope": "project",
     "projects": [
       "cubesandbox"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "snapshot-restore-migration"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -1088,7 +1349,10 @@
       "snapshot",
       "restore",
       "network"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "cubesandbox.snapshot-template-storage-format-chain",
@@ -1121,12 +1385,17 @@
       "6. 使用场景总结"
     ],
     "summary": "CubeSandbox Snapshot 与 Template 存储、格式、恢复链路专题 本文系统分析 CubeSandbox 中 Snapshot 和 Template 的 保存位置、保存格式、恢复链路、使用场景 ——从物理目录结构到 CubeCoW 对象再到 catalog 绑定，逐层拆解。 源码基线：当前仓库工作树。 相关： snapshot create/commit snapshot-create-commit-chain.md 、 template build from OCI template-bui",
+    "scope": "project",
     "projects": [
       "cubesandbox"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "snapshot-restore-migration"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -1135,7 +1404,10 @@
       "template",
       "storage",
       "format"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "cubesandbox.tap-fd-networkinfo-chain",
@@ -1150,12 +1422,17 @@
       "3. 能力边界"
     ],
     "summary": "TAP FD 与 NetworkInfo 闭环 本文解释 host TAP 如何从 network-agent 创建，经过 Cubelet 和 CubeShim，最终成为 VM 内 virtio-net 设备和 guest 网络配置。 源码基线：当前仓库工作树。 相关： network-agent EnsureNetwork network-agent-ensure-network-chain.md 、 CubeVS eBPF 数据面 cubevs-ebpf-data-plane-chain.md 、 中断与事件通",
+    "scope": "project",
     "projects": [
       "cubesandbox"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "network-isolation"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -1163,7 +1440,10 @@
       "tap",
       "fd",
       "networkinfo"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "cubesandbox.tap-fd-unavailable-case-study",
@@ -1183,12 +1463,17 @@
       "11. 结论"
     ],
     "summary": "CubeSandbox ARM64 tap fd unavailable 故障案例分析 本文承接 ARM64 网络失败原型 arm64-network-failure-prototypes.md 和 ARM64 网络实测样本记录 arm64-network-evidence-sample.md 。 目标不是再做一层抽象归纳。 目标是把已经在 ARM64 样本里真实出现过的： tap fd unavailable 沿源码和现有报告串成一条具体故障链。 源码基线：当前工作树。 1. 核心结论 tap fd unavai",
+    "scope": "project",
     "projects": [
       "cubesandbox"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "network-isolation"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -1198,7 +1483,10 @@
       "unavailable",
       "case",
       "study"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "cubesandbox.template-build-from-oci-chain",
@@ -1231,12 +1519,17 @@
       "5.1 Template 构建时的可配项"
     ],
     "summary": "CubeSandbox Template 构建链路：从 OCI 镜像到 Template 本文追踪 CubeSandbox 如何从 OCI 容器镜像构建出可 clone/rollback 的 Template——分析完整构建过程、各产物组成以及配置空间。 源码基线：当前仓库工作树。 相关： snapshot create/commit snapshot-create-commit-chain.md 、 CubeCoW 存储引擎 cubecow-storage-engine-chain.md 、 cubelet wo",
+    "scope": "project",
     "projects": [
       "cubesandbox"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "lifecycle-control-plane"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -1245,7 +1538,10 @@
       "build",
       "from",
       "oci"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "cubesandbox.template-restore-msix-chain",
@@ -1272,12 +1568,17 @@
       "10.7 结论"
     ],
     "summary": "基于 Template 启动到 RestoreVm 与 MSI-X Restore 的链路分析 本文解释两个问题： 1. 基于 CubeSandbox Template 创建沙箱进行并发启动时延测试时，为什么运行链路会进入 RestoreVm 。 2. MSI-X restore 和观测到的 interrupt group update many 分别对应哪一段执行链路。 本文聚焦 Template 启动时延路径，也就是基准测试中“基于 Template 创建沙箱”的 create-only 路径。 结论概览 基于",
+    "scope": "project",
     "projects": [
       "cubesandbox"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "snapshot-restore-migration"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -1285,7 +1586,10 @@
       "template",
       "restore",
       "msix"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "cubesandbox.virtio-interrupt-injection-trace",
@@ -1318,12 +1622,17 @@
       "17. 后续深入路线"
     ],
     "summary": "CubeSandbox Virtio 中断注入函数级链路 本文承接 中断与事件通知链路 interrupt-event-notification-chain.md ，沿 VirtioPciDevice → InterruptManager → GIC/IOAPIC → KVM irqfd 做函数级 trace，并嵌入关键源码片段。 目标：回答两个问题——guest 写 queue notify 后如何唤醒 VMM 设备线程；设备完成工作后如何通过 MSI-X、GSI routing 和 irqfd 把中断送回 gu",
+    "scope": "project",
     "projects": [
       "cubesandbox"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "storage-device-io"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -1332,7 +1641,10 @@
       "interrupt",
       "injection",
       "trace"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "cubesandbox.virtio-net-fs-restore-chain",
@@ -1356,12 +1668,17 @@
       "12. 下一步深入点"
     ],
     "summary": "CubeSandbox Virtio Net / Fs Restore 内部状态链路 本文展开 VMM Device Restore 设备恢复链路 vmm-device-restore-chain.md 的下一步，聚焦 virtio-net 与 virtio-fs 在 restore 中 到底恢复了哪些状态、哪些只是重新绑定当前节点后端 。 结论只来自当前仓库源码。 transport 层 MSI-X/queue 恢复详见 中断状态恢复链路 interrupt-state-restore-chain.md ；网络 ",
+    "scope": "project",
     "projects": [
       "cubesandbox"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "snapshot-restore-migration"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -1370,7 +1687,10 @@
       "net",
       "fs",
       "restore"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "cubesandbox.vmm-device-restore-chain",
@@ -1393,12 +1713,17 @@
       "11. 下一步深入点"
     ],
     "summary": "CubeSandbox VMM Device Restore 设备恢复链路 本文展开 VMM Snapshot Restore 状态恢复链路 vmm-snapshot-restore-state-chain.md 的下一步，聚焦 DeviceManager::create devices 与 DeviceManager::restore devices 如何协同恢复设备拓扑、后端和内部状态。 结论只来自当前仓库源码。 中断状态恢复（GIC/ITS/MSI-X route re-enable）见 中断状态恢复链路 i",
+    "scope": "project",
     "projects": [
       "cubesandbox"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "snapshot-restore-migration"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -1406,7 +1731,10 @@
       "vmm",
       "device",
       "restore"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "cubesandbox.vmm-snapshot-restore-state-chain",
@@ -1429,12 +1757,17 @@
       "11. 下一步深入点"
     ],
     "summary": "CubeSandbox VMM Snapshot Restore 状态恢复链路 本文展开 CubeSandbox 快照路线，聚焦 CubeShim 之后的 CubeHypervisor / VMM 内部恢复机制。 结论只来自当前仓库源码，不把上游 Cloud Hypervisor 的通用说明当作依据。 设备恢复细节见 VMM Device Restore 设备恢复链路 vmm-device-restore-chain.md ；virtio-net/fs 内部状态见 Virtio Net/Fs Restore 链路 ",
+    "scope": "project",
     "projects": [
       "cubesandbox"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "snapshot-restore-migration"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -1443,7 +1776,10 @@
       "snapshot",
       "restore",
       "state"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "analysis.arm64-x86-cross-project-matrix",
@@ -1476,10 +1812,15 @@
       "9.3 Kata Containers"
     ],
     "summary": "ARM64 与 x86 64 跨项目架构差异专题分析 本文从当前工作树源码出发，对 Firecracker、Cloud Hypervisor、Kata Containers、CubeSandbox 在 arm64/aarch64 与 x86 64 下的差异做横向分析。 关联总表： ARM64 网络验证与观测总表 ./arm64-network-validation-observation-matrix.md 。 关联签名表： ARM64 网络失败签名总表 ./arm64-network-failure-signat",
+    "scope": "topic",
     "projects": [],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "lifecycle-control-plane"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "reference",
@@ -1487,7 +1828,10 @@
       "arm64",
       "x86",
       "matrix"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "analysis.boot-control-plane-cross-project",
@@ -1504,10 +1848,15 @@
       "8. 后续深挖路线"
     ],
     "summary": "启动路径与控制面跨项目专题分析 本文沿着四个项目的深入路线，横向比较“一个 sandbox/VM 请求如何变成可运行 guest”的真实路径。 这里的启动不是同一层概念。Cloud Hypervisor 和 crosvm 是 VMM 启动；Kata Containers 是 containerd 请求映射到 VM sandbox；CubeSandbox 是平台 API 经过调度、节点工作流、shim 后再落到 VM。 源码基线：当前仓库工作树。 相关项目路线： - Cloud Hypervisor 深入路线 pro",
+    "scope": "topic",
     "projects": [],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "lifecycle-control-plane"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -1515,7 +1864,10 @@
       "boot",
       "control",
       "plane"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "analysis.ch-cubesandbox-backend-notifier-restore-crossline",
@@ -1533,10 +1885,15 @@
       "7. 后续入口"
     ],
     "summary": "Cloud Hypervisor 与 CubeSandbox：Backend / Notifier / Restore 交叉线 本文聚焦一个容易在三条横线里重复出现、但又最容易说散的问题： Cloud Hypervisor 与 CubeSandbox 在外部 backend、notifier 复用、restore 重建、guest-visible state 收敛上，到底是同一类问题，还是两类问题。 源码基线：当前工作树。 关联横线： - Virtio 传输与设备数据路径跨项目专题分析 ./virtio-data-",
+    "scope": "crossline",
     "projects": [],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "snapshot-restore-migration"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -1547,7 +1904,10 @@
       "notifier",
       "restore",
       "crossline"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "analysis.ch-cubesandbox-restore-guest-unavailability-checklist",
@@ -1569,10 +1929,15 @@
       "7. ARM64 联合判错顺序"
     ],
     "summary": "Cloud Hypervisor 与 CubeSandbox：Restore 后 Guest 不可用验证清单 本文承接： - Cloud Hypervisor 与 CubeSandbox：Backend / Notifier / Restore 交叉线 ./ch-cubesandbox-backend-notifier-restore-crossline.md - Virtio 传输与设备数据路径跨项目专题分析 ./virtio-data-path-cross-project.md - 中断与事件通知跨项目专题分析",
+    "scope": "crossline",
     "projects": [],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "operations-validation"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "how-to",
@@ -1583,7 +1948,10 @@
       "guest",
       "unavailability",
       "checklist"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "analysis.coco-pvm-protected-vm-cross-project",
@@ -1602,10 +1970,15 @@
       "10. 后续深挖路线"
     ],
     "summary": "CoCo / pVM / 受保护 VM 跨项目专题分析 本文只讨论能改变 VM 信任边界的机制：TDX、SEV-SNP、Arm CCA/RME、crosvm protected VM、CubeSandbox PVM。普通 jail、seccomp、Minijail、Landlock 属于进程隔离，不等同于 confidential guest。 核心问题不是“是否安全”，而是配置如何进入 hypervisor，guest 内存何时变成 host 不可直接访问，启动固件如何被度量或接管，设备 DMA 如何受限，以及迁",
+    "scope": "history",
     "projects": [],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "history-deferred"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "historical",
     "kind": "explanation",
@@ -1614,7 +1987,10 @@
       "pvm",
       "protected",
       "vm"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "analysis.cpu-interrupt-machine-cross-project",
@@ -1643,10 +2019,15 @@
       "10. 下一步建议"
     ],
     "summary": "CPU、中断控制器与机器描述跨项目专题分析 本文继续沿着深入路线，把 Firecracker、Cloud Hypervisor、Kata Containers、CubeSandbox 在 CPU 初始化、中断控制器、guest 机器描述和 snapshot/restore 状态边界上的实现放在一起比较。 crosvm 相关内容保留为历史参考，但当前已暂停继续分析，不作为后续路线的推进对象。 这条线是理解 ARM64 与 x86 64 差异的底层主线。设备、热插拔、snapshot、runtime 能力最终都会回到这",
+    "scope": "topic",
     "projects": [],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "cpu-memory-machine"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -1654,7 +2035,10 @@
       "cpu",
       "interrupt",
       "machine"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "analysis.device-model-isolation-cross-project",
@@ -1687,10 +2071,15 @@
       "7. ARM64 与 x86_64 差异"
     ],
     "summary": "设备模型与隔离边界跨项目专题分析 本文沿四个项目文档中的深入路线，专门分析设备模型、设备隔离、hotplug 和 guest 可见设备状态。核心结论：四个项目都在“设备”上做抽象，但抽象层级不同。 源码基线：当前工作树。 覆盖项目：Cloud Hypervisor、crosvm、Kata Containers、CubeSandbox。 1. 先定义设备模型边界 设备模型至少包含五层： 层级 含义 --- --- guest-visible device guest 内看到的 virtio/vfio/pci/mmio",
+    "scope": "topic",
     "projects": [],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "network-isolation"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -1698,7 +2087,10 @@
       "device",
       "model",
       "isolation"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "analysis.fc-kata-storage-semantics-crossline",
@@ -1713,10 +2105,15 @@
       "6. 推荐使用顺序"
     ],
     "summary": "Firecracker 与 Kata：Rootfs / Backing / Guest-Visible Storage 交叉线 本文聚焦一个和 Cloud Hypervisor + CubeSandbox 很不同、但同样容易被混掉的问题： Firecracker 与 Kata 虽然都会让 guest 看到 block 或共享目录相关对象，但两者在“rootfs 语义到底由谁成立”这件事上，处在完全不同的层级。 源码基线：当前工作树。 关联专题： - 存储、rootfs 与共享文件系统跨项目专题分析 ./storag",
+    "scope": "crossline",
     "projects": [],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "storage-device-io"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -1726,7 +2123,10 @@
       "storage",
       "semantics",
       "crossline"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "analysis.guest-agent-runtime-cross-project",
@@ -1745,10 +2145,15 @@
       "10. 结论"
     ],
     "summary": "Guest Agent 与 Runtime 语义跨项目专题分析 本文比较 Firecracker、Cloud Hypervisor、crosvm、Kata Containers 和 CubeSandbox 的 guest agent 边界。 核心问题：Micro-VM 项目是否“需要 agent”，不能只看有没有 vsock。vsock 只是通道；agent 是运行在 guest 内、理解容器或平台语义的长期服务。 1. 总结结论 Firecracker、Cloud Hypervisor 和 crosvm 本体不绑",
+    "scope": "topic",
     "projects": [],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "lifecycle-control-plane"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -1756,7 +2161,10 @@
       "guest",
       "agent",
       "runtime"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "analysis.guest-memory-dma-iommu-cross-project",
@@ -1789,10 +2197,15 @@
       "10. 后续深挖建议"
     ],
     "summary": "Guest Memory、DMA/IOMMU 与地址转换跨项目专题分析 本文从源码出发，对比 Firecracker、Cloud Hypervisor、crosvm、Kata Containers 与 CubeSandbox 的 guest memory、DMA、IOMMU、dirty tracking 和 guest 内存热插拔语义。 这条路线要先分清三层：host 用户态内存映射、hypervisor memory slot、设备 DMA 可见地址。VMM 层通常只负责前两层，IOMMU 与 runtime 层",
+    "scope": "topic",
     "projects": [],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "cpu-memory-machine"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -1801,7 +2214,10 @@
       "memory",
       "dma",
       "iommu"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "analysis.hypervisor-kvm-vcpu-cross-project",
@@ -1834,10 +2250,15 @@
       "8. ARM64 与 x86_64 对比"
     ],
     "summary": "Hypervisor/KVM/vCPU 执行边界跨项目专题分析 本文从源码出发，对比 Firecracker、Cloud Hypervisor、crosvm、Kata Containers 与 CubeSandbox 的 hypervisor 抽象、KVM 绑定、vCPU 创建、vCPU run loop 和 ARM64/x86 64 差异。 这条路线的核心问题是：项目是否直接面向 KVM，还是先抽象出 hypervisor trait；vCPU exit 是在 hypervisor 层处理，还是返回到 VMM/c",
+    "scope": "topic",
     "projects": [],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "cpu-memory-machine"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -1845,7 +2266,10 @@
       "hypervisor",
       "kvm",
       "vcpu"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "analysis.interrupt-event-notification-cross-project",
@@ -1878,10 +2302,15 @@
       "8. 源码阅读顺序"
     ],
     "summary": "中断与事件通知跨项目专题分析 本文从源码比较当前四个重点项目的中断与事件通知路径：Firecracker、Cloud Hypervisor、Kata Containers、CubeSandbox。核心问题是：guest 如何通知 host 有新队列工作，host 设备完成后又如何把中断送回 guest。 这条路径连接 virtqueue、eventfd、ioeventfd、irqfd、MSI/MSI-X、IOAPIC/APIC、GIC/ITS 和 vCPU run loop。它决定设备延迟、vhost 后端接入、热",
+    "scope": "topic",
     "projects": [],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "storage-device-io"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -1889,7 +2318,10 @@
       "interrupt",
       "event",
       "notification"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "analysis.network-connectivity-cross-project",
@@ -1906,17 +2338,25 @@
       "8. 后续深挖路线"
     ],
     "summary": "网络与连接模型跨项目专题分析 本文横向比较四个项目中“网络如何从 host 进入 guest，并变成 guest 内可用接口、路由和策略”的真实路径。 源码基线：当前仓库工作树。 关联总表： ARM64 网络验证与观测总表 ./arm64-network-validation-observation-matrix.md 。 关联签名表： ARM64 网络失败签名总表 ./arm64-network-failure-signature-matrix.md 。 关联命令表： ARM64 网络测试与取证命令总表 ./ar",
+    "scope": "topic",
     "projects": [],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "network-isolation"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
     "tags": [
       "network",
       "connectivity"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "analysis.observability-diagnostics-cross-project",
@@ -1935,17 +2375,25 @@
       "10. 下一步深入路线"
     ],
     "summary": "可观测性与故障诊断跨项目专题分析 本文比较五个项目如何暴露日志、指标、事件、guest console、runtime event 和诊断材料。它回答一个实际问题：Micro-VM 出问题时，证据从哪里来，能证明到哪一层。 关联签名表： ARM64 网络失败签名总表 ./arm64-network-failure-signature-matrix.md 。 关联命令表： ARM64 网络测试与取证命令总表 ./arm64-network-test-observation-command-matrix.md 。 关联",
+    "scope": "topic",
     "projects": [],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "operations-observability-performance"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
     "tags": [
       "observability",
       "diagnostics"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "analysis.performance-design-basis-cross-project",
@@ -1978,10 +2426,15 @@
       "设计依据"
     ],
     "summary": "性能设计依据跨项目专题分析 本文回答一个问题： 轻量化虚拟机的性能，到底从哪些设计决策里来？ 它是综合层，不是机制层。机制（ioeventfd 怎么注册、dirty log 怎么聚合、UFFD 怎么握手）已经在各自链路文档里讲清楚；本文的作用是把这些机制 重新按性能杠杆组织 ，说明每个杠杆为什么影响性能、五个项目怎么取舍、实测数字落在哪，最后提炼成可复用的设计原则。 配套阅读： - 机制基础： Virtio 传输与设备数据路径 ./virtio-data-path-cross-project.md 、 中断与事件通",
+    "scope": "topic",
     "projects": [],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "operations-observability-performance"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -1989,7 +2442,10 @@
       "performance",
       "design",
       "basis"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "analysis.protected-vm-snapshot-migration-cross-project",
@@ -2007,10 +2463,15 @@
       "9. 能力边界总结"
     ],
     "summary": "Protected VM 与 snapshot/migration 跨项目专题分析 本文承接 CoCo / pVM / 受保护 VM 跨项目专题分析 ./coco-pvm-protected-vm-cross-project.md 、 Snapshot / Restore / Clone 跨项目专题分析 ./snapshot-restore-cross-project.md 和 Guest Memory、DMA/IOMMU 与地址转换跨项目专题分析 ./guest-memory-dma-iommu-cross-pr",
+    "scope": "history",
     "projects": [],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "history-deferred"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "historical",
     "kind": "explanation",
@@ -2019,7 +2480,10 @@
       "vm",
       "snapshot",
       "migration"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "analysis.resource-qos-cross-project",
@@ -2051,17 +2515,25 @@
       "10. 结论"
     ],
     "summary": "资源管理与 QoS 跨项目专题分析 本文从源码出发，比较 Firecracker、Cloud Hypervisor、crosvm、Kata Containers 和 CubeSandbox 的资源管理边界。 这里的资源管理不只包括 vCPU 和内存大小，也包括 balloon、virtio-mem、设备限速、宿主 cgroup、调度 quota、guest 内 cgroup 更新。 1. 分层模型 这条链路的关键问题是：资源限制发生在 VM 内还是 VM 外，发生在启动前还是运行中，以及是否需要 guest age",
+    "scope": "topic",
     "projects": [],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "lifecycle-control-plane"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
     "tags": [
       "resource",
       "qos"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "analysis.runtime-control-hotplug-cross-project",
@@ -2080,10 +2552,15 @@
       "10. 推荐阅读顺序"
     ],
     "summary": "运行期控制面与热插拔跨项目专题分析 本文比较 Firecracker、Cloud Hypervisor、crosvm、Kata Containers 和 CubeSandbox 的运行期控制面。重点不是“如何启动 VM”，而是 VM 或 sandbox 已经运行后，控制命令如何进入系统，最终谁改变 vCPU、内存、设备、guest agent 或平台状态。 源码基线：当前仓库工作树。 相关文档： - 启动路径与控制面跨项目专题分析 ./boot-control-plane-cross-project.md - 设备",
+    "scope": "topic",
     "projects": [],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "lifecycle-control-plane"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -2091,7 +2568,10 @@
       "runtime",
       "control",
       "hotplug"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "analysis.security-design-basis-cross-project",
@@ -2114,10 +2594,15 @@
       "9. 已知边界与诚实声明"
     ],
     "summary": "安全设计依据跨项目专题分析 本文回答一个问题： 设计一个轻量化虚拟机时，安全应该怎么推理、怎么取舍？ 它是综合层，不是机制层。机制（jailer 怎么 pivot root、seccomp 怎么按线程生成、Landlock 怎么建 ruleset、agent policy 怎么 check）已经在机制文档里讲清楚： - 机制基础： 安全隔离边界跨项目专题分析 ./security-isolation-cross-project.md （五个项目的隔离机制清单与源码锚点）。 - 项目级新补充： Cloud Hyper",
+    "scope": "topic",
     "projects": [],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "lifecycle-control-plane"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -2125,7 +2610,10 @@
       "security",
       "design",
       "basis"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "analysis.security-isolation-cross-project",
@@ -2156,17 +2644,25 @@
       "10. 结论"
     ],
     "summary": "安全隔离边界跨项目专题分析 本文比较 Firecracker、Cloud Hypervisor、crosvm、Kata Containers 和 CubeSandbox 的安全隔离机制。 核心问题：Micro-VM 的安全边界不是单点。KVM 提供 guest/host 执行边界，VMM 提供设备模型边界，seccomp/jailer/minijail/Landlock 限制 host 侧攻击面，runtime/agent/platform 再约束业务语义。 本文是机制清单。安全 设计推理 （威胁模型、纵深防御原理",
+    "scope": "topic",
     "projects": [],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "network-isolation"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
     "tags": [
       "security",
       "isolation"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "analysis.snapshot-device-save-restore-deep-dive",
@@ -2199,10 +2695,15 @@
       "6.1 \"设备 restore 成功 ≠ guest 可用\""
     ],
     "summary": "Snapshot 设备状态保存与恢复专题 本文聚焦 snapshot/restore 中设备状态的部分——保存什么、按什么顺序、restore 时如何重建设备对象 + transport + 中断路由 + 事件订阅。 源码基线：Linux 6.6.0 内核 + Firecracker/Cloud Hypervisor/CubeSandbox VMM 源码。 相关： Snapshot/Restore 底层内核技术深度解读 ./snapshot-restore-kernel-deep-dive.md 、 Snapsho",
+    "scope": "topic",
     "projects": [],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "snapshot-restore-migration"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -2213,7 +2714,10 @@
       "restore",
       "deep",
       "dive"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "analysis.snapshot-memory-save-restore-deep-dive",
@@ -2244,10 +2748,15 @@
       "6. 内核技术栈完整对照"
     ],
     "summary": "Snapshot 内存保存与恢复专题 本文聚焦 snapshot/restore 中最复杂、最核心的部分—— guest memory 的保存与恢复 。从 VMM 用户态实现到内核 KVM/userfaultfd 底层机制，逐层展开。 源码基线：Linux 6.6.0 内核 + Firecracker/Cloud Hypervisor/CubeSandbox VMM 源码。 相关： Snapshot/Restore 底层内核技术深度解读 ./snapshot-restore-kernel-deep-dive.md ",
+    "scope": "topic",
     "projects": [],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "snapshot-restore-migration"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -2258,7 +2767,10 @@
       "restore",
       "deep",
       "dive"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "analysis.snapshot-restore-cross-project",
@@ -2291,17 +2803,25 @@
       "5.1 四层组合"
     ],
     "summary": "Snapshot / Restore / Clone 跨项目专题分析 本文从源码出发，系统比较 Firecracker、Cloud Hypervisor、crosvm、Kata Containers 和 CubeSandbox 五个项目的 snapshot、restore、clone、migration 能力。 核心问题：五个项目都用\"snapshot\"这个词，但 保存的状态层级完全不同 ——VMM 级 snapshot 保存 CPU/内存/设备寄存器；runtime 级 save 额外保存 sandbox/con",
+    "scope": "topic",
     "projects": [],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "snapshot-restore-migration"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
     "tags": [
       "snapshot",
       "restore"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "analysis.snapshot-restore-kernel-deep-dive",
@@ -2334,10 +2854,15 @@
       "6.2 XFS Reflink：共享 extent"
     ],
     "summary": "Snapshot / Restore 底层内核技术深度解读 本文从 Linux 6.6.0 内核源码出发，深入解读 Micro-VM snapshot/restore 用到的全部底层内核机制。不是再次描述 VMM 侧架构——而是回答\"内核里到底怎么实现的\"。 源码基线： kernel/ （Linux 6.6.0）+ Firecracker/Cloud Hypervisor/CubeSandbox VMM 源码。 相关： Snapshot/Restore/Clone 横向专题 ./snapshot-restore-c",
+    "scope": "topic",
     "projects": [],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "snapshot-restore-migration"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -2347,7 +2872,10 @@
       "kernel",
       "deep",
       "dive"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "analysis.storage-rootfs-sharefs-cross-project",
@@ -2366,10 +2894,15 @@
       "10. 后续深挖路线"
     ],
     "summary": "存储、rootfs 与共享文件系统跨项目专题分析 本文横向比较当前四个重点项目中“guest 如何看到磁盘、rootfs、共享目录和可持久化状态”。这条路线直接影响启动、设备模型、snapshot/clone、恢复和 ARM64 支持。 源码基线：当前仓库工作树。 相关项目路线： - Firecracker 深入路线 projects/firecracker/deep-routes.md - Cloud Hypervisor 深入路线 projects/cloud-hypervisor/deep-routes.md",
+    "scope": "topic",
     "projects": [],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "storage-device-io"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -2377,7 +2910,10 @@
       "storage",
       "rootfs",
       "sharefs"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "analysis.virtio-data-path-cross-project",
@@ -2397,10 +2933,15 @@
       "11. 结论"
     ],
     "summary": "Virtio 传输与设备数据路径跨项目专题分析 本文从源码出发，比较当前四个重点项目的 virtio 传输、队列、事件、中断和设备 worker 边界：Firecracker、Cloud Hypervisor、Kata Containers、CubeSandbox。 这里的核心问题不是“支持哪些 virtio 设备”，而是 guest driver 写 queue notify 以后，请求如何到达 host 设备后端，又如何通过 used ring 和 interrupt 返回 guest。 1. 通用数据路径 v",
+    "scope": "topic",
     "projects": [],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "storage-device-io"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -2408,7 +2949,10 @@
       "virtio",
       "data",
       "path"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "analysis.vm-design-landscape-overview",
@@ -2432,10 +2976,15 @@
       "9. 下一步"
     ],
     "summary": "轻量化虚拟机设计全景与学习路线 本文是面向“想完整理解轻量化虚拟机（MicroVM）设计”的读者入口。 它与 Analysis 导航入口 ./README.md 的区别在于： README.md 是按“项目路线 / 跨项目专题 / ARM64 网络 / 样本”组织的 导航索引 ，而本文是按 学习目标 组织的 课程路线 ——先建立完整面貌，再说明每个设计维度为什么这样取舍，最后给出一条从源码到性能与安全的设计依据路径。 源码基线：当前工作树。本文只综合已有专题与链路文档的结论，不重复展开函数级调用链；需要深入时一律跳",
+    "scope": "learning",
     "projects": [],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "learning"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "tutorial",
@@ -2444,7 +2993,10 @@
       "design",
       "landscape",
       "overview"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "cloud-hypervisor.architecture-report",
@@ -2477,19 +3029,27 @@
       "5.2 设备管理器架构"
     ],
     "summary": "Cloud Hypervisor 微虚拟机架构深度分析报告 项目 : Cloud Hypervisor 编程语言 : Rust 主要用途 : 通用云工作负载虚拟机监控器 开发者 : Intel、Arm及开源社区 版本 : 基于仓库源码分析 --- 一、项目概述 Cloud Hypervisor 是一个现代化的开源虚拟机监控器（VMM），专为云原生工作负载优化。基于 Rust 语言构建，采用模块化设计，支持多种 hypervisor 后端（KVM、Microsoft Hypervisor），提供完整的虚拟化功能集。 ",
+    "scope": "project",
     "projects": [
       "cloud-hypervisor"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "overview"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
     "tags": [
       "architecture",
       "report"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "cloud-hypervisor.acpi-fdt-machine-description-chain",
@@ -2504,12 +3064,17 @@
       "4. 能力边界"
     ],
     "summary": "Cloud Hypervisor ACPI / FDT 机器描述生成链路 本文聚焦 CH 如何把 Vm / CpuManager / MemoryManager / DeviceManager 的状态变成 guest 可见的机器描述。 源码基线：当前仓库工作树。 相关： VM create/boot vm-create-boot-chain.md 、 arch ARM64/x86 64 arch-arm64-x86-chain.md 。 --- 0. 术语与背景 两张机器描述面 面 架构 承载 --- --- --",
+    "scope": "project",
     "projects": [
       "cloud-hypervisor"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "cpu-memory-machine"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -2518,7 +3083,10 @@
       "fdt",
       "machine",
       "description"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "cloud-hypervisor.api-vmm-thread-control-chain",
@@ -2540,12 +3108,17 @@
       "13. 与已有文档关系"
     ],
     "summary": "Cloud Hypervisor API / VMM Thread 控制面链路 本文从源码解释 Cloud Hypervisor 的控制面：API 入口不直接修改 VM，而是把请求封装成闭包，写入 channel，再用 EventFd 唤醒 VMM thread。 源码基线：当前仓库工作树。本文不展开 TDX/SEV-SNP 等 CoCo 路线；相关内容已有独立专题。 1. 结论先行 Cloud Hypervisor 的控制面可以概括为： mpsc::Sender 承载请求数据， EventFd 承载唤醒通知。VM",
+    "scope": "project",
     "projects": [
       "cloud-hypervisor"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "lifecycle-control-plane"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -2554,7 +3127,10 @@
       "vmm",
       "thread",
       "control"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "cloud-hypervisor.arch-arm64-x86-chain",
@@ -2567,12 +3143,17 @@
       "2. ARM64 GIC redistributor + snapshot"
     ],
     "summary": "Cloud Hypervisor ARM64 与 x86 64 架构差异链路 本文解释 CH 在 ARM64 与 x86 64 上的差异：VM boot、vCPU、系统描述、中断控制器、legacy device、ACPI/FDT、CoCo。 源码基线：当前仓库工作树。 相关： cpu-boot cpu-boot-chain.md 、 VM create/boot vm-create-boot-chain.md 、 device-manager device-manager-chain.md 。 --- 0. 术语",
+    "scope": "project",
     "projects": [
       "cloud-hypervisor"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "cpu-memory-machine"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -2580,7 +3161,10 @@
       "arch",
       "arm64",
       "x86"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "cloud-hypervisor.coco-tdx-sev-snp-chain",
@@ -2595,12 +3179,17 @@
       "4. 能力边界"
     ],
     "summary": "Cloud Hypervisor CoCo：TDX 与 SEV-SNP 函数级链路 本文解释 tdx / sev snp 配置如何改变 VM 类型、CPUID、payload、vCPU、内存、设备 DMA 和生命周期边界。 源码基线：当前仓库工作树。 相关： arch ARM64/x86 64 arch-arm64-x86-chain.md 、 TDX lifecycle 限制 tdx-lifecycle-limit-chain.md 、 横向 CoCo/pVM ../../coco-pvm-protected-v",
+    "scope": "project",
     "projects": [
       "cloud-hypervisor"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "network-isolation"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -2609,7 +3198,10 @@
       "tdx",
       "sev",
       "snp"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "cloud-hypervisor.cpu-boot-chain",
@@ -2622,19 +3214,27 @@
       "2. create_boot_vcpus → start_boot_vcpus"
     ],
     "summary": "Cloud Hypervisor CPU 启动链路函数级分析 本文展开 Vm::new from memory manager → CpuManager → boot vCPU → Vcpu::configure → configure system → start boot vcpus 链路：vCPU 何时创建、何时配置、何时开始运行。 源码基线：当前仓库工作树。 相关： VM create/boot vm-create-boot-chain.md 、 arch ARM64/x86 64 arch-arm64-x",
+    "scope": "project",
     "projects": [
       "cloud-hypervisor"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "cpu-memory-machine"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
     "tags": [
       "cpu",
       "boot"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "cloud-hypervisor.cpu-runtime-hotplug-migration-chain",
@@ -2661,12 +3261,17 @@
       "13. 能力边界"
     ],
     "summary": "Cloud Hypervisor CPU 运行期控制与迁移状态链路 本文从源码追踪 Cloud Hypervisor CpuManager 在 VM boot 后的 vCPU resize、hotplug、pause/resume、snapshot 和 restore。 源码基线：当前仓库工作树。 相关： CPU 启动链路 cpu-boot-chain.md 、 运行期控制与热插拔 runtime-control-hotplug-chain.md 、横向 资源管理与 QoS ../../resource-qos-c",
+    "scope": "project",
     "projects": [
       "cloud-hypervisor"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "snapshot-restore-migration"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -2675,7 +3280,10 @@
       "runtime",
       "hotplug",
       "migration"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "cloud-hypervisor.deep-dive",
@@ -2701,19 +3309,27 @@
       "16. 后续深入路线"
     ],
     "summary": "Cloud Hypervisor 深入探索文档 本文档从当前仓库源码出发，建立对 Cloud Hypervisor 的系统性理解：它与 Firecracker/crosvm 的边界差异、VMM 控制面如何组织、设备和 snapshot/migration 如何扩展，以及 ARM64 与 x86 64 路径如何分叉。 当前版本：第 2 版 源码基线： cloud-hypervisor 仓库，commit ea0a0393b 阅读方式：先看定位和总架构，再沿 CLI/API - VMM thread - Vm - Cp",
+    "scope": "project",
     "projects": [
       "cloud-hypervisor"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "overview"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
     "tags": [
       "deep",
       "dive"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "cloud-hypervisor.deep-routes",
@@ -2728,19 +3344,27 @@
       "6. x86_64 路线：CPUID、ACPI、PCI、CoCo"
     ],
     "summary": "Cloud Hypervisor 深入路线展开 本文承接 deep-dive.md deep-dive.md 的“后续深入路线”，把每条路线展开为可执行的源码研究路径。Cloud Hypervisor 的核心不是单点 VMM API，而是 Vmm 控制线程、 Vm 聚合对象、 CpuManager 、 MemoryManager 、 DeviceManager 共同维护 VM 生命周期、热插拔、snapshot/restore 和迁移。 源码基线：当前仓库工作树。 相关横向专题： Snapshot / Restor",
+    "scope": "project",
     "projects": [
       "cloud-hypervisor"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "overview"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "reference",
     "tags": [
       "deep",
       "routes"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "cloud-hypervisor.device-creation-matrix-chain",
@@ -2754,12 +3378,17 @@
       "2. add_pci_devices（统一 VirtioPciDevice）"
     ],
     "summary": "Cloud Hypervisor 设备创建矩阵链路 本文补齐 DeviceManager 的设备创建矩阵：普通 virtio/vhost-user/virtio-fs/vDPA/VFIO/vfio-user 如何进入设备树/PCI transport/热插拔/snapshot-restore。 源码基线：当前仓库工作树。 相关： I/O 设备数据面 io-device-data-path-chain.md 、 DeviceManager 设备链路 device-manager-chain.md 。 --- 0. 术",
+    "scope": "project",
     "projects": [
       "cloud-hypervisor"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "storage-device-io"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "reference",
@@ -2767,7 +3396,10 @@
       "device",
       "creation",
       "matrix"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "cloud-hypervisor.device-manager-chain",
@@ -2782,19 +3414,27 @@
       "3. snapshot/migration 聚合"
     ],
     "summary": "Cloud Hypervisor DeviceManager 设备链路函数级分析 本文展开 Vm::create device manager → DeviceManager::new → create interrupt controller → create devices → make virtio devices → add pci devices → ACPI/FDT → snapshot/migration 链路。 源码基线：当前仓库工作树。 相关： VM create/boot vm-create-b",
+    "scope": "project",
     "projects": [
       "cloud-hypervisor"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "storage-device-io"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
     "tags": [
       "device",
       "manager"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "cloud-hypervisor.device-tree-hotplug-restore-chain",
@@ -2809,12 +3449,17 @@
       "2. restore_devices（遍历 + pause + restore）"
     ],
     "summary": "Cloud Hypervisor DeviceTree / 热插拔 / Restore 链路 本文展开 DeviceTree 为什么是设备拓扑/热插拔/snapshot/restore 的共同骨架。 源码基线：当前仓库工作树。 相关： DeviceManager 设备链路 device-manager-chain.md 、 snapshot/restore 状态恢复 ../cubesandbox/vmm-snapshot-restore-state-chain.md 。 --- 0. 术语与背景 DeviceTre",
+    "scope": "project",
     "projects": [
       "cloud-hypervisor"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "snapshot-restore-migration"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -2823,7 +3468,10 @@
       "tree",
       "hotplug",
       "restore"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "cloud-hypervisor.interrupt-event-notification-chain",
@@ -2839,12 +3487,17 @@
       "3. ARM64 restore 边界 / 与 Firecracker 差异"
     ],
     "summary": "Cloud Hypervisor 中断与事件通知链路 本文展开 guest virtio driver 如何经 queue notify 唤醒 host backend，host backend 又如何经 InterruptManager /MSI-X/IOAPIC/GIC 把中断送回 guest。 源码基线：当前仓库工作树。 相关： I/O 设备数据面 io-device-data-path-chain.md 、 CPU 运行期/热插拔/迁移 cpu-runtime-hotplug-migration-chain",
+    "scope": "project",
     "projects": [
       "cloud-hypervisor"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "storage-device-io"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -2852,7 +3505,10 @@
       "interrupt",
       "event",
       "notification"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "cloud-hypervisor.io-device-data-path-chain",
@@ -2879,12 +3535,17 @@
       "14. 对比提示"
     ],
     "summary": "Cloud Hypervisor I/O 设备数据面链路 本文从源码追踪 Cloud Hypervisor 非机密计算路径下的 block、net、fs、vhost-user 和 vDPA I/O 设备数据面。 源码基线：当前仓库工作树。 相关： DeviceManager 设备链路 device-manager-chain.md 、 运行期控制与热插拔 runtime-control-hotplug-chain.md 、横向 Virtio data path cross-project ../../virtio-",
+    "scope": "project",
     "projects": [
       "cloud-hypervisor"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "storage-device-io"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -2893,7 +3554,10 @@
       "device",
       "data",
       "path"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "cloud-hypervisor.isolation-seccomp-landlock-chain",
@@ -2908,12 +3572,17 @@
       "3. 能力边界 / ARM64 差异"
     ],
     "summary": "Cloud Hypervisor 隔离机制函数级链路（seccomp + Landlock） 本文展开 CH 作为\"无 external jailer 的单进程 VMM\"的进程/线程隔离机制。 源码基线：当前仓库工作树。 相关： 安全隔离边界 ../../security-isolation-cross-project.md 、 性能设计依据 ../../performance-design-basis-cross-project.md 。 --- 0. 术语与背景 设计取向：线程级最小权限，不做 external",
+    "scope": "project",
     "projects": [
       "cloud-hypervisor"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "network-isolation"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -2921,7 +3590,10 @@
       "isolation",
       "seccomp",
       "landlock"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "cloud-hypervisor.memory-address-hotplug-topology-chain",
@@ -2937,12 +3609,17 @@
       "3. 能力边界 / ARM64 差异"
     ],
     "summary": "Cloud Hypervisor Memory Address / Hotplug Topology 链路 本文补齐 MemoryManager 的地址空间与热插拔拓扑：guest RAM 如何分成 zones/regions、何时注册 hypervisor slot、ACPI hotplug vs virtio-mem vs zone resize 的边界。 源码基线：当前仓库工作树。 相关： MemoryManager 内存链路 memory-manager-chain.md 、 VM create/boot ",
+    "scope": "project",
     "projects": [
       "cloud-hypervisor"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "cpu-memory-machine"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -2951,7 +3628,10 @@
       "address",
       "hotplug",
       "topology"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "cloud-hypervisor.memory-manager-chain",
@@ -2967,19 +3647,27 @@
       "4. dirty log（hypervisor + VMM bitmap OR）"
     ],
     "summary": "Cloud Hypervisor MemoryManager 内存链路函数级分析 本文展开 Vm::new → MemoryManager::new/new from snapshot → allocate address space → create userspace mapping → resize → snapshot/send → dirty log 链路。 源码基线：当前仓库工作树。 相关： VM create/boot vm-create-boot-chain.md 、 migration memor",
+    "scope": "project",
     "projects": [
       "cloud-hypervisor"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "cpu-memory-machine"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
     "tags": [
       "memory",
       "manager"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "cloud-hypervisor.migration-memory-transport-chain",
@@ -3004,12 +3692,17 @@
       "11. 能力边界 / ARM64 / 与四项目对齐"
     ],
     "summary": "Cloud Hypervisor Migration Memory Transport 链路 本文展开 MemoryManager 内存链路 memory-manager-chain.md ，聚焦 guest RAM 如何纳入 snapshot/transport/restore 和 live migration dirty log。 源码基线：当前仓库工作树。 相关：横向 Snapshot/Restore/Clone ../../snapshot-restore-cross-project.md 、CubeSan",
+    "scope": "project",
     "projects": [
       "cloud-hypervisor"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "snapshot-restore-migration"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -3017,7 +3710,10 @@
       "migration",
       "memory",
       "transport"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "cloud-hypervisor.observability-diagnostics-chain",
@@ -3032,19 +3728,27 @@
       "3. 能力边界"
     ],
     "summary": "Cloud Hypervisor 可观测性与诊断链路 本文回答：CH 出故障时证据从哪里来，能证明到哪一层。 源码基线：当前仓库工作树。 相关： API/VMM thread 控制面 api-vmm-thread-control-chain.md 、 DeviceManager 设备链路 device-manager-chain.md 。 --- 0. 术语与背景 CH 可观测四类输出 输出 来源 内容 --- --- --- API response VMM thread request 执行结果（成功/错误码）",
+    "scope": "project",
     "projects": [
       "cloud-hypervisor"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "operations-observability-performance"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
     "tags": [
       "observability",
       "diagnostics"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "cloud-hypervisor.runtime-control-hotplug-chain",
@@ -3060,12 +3764,17 @@
       "3. notify_hotplug（GED notification）"
     ],
     "summary": "Cloud Hypervisor 运行期控制与热插拔链路 本文追踪 VM 已创建/运行后的控制路径：resize、设备 add/remove、pause/resume，以及如何同时维护 VmConfig 、manager 状态、guest 通知。 源码基线：当前仓库工作树。 相关： CPU 运行期/热插拔/迁移 cpu-runtime-hotplug-migration-chain.md 、 DeviceManager 设备链路 device-manager-chain.md 、 MemoryManager 内存链",
+    "scope": "project",
     "projects": [
       "cloud-hypervisor"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "lifecycle-control-plane"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -3073,7 +3782,10 @@
       "runtime",
       "control",
       "hotplug"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "cloud-hypervisor.sev-snp-igvm-vmsa-chain",
@@ -3087,12 +3799,17 @@
       "2. 能力边界"
     ],
     "summary": "Cloud Hypervisor SEV-SNP IGVM / VMSA / isolated page 链路 本文分析 SEV-SNP 如何通过 MSHV、IGVM、VMSA 和 isolated page import 启动 guest。 源码基线：当前仓库工作树。 相关： CoCo TDX/SEV-SNP coco-tdx-sev-snp-chain.md 、 TDX TDVF/HOB tdx-tdvf-hob-chain.md 。 --- 0. 术语与背景 SEV-SNP 启动链 Vm::hyperviso",
+    "scope": "project",
     "projects": [
       "cloud-hypervisor"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "network-isolation"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -3101,7 +3818,10 @@
       "snp",
       "igvm",
       "vmsa"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "cloud-hypervisor.storage-rootfs-sharefs-boundary-chain",
@@ -3124,12 +3844,17 @@
       "10. 结论"
     ],
     "summary": "Cloud Hypervisor 存储 / rootfs / share-fs 边界链路 本文承接 I/O 设备数据面 io-device-data-path-chain.md 、 设备创建矩阵 device-creation-matrix-chain.md 和 DeviceTree/热插拔/Restore device-tree-hotplug-restore-chain.md ，收成一个问题：CH 的存储、rootfs、share-fs 边界在哪。 源码基线：当前工作树。 相关：横向 存储/rootfs/sha",
+    "scope": "project",
     "projects": [
       "cloud-hypervisor"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "storage-device-io"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -3138,7 +3863,10 @@
       "rootfs",
       "sharefs",
       "boundary"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "cloud-hypervisor.tdx-lifecycle-limit-chain",
@@ -3151,12 +3879,17 @@
       "2. 能力边界"
     ],
     "summary": "Cloud Hypervisor TDX lifecycle 限制链路 本文分析 TDX 为什么禁止 snapshot、live migration、coredump，并收窄 CPU/Memory hotplug。 源码基线：当前仓库工作树。 相关： CoCo TDX/SEV-SNP coco-tdx-sev-snp-chain.md 、 横向 protected VM snapshot/migration ../../protected-vm-snapshot-migration-cross-project.md",
+    "scope": "project",
     "projects": [
       "cloud-hypervisor"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "network-isolation"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -3164,7 +3897,10 @@
       "tdx",
       "lifecycle",
       "limit"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "cloud-hypervisor.tdx-tdvf-hob-chain",
@@ -3179,12 +3915,17 @@
       "2. 能力边界"
     ],
     "summary": "Cloud Hypervisor TDX TDVF / HOB 启动链路 本文分析 TDX guest 启动时 CH 如何解析 TDVF metadata、处理 TdvfSectionType 、生成 TD HOB，并把 HOB 地址交给 KVM TDX vCPU。 源码基线：当前仓库工作树。 相关： CoCo TDX/SEV-SNP coco-tdx-sev-snp-chain.md 、 TDX lifecycle 限制 tdx-lifecycle-limit-chain.md 。 --- 0. 术语与背景 TD",
+    "scope": "project",
     "projects": [
       "cloud-hypervisor"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "network-isolation"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -3192,7 +3933,10 @@
       "tdx",
       "tdvf",
       "hob"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "cloud-hypervisor.tdx-vcpu-exit-vmcall-chain",
@@ -3205,12 +3949,17 @@
       "1. 能力边界"
     ],
     "summary": "Cloud Hypervisor TDX vCPU exit / VMCALL 边界链路 本文分析 TDX guest 运行后，VMM 对 TDX VM exit 与 VMCALL 的支持边界。 源码基线：当前仓库工作树。 相关： CoCo TDX/SEV-SNP coco-tdx-sev-snp-chain.md 、 TDX TDVF/HOB tdx-tdvf-hob-chain.md 。 --- 0. 术语与背景 TDX VM exit 与普通 VM exit 不同 TDX guest 的大部分 exit 被 ",
+    "scope": "project",
     "projects": [
       "cloud-hypervisor"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "network-isolation"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -3219,7 +3968,10 @@
       "vcpu",
       "exit",
       "vmcall"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "cloud-hypervisor.vfio-vfio-user-iommu-migration-chain",
@@ -3234,12 +3986,17 @@
       "4. 能力边界"
     ],
     "summary": "Cloud Hypervisor VFIO / vfio-user / IOMMU / Migration 能力矩阵链路 本文补齐 VFIO/vfio-user 的 IOMMU、dirty log、migration 能力边界。 源码基线：当前仓库工作树。 相关： 设备创建矩阵 device-creation-matrix-chain.md 、 I/O 设备数据面 io-device-data-path-chain.md 。 --- 0. 术语与背景 VFIO vs vfio-user vs vhost-user ",
+    "scope": "project",
     "projects": [
       "cloud-hypervisor"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "snapshot-restore-migration"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -3248,7 +4005,10 @@
       "user",
       "iommu",
       "migration"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "cloud-hypervisor.vm-create-boot-chain",
@@ -3271,12 +4031,17 @@
       "9. 与 Firecracker 对照"
     ],
     "summary": "Cloud Hypervisor VM Create / Boot 构建链路 本文解释 CH 整机创建与启动路径： vm create → vm boot → Vm::new → Vm::boot 如何把 hypervisor VM、guest memory、vCPU、设备和机器描述连成可运行 VM。 源码基线：当前仓库工作树。聚焦普通 VM 主路径；TDX/SEV-SNP 只作能力边界提示。 相关： CPU 运行期/热插拔/迁移 cpu-runtime-hotplug-migration-chain.md 、 I",
+    "scope": "project",
     "projects": [
       "cloud-hypervisor"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "lifecycle-control-plane"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -3284,7 +4049,10 @@
       "vm",
       "create",
       "boot"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "crosvm.arch-arm64-x86-chain",
@@ -3305,12 +4073,17 @@
       "12. 调试阅读路线"
     ],
     "summary": "crosvm ARM64 与 x86 64 架构差异链路 本文沿着 crosvm 的 Linux 启动骨架，分析 ARM64 与 x86 64 在 VM 构造、内存布局、中断控制器、机器描述、设备枚举、vCPU 初始化和热插拔能力上的差异。 源码基线：当前仓库工作树。 相关文档： - crosvm 深入路线展开 ./deep-routes.md - 启动与控制循环函数级分析 ./boot-control-chain.md - 设备模型与隔离链路函数级分析 ./device-isolation-chain.md - ",
+    "scope": "project",
     "projects": [
       "crosvm"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "cpu-memory-machine"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "historical",
     "kind": "explanation",
@@ -3318,7 +4091,10 @@
       "arch",
       "arm64",
       "x86"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "crosvm.boot-control-chain",
@@ -3339,19 +4115,27 @@
       "12. 能力边界"
     ],
     "summary": "crosvm 启动与控制循环函数级分析 本文沿着 crosvm 当前工作树源码，展开 main/run vm command - run config - setup vm components - run kvm/run gunyah/... - run vm - Arch::build vm - RunnableLinuxVm - run control 这条链路。 目标是弄清楚：crosvm 如何从 CLI config 走到可运行 VM，设备、内存、irqchip 和架构机器描述在哪里组装，ARM64 与 ",
+    "scope": "project",
     "projects": [
       "crosvm"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "lifecycle-control-plane"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "historical",
     "kind": "explanation",
     "tags": [
       "boot",
       "control"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "crosvm.create-devices-matrix-chain",
@@ -3369,12 +4153,17 @@
       "9. 能力边界"
     ],
     "summary": "crosvm create devices 设备矩阵与隔离链路 本文继续展开 crosvm 深入路线 ./deep-routes.md 中的 create devices 后续路线。 焦点是普通 VM 设备创建矩阵、Minijail/ProxyDevice 隔离边界、virtio PCI 包装，以及 ARM64/x86 64 的设备落点差异。 本文不展开 protected VM 专题。protected VM 相关边界见现有 protected VM 系列文档。 1. 核心结论 create devices 是 ",
+    "scope": "project",
     "projects": [
       "crosvm"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "storage-device-io"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "historical",
     "kind": "reference",
@@ -3382,7 +4171,10 @@
       "create",
       "devices",
       "matrix"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "crosvm.deep-dive",
@@ -3406,19 +4198,27 @@
       "14. 后续深入路线"
     ],
     "summary": "crosvm 深入探索文档 本文档从当前仓库源码出发，建立对 crosvm 的系统性理解：它为什么是“强隔离、多设备、跨平台”的 VMM，process-per-device 如何影响架构，控制 socket 如何组织 VM 状态操作，以及 ARM64 与 x86 64 设备/中断/沙箱策略如何分叉。 当前版本：第 2 版 源码基线： crosvm 仓库，commit afafee6ae 阅读方式：先看顶层定位，再沿 CLI/Config - run config - Arch::build vm - create",
+    "scope": "project",
     "projects": [
       "crosvm"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "overview"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "historical",
     "kind": "explanation",
     "tags": [
       "deep",
       "dive"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "crosvm.deep-routes",
@@ -3433,19 +4233,27 @@
       "6. ARM64/x86_64 差异路线"
     ],
     "summary": "crosvm 深入路线展开 本文承接 deep-dive.md ./deep-dive.md 的“后续深入路线”，把 crosvm 的入口、设备模型、控制循环、snapshot 和 ARM64/x86 64 差异整理成可继续追踪的源码路线。 源码基线：当前仓库工作树。 相关横向专题： Snapshot / Restore / Clone 跨项目专题分析 ../../analysis/snapshot-restore-cross-project.md 。 相关横向专题： 设备模型与隔离边界跨项目专题分析 ../../",
+    "scope": "project",
     "projects": [
       "crosvm"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "overview"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "historical",
     "kind": "reference",
     "tags": [
       "deep",
       "routes"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "crosvm.device-isolation-chain",
@@ -3466,19 +4274,27 @@
       "12. 能力边界"
     ],
     "summary": "crosvm 设备模型与隔离链路函数级分析 本文沿着 crosvm 当前工作树源码，展开 run vm - create devices - create virtio devices/VFIO/... - Arch::build vm - generate pci root/platform bus - ProxyDevice - BusDevice/Suspendable - device worker 这条链路。 目标是弄清楚：crosvm 的设备如何从配置变成 bus 上的 guest-visible 设备",
+    "scope": "project",
     "projects": [
       "crosvm"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "network-isolation"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "historical",
     "kind": "explanation",
     "tags": [
       "device",
       "isolation"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "crosvm.protected-vm-block-net-fs-data-path-chain",
@@ -3501,12 +4317,17 @@
       "14. 能力边界总结"
     ],
     "summary": "crosvm protected VM block/net/fs 数据路径链路 本文继续下钻 protected VM 设备边界与 virtio feature 链路 ./protected-vm-device-boundary-chain.md ，聚焦 block、net、fs 三条高频数据路径。目标是解释 ACCESS PLATFORM 如何进入设备 feature，以及实际 I/O 如何经由 queue、DescriptorChain、GuestMemory 和 worker 执行。 关联路线： virtio",
+    "scope": "project",
     "projects": [
       "crosvm"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "network-isolation"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "historical",
     "kind": "explanation",
@@ -3518,7 +4339,10 @@
       "fs",
       "data",
       "path"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "crosvm.protected-vm-device-boundary-chain",
@@ -3537,12 +4361,17 @@
       "10. 能力边界总结"
     ],
     "summary": "crosvm protected VM 设备边界与 virtio feature 链路 本文承接 protected VM / pVM firmware 函数级链路 ./protected-vm-pvm-chain.md ，继续分析 protected VM 下设备能力的边界。重点是设备如何继承 ProtectionType 、何时声明 VIRTIO F ACCESS PLATFORM ，以及哪些路径被禁用或只能谨慎理解。 关联路线： device-isolation-chain.md ./device-isola",
+    "scope": "project",
     "projects": [
       "crosvm"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "network-isolation"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "historical",
     "kind": "explanation",
@@ -3551,7 +4380,10 @@
       "vm",
       "device",
       "boundary"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "crosvm.protected-vm-hypervisor-backend-chain",
@@ -3574,12 +4406,17 @@
       "14. 能力边界总结"
     ],
     "summary": "crosvm protected VM hypervisor backend 分流链路 本文继续展开 protected VM / pVM firmware 函数级链路 ./protected-vm-pvm-chain.md 。前文已经解释 ProtectionType 、pVM firmware、SWIOTLB、virtio ACCESS PLATFORM 和设备边界；本文专门下钻 protected VM 如何进入 KVM、Geniezone、Halla、Gunyah 后端。 关联路线： deep-routes",
+    "scope": "project",
     "projects": [
       "crosvm"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "network-isolation"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "historical",
     "kind": "explanation",
@@ -3588,7 +4425,10 @@
       "vm",
       "hypervisor",
       "backend"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "crosvm.protected-vm-iommu-vfio-memory-mapper-chain",
@@ -3613,12 +4453,17 @@
       "16. 总结"
     ],
     "summary": "crosvm protected VM IOMMU / VFIO / MemoryMapper 链路 本文继续下钻 protected VM vhost-user memory / IOTLB 链路 ./protected-vm-vhost-user-memory-iotlb-chain.md ，分析 virtio-iommu、VFIO、 MemoryMapperTrait 、vhost-user shared memory mapper 与 protected VM 的关系。 关联路线： protected VM",
+    "scope": "project",
     "projects": [
       "crosvm"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "network-isolation"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "historical",
     "kind": "explanation",
@@ -3629,7 +4474,10 @@
       "vfio",
       "memory",
       "mapper"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "crosvm.protected-vm-pvm-chain",
@@ -3651,12 +4499,17 @@
       "13. 能力边界总结"
     ],
     "summary": "crosvm protected VM / pVM firmware 函数级链路 本文从当前源码解释 crosvm 的 protected VM 机制。重点不是泛泛讨论安全，而是 ProtectionType 如何从 CLI 进入 hypervisor、内存布局、pVM firmware、SWIOTLB、virtio DMA、设备策略和 ARM64/x86 64 差异。 关联路线： - deep-routes.md ./deep-routes.md - arch-arm64-x86-chain.md ./arch-",
+    "scope": "project",
     "projects": [
       "crosvm"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "network-isolation"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "historical",
     "kind": "explanation",
@@ -3664,7 +4517,10 @@
       "protected",
       "vm",
       "pvm"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "crosvm.protected-vm-snapshot-restore-boundary-chain",
@@ -3689,12 +4545,17 @@
       "16. 总结"
     ],
     "summary": "crosvm protected VM snapshot / restore 边界链路 本文继续下钻 protected VM IOMMU / VFIO / MemoryMapper 链路 ./protected-vm-iommu-vfio-memory-mapper-chain.md ，分析 protected VM、virtio-iommu、VFIO、vhost-user 与 snapshot/restore 的交叉边界。 关联背景： Snapshot 与 Suspend 函数级分析 ./snapshot-su",
+    "scope": "project",
     "projects": [
       "crosvm"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "snapshot-restore-migration"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "historical",
     "kind": "explanation",
@@ -3704,7 +4565,10 @@
       "snapshot",
       "restore",
       "boundary"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "crosvm.protected-vm-vhost-user-memory-iotlb-chain",
@@ -3725,12 +4589,17 @@
       "12. 总结"
     ],
     "summary": "crosvm protected VM vhost-user memory / IOTLB 链路 本文继续下钻 protected VM block/net/fs 数据路径链路 ./protected-vm-block-net-fs-data-path-chain.md 的下一步，分析 crosvm vhost-user frontend/backend、memory table、vring 地址、IOTLB 消息和 ACCESS PLATFORM 的关系。 关联路线： protected VM 设备边界与 vir",
+    "scope": "project",
     "projects": [
       "crosvm"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "network-isolation"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "historical",
     "kind": "explanation",
@@ -3741,7 +4610,10 @@
       "user",
       "memory",
       "iotlb"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "crosvm.runtime-control-tube-chain",
@@ -3766,12 +4638,17 @@
       "16. 后续调试路线"
     ],
     "summary": "crosvm 运行期控制与 Tube 分发链路 本文从源码解释 crosvm 运行中的 VM 如何接收外部控制请求，如何把请求分发到 VM、设备、balloon、hotplug 和内存映射路径。 相关路线： crosvm 深入路线 ./deep-routes.md 。 相关链路： 启动与控制循环函数级分析 ./boot-control-chain.md 。 相关链路： Snapshot 与 Suspend 函数级分析 ./snapshot-suspend-chain.md 。 相关横向专题： 运行期控制面与热插拔跨",
+    "scope": "project",
     "projects": [
       "crosvm"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "lifecycle-control-plane"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "historical",
     "kind": "explanation",
@@ -3779,7 +4656,10 @@
       "runtime",
       "control",
       "tube"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "crosvm.snapshot-suspend-chain",
@@ -3800,19 +4680,27 @@
       "12. 能力边界"
     ],
     "summary": "crosvm Snapshot 与 Suspend 函数级分析 本文沿着 crosvm 当前工作树源码，展开 VmRequest - process vm request - VmRequest::execute - VcpuSuspendGuard/DeviceSleepGuard - do snapshot/do restore - device control thread - BusDevice/Suspendable 这条链路。 目标是弄清楚：crosvm 如何区分 vCPU suspend、完整 VM ",
+    "scope": "project",
     "projects": [
       "crosvm"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "snapshot-restore-migration"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "historical",
     "kind": "explanation",
     "tags": [
       "snapshot",
       "suspend"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "crosvm.virtio-queue-worker-chain",
@@ -3841,12 +4729,17 @@
       "20. 与 Firecracker 的对照"
     ],
     "summary": "crosvm virtio Queue 与 Worker 链路函数级分析 本文继续展开 设备模型与隔离链路函数级分析 ./device-isolation-chain.md 。 焦点是 crosvm 的 virtio 设备如何从 guest driver 配置 queue，进入 PCI transport 激活，再由 block/net worker 消费 descriptor，最后写 used ring 并触发 interrupt。 结论只来自当前仓库源码。 1. 核心结论 crosvm 的 virtio 设备分",
+    "scope": "project",
     "projects": [
       "crosvm"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "storage-device-io"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "historical",
     "kind": "explanation",
@@ -3854,7 +4747,10 @@
       "virtio",
       "queue",
       "worker"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "firecracker.api-event-loop-thread-chain",
@@ -3881,12 +4777,17 @@
       "13. 能力边界"
     ],
     "summary": "Firecracker API Event Loop 与线程协作链路 本文解释 API thread、VMM thread、EventManager、device subscriber 和 vCPU thread 如何协作（不是再次讲 microVM 如何启动）。 源码基线：当前仓库工作树。 相关： API 到 MicroVM 启动链路 api-start-boot-chain.md 、 VmResources 配置边界 vmresources-config-boundary-chain.md 、 vCPU KVM",
+    "scope": "project",
     "projects": [
       "firecracker"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "lifecycle-control-plane"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -3895,7 +4796,10 @@
       "event",
       "loop",
       "thread"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "firecracker.api-start-boot-chain",
@@ -3910,12 +4814,17 @@
       "3. ARM64/x86_64"
     ],
     "summary": "Firecracker API 到 MicroVM 启动链路 本文追踪一次典型启动：配置 API 请求如何积累到 VmResources ， InstanceStart 如何触发 microVM 构建，最后 vCPU 如何进入 KVM RUN。 源码基线：当前仓库工作树。 相关： VmResources 配置边界 vmresources-config-boundary-chain.md 、 API Event Loop api-event-loop-thread-chain.md 、 build microvm f",
+    "scope": "project",
     "projects": [
       "firecracker"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "lifecycle-control-plane"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -3923,7 +4832,10 @@
       "api",
       "start",
       "boot"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "firecracker.arch-arm64-x86-chain",
@@ -3939,12 +4851,17 @@
       "5. 能力边界"
     ],
     "summary": "Firecracker ARM64 与 x86 64 架构差异链路 本文解释 Firecracker 在 ARM64 与 x86 64 上的差异：启动配置、KVM capability、vCPU、PIO/MMIO、FDT/ACPI、设备暴露、snapshot state。 源码基线：当前仓库工作树。 相关： build microvm for boot build-microvm-boot-chain.md 、 vCPU/KVM RUN vcpu-kvm-run-chain.md 、 snapshot/restor",
+    "scope": "project",
     "projects": [
       "firecracker"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "cpu-memory-machine"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -3952,7 +4869,10 @@
       "arch",
       "arm64",
       "x86"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "firecracker.balloon-virtio-mem-guest-chain",
@@ -3968,12 +4888,17 @@
       "4. virtio-mem update_requested_size + guest PLUG"
     ],
     "summary": "Firecracker Balloon 与 Virtio-mem Guest 协作链路 本文展开 balloon 与 virtio-mem 在 config interrupt 之后，guest driver 如何通过 virtqueue 与 Firecracker 协作完成内存回收/hinting/热插拔。 源码基线：当前仓库工作树。 相关： runtime device update runtime-device-update-chain.md 、 memory device snapshot memory-d",
+    "scope": "project",
     "projects": [
       "firecracker"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "storage-device-io"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -3982,7 +4907,10 @@
       "virtio",
       "mem",
       "guest"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "firecracker.build-microvm-boot-chain",
@@ -4003,12 +4931,17 @@
       "9. ARM64/x86_64 差异 / 能力边界 / 排查"
     ],
     "summary": "Firecracker build microvm for boot 构建链路 本文展开 build microvm for boot —— StartMicroVm 之后配置如何一次性变成 KVM VM、guest memory、vCPU、DeviceManager、kernel boot state 和运行中的 vCPU。 源码基线：当前仓库工作树。 相关： VmResources 配置边界 vmresources-config-boundary-chain.md 、 vCPU/KVM RUN vcpu-kvm",
+    "scope": "project",
     "projects": [
       "firecracker"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "lifecycle-control-plane"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -4016,7 +4949,10 @@
       "build",
       "microvm",
       "boot"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "firecracker.deep-dive",
@@ -4049,19 +4985,27 @@
       "9.2 路由如何变成 VmmAction"
     ],
     "summary": "Firecracker 深入探索文档 本文档用于从当前仓库源码出发，逐步建立对 Firecracker 的系统性理解：它是什么、能力边界在哪里、虚拟化机制如何实现，以及 ARM64 与 x86 64 路径有什么结构性差异。 当前版本：第 12 版 源码基线： firecracker 仓库 main 分支，commit 37d2b74b7 阅读方式：先建立全局概念，再逐章深入 KVM/vCPU、设备模型、启动流程、snapshot、隔离机制和架构差异。 0. 问题地图 我们要解决的不是“Firecracker 是什么",
+    "scope": "project",
     "projects": [
       "firecracker"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "overview"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
     "tags": [
       "deep",
       "dive"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "firecracker.deep-routes",
@@ -4083,19 +5027,27 @@
       "13. UFFD / Memory Restore 边界路线"
     ],
     "summary": "Firecracker 深入路线展开 本文承接 deep-dive.md deep-dive.md ，把 Firecracker 的 API 控制面、VMM 构建、vCPU/KVM 执行、设备模型、snapshot/restore、隔离机制和 ARM64/x86 64 差异拆成可执行的源码分析路线。 源码基线：当前仓库工作树。 项目级深挖： API 到 MicroVM 启动链路 api-start-boot-chain.md 。 项目级深挖： build microvm for boot 构建链路 build-mi",
+    "scope": "project",
     "projects": [
       "firecracker"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "overview"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "reference",
     "tags": [
       "deep",
       "routes"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "firecracker.device-capability-boundary-chain",
@@ -4112,12 +5064,17 @@
       "5. 能力边界"
     ],
     "summary": "Firecracker 设备能力边界链路 本文补齐 Firecracker 设备模型中 vsock、balloon、pmem、entropy/rng、virtio-mem 的能力边界（block/net/MMDS 已在独立文档展开）。 源码基线：当前仓库工作树。 相关： virtio device work virtio-device-work-chain.md 、 runtime device update runtime-device-update-chain.md 、 snapshot/restore sna",
+    "scope": "project",
     "projects": [
       "firecracker"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "storage-device-io"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -4125,7 +5082,10 @@
       "device",
       "capability",
       "boundary"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "firecracker.device-manager-id-transport-chain",
@@ -4141,12 +5101,17 @@
       "4. 能力边界"
     ],
     "summary": "Firecracker DeviceManager ID 与 Transport 组件链路 本文展开 Firecracker 如何把 virtio 设备对象包进 MMIO 或 PCI transport，并且运行期通过设备 id 找回同一个对象；以及 snapshot restore 时 transport 如何重建。 源码基线：当前仓库工作树。 相关： device manager virtio transport device-manager-virtio-transport-chain.md 、 snapsh",
+    "scope": "project",
     "projects": [
       "firecracker"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "storage-device-io"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -4155,7 +5120,10 @@
       "manager",
       "id",
       "transport"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "firecracker.device-manager-virtio-transport-chain",
@@ -4178,12 +5146,17 @@
       "10. 下一步"
     ],
     "summary": "Firecracker DeviceManager / Virtio Transport 链路 本文展开 Firecracker 如何把 VmResources 中的 block/net/vsock/pmem/rng/balloon/virtio-mem 配置变成 guest 可见 virtio 设备。 源码基线：当前仓库工作树。 相关： build microvm for boot build-microvm-boot-chain.md 、 virtio device work virtio-device-wor",
+    "scope": "project",
     "projects": [
       "firecracker"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "storage-device-io"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -4192,7 +5165,10 @@
       "manager",
       "virtio",
       "transport"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "firecracker.interrupt-event-notification-chain",
@@ -4212,12 +5188,17 @@
       "7. ARM64/x86_64 / 与 CH 差异"
     ],
     "summary": "Firecracker 中断与事件通知链路 本文展开 guest virtio driver 如何通知 host 有新队列工作，Firecracker 设备完成后如何经 irqfd/MSI-X/IOAPIC/GIC 把中断送回 guest。 源码基线：当前仓库工作树。 相关： DeviceManager/virtio transport device-manager-virtio-transport-chain.md 、 vCPU/KVM RUN vcpu-kvm-run-chain.md 、 virtio dev",
+    "scope": "project",
     "projects": [
       "firecracker"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "storage-device-io"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -4225,7 +5206,10 @@
       "interrupt",
       "event",
       "notification"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "firecracker.isolation-seccomp-jailer-chain",
@@ -4242,12 +5226,17 @@
       "5. 进程模型 / ARM64 差异 / 能力边界"
     ],
     "summary": "Firecracker 隔离机制链路 本文展开 Firecracker 的安全边界如何由 jailer、chroot/pivot root、cgroup、resource limit、netns、seccomp 和单 VM 进程模型共同形成。 源码基线：当前仓库工作树。 相关： vCPU/KVM RUN vcpu-kvm-run-chain.md 、 snapshot/restore snapshot-restore-chain.md 、横向 安全隔离边界 ../../security-isolation-cros",
+    "scope": "project",
     "projects": [
       "firecracker"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "network-isolation"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -4255,7 +5244,10 @@
       "isolation",
       "seccomp",
       "jailer"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "firecracker.machine-description-acpi-fdt-chain",
@@ -4269,12 +5261,17 @@
       "3. 能力边界"
     ],
     "summary": "Firecracker 机器描述：x86 64 ACPI 与 ARM64 FDT 链路 本文展开 guest kernel 如何知道 CPU、内存、中断控制器、virtio 设备、VMGenID、VMClock 和 PCI/MMIO 拓扑——即机器描述的生成。 源码基线：当前仓库工作树。 相关： arch ARM64/x86 64 arch-arm64-x86-chain.md 、 build microvm for boot build-microvm-boot-chain.md 。 --- 0. 术语与背景 机",
+    "scope": "project",
     "projects": [
       "firecracker"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "cpu-memory-machine"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -4283,7 +5280,10 @@
       "description",
       "acpi",
       "fdt"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "firecracker.memory-device-snapshot-chain",
@@ -4297,12 +5297,17 @@
       "3. 能力边界"
     ],
     "summary": "Firecracker Balloon / Virtio-mem Snapshot 状态链路 本文展开 balloon 与 virtio-mem 在 snapshot state 中保存什么，restore 时如何重建设备/transport/queue/guest 协作状态。 源码基线：当前仓库工作树。 相关： snapshot/restore snapshot-restore-chain.md 、 balloon virtio-mem guest balloon-virtio-mem-guest-chain.m",
+    "scope": "project",
     "projects": [
       "firecracker"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "snapshot-restore-migration"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -4310,7 +5315,10 @@
       "memory",
       "device",
       "snapshot"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "firecracker.mmds-metadata-network-chain",
@@ -4325,12 +5333,17 @@
       "3. 能力边界"
     ],
     "summary": "Firecracker MMDS 元数据网络链路 本文展开 MMDS 如何从 API 配置变成 guest 可访问的 link-local metadata service。 源码基线：当前仓库工作树。 相关： virtio net 数据面 virtio-net-data-path-chain.md 、 runtime device update runtime-device-update-chain.md 。 --- 0. 术语与背景 MMDS 不是独立 host HTTP server 它是挂在 virtio-",
+    "scope": "project",
     "projects": [
       "firecracker"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "network-isolation"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -4338,7 +5351,10 @@
       "mmds",
       "metadata",
       "network"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "firecracker.observability-diagnostics-chain",
@@ -4354,19 +5370,27 @@
       "4. 能力边界"
     ],
     "summary": "Firecracker 可观测性与诊断链路 本文回答：当 Firecracker 出故障时，证据从哪里来，能证明到哪一层。 源码基线：当前仓库工作树。 相关： API Event Loop api-event-loop-thread-chain.md 、 vCPU/KVM RUN vcpu-kvm-run-chain.md 、 snapshot/restore snapshot-restore-chain.md 。 --- 0. 术语与背景 三类可观测输出 输出 来源 内容 --- --- --- 日志 （log）",
+    "scope": "project",
     "projects": [
       "firecracker"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "operations-observability-performance"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
     "tags": [
       "observability",
       "diagnostics"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "firecracker.runtime-device-update-chain",
@@ -4381,12 +5405,17 @@
       "3. 能力边界"
     ],
     "summary": "Firecracker Runtime 设备更新链路 本文展开 microVM 启动后，Firecracker API 还能改变什么，以及这些变更如何落到 VMM/设备对象/virtio config interrupt/host I/O 后端。 源码基线：当前仓库工作树。 相关： virtio device work virtio-device-work-chain.md 、 VmResources 配置边界 vmresources-config-boundary-chain.md 、 device capabi",
+    "scope": "project",
     "projects": [
       "firecracker"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "storage-device-io"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -4394,7 +5423,10 @@
       "runtime",
       "device",
       "update"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "firecracker.snapshot-restore-chain",
@@ -4421,19 +5453,27 @@
       "14. 能力边界"
     ],
     "summary": "Firecracker Snapshot / Restore 链路 本文展开 snapshot 保存了哪些状态，restore 如何重建 KVM VM、guest memory、vCPU、设备和架构状态。 源码基线：当前仓库工作树。 相关： API Event Loop 与线程协作 api-event-loop-thread-chain.md 、 VmResources 配置边界 vmresources-config-boundary-chain.md 、横向 Snapshot/Restore/Clone ../.",
+    "scope": "project",
     "projects": [
       "firecracker"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "snapshot-restore-migration"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
     "tags": [
       "snapshot",
       "restore"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "firecracker.storage-rootfs-sharefs-boundary-chain",
@@ -4456,12 +5496,17 @@
       "10. 结论"
     ],
     "summary": "Firecracker 存储 / rootfs / share-fs 边界链路 本文承接 Virtio Block 数据面 virtio-block-data-path-chain.md 、 设备能力边界 device-capability-boundary-chain.md 和 Snapshot/Restore snapshot-restore-chain.md ，把它们收成一个问题：Firecracker 的存储、rootfs 和共享文件系统边界到底在哪。 源码基线：当前工作树。 相关： VmResources",
+    "scope": "project",
     "projects": [
       "firecracker"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "storage-device-io"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -4470,7 +5515,10 @@
       "rootfs",
       "sharefs",
       "boundary"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "firecracker.uffd-memory-restore-chain",
@@ -4488,12 +5536,17 @@
       "5. 能力边界 / 与 Cloud Hypervisor UFFD 差异"
     ],
     "summary": "Firecracker UFFD / Memory Restore 边界链路 本文展开 snapshot restore 时 guest memory 如何恢复， MemBackendType::File vs MemBackendType::Uffd 的边界，以及 UFFD restore 下设备 queue 如何依赖 guest memory。 源码基线：当前仓库工作树。 相关： snapshot/restore snapshot-restore-chain.md 、 memory device snapsho",
+    "scope": "project",
     "projects": [
       "firecracker"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "snapshot-restore-migration"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -4501,7 +5554,10 @@
       "uffd",
       "memory",
       "restore"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "firecracker.vcpu-kvm-run-chain",
@@ -4527,12 +5583,17 @@
       "12. 下一步"
     ],
     "summary": "Firecracker vCPU / KVM RUN 链路 本文展开 Firecracker 如何创建 vCPU 线程、通过状态机进入 KVM RUN ，以及 KVM exit 如何回到 MMIO/PIO/设备模拟。 源码基线：当前仓库工作树。 相关： 隔离机制/Seccomp/Jailer isolation-seccomp-jailer-chain.md 、 API Event Loop 与线程协作 api-event-loop-thread-chain.md 、 Snapshot/Restore snapsh",
+    "scope": "project",
     "projects": [
       "firecracker"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "cpu-memory-machine"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -4540,7 +5601,10 @@
       "vcpu",
       "kvm",
       "run"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "firecracker.virtio-block-data-path-chain",
@@ -4563,12 +5627,17 @@
       "9. 继续阅读"
     ],
     "summary": "Firecracker Virtio Block 数据面链路 本文补齐 Firecracker 设备模型的 block 具体设备层：从 drive API、 VmResources 、启动 attach，到 virtqueue 请求、host backing file I/O、rate limiter、runtime update、snapshot 状态边界。 源码基线：当前仓库工作树。 相关： virtio device work virtio-device-work-chain.md 、 build micro",
+    "scope": "project",
     "projects": [
       "firecracker"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "storage-device-io"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -4577,7 +5646,10 @@
       "block",
       "data",
       "path"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "firecracker.virtio-device-work-chain",
@@ -4603,12 +5675,17 @@
       "12. 下一步"
     ],
     "summary": "Firecracker Virtio 设备工作机制链路 本文展开 vCPU/KVM RUN 链路 vcpu-kvm-run-chain.md 的下一步：guest virtio driver 写 queue notify 后，Firecracker 如何处理 descriptor chain、后端 I/O、rate limiter、used ring 和中断。 源码基线：当前仓库工作树。 相关： vCPU/KVM RUN vcpu-kvm-run-chain.md 、 中断与事件通知 interrupt-event",
+    "scope": "project",
     "projects": [
       "firecracker"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "storage-device-io"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -4616,7 +5693,10 @@
       "virtio",
       "device",
       "work"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "firecracker.virtio-net-data-path-chain",
@@ -4636,12 +5716,17 @@
       "6. ARM64/x86_64 / 能力边界"
     ],
     "summary": "Firecracker Virtio Net 数据面链路 本文补齐 virtio-net 具体设备层：从网络 API、 NetBuilder 、TAP fd、TX/RX virtqueue、rate limiter、MMDS 分流，到 runtime update、snapshot/restore。 源码基线：当前仓库工作树。 相关： virtio device work virtio-device-work-chain.md 、 virtio block 数据面 virtio-block-data-path-ch",
+    "scope": "project",
     "projects": [
       "firecracker"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "storage-device-io"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -4650,7 +5735,10 @@
       "net",
       "data",
       "path"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "firecracker.vmresources-config-boundary-chain",
@@ -4676,12 +5764,17 @@
       "13. 能力边界"
     ],
     "summary": "Firecracker VmResources 配置聚合与能力边界链路 本文从源码追踪 Firecracker 如何把 HTTP API 配置收敛到 VmResources ，再由 StartMicroVm 一次性构建 microVM。 源码基线：当前仓库工作树。 相关： API 到 MicroVM 启动链路 api-start-boot-chain.md 、 Runtime 设备更新链路 runtime-device-update-chain.md 、横向 资源管理与 QoS ../../resource-qos",
+    "scope": "project",
     "projects": [
       "firecracker"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "lifecycle-control-plane"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -4689,7 +5782,10 @@
       "vmresources",
       "config",
       "boundary"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "kata-containers.agent-container-lifecycle-chain",
@@ -4714,12 +5810,17 @@
       "12. 能力边界"
     ],
     "summary": "Kata Agent Container 生命周期链路 本文从源码追踪 Kata 非机密计算路径下的 container 生命周期：containerd shim v2 → virtcontainers → kataAgent → guest agent → rustjail。 源码基线：当前仓库工作树。不展开 Kata CoCo/TDX/SEV/SNP/CCA。 相关： shim v2 到 sandbox/container 生命周期 shim-sandbox-lifecycle-chain.md 、 guest",
+    "scope": "project",
     "projects": [
       "kata-containers"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "lifecycle-control-plane"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -4727,7 +5828,10 @@
       "agent",
       "container",
       "lifecycle"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "kata-containers.agent-rpc-boundary-chain",
@@ -4742,12 +5846,17 @@
       "3. 能力边界"
     ],
     "summary": "Kata agent RPC 边界链路 本文补齐 Kata 非机密计算路径下的 agent RPC 分层：host 侧 kataAgent wrapper、generated ttrpc client、guest agent server trait 和 do handler。 源码基线：当前仓库工作树。不展开 CoCo。 相关： shim sandbox lifecycle shim-sandbox-lifecycle-chain.md 、 agent container lifecycle agent-cont",
+    "scope": "project",
     "projects": [
       "kata-containers"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "lifecycle-control-plane"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -4755,7 +5864,10 @@
       "agent",
       "rpc",
       "boundary"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "kata-containers.arch-arm64-x86-chain",
@@ -4770,12 +5882,17 @@
       "3. 能力边界"
     ],
     "summary": "Kata Containers ARM64 与 x86 64 架构支持链路 本文从源码解释 Kata 在 ARM64 与 x86 64 上的差异：runtime/hypervisor/device manager/guest agent/host check 链路。 源码基线：当前仓库工作树。不展开 CoCo。 相关： hypervisor plugin lifecycle hypervisor-plugin-lifecycle-chain.md 、 QEMU launch params qemu-launch-p",
+    "scope": "project",
     "projects": [
       "kata-containers"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "cpu-memory-machine"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -4783,7 +5900,10 @@
       "arch",
       "arm64",
       "x86"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "kata-containers.arm64-feature-test-coverage-chain",
@@ -4796,12 +5916,17 @@
       "2. 能力边界"
     ],
     "summary": "Kata ARM64 功能与测试覆盖边界链路 本文区分两类结论：源码机制是否存在，以及 ARM64 集成测试是否覆盖。二者不能混为同一个支持结论。 源码基线：当前仓库工作树。不展开 CoCo。 相关： arch ARM64/x86 64 arch-arm64-x86-chain.md 、 横向 ARM64/x86 64 ../../arm64-x86-cross-project-matrix.md 。 --- 0. 术语与背景 两类结论的区分 问题 证据来源 含义 --- --- --- 源码机制是否存在 源码 g",
+    "scope": "project",
     "projects": [
       "kata-containers"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "operations-observability-performance"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -4810,7 +5935,10 @@
       "feature",
       "test",
       "coverage"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "kata-containers.configuration-hypervisor-capability-chain",
@@ -4823,12 +5951,17 @@
       "1. 能力边界"
     ],
     "summary": "Kata configuration 到 Hypervisor capability 链路 本文分析 Kata 如何从 configuration- .toml 模板收敛到 hypervisor 配置，并在 runtime-rs 中形成能力矩阵。 源码基线：当前仓库工作树。不展开 CoCo。 相关： hypervisor plugin lifecycle hypervisor-plugin-lifecycle-chain.md 、 QEMU launch params qemu-launch-params-chai",
+    "scope": "project",
     "projects": [
       "kata-containers"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "lifecycle-control-plane"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -4836,7 +5969,10 @@
       "configuration",
       "hypervisor",
       "capability"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "kata-containers.cpu-scheduling-boundary-chain",
@@ -4850,12 +5986,17 @@
       "3. 能力边界"
     ],
     "summary": "Kata Containers CPU / 调度边界链路 本文展开 Kata 的 CPU 资源语义如何跨 hypervisor config、QEMU arch topology、runtime-rs resize 和 guest agent online。 源码基线：当前仓库工作树。不展开 CoCo。 相关： hypervisor plugin lifecycle hypervisor-plugin-lifecycle-chain.md 、 runtime control agent hotplug runtim",
+    "scope": "project",
     "projects": [
       "kata-containers"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "cpu-memory-machine"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -4863,7 +6004,10 @@
       "cpu",
       "scheduling",
       "boundary"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "kata-containers.deep-dive",
@@ -4885,19 +6029,27 @@
       "12. 后续深入路线"
     ],
     "summary": "Kata Containers 深入探索文档 本文档从当前仓库源码出发，建立对 Kata Containers 的系统性理解：它不是一个单体 VMM，而是把 containerd shim、runtime、hypervisor plugin、guest agent、rootfs/share-fs/network/storage 组合成 VM-based container runtime。 当前版本：第 2 版 源码基线： kata-containers 仓库，commit 2629df278 阅读方式：先理解“r",
+    "scope": "project",
     "projects": [
       "kata-containers"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "overview"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
     "tags": [
       "deep",
       "dive"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "kata-containers.deep-routes",
@@ -4912,19 +6064,27 @@
       "6. ARM64/x86_64 支持矩阵路线"
     ],
     "summary": "Kata Containers 深入路线展开 本文承接 deep-dive.md deep-dive.md 的“后续深入路线”，围绕 containerd shim v2、runtime-rs、Hypervisor plugin、agent RPC、share-fs/rootfs 和 ARM64/x86 64 支持矩阵继续展开。 源码基线：当前仓库工作树。 项目级深挖： shim v2 到 sandbox/container 生命周期链路 shim-sandbox-lifecycle-chain.md 。 项目级深",
+    "scope": "project",
     "projects": [
       "kata-containers"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "overview"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "reference",
     "tags": [
       "deep",
       "routes"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "kata-containers.guest-agent-create-container-chain",
@@ -4938,12 +6098,17 @@
       "2. 能力边界"
     ],
     "summary": "Kata guest agent CreateContainer 落地链路 本文追踪 guest 内 kata-agent 如何处理 CreateContainerRequest ：解析 OCI spec → add devices → add storages → setup bundle → rustjail LinuxContainer + init Process 。 源码基线：当前仓库工作树。不展开 CoCo。 相关： storage/device agent storage-device-agent-c",
+    "scope": "project",
     "projects": [
       "kata-containers"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "lifecycle-control-plane"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -4952,7 +6117,10 @@
       "agent",
       "create",
       "container"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "kata-containers.hypervisor-plugin-lifecycle-chain",
@@ -4967,12 +6135,17 @@
       "3. 能力边界"
     ],
     "summary": "Kata runtime-rs Hypervisor Plugin 生命周期链路 本文展开 runtime-rs 的 Hypervisor trait、 VirtSandbox start、ResourceManager、Dragonball/Firecracker/Cloud Hypervisor capability 和 ARM64/x86 64 边界。 源码基线：当前仓库工作树。不展开 CoCo。 相关： shim sandbox lifecycle shim-sandbox-lifecycle-chain.",
+    "scope": "project",
     "projects": [
       "kata-containers"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "lifecycle-control-plane"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -4980,7 +6153,10 @@
       "hypervisor",
       "plugin",
       "lifecycle"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "kata-containers.interrupt-event-notification-chain",
@@ -4995,12 +6171,17 @@
       "3. 能力边界"
     ],
     "summary": "Kata Containers 中断与事件通知委托链路 本文展开 Kata 如何 表达 设备/IOMMU/kernel irqchip/网络/存储中断状态——Kata 不实现 irqfd/MSI/GIC 注入，而是委托给 hypervisor plugin。 源码基线：当前仓库工作树。不展开 CoCo。 相关： hypervisor plugin lifecycle hypervisor-plugin-lifecycle-chain.md 、 横向 interrupt ../../interrupt-event-n",
+    "scope": "project",
     "projects": [
       "kata-containers"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "storage-device-io"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -5008,7 +6189,10 @@
       "interrupt",
       "event",
       "notification"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "kata-containers.network-endpoint-agent-chain",
@@ -5022,12 +6206,17 @@
       "2. 能力边界"
     ],
     "summary": "Kata Containers 网络 Endpoint 到 Agent 链路 本文解释 Kata 普通非机密计算路径下，网络如何从 host network namespace 接口变成 VM 网卡设备，再由 guest agent 配置 IP/route/ARP。 源码基线：当前仓库工作树。不展开 CoCo。 相关： shim sandbox lifecycle shim-sandbox-lifecycle-chain.md 、 横向 network connectivity ../../network-conn",
+    "scope": "project",
     "projects": [
       "kata-containers"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "network-isolation"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -5035,7 +6224,10 @@
       "network",
       "endpoint",
       "agent"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "kata-containers.observability-diagnostics-chain",
@@ -5050,19 +6242,27 @@
       "3. 能力边界"
     ],
     "summary": "Kata Containers 可观测性与诊断机制函数级链路 本文回答：Kata 出故障时证据从哪里来，能证明到哪一层。 源码基线：当前仓库工作树。不展开 CoCo。 相关： shim exit event recovery shim-exit-event-recovery-chain.md 、 横向 observability ../../observability-diagnostics-cross-project.md 。 --- 0. 术语与背景 Kata 诊断双层（与 CubeSandbox 同构） 层 ",
+    "scope": "project",
     "projects": [
       "kata-containers"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "operations-observability-performance"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
     "tags": [
       "observability",
       "diagnostics"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "kata-containers.qemu-launch-params-chain",
@@ -5075,12 +6275,17 @@
       "1. 能力边界"
     ],
     "summary": "Kata Containers QEMU 启动参数构造链路 本文展开 Go runtime 的 QEMU 后端启动参数构造： HypervisorConfig → CreateVM / AddDevice / StartVM → govmm Config。 源码基线：当前仓库工作树。不展开 CoCo。 相关： arch ARM64/x86 64 arch-arm64-x86-chain.md 、 hypervisor plugin lifecycle hypervisor-plugin-lifecycle-chai",
+    "scope": "project",
     "projects": [
       "kata-containers"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "cpu-memory-machine"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -5088,7 +6293,10 @@
       "qemu",
       "launch",
       "params"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "kata-containers.runtime-control-agent-hotplug-chain",
@@ -5103,12 +6311,17 @@
       "3. 能力边界"
     ],
     "summary": "Kata Containers 运行期控制、Agent RPC 与设备更新链路 本文从源码解释 Kata 运行中 container/sandbox 如何处理 pause/resume/exec/kill/stats/update、网络更新、设备热插拔和资源 resize。 源码基线：当前仓库工作树。不展开 CoCo。 相关： shim sandbox lifecycle shim-sandbox-lifecycle-chain.md 、 agent RPC boundary agent-rpc-boundary-",
+    "scope": "project",
     "projects": [
       "kata-containers"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "lifecycle-control-plane"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -5117,7 +6330,10 @@
       "control",
       "agent",
       "hotplug"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "kata-containers.runtime-rs-manager-request-chain",
@@ -5143,12 +6359,17 @@
       "14. 能力边界"
     ],
     "summary": "Kata runtime-rs Manager 请求分发链路 本文从源码追踪 Kata runtime-rs 非机密计算路径下的请求分发：ttrpc service、 SandboxRequest / TaskRequest 、 RuntimeHandlerManager 、 RuntimeInstance 、 VirtSandbox 和 VirtContainerManager 。 源码基线：当前仓库工作树。本文不展开 Kata CoCo/TDX/SEV/SNP/CCA 机密计算路径。 相关： runtime-r",
+    "scope": "project",
     "projects": [
       "kata-containers"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "lifecycle-control-plane"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -5157,7 +6378,10 @@
       "rs",
       "manager",
       "request"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "kata-containers.runtime-rs-resource-device-agent-chain",
@@ -5180,12 +6404,17 @@
       "10. ARM64 与 x86_64 / 能力边界"
     ],
     "summary": "Kata runtime-rs ResourceManager 资源设备链路 本文展开 runtime-rs 非机密计算资源链路：sandbox 启动资源 → ResourceManager → DeviceManager → Hypervisor.add device，以及 container 创建资源 → rootfs/volume/device → agent CreateContainerRequest 。 源码基线：当前仓库工作树。Kata CoCo 暂不展开。 相关： runtime-rs Hyperv",
+    "scope": "project",
     "projects": [
       "kata-containers"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "storage-device-io"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -5195,7 +6424,10 @@
       "resource",
       "device",
       "agent"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "kata-containers.sharefs-rootfs-volume-agent-chain",
@@ -5219,12 +6451,17 @@
       "11. ARM64 与 x86_64"
     ],
     "summary": "Share-fs / Rootfs / Volume 到 Agent 链路 本文分析 Kata 非机密计算路径中，容器 rootfs、共享目录和 volume 如何从 host runtime 转成 hypervisor device 与 guest agent storage/mount。 源码基线：当前仓库工作树。Kata CoCo/TDX/SEV/SNP/CCA 暂不展开。 相关： runtime-rs ResourceManager 资源设备 runtime-rs-resource-device-agent",
+    "scope": "project",
     "projects": [
       "kata-containers"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "storage-device-io"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -5233,7 +6470,10 @@
       "rootfs",
       "volume",
       "agent"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "kata-containers.shim-exit-event-recovery-chain",
@@ -5256,12 +6496,17 @@
       "10. 下一步阅读路线"
     ],
     "summary": "Kata shim v2 Exit / Event / Recovery 链路 本文补齐 Kata shim v2 生命周期的可靠性侧链：containerd 的 Wait / Delete / Shutdown 、exit event 和 persist/recover 边界。 源码基线：当前仓库工作树。本文不分析 CoCo/TDX/SEV/SNP/CCA。 相关： shim v2 到 sandbox/container 生命周期 shim-sandbox-lifecycle-chain.md 、 Agent C",
+    "scope": "project",
     "projects": [
       "kata-containers"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "lifecycle-control-plane"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -5270,7 +6515,10 @@
       "exit",
       "event",
       "recovery"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "kata-containers.shim-sandbox-lifecycle-chain",
@@ -5284,12 +6532,17 @@
       "3. 能力边界"
     ],
     "summary": "Kata Containers shim v2 到 sandbox/container 生命周期链路 本文沿 containerd shim v2 的 Create 和 Start 请求，追踪 Kata 如何从 host 侧 RPC 进入 virtcontainers、hypervisor 和 kata-agent。 源码基线：当前仓库工作树。不展开 CoCo/TDX/SEV/SNP/CCA。 相关： hypervisor plugin lifecycle hypervisor-plugin-lifecycle-c",
+    "scope": "project",
     "projects": [
       "kata-containers"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "lifecycle-control-plane"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -5297,7 +6550,10 @@
       "shim",
       "sandbox",
       "lifecycle"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "kata-containers.snapshot-restore-persist-chain",
@@ -5311,12 +6567,17 @@
       "2. 能力边界"
     ],
     "summary": "Kata Containers Snapshot / Restore / Persist 链路 本文展开非机密计算路径下，Kata 的 state persist、VM save 和 container checkpoint 边界。 源码基线：当前仓库工作树。不展开 CoCo。 相关： shim sandbox lifecycle shim-sandbox-lifecycle-chain.md 、 shim exit event recovery shim-exit-event-recovery-chain.md ",
+    "scope": "project",
     "projects": [
       "kata-containers"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "snapshot-restore-migration"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -5324,7 +6585,10 @@
       "snapshot",
       "restore",
       "persist"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
   },
   {
     "doc_id": "kata-containers.storage-device-agent-chain",
@@ -5337,12 +6601,17 @@
       "1. 能力边界"
     ],
     "summary": "Kata Containers storage/device 到 agent RPC 链路 本文追踪 kataAgent.createContainer 如何构造 CreateContainerRequest 中的 Storages / Devices /OCI spec，解释 rootfs/share-fs/block volume/VFIO/CDI 的边界。 源码基线：当前仓库工作树。不展开 CoCo。 相关： share-fs/rootfs/volume agent sharefs-rootfs-volume",
+    "scope": "project",
     "projects": [
       "kata-containers"
     ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
     "topics": [
       "storage-device-io"
     ],
+    "component_baselines": [],
     "baselines": [],
     "status": "unconfirmed",
     "kind": "explanation",
@@ -5350,6 +6619,311 @@
       "storage",
       "device",
       "agent"
-    ]
+    ],
+    "architectures": [],
+    "evidence_classes": [],
+    "reviewed_at": ""
+  },
+  {
+    "doc_id": "agentenv.architecture-runtime-boundaries",
+    "title": "AgentENV 架构层级与运行时边界",
+    "route": "platforms/agentenv/architecture-runtime-boundaries.html",
+    "headings": [
+      "问题与结论",
+      "范围与版本",
+      "一、平台层如何装配",
+      "二、状态所有权分层",
+      "API 与 Orchestrator",
+      "Snapshot、Template 与 repository",
+      "Firecracker、OverlayBD 与 ublk",
+      "三、虚拟化模式与架构边界",
+      "四、多节点控制面放在哪里",
+      "五、上游文档观察与源码事实的关系",
+      "证据账本",
+      "限制与未确认"
+    ],
+    "summary": "AgentENV 架构层级与运行时边界 问题与结论 问题 ：AgentENV 在 Micro-VM、runtime 与沙箱平台的层级中是什么，它负责哪些状态，哪些能力仍属于底层 VMM 或宿主机？ 结论 ：在固定提交 00ba6cb74f309a0cbd65f6ec415640e9e674a371 中，AgentENV 是组织 API、sandbox orchestration、snapshot/template、Firecracker backend、ublk/OverlayBD 和可选分布式服务的沙箱平台。它消",
+    "scope": "platform",
+    "projects": [],
+    "platforms": [
+      "agentenv"
+    ],
+    "layer": "sandbox-platform",
+    "integrates_with_projects": [
+      "firecracker"
+    ],
+    "topics": [
+      "lifecycle-control-plane"
+    ],
+    "component_baselines": [
+      {
+        "component": "agentenv",
+        "version": "commit-pinned",
+        "commit": "00ba6cb74f309a0cbd65f6ec415640e9e674a371"
+      }
+    ],
+    "baselines": [],
+    "status": "unconfirmed",
+    "kind": "explanation",
+    "tags": [
+      "agentenv",
+      "architecture",
+      "orchestrator",
+      "firecracker",
+      "overlaybd",
+      "ublk"
+    ],
+    "architectures": [
+      "x86_64",
+      "aarch64"
+    ],
+    "evidence_classes": [
+      "local-source-fact",
+      "upstream-doc-observation",
+      "inference",
+      "engineering-judgment",
+      "unconfirmed"
+    ],
+    "reviewed_at": "2026-09-09"
+  },
+  {
+    "doc_id": "agentenv.sandbox-lifecycle-e2b-api-chain",
+    "title": "AgentENV Sandbox 生命周期与 E2B-shaped API 链路",
+    "route": "platforms/agentenv/sandbox-lifecycle-e2b-api-chain.html",
+    "headings": [
+      "问题与结论",
+      "范围与版本",
+      "一、API surface 与 compatibility 边界",
+      "二、warm create：Template ID 到 runnable snapshot",
+      "三、pause 与 resume：状态、artifact 和失败语义",
+      "四、snapshot 与 fork",
+      "五、E2B SDK 证据的窄结论",
+      "证据账本",
+      "限制与未确认"
+    ],
+    "summary": "AgentENV Sandbox 生命周期与 E2B-shaped API 链路 问题与结论 问题 ：一个 E2B-shaped sandbox 请求如何进入 AgentENV、变成 ready sandbox，pause/resume/snapshot/fork 又如何处理状态和失败？ 结论 ：固定提交 00ba6cb74f309a0cbd65f6ec415640e9e674a371 的链路是 API handler → SnapshotManager /request translation → Orchest",
+    "scope": "platform",
+    "projects": [],
+    "platforms": [
+      "agentenv"
+    ],
+    "layer": "sandbox-platform",
+    "integrates_with_projects": [
+      "firecracker"
+    ],
+    "topics": [
+      "lifecycle-control-plane"
+    ],
+    "component_baselines": [
+      {
+        "component": "agentenv",
+        "version": "commit-pinned",
+        "commit": "00ba6cb74f309a0cbd65f6ec415640e9e674a371"
+      }
+    ],
+    "baselines": [],
+    "status": "unconfirmed",
+    "kind": "explanation",
+    "tags": [
+      "agentenv",
+      "e2b-api",
+      "sandbox",
+      "lifecycle",
+      "pause",
+      "resume",
+      "fork"
+    ],
+    "architectures": [
+      "x86_64",
+      "aarch64"
+    ],
+    "evidence_classes": [
+      "local-source-fact",
+      "upstream-doc-observation",
+      "inference",
+      "engineering-judgment",
+      "unconfirmed"
+    ],
+    "reviewed_at": "2026-09-09"
+  },
+  {
+    "doc_id": "agentenv.snapshot-template-overlaybd-ublk-chain",
+    "title": "AgentENV Snapshot、Template、OverlayBD 与 ublk 链路",
+    "route": "platforms/agentenv/snapshot-template-overlaybd-ublk-chain.html",
+    "headings": [
+      "问题与结论",
+      "范围与版本",
+      "一、三个不同状态层",
+      "二、Firecracker 捕获与 memory layer",
+      "三、committed snapshot 记录什么",
+      "四、POSIX、OSS 与 P2P",
+      "五、ublk 与 live runtime 修改",
+      "六、Template 是 committed snapshot 的上层语义",
+      "七、virtualization mode compatibility",
+      "证据账本",
+      "限制与未确认"
+    ],
+    "summary": "AgentENV Snapshot、Template、OverlayBD 与 ublk 链路 问题与结论 问题 ：AgentENV 的 snapshot/template 保存什么，memory、rootfs 与 attached drive 如何分层、提交、解析和恢复？ 结论 ：固定提交 00ba6cb74f309a0cbd65f6ec415640e9e674a371 把 backend capture、committed repository record 与 node-local runnable state",
+    "scope": "platform",
+    "projects": [],
+    "platforms": [
+      "agentenv"
+    ],
+    "layer": "sandbox-platform",
+    "integrates_with_projects": [
+      "firecracker"
+    ],
+    "topics": [
+      "snapshot-restore-migration",
+      "storage-device-io"
+    ],
+    "component_baselines": [
+      {
+        "component": "agentenv",
+        "version": "commit-pinned",
+        "commit": "00ba6cb74f309a0cbd65f6ec415640e9e674a371"
+      }
+    ],
+    "baselines": [],
+    "status": "unconfirmed",
+    "kind": "explanation",
+    "tags": [
+      "agentenv",
+      "snapshot",
+      "template",
+      "overlaybd",
+      "ublk",
+      "repository"
+    ],
+    "architectures": [
+      "x86_64",
+      "aarch64"
+    ],
+    "evidence_classes": [
+      "local-source-fact",
+      "upstream-doc-observation",
+      "inference",
+      "engineering-judgment",
+      "unconfirmed"
+    ],
+    "reviewed_at": "2026-09-09"
+  },
+  {
+    "doc_id": "e2b-infra.architecture-and-sandbox-lifecycle",
+    "title": "E2B-infra 架构与 Sandbox 创建、恢复链路",
+    "route": "platforms/e2b-infra/architecture-and-sandbox-lifecycle.html",
+    "headings": [
+      "问题与结论",
+      "范围与版本",
+      "一、控制面分层",
+      "二、node create 与启动来源选择",
+      "三、rootfs、memory 与 network 不是同一种缓存",
+      "四、Firecracker 与 envd readiness",
+      "五、部署配置和运行事实的边界",
+      "证据账本",
+      "限制与未确认"
+    ],
+    "summary": "E2B-infra 架构与 Sandbox 创建、恢复链路 问题与结论 问题 ：E2B-infra 的 API、placement、node orchestrator、Firecracker 与 envd 如何协作，把请求变成可路由的 sandbox？ 结论 ：在稳定版 2026.29 、固定提交 557445ffddda8d9a27f6f529a3f4d7732cf81a13 中，请求由 API handler进入 API orchestrator与placement，再通过node manager RPC到no",
+    "scope": "platform",
+    "projects": [],
+    "platforms": [
+      "e2b-infra"
+    ],
+    "layer": "sandbox-infrastructure",
+    "integrates_with_projects": [
+      "firecracker"
+    ],
+    "topics": [
+      "lifecycle-control-plane"
+    ],
+    "component_baselines": [
+      {
+        "component": "e2b-infra",
+        "version": "2026.29",
+        "commit": "557445ffddda8d9a27f6f529a3f4d7732cf81a13"
+      }
+    ],
+    "baselines": [],
+    "status": "unconfirmed",
+    "kind": "explanation",
+    "tags": [
+      "e2b-infra",
+      "architecture",
+      "placement",
+      "sandbox",
+      "firecracker",
+      "envd"
+    ],
+    "architectures": [
+      "x86_64",
+      "aarch64"
+    ],
+    "evidence_classes": [
+      "local-source-fact",
+      "inference",
+      "engineering-judgment",
+      "unconfirmed"
+    ],
+    "reviewed_at": "2026-09-09"
+  },
+  {
+    "doc_id": "e2b-infra.template-rootfs-memory-publish",
+    "title": "E2B-infra Template：NBD Rootfs、UFFD Memory 与发布完成点",
+    "route": "platforms/e2b-infra/template-rootfs-memory-publish.html",
+    "headings": [
+      "问题与结论",
+      "范围与版本",
+      "一、rootfs 与 memory 分账",
+      "二、Cache 与 Tracker 的语义",
+      "三、Save 的一致性边界",
+      "四、filesystem-only 与 DirectProvider",
+      "五、本地 ready 与远端 durable publication",
+      "证据账本",
+      "限制与未确认"
+    ],
+    "summary": "E2B-infra Template：NBD Rootfs、UFFD Memory 与发布完成点 问题与结论 问题 ：E2B-infra 的Template如何分别处理rootfs和memory，save时哪些动作构成一致性边界，本地ready与远端publish完成又有什么不同？ 结论 ：稳定版 2026.29@557445ffddda8d9a27f6f529a3f4d7732cf81a13 中，rootfs通过readonly Template base、per-sandbox sparse Cache和 bl",
+    "scope": "platform",
+    "projects": [],
+    "platforms": [
+      "e2b-infra"
+    ],
+    "layer": "sandbox-infrastructure",
+    "integrates_with_projects": [
+      "firecracker"
+    ],
+    "topics": [
+      "storage-device-io",
+      "snapshot-restore-migration"
+    ],
+    "component_baselines": [
+      {
+        "component": "e2b-infra",
+        "version": "2026.29",
+        "commit": "557445ffddda8d9a27f6f529a3f4d7732cf81a13"
+      }
+    ],
+    "baselines": [],
+    "status": "unconfirmed",
+    "kind": "explanation",
+    "tags": [
+      "e2b-infra",
+      "template",
+      "nbd",
+      "uffd",
+      "rootfs",
+      "memory",
+      "publish"
+    ],
+    "architectures": [
+      "x86_64",
+      "aarch64"
+    ],
+    "evidence_classes": [
+      "local-source-fact",
+      "inference",
+      "engineering-judgment",
+      "unconfirmed"
+    ],
+    "reviewed_at": "2026-09-09"
   }
 ]

@@ -15,6 +15,8 @@
   var kindLabels = { tutorial: '学习路线', 'how-to': '操作指南', reference: '参考资料', explanation: '机制解析' };
   var statusLabels = { draft: '草稿', review: '复核中', current: '已按固定版本复核', historical: '历史参考', deferred: '暂缓', unconfirmed: '待固定版本复核' };
   var projectLabels = { firecracker: 'Firecracker', 'cloud-hypervisor': 'Cloud Hypervisor', crosvm: 'crosvm', 'kata-containers': 'Kata Containers', cubesandbox: 'CubeSandbox' };
+  var platformLabels = { agentenv: 'AgentENV', 'e2b-infra': 'E2B-infra' };
+  var layerLabels = { 'sandbox-platform': '沙箱平台', 'sandbox-infrastructure': '沙箱基础设施' };
 
   function resolveFromRoot(path) {
     return new URL(root + path, document.baseURI).href;
@@ -113,9 +115,20 @@
 
   function searchableText(entry) {
     return [entry.title, entry.summary]
-      .concat(entry.headings || [], entry.projects || [], entry.topics || [], entry.tags || [], entry.baselines || [])
+      .concat(
+        entry.headings || [], entry.projects || [], entry.platforms || [], entry.integrates_with_projects || [],
+        entry.topics || [], entry.tags || [], entry.baselines || [], entry.architectures || [],
+        (entry.component_baselines || []).map(function (item) { return item.component + ' ' + item.version + ' ' + item.commit; })
+      )
       .join(' ')
       .toLocaleLowerCase('zh-CN');
+  }
+
+  function statusLabel(entry) {
+    if (entry.scope === 'platform' && entry.status === 'unconfirmed' && (entry.component_baselines || []).length) {
+      return '源码已固定，运行未验证';
+    }
+    return statusLabels[entry.status] || entry.status;
   }
 
   function renderResults(query) {
@@ -136,7 +149,8 @@
     }
     searchResults.innerHTML = hits.map(function (entry) {
       var projects = (entry.projects || []).map(function (project) { return projectLabels[project] || project; });
-      var meta = projects.concat([kindLabels[entry.kind] || entry.kind, statusLabels[entry.status] || entry.status]).filter(Boolean).join(' · ');
+      var platforms = (entry.platforms || []).map(function (platform) { return platformLabels[platform] || platform; });
+      var meta = projects.concat(platforms, [layerLabels[entry.layer] || entry.layer, kindLabels[entry.kind] || entry.kind, statusLabel(entry)]).filter(Boolean).join(' · ');
       return '<a class="search-result" role="option" aria-selected="false" href="' +
         escapeHtml(resolveFromRoot(entry.route)) + '">' +
         '<span class="search-result-title">' + escapeHtml(entry.title) + '</span>' +

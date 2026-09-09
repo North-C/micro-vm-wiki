@@ -7,6 +7,9 @@
   <url><loc>https://north-c.github.io/micro-vm-wiki/projects/kata-containers.html</loc></url>
   <url><loc>https://north-c.github.io/micro-vm-wiki/projects/cubesandbox.html</loc></url>
   <url><loc>https://north-c.github.io/micro-vm-wiki/projects/crosvm.html</loc></url>
+  <url><loc>https://north-c.github.io/micro-vm-wiki/platforms/index.html</loc></url>
+  <url><loc>https://north-c.github.io/micro-vm-wiki/platforms/agentenv.html</loc></url>
+  <url><loc>https://north-c.github.io/micro-vm-wiki/platforms/e2b-infra.html</loc></url>
   <url><loc>https://north-c.github.io/micro-vm-wiki/topics/index.html</loc></url>
   <url><loc>https://north-c.github.io/micro-vm-wiki/topics/lifecycle-control-plane.html</loc></url>
   <url><loc>https://north-c.github.io/micro-vm-wiki/topics/cpu-memory-machine.html</loc></url>
@@ -181,4 +184,9 @@
   <url><loc>https://north-c.github.io/micro-vm-wiki/kata-containers/analysis/shim-sandbox-lifecycle-chain.html</loc></url>
   <url><loc>https://north-c.github.io/micro-vm-wiki/kata-containers/analysis/snapshot-restore-persist-chain.html</loc></url>
   <url><loc>https://north-c.github.io/micro-vm-wiki/kata-containers/analysis/storage-device-agent-chain.html</loc></url>
+  <url><loc>https://north-c.github.io/micro-vm-wiki/platforms/agentenv/architecture-runtime-boundaries.html</loc></url>
+  <url><loc>https://north-c.github.io/micro-vm-wiki/platforms/agentenv/sandbox-lifecycle-e2b-api-chain.html</loc></url>
+  <url><loc>https://north-c.github.io/micro-vm-wiki/platforms/agentenv/snapshot-template-overlaybd-ublk-chain.html</loc></url>
+  <url><loc>https://north-c.github.io/micro-vm-wiki/platforms/e2b-infra/architecture-and-sandbox-lifecycle.html</loc></url>
+  <url><loc>https://north-c.github.io/micro-vm-wiki/platforms/e2b-infra/template-rootfs-memory-publish.html</loc></url>
 </urlset>

@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="AgentENV 架构层级与运行时边界 问题与结论 问题 ：AgentENV 在 Micro-VM、runtime 与沙箱平台的层级中是什么，它负责哪些状态，哪些能力仍属于底层 VMM 或宿主机？ 结论 ：在固定提交 00ba6cb74f309a0cbd65f6ec415640e9e674a371 中，AgentENV 是组织 API、sandbox orchestration、snapshot/template、Firecracker backend、ublk/OverlayBD 和可选分布式服务的沙箱平台。它消">
+<meta property="og:type" content="article">
+<meta property="og:title" content="AgentENV 架构层级与运行时边界">
+<meta property="og:description" content="AgentENV 架构层级与运行时边界 问题与结论 问题 ：AgentENV 在 Micro-VM、runtime 与沙箱平台的层级中是什么，它负责哪些状态，哪些能力仍属于底层 VMM 或宿主机？ 结论 ：在固定提交 00ba6cb74f309a0cbd65f6ec415640e9e674a371 中，AgentENV 是组织 API、sandbox orchestration、snapshot/template、Firecracker backend、ublk/OverlayBD 和可选分布式服务的沙箱平台。它消">
+<link rel="canonical" href="https://north-c.github.io/micro-vm-wiki/platforms/agentenv/architecture-runtime-boundaries.html">
+<title>AgentENV 架构层级与运行时边界 · Micro-VM 技术研究 Wiki</title>
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body data-root="../../">
+<a class="skip-link" href="#main-content">跳到正文</a>
+<div class="layout">
+  <aside class="sidebar" id="site-sidebar" aria-label="站点导航" aria-hidden="false">
+    <a class="brand" href="../../index.html">Micro-VM 技术研究 Wiki</a>
+    <label class="search-label" for="search">搜索公开文档</label>
+    <input id="search" type="search" autocomplete="off" aria-controls="search-results" aria-expanded="false">
+    <div id="search-status" class="search-status" role="status" aria-live="polite"></div>
+    <div id="search-results" class="search-results" role="listbox"></div>
+    <nav aria-label="主要导航" data-global-nav="true"><ul class="nav-tree"><li><a href="../../index.html">首页</a></li><li><details class="nav-group" open><summary>开始</summary><ul><li><a href="../../analysis/vm-design-landscape-overview.html">从零理解 Micro-VM</a></li><li><a href="../../projects/index.html">按项目查实现</a></li><li><a href="../../topics/index.html">按机制做比较</a></li></ul></details></li><li><details class="nav-group"><summary>项目</summary><ul><li><a href="../../projects/firecracker.html">Firecracker</a></li><li><a href="../../projects/cloud-hypervisor.html">Cloud Hypervisor</a></li><li><a href="../../projects/kata-containers.html">Kata Containers</a></li><li><a href="../../projects/cubesandbox.html">CubeSandbox</a></li><li><a href="../../projects/crosvm.html">crosvm（历史参考）</a></li></ul></details></li><li><details class="nav-group"><summary>沙箱平台</summary><ul><li><a href="../../platforms/index.html">沙箱平台与基础设施</a></li></ul></details></li><li><details class="nav-group"><summary>专题</summary><ul><li><a href="../../topics/lifecycle-control-plane.html">生命周期与控制面</a></li><li><a href="../../topics/cpu-memory-machine.html">CPU、内存与机器模型</a></li><li><a href="../../topics/snapshot-restore-migration.html">Snapshot、Restore 与 Migration</a></li><li><a href="../../topics/storage-device-io.html">存储、设备与 I/O</a></li><li><a href="../../topics/network-isolation.html">网络与隔离</a></li><li><a href="../../topics/operations-observability-performance.html">操作、可观测性与性能</a></li></ul></details></li><li><details class="nav-group"><summary>方法与索引</summary><ul><li><a href="../../methodology/status-and-evidence.html">研究状态与证据方法</a></li><li><a href="../../sitemap.html">站点地图</a></li></ul></details></li></ul></nav>
+  </aside>
+  <button class="sidebar-scrim" id="sidebar-scrim" aria-label="关闭导航"></button>
+  <main class="content" id="main-content" tabindex="-1">
+    <div class="topbar">
+      <button class="menu-toggle" id="menu-toggle" aria-controls="site-sidebar" aria-expanded="false">目录</button>
+      <button id="theme-toggle" aria-label="切换到深色模式">🌙</button>
+      <a class="back-home" href="../../index.html">首页</a>
+    </div>
+<nav class="breadcrumbs" aria-label="面包屑"><ol><li><a href="../../index.html">首页</a></li><li><a href="../index.html">沙箱平台与基础设施</a></li><li><a href="../agentenv.html">AgentENV</a></li><li><a href="../../topics/lifecycle-control-plane.html">生命周期与控制面</a></li><li aria-current="page">AgentENV 架构层级与运行时边界</li></ol></nav>
+<div class="page-meta" aria-label="文档元数据"><span class="badge">机制解析</span><a class="badge badge-status" href="../../methodology/status-and-evidence.html#status">状态：源码已固定，运行未验证</a><span class="badge">层级：沙箱平台</span><span class="badge">平台：AgentENV</span><span class="badge">集成：Firecracker</span><span class="badge">agentenv@00ba6cb74f30</span><span class="badge">架构：x86_64</span><span class="badge">架构：aarch64</span></div><p class="status-explainer"><strong>源码已固定，运行未验证</strong>表示本文已按显示的组件提交复核源码，但本任务没有执行 build、runtime、device 或 cloud E2E；机器状态仍为 <code>unconfirmed</code>，不表示文章内容为假，也不表示平台已经运行验证。</p>
+    <article class="markdown-body"><h1 id="agentenv">AgentENV 架构层级与运行时边界</h1>
+<h2 id="_1">问题与结论</h2>
+<p><strong>问题</strong>：AgentENV 在 Micro-VM、runtime 与沙箱平台的层级中是什么，它负责哪些状态，哪些能力仍属于底层 VMM 或宿主机？</p>
+<p><strong>结论</strong>：在固定提交 <code>00ba6cb74f309a0cbd65f6ec415640e9e674a371</code> 中，AgentENV 是组织 API、sandbox orchestration、snapshot/template、Firecracker backend、ublk/OverlayBD 和可选分布式服务的沙箱平台。它消费 Firecracker/KVM 等底层能力，但不是与 Firecracker、Cloud Hypervisor 同层的 VMM。</p>
+<p>本文只确认固定源码中的组件装配、接口和检查逻辑。没有运行 AgentENV、Firecracker、ublk 或 OverlayBD，也没有重新验证整个来源工作树当前是否 clean，因此页面状态保持 <code>unconfirmed</code>。</p>
+<h2 id="_2">范围与版本</h2>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>本文范围</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>AgentENV baseline</td>
+<td><code>00ba6cb74f309a0cbd65f6ec415640e9e674a371</code></td>
+</tr>
+<tr>
+<td>架构范围</td>
+<td>源码中可见 <code>x86_64</code> 与 <code>aarch64</code> dependency 分支；PVM 只允许 <code>x86_64</code></td>
+</tr>
+<tr>
+<td>证据类型</td>
+<td>Local source fact、upstream-doc observation、inference、engineering judgment、unconfirmed</td>
+</tr>
+<tr>
+<td>复核日期</td>
+<td>2026-09-09</td>
+</tr>
+<tr>
+<td>未执行</td>
+<td>build、runtime、KVM、ublk、OverlayBD、网络或远端测试</td>
+</tr>
+</tbody>
+</table>
+<p>源码链接全部固定到上述 commit。AgentENV 上游仓库采用 MIT license；本文为原创中文机制整理，没有复制整页上游文档或 <code>.ua</code> 知识图。</p>
+<h2 id="_3">一、平台层如何装配</h2>
+<p><code>server</code> 启动入口按依赖顺序建立 P2P/OverlayBD runtime、全局 ublk manager、Firecracker pool、<code>SnapshotManager</code>、<code>TemplateBuilder</code>、<code>FirecrackerSandboxFactory</code>、<code>Orchestrator</code>、observability 与 Axum API。这个顺序说明 API 并不直接创建 microVM；API 之下还有编排、持久化状态解析和具体 backend。</p>
+<p>证据：<a href="https://github.com/kvcache-ai/AgentENV/blob/00ba6cb74f309a0cbd65f6ec415640e9e674a371/src/bin/server.rs#L70-L141">src/bin/server.rs:70-141</a>。</p>
+<figure class="diagram" aria-label="Mermaid 架构或流程图"><div class="mermaid">flowchart TB
+    API[Axum / E2B-shaped API]
+    ORCH[Orchestrator]
+    SM[SnapshotManager]
+    TB[TemplateBuilder]
+    FACTORY[FirecrackerSandboxFactory]
+    FC[Firecracker backend]
+    STORE[Snapshot repository]
+    OBD[OverlayBD]
+    UBLK[ublk manager]
+    KVM[KVM / host kernel]
+
+    API --&gt; ORCH
+    ORCH --&gt; SM
+    ORCH --&gt; FACTORY
+    TB --&gt; SM
+    SM --&gt; STORE
+    FACTORY --&gt; FC
+    FC --&gt; OBD
+    OBD --&gt; UBLK
+    FC --&gt; KVM</div><details class="diagram-source"><summary>查看图表文本</summary><pre><code>flowchart TB
+    API[Axum / E2B-shaped API]
+    ORCH[Orchestrator]
+    SM[SnapshotManager]
+    TB[TemplateBuilder]
+    FACTORY[FirecrackerSandboxFactory]
+    FC[Firecracker backend]
+    STORE[Snapshot repository]
+    OBD[OverlayBD]
+    UBLK[ublk manager]
+    KVM[KVM / host kernel]
+
+    API --&gt; ORCH
+    ORCH --&gt; SM
+    ORCH --&gt; FACTORY
+    TB --&gt; SM
+    SM --&gt; STORE
+    FACTORY --&gt; FC
+    FC --&gt; OBD
+    OBD --&gt; UBLK
+    FC --&gt; KVM</code></pre></details></figure>
+<p>关停则按 reporter、orchestrator、Firecracker pool、ublk daemon、OverlayBD P2P、P2P transport 的顺序收敛。这里的工程含义是：上层先停止产生新工作，再关闭下层共享资源；它不是“进程退出即可保证所有远端 artifact durable”的证明。</p>
+<p>证据：<a href="https://github.com/kvcache-ai/AgentENV/blob/00ba6cb74f309a0cbd65f6ec415640e9e674a371/src/bin/server.rs#L145-L195">src/bin/server.rs:145-195</a>。</p>
+<h2 id="_4">二、状态所有权分层</h2>
+<h3 id="api-orchestrator">API 与 Orchestrator</h3>
+<p>API 负责协议入口和请求转换；<code>Orchestrator</code> 管 sandbox 生命周期状态、并发操作和失败收敛。具体 microVM start/pause/resume/snapshot/fork 则通过 <code>SandboxBackend</code> contract 下沉到 Firecracker 实现。</p>
+<p>这一层次在 <a href="sandbox-lifecycle-e2b-api-chain.html">Sandbox 生命周期与 E2B-shaped API 链路</a> 中展开。</p>
+<h3 id="snapshottemplate-repository">Snapshot、Template 与 repository</h3>
+<p><code>SnapshotManager</code> 把 backend 捕获结果发布为 committed snapshot；repository 是 durable truth，runtime resolver 将 committed record 解析成节点本地可运行路径。Template 是 committed snapshot 之上的用户接口与构建流程，而不是另一种独立 VM 状态格式。</p>
+<p>证据：</p>
+<ul>
+<li><a href="https://github.com/kvcache-ai/AgentENV/blob/00ba6cb74f309a0cbd65f6ec415640e9e674a371/src/snapshot/manager.rs#L87-L128"><code>SnapshotManager::publish_captured</code>, src/snapshot/manager.rs:87-128</a></li>
+<li><a href="https://github.com/kvcache-ai/AgentENV/blob/00ba6cb74f309a0cbd65f6ec415640e9e674a371/src/snapshot/repository/interfaces.rs#L80-L200">repository interfaces, src/snapshot/repository/interfaces.rs:80-200</a></li>
+<li><a href="https://github.com/kvcache-ai/AgentENV/blob/00ba6cb74f309a0cbd65f6ec415640e9e674a371/src/template/builder.rs#L20-L145">TemplateBuilder, src/template/builder.rs:20-145</a></li>
+</ul>
+<h3 id="firecrackeroverlaybd-ublk">Firecracker、OverlayBD 与 ublk</h3>
+<p>Firecracker backend拥有 microVM 生命周期；OverlayBD承载可提交的分层 artifact；ublk manager把相应块设备暴露给运行时。三者是协作关系，不能把 OverlayBD/ublk 的存储状态当作 Firecracker 完整设备状态，也不能把 VMM snapshot 文件当作已经发布的 Template。</p>
+<p>详见 <a href="snapshot-template-overlaybd-ublk-chain.html">Snapshot、Template、OverlayBD 与 ublk 链路</a>。</p>
+<h2 id="_5">三、虚拟化模式与架构边界</h2>
+<p><code>Virtualization</code> 是 node-wide 的 <code>Kvm | Pvm</code> 枚举，默认值是 KVM。dependency resolver 只接受 <code>x86_64</code> 与 <code>aarch64</code>；PVM 分支明确限制为 <code>x86_64</code>。host check 同时检查 <code>/dev/kvm</code> 可访问性，以及 PVM mode 与 <code>kvm_pvm</code> module 是否匹配。</p>
+<p>证据：</p>
+<ul>
+<li><a href="https://github.com/kvcache-ai/AgentENV/blob/00ba6cb74f309a0cbd65f6ec415640e9e674a371/src/virtualization.rs#L3-L30">src/virtualization.rs:3-30</a></li>
+<li><a href="https://github.com/kvcache-ai/AgentENV/blob/00ba6cb74f309a0cbd65f6ec415640e9e674a371/src/setup/deps.rs#L74-L99">src/setup/deps.rs:74-99</a></li>
+<li><a href="https://github.com/kvcache-ai/AgentENV/blob/00ba6cb74f309a0cbd65f6ec415640e9e674a371/src/setup/kvm.rs#L44-L80">src/setup/kvm.rs:44-80</a></li>
+</ul>
+<p>这些是 <strong>Local source fact</strong>：源码存在分支和 fail-closed check。它们不是“本文在 ARM64 或 PVM 上运行通过”的 runtime evidence。</p>
+<h2 id="_6">四、多节点控制面放在哪里</h2>
+<p>Gateway 对已有 sandbox 查询 node，对新请求请求 schedule，再把请求代理到选定节点；Scheduler 先按 observed node/resource limit 过滤，再用 strategy 选择节点。binding 由 assignment 与 heartbeat roster 协调。</p>
+<p>证据：</p>
+<ul>
+<li><a href="https://github.com/kvcache-ai/AgentENV/blob/00ba6cb74f309a0cbd65f6ec415640e9e674a371/services/gateway/internal/server.go#L92-L230">services/gateway/internal/server.go:92-230</a></li>
+<li><a href="https://github.com/kvcache-ai/AgentENV/blob/00ba6cb74f309a0cbd65f6ec415640e9e674a371/services/scheduler/internal/service.go#L81-L242">services/scheduler/internal/service.go:81-242</a></li>
+</ul>
+<p><strong>工程判断</strong>：多节点 gateway/scheduler 是平台扩展面，不是理解单节点 sandbox create 的前置条件，因此本轮只在总览中定位，不另建公开页面。</p>
+<h2 id="_7">五、上游文档观察与源码事实的关系</h2>
+<p>固定提交中的 upstream architecture 文档把系统描述为 node subsystem、storage 与 distributed control plane；sandboxes/snapshots/templates 文档给出用户术语。这些属于 <strong>upstream-doc observation</strong>，用于理解作者意图，不替代上述源码证据。</p>
+<ul>
+<li><a href="https://github.com/kvcache-ai/AgentENV/blob/00ba6cb74f309a0cbd65f6ec415640e9e674a371/docs/src/internals/architecture.md">docs/src/internals/architecture.md</a></li>
+<li><a href="https://github.com/kvcache-ai/AgentENV/blob/00ba6cb74f309a0cbd65f6ec415640e9e674a371/docs/src/concepts/sandboxes.md">docs/src/concepts/sandboxes.md</a></li>
+<li><a href="https://github.com/kvcache-ai/AgentENV/blob/00ba6cb74f309a0cbd65f6ec415640e9e674a371/docs/src/concepts/templates.md">docs/src/concepts/templates.md</a></li>
+</ul>
+<h2 id="_8">证据账本</h2>
+<table>
+<thead>
+<tr>
+<th>判断</th>
+<th>分类</th>
+<th>固定证据</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>node server 装配 API、Orchestrator、snapshot/template、Firecracker、OverlayBD/ublk</td>
+<td>Local source fact</td>
+<td><code>src/bin/server.rs:70-141</code></td>
+</tr>
+<tr>
+<td>shutdown 按上层到共享底层资源收敛</td>
+<td>Local source fact</td>
+<td><code>src/bin/server.rs:145-195</code></td>
+</tr>
+<tr>
+<td>KVM/PVM 是 node-wide mode，PVM 只允许 x86_64</td>
+<td>Local source fact</td>
+<td><code>src/virtualization.rs:3-30</code>; <code>src/setup/deps.rs:74-99</code></td>
+</tr>
+<tr>
+<td>AgentENV 应放在沙箱平台层而不是 VMM 层</td>
+<td>Engineering judgment</td>
+<td>组件所有权与 <code>SandboxBackend</code> 边界</td>
+</tr>
+<tr>
+<td>upstream 文档中的平台定位和术语</td>
+<td>Upstream-doc observation</td>
+<td><code>docs/src/internals/architecture.md</code>; <code>docs/src/concepts/*</code></td>
+</tr>
+<tr>
+<td>固定源码在目标主机上的实际运行正确性</td>
+<td>Unconfirmed</td>
+<td>本任务未执行 runtime/build/device test</td>
+</tr>
+</tbody>
+</table>
+<h2 id="_9">限制与未确认</h2>
+<ol>
+<li>独立审查确认固定提交工作树的 tracked 内容 clean；<code>.codegraph/</code>、<code>.ua/</code> 是未跟踪工具产物，不属于实现证据。未运行验证仍不足以把页面标成 <code>current</code>。</li>
+<li>没有验证 Firecracker、OverlayBD、ublk、P2P 或 object storage 的运行故障行为。</li>
+<li>没有验证 <code>x86_64</code>、<code>aarch64</code> 或 PVM 的启动、性能与兼容性。</li>
+<li>没有把 <code>.ua</code> graph、原始 session、部署配置或上游 docs 树复制进本文；知识图只用于私有导航。</li>
+</ol></article>
+<aside class="related-reading" aria-labelledby="related-title"><h2 id="related-title">继续阅读</h2><ul><li><strong>平台目录：</strong><a href="../agentenv.html">AgentENV</a></li><li><strong>专题目录：</strong><a href="../../topics/lifecycle-control-plane.html">生命周期与控制面</a></li><li><strong>底层项目：</strong><a href="../../projects/firecracker.html">Firecracker</a></li><li><strong>明确关联：</strong><a href="sandbox-lifecycle-e2b-api-chain.html">AgentENV Sandbox 生命周期与 E2B-shaped API 链路</a></li><li><strong>明确关联：</strong><a href="snapshot-template-overlaybd-ublk-chain.html">AgentENV Snapshot、Template、OverlayBD 与 ublk 链路</a></li></ul></aside>
+    <footer class="page-foot">公开来源：<code>analysis/projects/agentenv/architecture-runtime-boundaries.md</code> · 文档 ID：<code>agentenv.architecture-runtime-boundaries</code></footer>
+  </main>
+</div>
+<script defer src="https://cdn.jsdelivr.net/npm/mermaid@10.9.6/dist/mermaid.min.js" referrerpolicy="no-referrer"></script>
+<script defer src="../../assets/wiki.js"></script>
+</body>
+</html>

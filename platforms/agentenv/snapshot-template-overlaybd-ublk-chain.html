@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="AgentENV Snapshot、Template、OverlayBD 与 ublk 链路 问题与结论 问题 ：AgentENV 的 snapshot/template 保存什么，memory、rootfs 与 attached drive 如何分层、提交、解析和恢复？ 结论 ：固定提交 00ba6cb74f309a0cbd65f6ec415640e9e674a371 把 backend capture、committed repository record 与 node-local runnable state">
+<meta property="og:type" content="article">
+<meta property="og:title" content="AgentENV Snapshot、Template、OverlayBD 与 ublk 链路">
+<meta property="og:description" content="AgentENV Snapshot、Template、OverlayBD 与 ublk 链路 问题与结论 问题 ：AgentENV 的 snapshot/template 保存什么，memory、rootfs 与 attached drive 如何分层、提交、解析和恢复？ 结论 ：固定提交 00ba6cb74f309a0cbd65f6ec415640e9e674a371 把 backend capture、committed repository record 与 node-local runnable state">
+<link rel="canonical" href="https://north-c.github.io/micro-vm-wiki/platforms/agentenv/snapshot-template-overlaybd-ublk-chain.html">
+<title>AgentENV Snapshot、Template、OverlayBD 与 ublk 链路 · Micro-VM 技术研究 Wiki</title>
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body data-root="../../">
+<a class="skip-link" href="#main-content">跳到正文</a>
+<div class="layout">
+  <aside class="sidebar" id="site-sidebar" aria-label="站点导航" aria-hidden="false">
+    <a class="brand" href="../../index.html">Micro-VM 技术研究 Wiki</a>
+    <label class="search-label" for="search">搜索公开文档</label>
+    <input id="search" type="search" autocomplete="off" aria-controls="search-results" aria-expanded="false">
+    <div id="search-status" class="search-status" role="status" aria-live="polite"></div>
+    <div id="search-results" class="search-results" role="listbox"></div>
+    <nav aria-label="主要导航" data-global-nav="true"><ul class="nav-tree"><li><a href="../../index.html">首页</a></li><li><details class="nav-group" open><summary>开始</summary><ul><li><a href="../../analysis/vm-design-landscape-overview.html">从零理解 Micro-VM</a></li><li><a href="../../projects/index.html">按项目查实现</a></li><li><a href="../../topics/index.html">按机制做比较</a></li></ul></details></li><li><details class="nav-group"><summary>项目</summary><ul><li><a href="../../projects/firecracker.html">Firecracker</a></li><li><a href="../../projects/cloud-hypervisor.html">Cloud Hypervisor</a></li><li><a href="../../projects/kata-containers.html">Kata Containers</a></li><li><a href="../../projects/cubesandbox.html">CubeSandbox</a></li><li><a href="../../projects/crosvm.html">crosvm（历史参考）</a></li></ul></details></li><li><details class="nav-group"><summary>沙箱平台</summary><ul><li><a href="../../platforms/index.html">沙箱平台与基础设施</a></li></ul></details></li><li><details class="nav-group"><summary>专题</summary><ul><li><a href="../../topics/lifecycle-control-plane.html">生命周期与控制面</a></li><li><a href="../../topics/cpu-memory-machine.html">CPU、内存与机器模型</a></li><li><a href="../../topics/snapshot-restore-migration.html">Snapshot、Restore 与 Migration</a></li><li><a href="../../topics/storage-device-io.html">存储、设备与 I/O</a></li><li><a href="../../topics/network-isolation.html">网络与隔离</a></li><li><a href="../../topics/operations-observability-performance.html">操作、可观测性与性能</a></li></ul></details></li><li><details class="nav-group"><summary>方法与索引</summary><ul><li><a href="../../methodology/status-and-evidence.html">研究状态与证据方法</a></li><li><a href="../../sitemap.html">站点地图</a></li></ul></details></li></ul></nav>
+  </aside>
+  <button class="sidebar-scrim" id="sidebar-scrim" aria-label="关闭导航"></button>
+  <main class="content" id="main-content" tabindex="-1">
+    <div class="topbar">
+      <button class="menu-toggle" id="menu-toggle" aria-controls="site-sidebar" aria-expanded="false">目录</button>
+      <button id="theme-toggle" aria-label="切换到深色模式">🌙</button>
+      <a class="back-home" href="../../index.html">首页</a>
+    </div>
+<nav class="breadcrumbs" aria-label="面包屑"><ol><li><a href="../../index.html">首页</a></li><li><a href="../index.html">沙箱平台与基础设施</a></li><li><a href="../agentenv.html">AgentENV</a></li><li><a href="../../topics/snapshot-restore-migration.html">Snapshot、Restore 与 Migration</a></li><li aria-current="page">AgentENV Snapshot、Template、OverlayBD 与 ublk 链路</li></ol></nav>
+<div class="page-meta" aria-label="文档元数据"><span class="badge">机制解析</span><a class="badge badge-status" href="../../methodology/status-and-evidence.html#status">状态：源码已固定，运行未验证</a><span class="badge">层级：沙箱平台</span><span class="badge">平台：AgentENV</span><span class="badge">集成：Firecracker</span><span class="badge">agentenv@00ba6cb74f30</span><span class="badge">架构：x86_64</span><span class="badge">架构：aarch64</span></div><p class="status-explainer"><strong>源码已固定，运行未验证</strong>表示本文已按显示的组件提交复核源码，但本任务没有执行 build、runtime、device 或 cloud E2E；机器状态仍为 <code>unconfirmed</code>，不表示文章内容为假，也不表示平台已经运行验证。</p>
+    <article class="markdown-body"><h1 id="agentenv-snapshottemplateoverlaybd-ublk">AgentENV Snapshot、Template、OverlayBD 与 ublk 链路</h1>
+<h2 id="_1">问题与结论</h2>
+<p><strong>问题</strong>：AgentENV 的 snapshot/template 保存什么，memory、rootfs 与 attached drive 如何分层、提交、解析和恢复？</p>
+<p><strong>结论</strong>：固定提交 <code>00ba6cb74f309a0cbd65f6ec415640e9e674a371</code> 把 backend capture、committed repository record 与 node-local runnable state明确分层。Firecracker捕获 VM state/memory，AgentENV把 sparse/dirty memory转换成 sealed OverlayBD layer，并通过 repository记录 rootfs、drive、memory和runtime版本；ublk负责节点块设备。P2P只是 artifact 获取加速，不是 committed truth。Template则是 committed snapshot之上的用户接口与构建流程。</p>
+<p>本文没有执行 snapshot、restore、ublk、OverlayBD、P2P 或 object-storage测试，页面保持 <code>unconfirmed</code>。</p>
+<h2 id="_2">范围与版本</h2>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>本文范围</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>AgentENV baseline</td>
+<td><code>00ba6cb74f309a0cbd65f6ec415640e9e674a371</code></td>
+</tr>
+<tr>
+<td>架构范围</td>
+<td><code>x86_64</code>、<code>aarch64</code> source inspection；PVM/KVM mode compatibility按源码记录</td>
+</tr>
+<tr>
+<td>证据类型</td>
+<td>Local source fact、upstream-doc observation、inference、engineering judgment、unconfirmed</td>
+</tr>
+<tr>
+<td>复核日期</td>
+<td>2026-09-09</td>
+</tr>
+<tr>
+<td>未执行</td>
+<td>snapshot/restore、block device、P2P、publication runtime test</td>
+</tr>
+</tbody>
+</table>
+<h2 id="_3">一、三个不同状态层</h2>
+<figure class="diagram" aria-label="Mermaid 架构或流程图"><div class="mermaid">flowchart LR
+    LIVE[Live Firecracker sandbox]
+    CAP[CapturedSandboxSnapshot]
+    COMMIT[Committed snapshot record]
+    RUN[Node-local runnable snapshot]
+    VM[Restored Firecracker sandbox]
+
+    LIVE --&gt;|pause / capture| CAP
+    CAP --&gt;|publish_captured| COMMIT
+    COMMIT --&gt;|repository resolver| RUN
+    RUN --&gt;|create / resume| VM</div><details class="diagram-source"><summary>查看图表文本</summary><pre><code>flowchart LR
+    LIVE[Live Firecracker sandbox]
+    CAP[CapturedSandboxSnapshot]
+    COMMIT[Committed snapshot record]
+    RUN[Node-local runnable snapshot]
+    VM[Restored Firecracker sandbox]
+
+    LIVE --&gt;|pause / capture| CAP
+    CAP --&gt;|publish_captured| COMMIT
+    COMMIT --&gt;|repository resolver| RUN
+    RUN --&gt;|create / resume| VM</code></pre></details></figure>
+<p>这四个对象不能混为“snapshot”：</p>
+<ol>
+<li>live sandbox 包含运行时 fd、worker 和设备对象；</li>
+<li>captured handle 是 backend交给上层的 opaque捕获结果；</li>
+<li>committed record 是repository中的持久化真相；</li>
+<li>runnable snapshot 是resolver在当前节点物化的路径和配置。</li>
+</ol>
+<p><code>SnapshotManager::publish_captured</code> 只接受可 downcast为 <code>FirecrackerCapturedSnapshot</code> 的 handle，先向repository发布，再best-effort发布P2P artifacts。</p>
+<p>证据：<a href="https://github.com/kvcache-ai/AgentENV/blob/00ba6cb74f309a0cbd65f6ec415640e9e674a371/src/snapshot/manager.rs#L87-L128">src/snapshot/manager.rs:87-128</a>。</p>
+<h2 id="firecracker-memory-layer">二、Firecracker 捕获与 memory layer</h2>
+<p>Firecracker client创建 diff snapshot；memory可以落到 sparse <code>mem.bin</code>，也可以把 dirty ranges直接交给 AgentENV 打包。Restore路径支持 file-backed memory backend。</p>
+<p>证据：<a href="https://github.com/kvcache-ai/AgentENV/blob/00ba6cb74f309a0cbd65f6ec415640e9e674a371/src/sandbox/firecracker/instance.rs#L455-L550">src/sandbox/firecracker/instance.rs:455-550</a>。</p>
+<p><code>convert_sparse_mem_to_overlaybd</code> 与 <code>convert_dirty_memory_to_overlaybd</code> 把 memory变成 sealed OverlayBD layer；实现对 range做 4 KiB alignment/segment mapping检查。</p>
+<p>证据：</p>
+<ul>
+<li><a href="https://github.com/kvcache-ai/AgentENV/blob/00ba6cb74f309a0cbd65f6ec415640e9e674a371/src/sandbox/firecracker/overlaybd_snapshot.rs#L40-L41">4 KiB dirty-page 与 OverlayBD alignment 常量，src/sandbox/firecracker/overlaybd_snapshot.rs:40-41</a></li>
+<li><a href="https://github.com/kvcache-ai/AgentENV/blob/00ba6cb74f309a0cbd65f6ec415640e9e674a371/src/sandbox/firecracker/overlaybd_snapshot.rs#L670-L844">sparse/dirty memory 转换与 range/segment 校验，src/sandbox/firecracker/overlaybd_snapshot.rs:670-844</a></li>
+</ul>
+<p><strong>合理推断</strong>：memory layer与rootfs layer都可由repository管理，不表示两者使用相同dirty tracking语义；页面不会把“存储层格式相似”外推成“写入来源相同”。</p>
+<h2 id="committed-snapshot">三、committed snapshot 记录什么</h2>
+<p>Committed snapshot结构包含runtime versions、virtualization mode、image configs、rootfs layers、attached-drive layers、memory layers，以及可选publication/custom-extension metadata。</p>
+<p>证据：<a href="https://github.com/kvcache-ai/AgentENV/blob/00ba6cb74f309a0cbd65f6ec415640e9e674a371/src/snapshot/types/snapshot.rs#L284-L337">src/snapshot/types/snapshot.rs:284-337</a>。</p>
+<p>Repository interface明确区分 durable record与runtime resolution：resolver把committed snapshot转换为node-local runnable paths，但不得反向修改repository truth。</p>
+<p>证据：<a href="https://github.com/kvcache-ai/AgentENV/blob/00ba6cb74f309a0cbd65f6ec415640e9e674a371/src/snapshot/repository/interfaces.rs#L80-L200">src/snapshot/repository/interfaces.rs:80-200</a>。</p>
+<h2 id="posixoss-p2p">四、POSIX、OSS 与 P2P</h2>
+<p>POSIX resolver物化memory、rootfs和attached-drive runtime config，再hydrate Firecracker manifest。</p>
+<p>证据：</p>
+<ul>
+<li><a href="https://github.com/kvcache-ai/AgentENV/blob/00ba6cb74f309a0cbd65f6ec415640e9e674a371/src/snapshot/repository/backends/posixfs/runtime.rs#L54-L110">src/snapshot/repository/backends/posixfs/runtime.rs:54-110</a></li>
+<li><a href="https://github.com/kvcache-ai/AgentENV/blob/00ba6cb74f309a0cbd65f6ec415640e9e674a371/src/snapshot/repository/backends/posixfs/runtime.rs#L288-L324">src/snapshot/repository/backends/posixfs/runtime.rs:288-324</a></li>
+</ul>
+<p>OSS resolver对fixed artifacts可先尝试P2P，失败后回退object storage，并从committed layers物化memory/rootfs。</p>
+<p>证据：<a href="https://github.com/kvcache-ai/AgentENV/blob/00ba6cb74f309a0cbd65f6ec415640e9e674a371/src/snapshot/repository/backends/oss/resolver.rs#L98-L180">src/snapshot/repository/backends/oss/resolver.rs:98-180</a>。</p>
+<p>因此“P2P是加速路径而不是提交真相”是由resolver fallback和repository contract支持的 <strong>inference</strong>；本文没有测试P2P故障或remote consistency。</p>
+<h2 id="ublk-live-runtime">五、ublk 与 live runtime 修改</h2>
+<p>ublk device manager通过daemon创建和管理block device。Restack snapshot若已经改变live runtime，失败会被分类为terminal，而不是假设原backend仍安全可用。</p>
+<p>证据：<a href="https://github.com/kvcache-ai/AgentENV/blob/00ba6cb74f309a0cbd65f6ec415640e9e674a371/src/sandbox/ublk/device.rs#L391-L439">src/sandbox/ublk/device.rs:391-439</a>。</p>
+<p>这个边界说明rollback不能只看repository metadata：一旦节点的live block stack发生不可逆变化，上层状态也必须按terminal failure收敛。</p>
+<h2 id="template-committed-snapshot">六、Template 是 committed snapshot 的上层语义</h2>
+<p><code>TemplateBuilder</code>在committed snapshot之上组织build/publish。固定提交的upstream concepts文档也把template解释为committed snapshot的用户侧wrapper。</p>
+<p>证据：</p>
+<ul>
+<li><a href="https://github.com/kvcache-ai/AgentENV/blob/00ba6cb74f309a0cbd65f6ec415640e9e674a371/src/template/builder.rs#L20-L145">src/template/builder.rs:20-145</a></li>
+<li><a href="https://github.com/kvcache-ai/AgentENV/blob/00ba6cb74f309a0cbd65f6ec415640e9e674a371/docs/src/concepts/templates.md#L1-L17">docs/src/concepts/templates.md:1-17</a></li>
+<li><a href="https://github.com/kvcache-ai/AgentENV/blob/00ba6cb74f309a0cbd65f6ec415640e9e674a371/docs/src/concepts/templates.md#L130-L139">docs/src/concepts/templates.md:130-139</a></li>
+</ul>
+<p>第一条是 <strong>Local source fact</strong>，后两条是 <strong>upstream-doc observation</strong>。本文不复制上游quickstart或完整template命令。</p>
+<h2 id="virtualization-mode-compatibility">七、virtualization mode compatibility</h2>
+<p>Committed snapshot记录capture时的virtualization mode。Create、resume与Firecracker config会拒绝跨KVM/PVM mode恢复；仓内单测覆盖不匹配情况。</p>
+<p>证据：</p>
+<ul>
+<li><a href="https://github.com/kvcache-ai/AgentENV/blob/00ba6cb74f309a0cbd65f6ec415640e9e674a371/src/orchestrator/service.rs#L359-L371">src/orchestrator/service.rs:359-371</a></li>
+<li><a href="https://github.com/kvcache-ai/AgentENV/blob/00ba6cb74f309a0cbd65f6ec415640e9e674a371/src/orchestrator/service.rs#L1270-L1277">src/orchestrator/service.rs:1270-1277</a></li>
+<li><a href="https://github.com/kvcache-ai/AgentENV/blob/00ba6cb74f309a0cbd65f6ec415640e9e674a371/src/sandbox/firecracker/config.rs#L471-L489">src/sandbox/firecracker/config.rs:471-489</a></li>
+<li><a href="https://github.com/kvcache-ai/AgentENV/blob/00ba6cb74f309a0cbd65f6ec415640e9e674a371/src/orchestrator/tests.rs#L3549-L3605">src/orchestrator/tests.rs:3549-3605</a></li>
+<li><a href="https://github.com/kvcache-ai/AgentENV/blob/00ba6cb74f309a0cbd65f6ec415640e9e674a371/src/sandbox/firecracker/config.rs#L946-L966">src/sandbox/firecracker/config.rs:946-966</a></li>
+</ul>
+<p>测试代码存在不等于本任务执行通过。</p>
+<h2 id="_4">证据账本</h2>
+<table>
+<thead>
+<tr>
+<th>判断</th>
+<th>分类</th>
+<th>固定证据</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>capture、committed record、runnable state是不同对象</td>
+<td>Local source fact</td>
+<td><code>src/snapshot/manager.rs</code>; repository interfaces</td>
+</tr>
+<tr>
+<td>committed snapshot记录runtime/mode/rootfs/drive/memory layers</td>
+<td>Local source fact</td>
+<td><code>src/snapshot/types/snapshot.rs:284-337</code></td>
+</tr>
+<tr>
+<td>sparse/dirty memory转换为sealed OverlayBD layer</td>
+<td>Local source fact</td>
+<td><code>overlaybd_snapshot.rs:670-844</code></td>
+</tr>
+<tr>
+<td>P2P不是repository durable truth</td>
+<td>Inference</td>
+<td>OSS fallback + repository contract</td>
+</tr>
+<tr>
+<td>Template是committed snapshot上的用户语义</td>
+<td>Local source fact + upstream-doc observation</td>
+<td><code>src/template/builder.rs</code>; <code>docs/src/concepts/templates.md</code></td>
+</tr>
+<tr>
+<td>多backend、多节点故障时的实际durability</td>
+<td>Unconfirmed</td>
+<td>本任务没有执行failure injection或runtime test</td>
+</tr>
+</tbody>
+</table>
+<h2 id="_5">限制与未确认</h2>
+<ol>
+<li>没有运行snapshot、restore、P2P fallback、object-storage publication或ublk restack。</li>
+<li>没有测量memory/rootfs layer大小、恢复延迟或并发性能。</li>
+<li>没有证明device DMA写入、crash consistency或所有filesystem语义；本文只描述固定源码暴露的层次。</li>
+<li><code>.ua</code>、raw session、private artifact和部署凭据均未作为公开证据。</li>
+</ol></article>
+<aside class="related-reading" aria-labelledby="related-title"><h2 id="related-title">继续阅读</h2><ul><li><strong>平台目录：</strong><a href="../agentenv.html">AgentENV</a></li><li><strong>专题目录：</strong><a href="../../topics/snapshot-restore-migration.html">Snapshot、Restore 与 Migration</a></li><li><strong>底层项目：</strong><a href="../../projects/firecracker.html">Firecracker</a></li><li><strong>明确关联：</strong><a href="../../firecracker/analysis/snapshot-restore-chain.html">Firecracker Snapshot / Restore 链路</a></li><li><strong>明确关联：</strong><a href="../../firecracker/analysis/storage-rootfs-sharefs-boundary-chain.html">Firecracker 存储 / rootfs / share-fs 边界链路</a></li></ul></aside>
+    <footer class="page-foot">公开来源：<code>analysis/projects/agentenv/snapshot-template-overlaybd-ublk-chain.md</code> · 文档 ID：<code>agentenv.snapshot-template-overlaybd-ublk-chain</code></footer>
+  </main>
+</div>
+<script defer src="https://cdn.jsdelivr.net/npm/mermaid@10.9.6/dist/mermaid.min.js" referrerpolicy="no-referrer"></script>
+<script defer src="../../assets/wiki.js"></script>
+</body>
+</html>

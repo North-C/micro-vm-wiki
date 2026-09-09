@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="E2B-infra 架构与 Sandbox 创建、恢复链路 问题与结论 问题 ：E2B-infra 的 API、placement、node orchestrator、Firecracker 与 envd 如何协作，把请求变成可路由的 sandbox？ 结论 ：在稳定版 2026.29 、固定提交 557445ffddda8d9a27f6f529a3f4d7732cf81a13 中，请求由 API handler进入 API orchestrator与placement，再通过node manager RPC到no">
+<meta property="og:type" content="article">
+<meta property="og:title" content="E2B-infra 架构与 Sandbox 创建、恢复链路">
+<meta property="og:description" content="E2B-infra 架构与 Sandbox 创建、恢复链路 问题与结论 问题 ：E2B-infra 的 API、placement、node orchestrator、Firecracker 与 envd 如何协作，把请求变成可路由的 sandbox？ 结论 ：在稳定版 2026.29 、固定提交 557445ffddda8d9a27f6f529a3f4d7732cf81a13 中，请求由 API handler进入 API orchestrator与placement，再通过node manager RPC到no">
+<link rel="canonical" href="https://north-c.github.io/micro-vm-wiki/platforms/e2b-infra/architecture-and-sandbox-lifecycle.html">
+<title>E2B-infra 架构与 Sandbox 创建、恢复链路 · Micro-VM 技术研究 Wiki</title>
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body data-root="../../">
+<a class="skip-link" href="#main-content">跳到正文</a>
+<div class="layout">
+  <aside class="sidebar" id="site-sidebar" aria-label="站点导航" aria-hidden="false">
+    <a class="brand" href="../../index.html">Micro-VM 技术研究 Wiki</a>
+    <label class="search-label" for="search">搜索公开文档</label>
+    <input id="search" type="search" autocomplete="off" aria-controls="search-results" aria-expanded="false">
+    <div id="search-status" class="search-status" role="status" aria-live="polite"></div>
+    <div id="search-results" class="search-results" role="listbox"></div>
+    <nav aria-label="主要导航" data-global-nav="true"><ul class="nav-tree"><li><a href="../../index.html">首页</a></li><li><details class="nav-group" open><summary>开始</summary><ul><li><a href="../../analysis/vm-design-landscape-overview.html">从零理解 Micro-VM</a></li><li><a href="../../projects/index.html">按项目查实现</a></li><li><a href="../../topics/index.html">按机制做比较</a></li></ul></details></li><li><details class="nav-group"><summary>项目</summary><ul><li><a href="../../projects/firecracker.html">Firecracker</a></li><li><a href="../../projects/cloud-hypervisor.html">Cloud Hypervisor</a></li><li><a href="../../projects/kata-containers.html">Kata Containers</a></li><li><a href="../../projects/cubesandbox.html">CubeSandbox</a></li><li><a href="../../projects/crosvm.html">crosvm（历史参考）</a></li></ul></details></li><li><details class="nav-group"><summary>沙箱平台</summary><ul><li><a href="../../platforms/index.html">沙箱平台与基础设施</a></li></ul></details></li><li><details class="nav-group"><summary>专题</summary><ul><li><a href="../../topics/lifecycle-control-plane.html">生命周期与控制面</a></li><li><a href="../../topics/cpu-memory-machine.html">CPU、内存与机器模型</a></li><li><a href="../../topics/snapshot-restore-migration.html">Snapshot、Restore 与 Migration</a></li><li><a href="../../topics/storage-device-io.html">存储、设备与 I/O</a></li><li><a href="../../topics/network-isolation.html">网络与隔离</a></li><li><a href="../../topics/operations-observability-performance.html">操作、可观测性与性能</a></li></ul></details></li><li><details class="nav-group"><summary>方法与索引</summary><ul><li><a href="../../methodology/status-and-evidence.html">研究状态与证据方法</a></li><li><a href="../../sitemap.html">站点地图</a></li></ul></details></li></ul></nav>
+  </aside>
+  <button class="sidebar-scrim" id="sidebar-scrim" aria-label="关闭导航"></button>
+  <main class="content" id="main-content" tabindex="-1">
+    <div class="topbar">
+      <button class="menu-toggle" id="menu-toggle" aria-controls="site-sidebar" aria-expanded="false">目录</button>
+      <button id="theme-toggle" aria-label="切换到深色模式">🌙</button>
+      <a class="back-home" href="../../index.html">首页</a>
+    </div>
+<nav class="breadcrumbs" aria-label="面包屑"><ol><li><a href="../../index.html">首页</a></li><li><a href="../index.html">沙箱平台与基础设施</a></li><li><a href="../e2b-infra.html">E2B-infra</a></li><li><a href="../../topics/lifecycle-control-plane.html">生命周期与控制面</a></li><li aria-current="page">E2B-infra 架构与 Sandbox 创建、恢复链路</li></ol></nav>
+<div class="page-meta" aria-label="文档元数据"><span class="badge">机制解析</span><a class="badge badge-status" href="../../methodology/status-and-evidence.html#status">状态：源码已固定，运行未验证</a><span class="badge">层级：沙箱基础设施</span><span class="badge">平台：E2B-infra</span><span class="badge">集成：Firecracker</span><span class="badge">e2b-infra@557445ffddda</span><span class="badge">架构：x86_64</span><span class="badge">架构：aarch64</span></div><p class="status-explainer"><strong>源码已固定，运行未验证</strong>表示本文已按显示的组件提交复核源码，但本任务没有执行 build、runtime、device 或 cloud E2E；机器状态仍为 <code>unconfirmed</code>，不表示文章内容为假，也不表示平台已经运行验证。</p>
+    <article class="markdown-body"><h1 id="e2b-infra-sandbox">E2B-infra 架构与 Sandbox 创建、恢复链路</h1>
+<h2 id="_1">问题与结论</h2>
+<p><strong>问题</strong>：E2B-infra 的 API、placement、node orchestrator、Firecracker 与 envd 如何协作，把请求变成可路由的 sandbox？</p>
+<p><strong>结论</strong>：在稳定版 <code>2026.29</code>、固定提交 <code>557445ffddda8d9a27f6f529a3f4d7732cf81a13</code> 中，请求由 API handler进入 API orchestrator与placement，再通过node manager RPC到node orchestrator。Node侧组合Template配置、NBD rootfs、UFFD memory、network slot、Firecracker与envd；根据可用artifact选择snapshot resume、filesystem-only reboot或cold build，最后才进入ready/routing阶段。</p>
+<p>本文是固定源码与已审查研究的纵向整理。没有在本任务中启动E2B、Firecracker或envd，也没有执行云部署、ARM64交付或API E2E，因此状态保持 <code>unconfirmed</code>。</p>
+<h2 id="_2">范围与版本</h2>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>本文范围</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>E2B-infra release</td>
+<td><code>2026.29</code></td>
+</tr>
+<tr>
+<td>E2B-infra commit</td>
+<td><code>557445ffddda8d9a27f6f529a3f4d7732cf81a13</code></td>
+</tr>
+<tr>
+<td>集成项目</td>
+<td>Firecracker；本文只确认E2B固定源码中的调用/包装边界，没有为内嵌Firecracker二进制建立独立commit身份</td>
+</tr>
+<tr>
+<td>架构范围</td>
+<td><code>x86_64</code>、<code>aarch64</code> source-aware paths；stable ARM64完整交付未确认</td>
+</tr>
+<tr>
+<td>证据类型</td>
+<td>Local source fact、inference、engineering judgment、unconfirmed</td>
+</tr>
+<tr>
+<td>复核日期</td>
+<td>2026-09-09</td>
+</tr>
+</tbody>
+</table>
+<p>源码链接固定到 <code>e2b-dev/infra</code> 的上述提交。本文没有复制整个上游文档、IaC目录、配置值或生成知识图。</p>
+<h2 id="_3">一、控制面分层</h2>
+<figure class="diagram" aria-label="Mermaid 架构或流程图"><div class="mermaid">flowchart LR
+    CLIENT[SDK / API client]
+    API[API handler]
+    AO[API orchestrator]
+    PLACE[Best-of-K placement]
+    RPC[Node manager RPC]
+    NO[Node orchestrator]
+    ROOT[NBD rootfs]
+    MEM[UFFD memory]
+    NET[Network slot]
+    FC[Firecracker]
+    ENVD[envd]
+    ROUTE[Catalog / proxy routing]
+
+    CLIENT --&gt; API --&gt; AO --&gt; PLACE --&gt; RPC --&gt; NO
+    NO --&gt; ROOT
+    NO --&gt; MEM
+    NO --&gt; NET
+    NO --&gt; FC --&gt; ENVD --&gt; ROUTE</div><details class="diagram-source"><summary>查看图表文本</summary><pre><code>flowchart LR
+    CLIENT[SDK / API client]
+    API[API handler]
+    AO[API orchestrator]
+    PLACE[Best-of-K placement]
+    RPC[Node manager RPC]
+    NO[Node orchestrator]
+    ROOT[NBD rootfs]
+    MEM[UFFD memory]
+    NET[Network slot]
+    FC[Firecracker]
+    ENVD[envd]
+    ROUTE[Catalog / proxy routing]
+
+    CLIENT --&gt; API --&gt; AO --&gt; PLACE --&gt; RPC --&gt; NO
+    NO --&gt; ROOT
+    NO --&gt; MEM
+    NO --&gt; NET
+    NO --&gt; FC --&gt; ENVD --&gt; ROUTE</code></pre></details></figure>
+<p>API create handler负责解析请求、并发/模板输入与上层错误；API orchestrator负责create instance流程；placement实现Best-of-K候选选择。它们与node-side sandbox状态机是不同所有权域。</p>
+<p>证据：</p>
+<ul>
+<li><a href="https://github.com/e2b-dev/infra/blob/557445ffddda8d9a27f6f529a3f4d7732cf81a13/packages/api/internal/handlers/sandbox_create.go#L59-L336">packages/api/internal/handlers/sandbox_create.go:59-336</a></li>
+<li><a href="https://github.com/e2b-dev/infra/blob/557445ffddda8d9a27f6f529a3f4d7732cf81a13/packages/api/internal/orchestrator/create_instance.go#L138-L394">packages/api/internal/orchestrator/create_instance.go:138-394</a></li>
+<li><a href="https://github.com/e2b-dev/infra/blob/557445ffddda8d9a27f6f529a3f4d7732cf81a13/packages/api/internal/orchestrator/placement/placement_best_of_K.go#L15-L190">packages/api/internal/orchestrator/placement/placement_best_of_K.go:15-190</a></li>
+</ul>
+<p><strong>工程判断</strong>：E2B-infra 应归入沙箱基础设施层，而不是第六个VMM。Placement、catalog和API语义属于平台控制面；Firecracker仍负责microVM边界。</p>
+<h2 id="node-create">二、node create 与启动来源选择</h2>
+<p>Node manager server接收sandbox请求并进入node orchestrator；后者根据Template/artifact状态选择恢复或构建路径。</p>
+<p>证据：<a href="https://github.com/e2b-dev/infra/blob/557445ffddda8d9a27f6f529a3f4d7732cf81a13/packages/orchestrator/pkg/server/sandboxes.go#L75-L280">packages/orchestrator/pkg/server/sandboxes.go:75-280</a>。</p>
+<p>Sandbox实现中可见三类主要路径：</p>
+<ol>
+<li>memory与VM state齐备时走snapshot resume；</li>
+<li>filesystem-only条件下走reboot语义，不恢复memory snapshot；</li>
+<li>缺少可恢复artifact时进入cold build/create。</li>
+</ol>
+<p>证据：</p>
+<ul>
+<li><a href="https://github.com/e2b-dev/infra/blob/557445ffddda8d9a27f6f529a3f4d7732cf81a13/packages/orchestrator/pkg/sandbox/sandbox.go#L446-L699">packages/orchestrator/pkg/sandbox/sandbox.go:446-699</a></li>
+<li><a href="https://github.com/e2b-dev/infra/blob/557445ffddda8d9a27f6f529a3f4d7732cf81a13/packages/orchestrator/pkg/sandbox/sandbox.go#L753-L1165">packages/orchestrator/pkg/sandbox/sandbox.go:753-1165</a></li>
+<li><a href="https://github.com/e2b-dev/infra/blob/557445ffddda8d9a27f6f529a3f4d7732cf81a13/packages/orchestrator/pkg/sandbox/reboot.go#L33-L155">packages/orchestrator/pkg/sandbox/reboot.go:33-155</a></li>
+</ul>
+<p>这里的“选择”不表示三条路径行为完全等价：filesystem-only不会恢复memory，但仍需维护rootfs与设备状态边界。</p>
+<h2 id="rootfsmemory-network">三、rootfs、memory 与 network 不是同一种缓存</h2>
+<p>Node侧使用NBD provider构造rootfs链，用UFFD处理memory lazy fault，并从network pool取得网络slot。三个subsystem服务不同数据和生命周期：</p>
+<ul>
+<li>NBD/rootfs：只读Template base + per-sandbox sparse cache/overlay；</li>
+<li>UFFD/memory：按page fault加载memory，并独立跟踪dirty/empty状态；</li>
+<li>network slot：分配node侧network资源，供Firecracker/guest路径使用。</li>
+</ul>
+<p>证据：</p>
+<ul>
+<li><a href="https://github.com/e2b-dev/infra/blob/557445ffddda8d9a27f6f529a3f4d7732cf81a13/packages/orchestrator/pkg/sandbox/rootfs/nbd.go#L22-L170">packages/orchestrator/pkg/sandbox/rootfs/nbd.go:22-170</a></li>
+<li><a href="https://github.com/e2b-dev/infra/blob/557445ffddda8d9a27f6f529a3f4d7732cf81a13/packages/orchestrator/pkg/sandbox/uffd/uffd.go#L38-L228">packages/orchestrator/pkg/sandbox/uffd/uffd.go:38-228</a></li>
+<li><a href="https://github.com/e2b-dev/infra/blob/557445ffddda8d9a27f6f529a3f4d7732cf81a13/packages/orchestrator/pkg/sandbox/network/pool.go#L24-L233">packages/orchestrator/pkg/sandbox/network/pool.go:24-233</a></li>
+</ul>
+<p><strong>Local source fact</strong>是三套实现与状态结构彼此独立；“不能把它们统称为一个snapshot cache”是避免所有权混淆的 <strong>engineering judgment</strong>。</p>
+<h2 id="firecracker-envd-readiness">四、Firecracker 与 envd readiness</h2>
+<p>E2B-infra封装Firecracker process/client，负责配置、启动、pause/resume与snapshot API交互；envd初始化发生在VM恢复/启动之后，并参与sandbox ready语义。</p>
+<p>证据：</p>
+<ul>
+<li><a href="https://github.com/e2b-dev/infra/blob/557445ffddda8d9a27f6f529a3f4d7732cf81a13/packages/orchestrator/pkg/sandbox/fc/process.go#L159-L667">packages/orchestrator/pkg/sandbox/fc/process.go:159-667</a></li>
+<li><a href="https://github.com/e2b-dev/infra/blob/557445ffddda8d9a27f6f529a3f4d7732cf81a13/packages/orchestrator/pkg/sandbox/fc/client.go#L42-L166">packages/orchestrator/pkg/sandbox/fc/client.go:42-166</a></li>
+<li><a href="https://github.com/e2b-dev/infra/blob/557445ffddda8d9a27f6f529a3f4d7732cf81a13/packages/orchestrator/pkg/sandbox/fc/client.go#L215-L240">packages/orchestrator/pkg/sandbox/fc/client.go:215-240</a></li>
+<li><a href="https://github.com/e2b-dev/infra/blob/557445ffddda8d9a27f6f529a3f4d7732cf81a13/packages/orchestrator/pkg/sandbox/fc/client.go#L319-L435">packages/orchestrator/pkg/sandbox/fc/client.go:319-435</a></li>
+<li><a href="https://github.com/e2b-dev/infra/blob/557445ffddda8d9a27f6f529a3f4d7732cf81a13/packages/orchestrator/pkg/sandbox/envd.go#L259-L335">packages/orchestrator/pkg/sandbox/envd.go:259-335</a></li>
+</ul>
+<p>Catalog在Redis中维护sandbox routing记录，供后续请求找到node；它不等于Firecracker内部VM state。</p>
+<p>证据：<a href="https://github.com/e2b-dev/infra/blob/557445ffddda8d9a27f6f529a3f4d7732cf81a13/packages/shared/pkg/sandbox-catalog/catalog_redis.go#L26-L113">packages/shared/pkg/sandbox-catalog/catalog_redis.go:26-113</a>。</p>
+<h2 id="_4">五、部署配置和运行事实的边界</h2>
+<p>固定仓库包含AWS/GCP Terraform与Nomad交付配置。这证明上游维护了相应IaC路径，但本文没有读取或复制Secret-adjacent变量值，也没有执行部署。</p>
+<p>证据：</p>
+<ul>
+<li><a href="https://github.com/e2b-dev/infra/blob/557445ffddda8d9a27f6f529a3f4d7732cf81a13/iac/provider-aws/main.tf#L1-L41">iac/provider-aws/main.tf:1-41</a></li>
+<li><a href="https://github.com/e2b-dev/infra/blob/557445ffddda8d9a27f6f529a3f4d7732cf81a13/iac/provider-gcp/main.tf#L1-L33">iac/provider-gcp/main.tf:1-33</a></li>
+</ul>
+<p>“固定仓库存在云IaC配置”是 <strong>Local source fact</strong>；“本任务验证过云部署、容量与ARM64交付”仍是 <strong>unconfirmed</strong>。本文没有使用upstream文档声明支撑运行结论，因此没有把 <code>upstream-doc observation</code> 列为本页证据类别。</p>
+<h2 id="_5">证据账本</h2>
+<table>
+<thead>
+<tr>
+<th>判断</th>
+<th>分类</th>
+<th>固定证据</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>API → placement → node manager → node orchestrator 是分层控制链</td>
+<td>Local source fact</td>
+<td>API handler/orchestrator/placement；node server</td>
+</tr>
+<tr>
+<td>node create会在resume/reboot/cold路径间选择</td>
+<td>Local source fact</td>
+<td><code>sandbox.go:446-1165</code>; <code>reboot.go:33-155</code></td>
+</tr>
+<tr>
+<td>NBD rootfs、UFFD memory与network slot是不同状态域</td>
+<td>Local source fact</td>
+<td><code>rootfs/nbd.go</code>; <code>uffd/uffd.go</code>; <code>network/pool.go</code></td>
+</tr>
+<tr>
+<td>E2B-infra是沙箱基础设施而不是VMM</td>
+<td>Engineering judgment</td>
+<td>控制面与Firecracker client/process边界</td>
+</tr>
+<tr>
+<td>AWS/GCP IaC配置存在</td>
+<td>Local source fact</td>
+<td><code>iac/provider-*/main.tf</code></td>
+</tr>
+<tr>
+<td>stable ARM64完整交付与本轮runtime readiness</td>
+<td>Unconfirmed</td>
+<td>本任务未执行build/deploy/E2E</td>
+</tr>
+</tbody>
+</table>
+<h2 id="_6">限制与未确认</h2>
+<ol>
+<li>没有运行create/resume/reboot/cold-build、envd ready或routing/proxy E2E。</li>
+<li>没有验证稳定版所使用Firecracker二进制的独立上游commit；因此本文只绑定E2B-infra component baseline。</li>
+<li>没有验证AWS/GCP/Nomad部署、capacity、failure recovery或ARM64完整交付。</li>
+<li>没有纳入或修改现有mainline E2B/Firecracker/envd/MMDS候选页；该页和原task保持用户资产及<code>in_progress</code>状态。</li>
+</ol></article>
+<aside class="related-reading" aria-labelledby="related-title"><h2 id="related-title">继续阅读</h2><ul><li><strong>平台目录：</strong><a href="../e2b-infra.html">E2B-infra</a></li><li><strong>专题目录：</strong><a href="../../topics/lifecycle-control-plane.html">生命周期与控制面</a></li><li><strong>底层项目：</strong><a href="../../projects/firecracker.html">Firecracker</a></li><li><strong>明确关联：</strong><a href="template-rootfs-memory-publish.html">E2B-infra Template：NBD Rootfs、UFFD Memory 与发布完成点</a></li><li><strong>明确关联：</strong><a href="../../firecracker/analysis/api-start-boot-chain.html">Firecracker API 到 MicroVM 启动链路</a></li></ul></aside>
+    <footer class="page-foot">公开来源：<code>analysis/projects/e2b-infra/architecture-and-sandbox-lifecycle.md</code> · 文档 ID：<code>e2b-infra.architecture-and-sandbox-lifecycle</code></footer>
+  </main>
+</div>
+<script defer src="https://cdn.jsdelivr.net/npm/mermaid@10.9.6/dist/mermaid.min.js" referrerpolicy="no-referrer"></script>
+<script defer src="../../assets/wiki.js"></script>
+</body>
+</html>

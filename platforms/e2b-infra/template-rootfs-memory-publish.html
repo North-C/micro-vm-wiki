@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="E2B-infra Template：NBD Rootfs、UFFD Memory 与发布完成点 问题与结论 问题 ：E2B-infra 的Template如何分别处理rootfs和memory，save时哪些动作构成一致性边界，本地ready与远端publish完成又有什么不同？ 结论 ：稳定版 2026.29@557445ffddda8d9a27f6f529a3f4d7732cf81a13 中，rootfs通过readonly Template base、per-sandbox sparse Cache和 bl">
+<meta property="og:type" content="article">
+<meta property="og:title" content="E2B-infra Template：NBD Rootfs、UFFD Memory 与发布完成点">
+<meta property="og:description" content="E2B-infra Template：NBD Rootfs、UFFD Memory 与发布完成点 问题与结论 问题 ：E2B-infra 的Template如何分别处理rootfs和memory，save时哪些动作构成一致性边界，本地ready与远端publish完成又有什么不同？ 结论 ：稳定版 2026.29@557445ffddda8d9a27f6f529a3f4d7732cf81a13 中，rootfs通过readonly Template base、per-sandbox sparse Cache和 bl">
+<link rel="canonical" href="https://north-c.github.io/micro-vm-wiki/platforms/e2b-infra/template-rootfs-memory-publish.html">
+<title>E2B-infra Template：NBD Rootfs、UFFD Memory 与发布完成点 · Micro-VM 技术研究 Wiki</title>
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body data-root="../../">
+<a class="skip-link" href="#main-content">跳到正文</a>
+<div class="layout">
+  <aside class="sidebar" id="site-sidebar" aria-label="站点导航" aria-hidden="false">
+    <a class="brand" href="../../index.html">Micro-VM 技术研究 Wiki</a>
+    <label class="search-label" for="search">搜索公开文档</label>
+    <input id="search" type="search" autocomplete="off" aria-controls="search-results" aria-expanded="false">
+    <div id="search-status" class="search-status" role="status" aria-live="polite"></div>
+    <div id="search-results" class="search-results" role="listbox"></div>
+    <nav aria-label="主要导航" data-global-nav="true"><ul class="nav-tree"><li><a href="../../index.html">首页</a></li><li><details class="nav-group" open><summary>开始</summary><ul><li><a href="../../analysis/vm-design-landscape-overview.html">从零理解 Micro-VM</a></li><li><a href="../../projects/index.html">按项目查实现</a></li><li><a href="../../topics/index.html">按机制做比较</a></li></ul></details></li><li><details class="nav-group"><summary>项目</summary><ul><li><a href="../../projects/firecracker.html">Firecracker</a></li><li><a href="../../projects/cloud-hypervisor.html">Cloud Hypervisor</a></li><li><a href="../../projects/kata-containers.html">Kata Containers</a></li><li><a href="../../projects/cubesandbox.html">CubeSandbox</a></li><li><a href="../../projects/crosvm.html">crosvm（历史参考）</a></li></ul></details></li><li><details class="nav-group"><summary>沙箱平台</summary><ul><li><a href="../../platforms/index.html">沙箱平台与基础设施</a></li></ul></details></li><li><details class="nav-group"><summary>专题</summary><ul><li><a href="../../topics/lifecycle-control-plane.html">生命周期与控制面</a></li><li><a href="../../topics/cpu-memory-machine.html">CPU、内存与机器模型</a></li><li><a href="../../topics/snapshot-restore-migration.html">Snapshot、Restore 与 Migration</a></li><li><a href="../../topics/storage-device-io.html">存储、设备与 I/O</a></li><li><a href="../../topics/network-isolation.html">网络与隔离</a></li><li><a href="../../topics/operations-observability-performance.html">操作、可观测性与性能</a></li></ul></details></li><li><details class="nav-group"><summary>方法与索引</summary><ul><li><a href="../../methodology/status-and-evidence.html">研究状态与证据方法</a></li><li><a href="../../sitemap.html">站点地图</a></li></ul></details></li></ul></nav>
+  </aside>
+  <button class="sidebar-scrim" id="sidebar-scrim" aria-label="关闭导航"></button>
+  <main class="content" id="main-content" tabindex="-1">
+    <div class="topbar">
+      <button class="menu-toggle" id="menu-toggle" aria-controls="site-sidebar" aria-expanded="false">目录</button>
+      <button id="theme-toggle" aria-label="切换到深色模式">🌙</button>
+      <a class="back-home" href="../../index.html">首页</a>
+    </div>
+<nav class="breadcrumbs" aria-label="面包屑"><ol><li><a href="../../index.html">首页</a></li><li><a href="../index.html">沙箱平台与基础设施</a></li><li><a href="../e2b-infra.html">E2B-infra</a></li><li><a href="../../topics/storage-device-io.html">存储、设备与 I/O</a></li><li aria-current="page">E2B-infra Template：NBD Rootfs、UFFD Memory 与发布完成点</li></ol></nav>
+<div class="page-meta" aria-label="文档元数据"><span class="badge">机制解析</span><a class="badge badge-status" href="../../methodology/status-and-evidence.html#status">状态：源码已固定，运行未验证</a><span class="badge">层级：沙箱基础设施</span><span class="badge">平台：E2B-infra</span><span class="badge">集成：Firecracker</span><span class="badge">e2b-infra@557445ffddda</span><span class="badge">架构：x86_64</span><span class="badge">架构：aarch64</span></div><p class="status-explainer"><strong>源码已固定，运行未验证</strong>表示本文已按显示的组件提交复核源码，但本任务没有执行 build、runtime、device 或 cloud E2E；机器状态仍为 <code>unconfirmed</code>，不表示文章内容为假，也不表示平台已经运行验证。</p>
+    <article class="markdown-body"><h1 id="e2b-infra-templatenbd-rootfsuffd-memory">E2B-infra Template：NBD Rootfs、UFFD Memory 与发布完成点</h1>
+<h2 id="_1">问题与结论</h2>
+<p><strong>问题</strong>：E2B-infra 的Template如何分别处理rootfs和memory，save时哪些动作构成一致性边界，本地ready与远端publish完成又有什么不同？</p>
+<p><strong>结论</strong>：稳定版 <code>2026.29@557445ffddda8d9a27f6f529a3f4d7732cf81a13</code> 中，rootfs通过readonly Template base、per-sandbox sparse Cache和<code>block.Overlay</code>组成NBD路径；memory由独立UFFD lazy-fault与dirty/empty状态管理。Save需要pause并drain/flush disk，再移交cache ownership、关闭/等待NBD、导出diff。Local Template可用不等于远端artifact upload完成；只有upload流程成功返回才能证明该次远端发布完成。</p>
+<p>本文没有执行NBD、UFFD、save、filesystem-only、upload或故障注入测试，状态保持 <code>unconfirmed</code>。</p>
+<h2 id="_2">范围与版本</h2>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>本文范围</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>E2B-infra release</td>
+<td><code>2026.29</code></td>
+</tr>
+<tr>
+<td>E2B-infra commit</td>
+<td><code>557445ffddda8d9a27f6f529a3f4d7732cf81a13</code></td>
+</tr>
+<tr>
+<td>集成项目</td>
+<td>Firecracker；只描述E2B-infra固定源码中的控制和artifact边界</td>
+</tr>
+<tr>
+<td>架构范围</td>
+<td><code>x86_64</code>、<code>aarch64</code> source inspection；无本轮device/runtime验证</td>
+</tr>
+<tr>
+<td>证据类型</td>
+<td>Local source fact、inference、engineering judgment、unconfirmed</td>
+</tr>
+<tr>
+<td>复核日期</td>
+<td>2026-09-09</td>
+</tr>
+</tbody>
+</table>
+<h2 id="rootfs-memory">一、rootfs 与 memory 分账</h2>
+<figure class="diagram" aria-label="Mermaid 架构或流程图"><div class="mermaid">flowchart TB
+    BASE[Readonly Template rootfs]
+    CACHE[Per-sandbox sparse Cache]
+    TRACK[Present / Dirty / Zero tracker]
+    OVERLAY[block.Overlay]
+    NBD[Host NBD device]
+    UFFD[UFFD memory server]
+    MEM[Guest memory pages]
+
+    BASE --&gt; OVERLAY
+    CACHE --&gt; OVERLAY
+    TRACK --&gt; CACHE
+    OVERLAY --&gt; NBD
+    UFFD --&gt; MEM</div><details class="diagram-source"><summary>查看图表文本</summary><pre><code>flowchart TB
+    BASE[Readonly Template rootfs]
+    CACHE[Per-sandbox sparse Cache]
+    TRACK[Present / Dirty / Zero tracker]
+    OVERLAY[block.Overlay]
+    NBD[Host NBD device]
+    UFFD[UFFD memory server]
+    MEM[Guest memory pages]
+
+    BASE --&gt; OVERLAY
+    CACHE --&gt; OVERLAY
+    TRACK --&gt; CACHE
+    OVERLAY --&gt; NBD
+    UFFD --&gt; MEM</code></pre></details></figure>
+<p><code>NewNBDProvider</code>建立readonly Template base与per-sandbox sparse mmap Cache，再通过<code>block.Overlay</code>暴露host NBD路径。这里的overlay是E2B block abstraction，不是Linux OverlayFS，也不能推断成whole-file FICLONE。</p>
+<p>证据：</p>
+<ul>
+<li><a href="https://github.com/e2b-dev/infra/blob/557445ffddda8d9a27f6f529a3f4d7732cf81a13/packages/orchestrator/pkg/sandbox/rootfs/nbd.go#L22-L170">packages/orchestrator/pkg/sandbox/rootfs/nbd.go:22-170</a></li>
+<li><a href="https://github.com/e2b-dev/infra/blob/557445ffddda8d9a27f6f529a3f4d7732cf81a13/packages/orchestrator/pkg/sandbox/block/overlay.go#L14-L100">packages/orchestrator/pkg/sandbox/block/overlay.go:14-100</a></li>
+</ul>
+<p>Memory由独立UFFD路径处理lazy fault与page状态，不经过rootfs Cache/Tracker。</p>
+<p>证据：<a href="https://github.com/e2b-dev/infra/blob/557445ffddda8d9a27f6f529a3f4d7732cf81a13/packages/orchestrator/pkg/sandbox/uffd/uffd.go#L38-L228">packages/orchestrator/pkg/sandbox/uffd/uffd.go:38-228</a>。</p>
+<p><strong>工程判断</strong>：把rootfs和memory统称为“snapshot cache”会掩盖不同的读写来源、同步点与失败语义，应在性能/一致性分析中分开建模。</p>
+<h2 id="cache-tracker">二、Cache 与 Tracker 的语义</h2>
+<p>Read miss从base满足读取，不会仅因读取就copy-up整个block。Write/zero修改per-sandbox Cache，并由tracker区分NotPresent、Dirty、Zero等状态；导出时只处理相应diff状态。</p>
+<p>证据：</p>
+<ul>
+<li><a href="https://github.com/e2b-dev/infra/blob/557445ffddda8d9a27f6f529a3f4d7732cf81a13/packages/orchestrator/pkg/sandbox/block/cache.go#L51-L204">packages/orchestrator/pkg/sandbox/block/cache.go:51-204</a></li>
+<li><a href="https://github.com/e2b-dev/infra/blob/557445ffddda8d9a27f6f529a3f4d7732cf81a13/packages/orchestrator/pkg/sandbox/block/cache.go#L348-L550">packages/orchestrator/pkg/sandbox/block/cache.go:348-550</a></li>
+<li><a href="https://github.com/e2b-dev/infra/blob/557445ffddda8d9a27f6f529a3f4d7732cf81a13/packages/orchestrator/pkg/sandbox/block/tracker.go#L1-L117">packages/orchestrator/pkg/sandbox/block/tracker.go:1-117</a></li>
+</ul>
+<p><code>copy_file_range</code>具有fallback，因此源码只能支持“优先尝试内核copy路径并可回退”的结论，不能写成“必然reflink”或“零拷贝”。</p>
+<h2 id="save">三、Save 的一致性边界</h2>
+<p>Save主路径不是单独调用<code>EjectCache</code>：</p>
+<ol>
+<li>pause microVM；</li>
+<li>drain并flush disk I/O；</li>
+<li><code>EjectCache</code>移交cache ownership；</li>
+<li>关闭NBD并等待provider退出；</li>
+<li><code>ExportDiff</code>生成rootfs diff；</li>
+<li>组织Template metadata与后续publish/upload。</li>
+</ol>
+<p>证据：</p>
+<ul>
+<li><a href="https://github.com/e2b-dev/infra/blob/557445ffddda8d9a27f6f529a3f4d7732cf81a13/packages/orchestrator/pkg/sandbox/sandbox.go#L1316-L1495">packages/orchestrator/pkg/sandbox/sandbox.go:1316-1495</a></li>
+<li><a href="https://github.com/e2b-dev/infra/blob/557445ffddda8d9a27f6f529a3f4d7732cf81a13/packages/orchestrator/pkg/sandbox/sandbox.go#L1660-L1698">packages/orchestrator/pkg/sandbox/sandbox.go:1660-1698</a></li>
+</ul>
+<p><strong>合理推断</strong>：一致性依赖pause与disk drain/flush先于cache ownership handoff；只看到<code>EjectCache</code>调用不能证明前序写入已经静止。</p>
+<h2 id="filesystem-only-directprovider">四、filesystem-only 与 DirectProvider</h2>
+<p>Filesystem-only路径跳过memory snapshot，但仍执行disk drain/flush与rootfs diff。<code>DirectProvider</code>是独立实现，不拥有NBD Cache/Tracker，因此不能把NBD的copy-on-write与tracker结论直接套用到DirectProvider。</p>
+<p>证据：</p>
+<ul>
+<li><code>packages/orchestrator/pkg/sandbox/sandbox.go:1316-1495</code>，save/filesystem-only分支；</li>
+<li><a href="https://github.com/e2b-dev/infra/blob/557445ffddda8d9a27f6f529a3f4d7732cf81a13/packages/orchestrator/pkg/sandbox/rootfs/direct.go#L23-L168"><code>DirectProvider</code>, packages/orchestrator/pkg/sandbox/rootfs/direct.go:23-168</a>。</li>
+</ul>
+<p>本文没有对不同provider运行A/B或故障注入，因此实际性能、crash consistency和回退行为均未确认。</p>
+<h2 id="ready-durable-publication">五、本地 ready 与远端 durable publication</h2>
+<p>Local Template cache可以在本地artifact就绪后供节点使用；remote upload则由独立upload流程异步完成。只有<code>Upload.Run</code>成功，才能说明该次remote artifact upload完成。Local ready较早不应被描述为“所有远端副本已durable”。</p>
+<p>证据：</p>
+<ul>
+<li><a href="https://github.com/e2b-dev/infra/blob/557445ffddda8d9a27f6f529a3f4d7732cf81a13/packages/orchestrator/pkg/sandbox/build_upload.go#L121-L173"><code>Upload.Run/Wait/Finish</code>, packages/orchestrator/pkg/sandbox/build_upload.go:121-173</a>；</li>
+<li><code>packages/orchestrator/pkg/sandbox/sandbox.go:1660-1698</code> — save/publish衔接。</li>
+</ul>
+<p>这里的完成点是 <strong>Local source fact + inference</strong>：源码区分local cache与upload流程；“系统在任意故障下达到某种分布式durability级别”仍需运行证据。</p>
+<h2 id="_3">证据账本</h2>
+<table>
+<thead>
+<tr>
+<th>判断</th>
+<th>分类</th>
+<th>固定证据</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>NBD rootfs由readonly base、sparse Cache、tracker和block.Overlay组成</td>
+<td>Local source fact</td>
+<td><code>rootfs/nbd.go</code>; <code>block/{overlay,cache,tracker}.go</code></td>
+</tr>
+<tr>
+<td>UFFD memory与rootfs Cache是独立状态域</td>
+<td>Local source fact</td>
+<td><code>uffd/uffd.go:38-228</code></td>
+</tr>
+<tr>
+<td>read miss不等于copy-up；write/zero改变cache/tracker状态</td>
+<td>Local source fact</td>
+<td><code>block/cache.go:51-550</code>; <code>tracker.go:1-117</code></td>
+</tr>
+<tr>
+<td>save需要pause/drain/flush后才能移交cache并导出diff</td>
+<td>Local source fact + inference</td>
+<td><code>sandbox.go:1316-1495</code></td>
+</tr>
+<tr>
+<td>local ready早于remote upload completion</td>
+<td>Local source fact</td>
+<td><code>Upload.Run</code>; build upload流程</td>
+</tr>
+<tr>
+<td>运行时crash consistency、跨节点durability和性能</td>
+<td>Unconfirmed</td>
+<td>本任务未执行runtime/failure/performance测试</td>
+</tr>
+</tbody>
+</table>
+<h2 id="_4">限制与未确认</h2>
+<ol>
+<li>没有运行NBD、UFFD、save、upload、filesystem-only或DirectProvider测试。</li>
+<li>没有证明<code>copy_file_range</code>实际走了哪个内核/filesystem分支。</li>
+<li>没有证明remote upload的副本数、重试、对象存储一致性或跨区域durability。</li>
+<li>没有读取或发布secret-adjacent配置、tfvars/state、实际token、host或artifact ID。</li>
+<li>本文不修改也不合并现有mainline E2B/MMDS候选；stable与mainline结论保持不同版本边界。</li>
+</ol></article>
+<aside class="related-reading" aria-labelledby="related-title"><h2 id="related-title">继续阅读</h2><ul><li><strong>平台目录：</strong><a href="../e2b-infra.html">E2B-infra</a></li><li><strong>专题目录：</strong><a href="../../topics/storage-device-io.html">存储、设备与 I/O</a></li><li><strong>底层项目：</strong><a href="../../projects/firecracker.html">Firecracker</a></li><li><strong>明确关联：</strong><a href="../../firecracker/analysis/snapshot-restore-chain.html">Firecracker Snapshot / Restore 链路</a></li><li><strong>明确关联：</strong><a href="../../firecracker/analysis/storage-rootfs-sharefs-boundary-chain.html">Firecracker 存储 / rootfs / share-fs 边界链路</a></li></ul></aside>
+    <footer class="page-foot">公开来源：<code>analysis/projects/e2b-infra/template-rootfs-memory-publish.md</code> · 文档 ID：<code>e2b-infra.template-rootfs-memory-publish</code></footer>
+  </main>
+</div>
+<script defer src="https://cdn.jsdelivr.net/npm/mermaid@10.9.6/dist/mermaid.min.js" referrerpolicy="no-referrer"></script>
+<script defer src="../../assets/wiki.js"></script>
+</body>
+</html>
