@@ -30,7 +30,7 @@
       <a class="back-home" href="../../index.html">首页</a>
     </div>
 <nav class="breadcrumbs" aria-label="面包屑"><ol><li><a href="../../index.html">首页</a></li><li><a href="../../projects/index.html">项目目录</a></li><li><a href="../../projects/cubesandbox.html">CubeSandbox</a></li><li><a href="../../topics/network-isolation.html">网络与隔离</a></li><li aria-current="page">CubeSandbox ARM64 `tap fd unavailable` 故障案例分析</li></ol></nav>
-<div class="page-meta" aria-label="文档元数据"><span class="badge">机制解析</span><a class="badge badge-status" href="../../methodology/status-and-evidence.html#status">状态：待固定版本复核</a><span class="badge">CubeSandbox</span></div><p class="status-explainer"><strong>待固定版本复核</strong>表示本文尚未按结构化的 pinned baseline 重新验证，不表示文章内容为假。状态不会因为进入目录或公开站点而自动升级。</p>
+<div class="page-meta" aria-label="文档元数据"><span class="badge">机制解析</span><a class="badge badge-status" href="../../methodology/status-and-evidence.html#status">状态：待固定版本复核</a><span class="badge">CubeSandbox</span><span class="badge">角色：核心研究项目 / 沙箱平台</span></div><p class="status-explainer"><strong>待固定版本复核</strong>表示本文尚未按结构化的 pinned baseline 重新验证，不表示文章内容为假。状态不会因为进入目录或公开站点而自动升级。</p>
     <article class="markdown-body"><h1 id="cubesandbox-arm64-tap-fd-unavailable">CubeSandbox ARM64 <code>tap fd unavailable</code> 故障案例分析</h1>
 <p>本文承接 <code class="src-ref">ARM64 网络失败原型</code> 和 <code class="src-ref">ARM64 网络实测样本记录</code>。</p>
 <p>目标不是再做一层抽象归纳。</p>
@@ -179,7 +179,7 @@ tap fd unavailable for sandbox &quot;...&quot;: Link not found
 <p>这让它很适合作为后续样本归档的模板。</p>
 <p>后面再补其他项目的 ARM64 样本时，最理想的效果就是也达到这个粒度：</p>
 <p>不是只知道“哪一层会坏”，而是能把真实签名和具体源码链条直接对上。</p></article>
-<aside class="related-reading" aria-labelledby="related-title"><h2 id="related-title">继续阅读</h2><ul><li><strong>项目目录：</strong><a href="../../projects/cubesandbox.html">CubeSandbox</a></li><li><strong>专题目录：</strong><a href="../../topics/network-isolation.html">网络与隔离</a></li><li><strong>横向比较：</strong><a href="../../analysis/device-model-isolation-cross-project.html">设备模型与隔离边界跨项目专题分析</a></li><li><strong>继续本项目：</strong><a href="cubevs-ebpf-data-plane-chain.html">CubeVS eBPF 数据面链路</a></li><li><strong>继续本项目：</strong><a href="guest-agent-network-config-chain.html">Guest Agent 网络配置链路</a></li></ul></aside>
+<aside class="related-reading" aria-labelledby="related-title"><h2 id="related-title">继续阅读</h2><ul><li><strong>项目目录：</strong><a href="../../projects/cubesandbox.html">CubeSandbox</a></li><li><strong>平台视角：</strong><a href="../../platforms/cubesandbox.html">CubeSandbox</a></li><li><strong>专题目录：</strong><a href="../../topics/network-isolation.html">网络与隔离</a></li><li><strong>横向比较：</strong><a href="../../analysis/device-model-isolation-cross-project.html">设备模型与隔离边界跨项目专题分析</a></li><li><strong>继续本项目：</strong><a href="cubevs-ebpf-data-plane-chain.html">CubeVS eBPF 数据面链路</a></li></ul></aside>
     <footer class="page-foot">公开来源：<code>analysis/projects/cubesandbox/tap-fd-unavailable-case-study.md</code> · 文档 ID：<code>cubesandbox.tap-fd-unavailable-case-study</code></footer>
   </main>
 </div>

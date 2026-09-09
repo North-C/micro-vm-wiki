@@ -30,7 +30,7 @@
       <a class="back-home" href="../../index.html">首页</a>
     </div>
 <nav class="breadcrumbs" aria-label="面包屑"><ol><li><a href="../../index.html">首页</a></li><li><a href="../../projects/index.html">项目目录</a></li><li><a href="../../projects/cubesandbox.html">CubeSandbox</a></li><li><a href="../../topics/operations-observability-performance.html">操作、可观测性与性能</a></li><li aria-current="page">CubeSandbox 性能机制与社区基准测试项分析</li></ol></nav>
-<div class="page-meta" aria-label="文档元数据"><span class="badge">机制解析</span><a class="badge badge-status" href="../../methodology/status-and-evidence.html#status">状态：待固定版本复核</a><span class="badge">CubeSandbox</span></div><p class="status-explainer"><strong>待固定版本复核</strong>表示本文尚未按结构化的 pinned baseline 重新验证，不表示文章内容为假。状态不会因为进入目录或公开站点而自动升级。</p>
+<div class="page-meta" aria-label="文档元数据"><span class="badge">机制解析</span><a class="badge badge-status" href="../../methodology/status-and-evidence.html#status">状态：待固定版本复核</a><span class="badge">CubeSandbox</span><span class="badge">角色：核心研究项目 / 沙箱平台</span></div><p class="status-explainer"><strong>待固定版本复核</strong>表示本文尚未按结构化的 pinned baseline 重新验证，不表示文章内容为假。状态不会因为进入目录或公开站点而自动升级。</p>
     <article class="markdown-body"><h1 id="cubesandbox">CubeSandbox 性能机制与社区基准测试项分析</h1>
 <h2 id="_1">结论摘要</h2>
 <p>本文回答的问题是：CubeSandbox 当前源码已经用哪些设计降低 Template 创建、单机密度、Snapshot、Restore、Rollback、Clone、Pause / Resume 的成本，这些成本被消除、共享、延迟或转移到哪里，社区基准报告又实际观察到了什么。</p>
@@ -825,7 +825,7 @@ Armed
 </tbody>
 </table>
 <p>最终回答是：社区报告覆盖的所有操作都能在当前源码中找到明确的优化设计，但优化的价值来自“减少或迁移工作”，而不是报告中的某个绝对毫秒数。当前证据足以建立机制、前置条件、代价和验证假设；不足以把报告数值升级为 <code>5135a40d...</code> 的 SLA、把 warm path 外推到 cold/loaded path，或把 x86_64 观察外推到 ARM64。</p></article>
-<aside class="related-reading" aria-labelledby="related-title"><h2 id="related-title">继续阅读</h2><ul><li><strong>项目目录：</strong><a href="../../projects/cubesandbox.html">CubeSandbox</a></li><li><strong>专题目录：</strong><a href="../../topics/operations-observability-performance.html">操作、可观测性与性能</a></li><li><strong>横向比较：</strong><a href="../../analysis/observability-diagnostics-cross-project.html">可观测性与故障诊断跨项目专题分析</a></li><li><strong>继续本项目：</strong><a href="observability-diagnostics-chain.html">CubeSandbox 可观测性与诊断机制链路</a></li></ul></aside>
+<aside class="related-reading" aria-labelledby="related-title"><h2 id="related-title">继续阅读</h2><ul><li><strong>项目目录：</strong><a href="../../projects/cubesandbox.html">CubeSandbox</a></li><li><strong>平台视角：</strong><a href="../../platforms/cubesandbox.html">CubeSandbox</a></li><li><strong>专题目录：</strong><a href="../../topics/operations-observability-performance.html">操作、可观测性与性能</a></li><li><strong>横向比较：</strong><a href="../../analysis/observability-diagnostics-cross-project.html">可观测性与故障诊断跨项目专题分析</a></li><li><strong>继续本项目：</strong><a href="observability-diagnostics-chain.html">CubeSandbox 可观测性与诊断机制链路</a></li></ul></aside>
     <footer class="page-foot">公开来源：<code>analysis/projects/cubesandbox/performance-mechanisms-community-benchmark-analysis.md</code> · 文档 ID：<code>cubesandbox.performance-mechanisms-community-benchmark-analysis</code></footer>
   </main>
 </div>

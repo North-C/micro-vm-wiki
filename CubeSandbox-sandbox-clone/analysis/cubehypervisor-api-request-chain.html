@@ -30,7 +30,7 @@
       <a class="back-home" href="../../index.html">首页</a>
     </div>
 <nav class="breadcrumbs" aria-label="面包屑"><ol><li><a href="../../index.html">首页</a></li><li><a href="../../projects/index.html">项目目录</a></li><li><a href="../../projects/cubesandbox.html">CubeSandbox</a></li><li><a href="../../topics/lifecycle-control-plane.html">生命周期与控制面</a></li><li aria-current="page">CubeHypervisor API Request 内部调度链路</li></ol></nav>
-<div class="page-meta" aria-label="文档元数据"><span class="badge">机制解析</span><a class="badge badge-status" href="../../methodology/status-and-evidence.html#status">状态：待固定版本复核</a><span class="badge">CubeSandbox</span></div><p class="status-explainer"><strong>待固定版本复核</strong>表示本文尚未按结构化的 pinned baseline 重新验证，不表示文章内容为假。状态不会因为进入目录或公开站点而自动升级。</p>
+<div class="page-meta" aria-label="文档元数据"><span class="badge">机制解析</span><a class="badge badge-status" href="../../methodology/status-and-evidence.html#status">状态：待固定版本复核</a><span class="badge">CubeSandbox</span><span class="badge">角色：核心研究项目 / 沙箱平台</span></div><p class="status-explainer"><strong>待固定版本复核</strong>表示本文尚未按结构化的 pinned baseline 重新验证，不表示文章内容为假。状态不会因为进入目录或公开站点而自动升级。</p>
     <article class="markdown-body"><h1 id="cubehypervisor-api-request">CubeHypervisor API Request 内部调度链路</h1>
 <p>本文解释 CubeShim 如何把 sandbox 操作变成 <code>ApiRequest</code>，以及这些请求如何在内嵌 VMM 线程中串行落到 VM 方法。</p>
 <p>源码基线：当前仓库工作树。</p>
@@ -402,7 +402,7 @@ fn vm_resume_from_snapshot(&amp;mut self, restore_cfg: RestoreConfig) -&gt; resu
 <li>本文：<code>CubeHypervisor</code> → VMM thread 的同步 request/response 与异步 notify 两条通道。</li>
 <li><a href="vmm-snapshot-restore-state-chain.html">VMM Snapshot Restore 状态恢复链路</a> + <a href="vmm-device-restore-chain.html">VMM Device Restore 设备恢复链路</a>：<code>VmRestore</code> 内部 memory/CPU/device 状态恢复。</li>
 </ol></article>
-<aside class="related-reading" aria-labelledby="related-title"><h2 id="related-title">继续阅读</h2><ul><li><strong>项目目录：</strong><a href="../../projects/cubesandbox.html">CubeSandbox</a></li><li><strong>专题目录：</strong><a href="../../topics/lifecycle-control-plane.html">生命周期与控制面</a></li><li><strong>横向比较：</strong><a href="../../analysis/arm64-x86-cross-project-matrix.html">ARM64 与 x86_64 跨项目架构差异专题分析</a></li><li><strong>继续本项目：</strong><a href="cubelet-workflow-create-chain.html">Cubelet Workflow Create 编排链路</a></li><li><strong>继续本项目：</strong><a href="cubemaster-cache-consistency-boundary-chain.html">CubeMaster 缓存一致性边界链路</a></li></ul></aside>
+<aside class="related-reading" aria-labelledby="related-title"><h2 id="related-title">继续阅读</h2><ul><li><strong>项目目录：</strong><a href="../../projects/cubesandbox.html">CubeSandbox</a></li><li><strong>平台视角：</strong><a href="../../platforms/cubesandbox.html">CubeSandbox</a></li><li><strong>专题目录：</strong><a href="../../topics/lifecycle-control-plane.html">生命周期与控制面</a></li><li><strong>横向比较：</strong><a href="../../analysis/arm64-x86-cross-project-matrix.html">ARM64 与 x86_64 跨项目架构差异专题分析</a></li><li><strong>继续本项目：</strong><a href="cubelet-workflow-create-chain.html">Cubelet Workflow Create 编排链路</a></li></ul></aside>
     <footer class="page-foot">公开来源：<code>analysis/projects/cubesandbox/cubehypervisor-api-request-chain.md</code> · 文档 ID：<code>cubesandbox.cubehypervisor-api-request-chain</code></footer>
   </main>
 </div>

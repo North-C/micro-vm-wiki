@@ -30,7 +30,7 @@
       <a class="back-home" href="../../index.html">首页</a>
     </div>
 <nav class="breadcrumbs" aria-label="面包屑"><ol><li><a href="../../index.html">首页</a></li><li><a href="../../projects/index.html">项目目录</a></li><li><a href="../../projects/cubesandbox.html">CubeSandbox</a></li><li><a href="../../topics/snapshot-restore-migration.html">Snapshot、Restore 与 Migration</a></li><li aria-current="page">CubeSandbox Virtio Net / Fs Restore 内部状态链路</li></ol></nav>
-<div class="page-meta" aria-label="文档元数据"><span class="badge">机制解析</span><a class="badge badge-status" href="../../methodology/status-and-evidence.html#status">状态：待固定版本复核</a><span class="badge">CubeSandbox</span></div><p class="status-explainer"><strong>待固定版本复核</strong>表示本文尚未按结构化的 pinned baseline 重新验证，不表示文章内容为假。状态不会因为进入目录或公开站点而自动升级。</p>
+<div class="page-meta" aria-label="文档元数据"><span class="badge">机制解析</span><a class="badge badge-status" href="../../methodology/status-and-evidence.html#status">状态：待固定版本复核</a><span class="badge">CubeSandbox</span><span class="badge">角色：核心研究项目 / 沙箱平台</span></div><p class="status-explainer"><strong>待固定版本复核</strong>表示本文尚未按结构化的 pinned baseline 重新验证，不表示文章内容为假。状态不会因为进入目录或公开站点而自动升级。</p>
     <article class="markdown-body"><h1 id="cubesandbox-virtio-net-fs-restore">CubeSandbox Virtio Net / Fs Restore 内部状态链路</h1>
 <p>本文展开 <a href="vmm-device-restore-chain.html">VMM Device Restore 设备恢复链路</a> 的下一步，聚焦 virtio-net 与 virtio-fs 在 restore 中<strong>到底恢复了哪些状态、哪些只是重新绑定当前节点后端</strong>。</p>
 <p>结论只来自当前仓库源码。</p>
@@ -292,7 +292,7 @@ fn activate(&amp;mut self, mem, interrupt_cb, mut queues) -&gt; ActivateResult {
 </ul>
 <h2 id="12">12. 下一步深入点</h2>
 <p>进入 CubeSandbox rollback 与 runtime update：running VM 中 <code>VmSetFs</code>、rollback restore config、snapshot runtime binding 如何在不重建 VM 的情况下更新 fs/net/rootfs 视图（见 <a href="rollback-runtime-update-chain.html">rollback runtime update 链路</a>）。</p></article>
-<aside class="related-reading" aria-labelledby="related-title"><h2 id="related-title">继续阅读</h2><ul><li><strong>项目目录：</strong><a href="../../projects/cubesandbox.html">CubeSandbox</a></li><li><strong>专题目录：</strong><a href="../../topics/snapshot-restore-migration.html">Snapshot、Restore 与 Migration</a></li><li><strong>横向比较：</strong><a href="../../analysis/snapshot-restore-cross-project.html">Snapshot / Restore / Clone 跨项目专题分析</a></li><li><strong>继续本项目：</strong><a href="vmm-device-restore-chain.html">CubeSandbox VMM Device Restore 设备恢复链路</a></li><li><strong>继续本项目：</strong><a href="vmm-snapshot-restore-state-chain.html">CubeSandbox VMM Snapshot Restore 状态恢复链路</a></li></ul></aside>
+<aside class="related-reading" aria-labelledby="related-title"><h2 id="related-title">继续阅读</h2><ul><li><strong>项目目录：</strong><a href="../../projects/cubesandbox.html">CubeSandbox</a></li><li><strong>平台视角：</strong><a href="../../platforms/cubesandbox.html">CubeSandbox</a></li><li><strong>专题目录：</strong><a href="../../topics/snapshot-restore-migration.html">Snapshot、Restore 与 Migration</a></li><li><strong>横向比较：</strong><a href="../../analysis/snapshot-restore-cross-project.html">Snapshot / Restore / Clone 跨项目专题分析</a></li><li><strong>继续本项目：</strong><a href="vmm-device-restore-chain.html">CubeSandbox VMM Device Restore 设备恢复链路</a></li></ul></aside>
     <footer class="page-foot">公开来源：<code>analysis/projects/cubesandbox/virtio-net-fs-restore-chain.md</code> · 文档 ID：<code>cubesandbox.virtio-net-fs-restore-chain</code></footer>
   </main>
 </div>

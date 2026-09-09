@@ -30,7 +30,7 @@
       <a class="back-home" href="../../index.html">首页</a>
     </div>
 <nav class="breadcrumbs" aria-label="面包屑"><ol><li><a href="../../index.html">首页</a></li><li><a href="../../projects/index.html">项目目录</a></li><li><a href="../../projects/cubesandbox.html">CubeSandbox</a></li><li><a href="../../topics/lifecycle-control-plane.html">生命周期与控制面</a></li><li aria-current="page">CubeMaster Scheduler 与 Task Retry 链路</li></ol></nav>
-<div class="page-meta" aria-label="文档元数据"><span class="badge">机制解析</span><a class="badge badge-status" href="../../methodology/status-and-evidence.html#status">状态：待固定版本复核</a><span class="badge">CubeSandbox</span></div><p class="status-explainer"><strong>待固定版本复核</strong>表示本文尚未按结构化的 pinned baseline 重新验证，不表示文章内容为假。状态不会因为进入目录或公开站点而自动升级。</p>
+<div class="page-meta" aria-label="文档元数据"><span class="badge">机制解析</span><a class="badge badge-status" href="../../methodology/status-and-evidence.html#status">状态：待固定版本复核</a><span class="badge">CubeSandbox</span><span class="badge">角色：核心研究项目 / 沙箱平台</span></div><p class="status-explainer"><strong>待固定版本复核</strong>表示本文尚未按结构化的 pinned baseline 重新验证，不表示文章内容为假。状态不会因为进入目录或公开站点而自动升级。</p>
     <article class="markdown-body"><h1 id="cubemaster-scheduler-task-retry">CubeMaster Scheduler 与 Task Retry 链路</h1>
 <p>本文展开 CubeMaster 控制面：metadata 如何进入 scheduler、创建请求如何选节点并调用 Cubelet、后台 task retry 的真实作用范围。</p>
 <p>源码基线：当前仓库工作树。</p>
@@ -74,7 +74,7 @@ func Select(selCtx *selctx.SelectorCtx) (*node.Node, error) {
 <p><code>handleCubelet()</code> 循环：<code>schedule()</code> 选节点 → <code>IncrNodeConcurrent</code> → <code>cubelet.Create</code> → 错误码判断 retry/reschedule → <code>DecrNodeConcurrent</code>。circuit break 错误码 → <code>AddLastBadNode</code>（下次跳过）。详见 <a href="api-master-cubelet-create-chain.html">API 到 Cubelet 创建链路</a> §6。</p>
 <h2 id="3">3. 能力边界</h2>
 <p>CubeMaster 这段 Go 控制面<strong>不区分 arm64/x86_64</strong>。差异落在节点 metadata/instance type/Cubelet-CubeShim-VMM 能否消费相同请求。task 包后台队列不承载 create 主路径（只处理 Destroy/CreateImage/DeleteImage/UpdateSandbox + create 失败清理）。</p></article>
-<aside class="related-reading" aria-labelledby="related-title"><h2 id="related-title">继续阅读</h2><ul><li><strong>项目目录：</strong><a href="../../projects/cubesandbox.html">CubeSandbox</a></li><li><strong>专题目录：</strong><a href="../../topics/lifecycle-control-plane.html">生命周期与控制面</a></li><li><strong>横向比较：</strong><a href="../../analysis/arm64-x86-cross-project-matrix.html">ARM64 与 x86_64 跨项目架构差异专题分析</a></li><li><strong>继续本项目：</strong><a href="cubeshim-container-agent-lifecycle-chain.html">CubeShim Container 到 Guest Agent 生命周期链路</a></li><li><strong>继续本项目：</strong><a href="cubeshim-sandbox-hypervisor-chain.html">CubeShim sandbox 与 CubeHypervisor 创建链路</a></li></ul></aside>
+<aside class="related-reading" aria-labelledby="related-title"><h2 id="related-title">继续阅读</h2><ul><li><strong>项目目录：</strong><a href="../../projects/cubesandbox.html">CubeSandbox</a></li><li><strong>平台视角：</strong><a href="../../platforms/cubesandbox.html">CubeSandbox</a></li><li><strong>专题目录：</strong><a href="../../topics/lifecycle-control-plane.html">生命周期与控制面</a></li><li><strong>横向比较：</strong><a href="../../analysis/arm64-x86-cross-project-matrix.html">ARM64 与 x86_64 跨项目架构差异专题分析</a></li><li><strong>继续本项目：</strong><a href="cubeshim-container-agent-lifecycle-chain.html">CubeShim Container 到 Guest Agent 生命周期链路</a></li></ul></aside>
     <footer class="page-foot">公开来源：<code>analysis/projects/cubesandbox/cubemaster-scheduler-task-chain.md</code> · 文档 ID：<code>cubesandbox.cubemaster-scheduler-task-chain</code></footer>
   </main>
 </div>

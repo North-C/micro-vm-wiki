@@ -30,7 +30,7 @@
       <a class="back-home" href="../../index.html">首页</a>
     </div>
 <nav class="breadcrumbs" aria-label="面包屑"><ol><li><a href="../../index.html">首页</a></li><li><a href="../../projects/index.html">项目目录</a></li><li><a href="../../projects/cubesandbox.html">CubeSandbox</a></li><li><a href="../../topics/cpu-memory-machine.html">CPU、内存与机器模型</a></li><li aria-current="page">CubeSandbox CPU / vCPU 资源边界链路</li></ol></nav>
-<div class="page-meta" aria-label="文档元数据"><span class="badge">机制解析</span><a class="badge badge-status" href="../../methodology/status-and-evidence.html#status">状态：待固定版本复核</a><span class="badge">CubeSandbox</span></div><p class="status-explainer"><strong>待固定版本复核</strong>表示本文尚未按结构化的 pinned baseline 重新验证，不表示文章内容为假。状态不会因为进入目录或公开站点而自动升级。</p>
+<div class="page-meta" aria-label="文档元数据"><span class="badge">机制解析</span><a class="badge badge-status" href="../../methodology/status-and-evidence.html#status">状态：待固定版本复核</a><span class="badge">CubeSandbox</span><span class="badge">角色：核心研究项目 / 沙箱平台</span></div><p class="status-explainer"><strong>待固定版本复核</strong>表示本文尚未按结构化的 pinned baseline 重新验证，不表示文章内容为假。状态不会因为进入目录或公开站点而自动升级。</p>
     <article class="markdown-body"><h1 id="cubesandbox-cpu-vcpu">CubeSandbox CPU / vCPU 资源边界链路</h1>
 <p>本文承接 <a href="runtime-control-vmm-update-chain.html">运行期控制与 VMM 更新链路</a>、<a href="cubehypervisor-api-request-chain.html">CubeHypervisor API Request 内部调度链路</a> 和 <a href="arch-arm64-x86-chain.html">ARM64 与 x86_64 架构差异链路</a>，回答：CubeSandbox 的 CPU/vCPU 资源语义跨了哪几层，哪些是 VMM 级、哪些是平台或容器级。</p>
 <p>源码基线：当前工作树。</p>
@@ -199,7 +199,7 @@ impl VmConfig {
 <blockquote>
 <p><strong>诚实声明</strong>：当前开源代码里，VMM resize 的证据主要来自测试文件（<code>integration.rs</code>），独立的 guest CPU online agent API 未见明确暴露。后续补这条线，更值的不是再加抽象图，而是围绕 <strong>ARM64 guest online 证据 / container quota/cpuset 最终状态 / VMM resize 后真实观测</strong> 去补更实的样本或诊断路径。</p>
 </blockquote></article>
-<aside class="related-reading" aria-labelledby="related-title"><h2 id="related-title">继续阅读</h2><ul><li><strong>项目目录：</strong><a href="../../projects/cubesandbox.html">CubeSandbox</a></li><li><strong>专题目录：</strong><a href="../../topics/cpu-memory-machine.html">CPU、内存与机器模型</a></li><li><strong>横向比较：</strong><a href="../../analysis/cpu-interrupt-machine-cross-project.html">CPU、中断控制器与机器描述跨项目专题分析</a></li><li><strong>继续本项目：</strong><a href="arch-arm64-x86-chain.html">CubeSandbox ARM64 与 x86_64 架构差异链路</a></li></ul></aside>
+<aside class="related-reading" aria-labelledby="related-title"><h2 id="related-title">继续阅读</h2><ul><li><strong>项目目录：</strong><a href="../../projects/cubesandbox.html">CubeSandbox</a></li><li><strong>平台视角：</strong><a href="../../platforms/cubesandbox.html">CubeSandbox</a></li><li><strong>专题目录：</strong><a href="../../topics/cpu-memory-machine.html">CPU、内存与机器模型</a></li><li><strong>横向比较：</strong><a href="../../analysis/cpu-interrupt-machine-cross-project.html">CPU、中断控制器与机器描述跨项目专题分析</a></li><li><strong>继续本项目：</strong><a href="arch-arm64-x86-chain.html">CubeSandbox ARM64 与 x86_64 架构差异链路</a></li></ul></aside>
     <footer class="page-foot">公开来源：<code>analysis/projects/cubesandbox/cpu-vcpu-resource-boundary-chain.md</code> · 文档 ID：<code>cubesandbox.cpu-vcpu-resource-boundary-chain</code></footer>
   </main>
 </div>

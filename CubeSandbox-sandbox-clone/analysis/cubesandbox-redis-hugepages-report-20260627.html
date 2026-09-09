@@ -30,7 +30,7 @@
       <a class="back-home" href="../../index.html">首页</a>
     </div>
 <nav class="breadcrumbs" aria-label="面包屑"><ol><li><a href="../../index.html">首页</a></li><li><a href="../../projects/index.html">项目目录</a></li><li><a href="../../projects/cubesandbox.html">CubeSandbox</a></li><li><a href="../../topics/operations-observability-performance.html">操作、可观测性与性能</a></li><li aria-current="page">CubeSandbox Redis Benchmark 静态大页/zram 对比报告</li></ol></nav>
-<div class="page-meta" aria-label="文档元数据"><span class="badge">参考资料</span><a class="badge badge-status" href="../../methodology/status-and-evidence.html#status">状态：历史参考</a><span class="badge">CubeSandbox</span></div><p class="status-explainer"><strong>历史参考</strong>表示本文保留原始范围，不代表当前上游实现。</p>
+<div class="page-meta" aria-label="文档元数据"><span class="badge">参考资料</span><a class="badge badge-status" href="../../methodology/status-and-evidence.html#status">状态：历史参考</a><span class="badge">CubeSandbox</span><span class="badge">角色：核心研究项目 / 沙箱平台</span></div><p class="status-explainer"><strong>历史参考</strong>表示本文保留原始范围，不代表当前上游实现。</p>
     <article class="markdown-body"><h1 id="cubesandbox-redis-benchmark-zram">CubeSandbox Redis Benchmark 静态大页/zram 对比报告</h1>
 <h2 id="_1">测试条件</h2>
 <table>
@@ -295,7 +295,7 @@ Hugetlb:               0 kB
 <h2 id="_7">结论</h2>
 <p>在本次单轮 Redis 业务型负载中，静态大页占用 40% 宿主机内存后，SET 吞吐下降 <code>3.50%</code>，GET 吞吐提升 <code>18.31%</code>。在同样静态大页压力下启用 40% zram swap 后，SET 吞吐相对基线提升 <code>11.48%</code>，GET 吞吐相对基线提升 <code>26.08%</code>。</p>
 <p>需要注意，Redis benchmark 本轮没有触发 zram swap 使用，且每个场景只跑了一轮；GET/SET 的提升更可能受到短时调度、NUMA、缓存状态或 benchmark 波动影响。若要把该结果作为稳定基线，建议后续每个场景至少重复 <code>3-5</code> 次，取中位数和 p95，并固定沙箱 NUMA placement 后再比较。</p></article>
-<aside class="related-reading" aria-labelledby="related-title"><h2 id="related-title">继续阅读</h2><ul><li><strong>项目目录：</strong><a href="../../projects/cubesandbox.html">CubeSandbox</a></li><li><strong>专题目录：</strong><a href="../../topics/operations-observability-performance.html">操作、可观测性与性能</a></li><li><strong>横向比较：</strong><a href="../../analysis/observability-diagnostics-cross-project.html">可观测性与故障诊断跨项目专题分析</a></li><li><strong>继续本项目：</strong><a href="observability-diagnostics-chain.html">CubeSandbox 可观测性与诊断机制链路</a></li><li><strong>继续本项目：</strong><a href="performance-mechanisms-community-benchmark-analysis.html">CubeSandbox 性能机制与社区基准测试项分析</a></li></ul></aside>
+<aside class="related-reading" aria-labelledby="related-title"><h2 id="related-title">继续阅读</h2><ul><li><strong>项目目录：</strong><a href="../../projects/cubesandbox.html">CubeSandbox</a></li><li><strong>平台视角：</strong><a href="../../platforms/cubesandbox.html">CubeSandbox</a></li><li><strong>专题目录：</strong><a href="../../topics/operations-observability-performance.html">操作、可观测性与性能</a></li><li><strong>横向比较：</strong><a href="../../analysis/observability-diagnostics-cross-project.html">可观测性与故障诊断跨项目专题分析</a></li><li><strong>继续本项目：</strong><a href="observability-diagnostics-chain.html">CubeSandbox 可观测性与诊断机制链路</a></li></ul></aside>
     <footer class="page-foot">公开来源：<code>analysis/projects/cubesandbox/cubesandbox-redis-hugepages-report-20260627.md</code> · 文档 ID：<code>cubesandbox.cubesandbox-redis-hugepages-report-20260627</code></footer>
   </main>
 </div>

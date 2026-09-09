@@ -30,7 +30,7 @@
       <a class="back-home" href="../../index.html">首页</a>
     </div>
 <nav class="breadcrumbs" aria-label="面包屑"><ol><li><a href="../../index.html">首页</a></li><li><a href="../../projects/index.html">项目目录</a></li><li><a href="../../projects/cubesandbox.html">CubeSandbox</a></li><li><a href="../../topics/snapshot-restore-migration.html">Snapshot、Restore 与 Migration</a></li><li aria-current="page">CubeMaster Snapshot Job Contract 链路</li></ol></nav>
-<div class="page-meta" aria-label="文档元数据"><span class="badge">机制解析</span><a class="badge badge-status" href="../../methodology/status-and-evidence.html#status">状态：待固定版本复核</a><span class="badge">CubeSandbox</span></div><p class="status-explainer"><strong>待固定版本复核</strong>表示本文尚未按结构化的 pinned baseline 重新验证，不表示文章内容为假。状态不会因为进入目录或公开站点而自动升级。</p>
+<div class="page-meta" aria-label="文档元数据"><span class="badge">机制解析</span><a class="badge badge-status" href="../../methodology/status-and-evidence.html#status">状态：待固定版本复核</a><span class="badge">CubeSandbox</span><span class="badge">角色：核心研究项目 / 沙箱平台</span></div><p class="status-explainer"><strong>待固定版本复核</strong>表示本文尚未按结构化的 pinned baseline 重新验证，不表示文章内容为假。状态不会因为进入目录或公开站点而自动升级。</p>
     <article class="markdown-body"><h1 id="cubemaster-snapshot-job-contract">CubeMaster Snapshot Job Contract 链路</h1>
 <p>本文展开 CubeMaster templatecenter 如何把同步 API 转成 snapshot job、Cubelet gRPC 和 READY/FAILED 终态。</p>
 <p>源码基线：当前仓库工作树。</p>
@@ -61,7 +61,7 @@ func runSnapshotCreateJob(ctx, jobID, sandboxID, nodeID, nodeIP, createReq, stor
 </blockquote>
 <h2 id="2">2. 能力边界</h2>
 <p>Master snapshot job 层<strong>不区分 arm64/x86_64</strong>。架构差异发生在 Cubelet/CubeShim/CubeHypervisor 处理 rootfs/memory/设备/中断时。调度 task/retry 主要服务 sandbox create/template image 路径——不是 snapshot job 的主执行机制（snapshot job 经 templatecenter 直接调 Cubelet）。</p></article>
-<aside class="related-reading" aria-labelledby="related-title"><h2 id="related-title">继续阅读</h2><ul><li><strong>项目目录：</strong><a href="../../projects/cubesandbox.html">CubeSandbox</a></li><li><strong>专题目录：</strong><a href="../../topics/snapshot-restore-migration.html">Snapshot、Restore 与 Migration</a></li><li><strong>横向比较：</strong><a href="../../analysis/snapshot-restore-cross-project.html">Snapshot / Restore / Clone 跨项目专题分析</a></li><li><strong>继续本项目：</strong><a href="interrupt-state-restore-chain.html">CubeSandbox 中断状态恢复链路（snapshot → restore → route re-enable）</a></li><li><strong>继续本项目：</strong><a href="rollback-runtime-update-chain.html">CubeSandbox Rollback / Runtime Update 链路</a></li></ul></aside>
+<aside class="related-reading" aria-labelledby="related-title"><h2 id="related-title">继续阅读</h2><ul><li><strong>项目目录：</strong><a href="../../projects/cubesandbox.html">CubeSandbox</a></li><li><strong>平台视角：</strong><a href="../../platforms/cubesandbox.html">CubeSandbox</a></li><li><strong>专题目录：</strong><a href="../../topics/snapshot-restore-migration.html">Snapshot、Restore 与 Migration</a></li><li><strong>横向比较：</strong><a href="../../analysis/snapshot-restore-cross-project.html">Snapshot / Restore / Clone 跨项目专题分析</a></li><li><strong>继续本项目：</strong><a href="interrupt-state-restore-chain.html">CubeSandbox 中断状态恢复链路（snapshot → restore → route re-enable）</a></li></ul></aside>
     <footer class="page-foot">公开来源：<code>analysis/projects/cubesandbox/cubemaster-snapshot-job-contract-chain.md</code> · 文档 ID：<code>cubesandbox.cubemaster-snapshot-job-contract-chain</code></footer>
   </main>
 </div>

@@ -30,7 +30,7 @@
       <a class="back-home" href="../../index.html">首页</a>
     </div>
 <nav class="breadcrumbs" aria-label="面包屑"><ol><li><a href="../../index.html">首页</a></li><li><a href="../../projects/index.html">项目目录</a></li><li><a href="../../projects/cubesandbox.html">CubeSandbox</a></li><li><a href="../../topics/lifecycle-control-plane.html">生命周期与控制面</a></li><li aria-current="page">CubeSandbox Sandbox Ready 生命周期链路</li></ol></nav>
-<div class="page-meta" aria-label="文档元数据"><span class="badge">机制解析</span><a class="badge badge-status" href="../../methodology/status-and-evidence.html#status">状态：待固定版本复核</a><span class="badge">CubeSandbox</span></div><p class="status-explainer"><strong>待固定版本复核</strong>表示本文尚未按结构化的 pinned baseline 重新验证，不表示文章内容为假。状态不会因为进入目录或公开站点而自动升级。</p>
+<div class="page-meta" aria-label="文档元数据"><span class="badge">机制解析</span><a class="badge badge-status" href="../../methodology/status-and-evidence.html#status">状态：待固定版本复核</a><span class="badge">CubeSandbox</span><span class="badge">角色：核心研究项目 / 沙箱平台</span></div><p class="status-explainer"><strong>待固定版本复核</strong>表示本文尚未按结构化的 pinned baseline 重新验证，不表示文章内容为假。状态不会因为进入目录或公开站点而自动升级。</p>
     <article class="markdown-body"><h1 id="cubesandbox-sandbox-ready">CubeSandbox Sandbox Ready 生命周期链路</h1>
 <p>本文追踪创建请求如何从 Cubelet workflow 进入 containerd/CubeShim/VM/guest agent，回答：平台返回成功时哪些层级已 ready。</p>
 <p>源码基线：当前仓库工作树。</p>
@@ -106,7 +106,7 @@ match &amp;wait_res {
 </blockquote>
 <h2 id="2">2. 能力边界</h2>
 <p>CubeSandbox 的 ready <strong>不是单点状态</strong>——需 VMM boot + SysCtrl ready + vsock server ready + agent RPC CreateSandbox 全部收敛。任何一步失败都会导致 workflow failover（异步 destroy + cleanup）。ARM64/x86_64 在 workflow 层不分支——差异在 CubeShim/CubeHypervisor/guest kernel/CubeVS eBPF 的 ARM64 端到端验证面。</p></article>
-<aside class="related-reading" aria-labelledby="related-title"><h2 id="related-title">继续阅读</h2><ul><li><strong>项目目录：</strong><a href="../../projects/cubesandbox.html">CubeSandbox</a></li><li><strong>专题目录：</strong><a href="../../topics/lifecycle-control-plane.html">生命周期与控制面</a></li><li><strong>横向比较：</strong><a href="../../analysis/arm64-x86-cross-project-matrix.html">ARM64 与 x86_64 跨项目架构差异专题分析</a></li><li><strong>继续本项目：</strong><a href="sandbox-vm-container-template-runtime-hierarchy.html">CubeSandbox Sandbox / VM / Container 层次与 OCI Template 运行链路</a></li><li><strong>继续本项目：</strong><a href="template-build-from-oci-chain.html">CubeSandbox Template 构建链路：从 OCI 镜像到 Template</a></li></ul></aside>
+<aside class="related-reading" aria-labelledby="related-title"><h2 id="related-title">继续阅读</h2><ul><li><strong>项目目录：</strong><a href="../../projects/cubesandbox.html">CubeSandbox</a></li><li><strong>平台视角：</strong><a href="../../platforms/cubesandbox.html">CubeSandbox</a></li><li><strong>专题目录：</strong><a href="../../topics/lifecycle-control-plane.html">生命周期与控制面</a></li><li><strong>横向比较：</strong><a href="../../analysis/arm64-x86-cross-project-matrix.html">ARM64 与 x86_64 跨项目架构差异专题分析</a></li><li><strong>继续本项目：</strong><a href="sandbox-vm-container-template-runtime-hierarchy.html">CubeSandbox Sandbox / VM / Container 层次与 OCI Template 运行链路</a></li></ul></aside>
     <footer class="page-foot">公开来源：<code>analysis/projects/cubesandbox/sandbox-ready-lifecycle-chain.md</code> · 文档 ID：<code>cubesandbox.sandbox-ready-lifecycle-chain</code></footer>
   </main>
 </div>

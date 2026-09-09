@@ -30,7 +30,7 @@
       <a class="back-home" href="../../index.html">首页</a>
     </div>
 <nav class="breadcrumbs" aria-label="面包屑"><ol><li><a href="../../index.html">首页</a></li><li><a href="../../projects/index.html">项目目录</a></li><li><a href="../../projects/cubesandbox.html">CubeSandbox</a></li><li><a href="../../topics/network-isolation.html">网络与隔离</a></li><li aria-current="page">CubeVS eBPF 数据面链路</li></ol></nav>
-<div class="page-meta" aria-label="文档元数据"><span class="badge">机制解析</span><a class="badge badge-status" href="../../methodology/status-and-evidence.html#status">状态：待固定版本复核</a><span class="badge">CubeSandbox</span></div><p class="status-explainer"><strong>待固定版本复核</strong>表示本文尚未按结构化的 pinned baseline 重新验证，不表示文章内容为假。状态不会因为进入目录或公开站点而自动升级。</p>
+<div class="page-meta" aria-label="文档元数据"><span class="badge">机制解析</span><a class="badge badge-status" href="../../methodology/status-and-evidence.html#status">状态：待固定版本复核</a><span class="badge">CubeSandbox</span><span class="badge">角色：核心研究项目 / 沙箱平台</span></div><p class="status-explainer"><strong>待固定版本复核</strong>表示本文尚未按结构化的 pinned baseline 重新验证，不表示文章内容为假。状态不会因为进入目录或公开站点而自动升级。</p>
     <article class="markdown-body"><h1 id="cubevs-ebpf">CubeVS eBPF 数据面链路</h1>
 <p>本文深入 CubeVS：Go API、pinned map、TC program 和包路径分开说明，避免把控制面动作误认为数据面动作。</p>
 <p>源码基线：当前仓库工作树。</p>
@@ -133,7 +133,7 @@ func AddTAPDevice(ifindex uint32, ip net.IP, id string, version uint32, opts MVM
 </table>
 <h2 id="3">3. 能力边界</h2>
 <p>CubeVS 控制面（Go API）由 network-agent 调用，数据面（TC program）由内核执行。ARM64 关注点不在 Go 层 API，而在内核 verifier、TC attach、helper 支持和 eBPF object 兼容性。CubeVS 不参与 virtio 中断——它只处理 host 侧 TAP 的包转发/NAT/policy。</p></article>
-<aside class="related-reading" aria-labelledby="related-title"><h2 id="related-title">继续阅读</h2><ul><li><strong>项目目录：</strong><a href="../../projects/cubesandbox.html">CubeSandbox</a></li><li><strong>专题目录：</strong><a href="../../topics/network-isolation.html">网络与隔离</a></li><li><strong>横向比较：</strong><a href="../../analysis/device-model-isolation-cross-project.html">设备模型与隔离边界跨项目专题分析</a></li><li><strong>继续本项目：</strong><a href="guest-agent-network-config-chain.html">Guest Agent 网络配置链路</a></li><li><strong>继续本项目：</strong><a href="network-agent-ensure-network-chain.html">Network-Agent EnsureNetwork 链路</a></li></ul></aside>
+<aside class="related-reading" aria-labelledby="related-title"><h2 id="related-title">继续阅读</h2><ul><li><strong>项目目录：</strong><a href="../../projects/cubesandbox.html">CubeSandbox</a></li><li><strong>平台视角：</strong><a href="../../platforms/cubesandbox.html">CubeSandbox</a></li><li><strong>专题目录：</strong><a href="../../topics/network-isolation.html">网络与隔离</a></li><li><strong>横向比较：</strong><a href="../../analysis/device-model-isolation-cross-project.html">设备模型与隔离边界跨项目专题分析</a></li><li><strong>继续本项目：</strong><a href="guest-agent-network-config-chain.html">Guest Agent 网络配置链路</a></li></ul></aside>
     <footer class="page-foot">公开来源：<code>analysis/projects/cubesandbox/cubevs-ebpf-data-plane-chain.md</code> · 文档 ID：<code>cubesandbox.cubevs-ebpf-data-plane-chain</code></footer>
   </main>
 </div>
