@@ -117,7 +117,7 @@
     return [entry.title, entry.summary]
       .concat(
         entry.headings || [], entry.projects || [], entry.platforms || [], entry.integrates_with_projects || [],
-        entry.topics || [], entry.tags || [], entry.baselines || [], entry.architectures || [],
+        entry.topics || [], entry.curated_topics || [], entry.tags || [], entry.baselines || [], entry.architectures || [],
         (entry.component_baselines || []).map(function (item) { return item.component + ' ' + item.version + ' ' + item.commit; })
       )
       .join(' ')

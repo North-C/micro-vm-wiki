@@ -267,6 +267,19 @@ html.dark .badge-status { color: #e3b341; }
 .card h2,
 .card h3 { margin-top: 0; border: 0; }
 .card ul { margin-bottom: 0; }
+.curated-stage { margin-top: 2rem; }
+.curated-stage > ol { padding-left: 1.4rem; }
+.curated-card {
+  margin: 0.8rem 0;
+  padding: 0.75rem 0.9rem;
+  border: 1px solid var(--border);
+  border-radius: 0.55rem;
+  background: var(--panel);
+}
+.curated-card h3 { margin: 0 0 0.5rem; }
+.curated-card dl { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 0.2rem 0.7rem; margin: 0; }
+.curated-card dt { color: var(--muted); font-weight: 650; }
+.curated-card dd { margin: 0; overflow-wrap: anywhere; }
 
 .sidebar-scrim { display: none; }
 
@@ -303,6 +316,7 @@ html.dark .badge-status { color: #e3b341; }
   .sidebar { width: min(92vw, 310px); min-width: 0; }
   .back-home { font-size: 0.84rem; }
   .markdown-body h1 { font-size: 1.65rem; }
+  .curated-card dl { grid-template-columns: 1fr; }
 }
 
 @media (prefers-reduced-motion: reduce) {
