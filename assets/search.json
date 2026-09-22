@@ -7481,7 +7481,7 @@
       {
         "id": "cubesandbox-9e2c64ab-20260528",
         "component": "cubesandbox",
-        "version": "pre-soft-dirty",
+        "version": "v0.3.0-rc1^",
         "commit": "9e2c64ab871b77f59ba6fc41cd427bca72dca12a",
         "selected_at": "2026-09-22",
         "review_state": "historical-reference",

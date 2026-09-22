@@ -30,7 +30,7 @@
       <a class="back-home" href="../../index.html">首页</a>
     </div>
 <nav class="breadcrumbs" aria-label="面包屑"><ol><li><a href="../../index.html">首页</a></li><li><a href="../../topics/snapshot-restore-migration.html">Snapshot、Restore 与 Migration</a></li><li aria-current="page">CubeSandbox 增量内存快照演进：从 Full/Incremental 到 SoftDirty 逐周期增量</li></ol></nav>
-<div class="page-meta" aria-label="文档元数据"><span class="badge">机制解析</span><a class="badge badge-status" href="../../methodology/status-and-evidence.html#status">状态：已固定 A/B 源码，运行未验证</a><span class="badge">CubeSandbox</span><span class="badge">角色：核心研究项目 / 沙箱平台</span><a class="badge" href="../../versions/index.html#cubesandbox-9e2c64ab-20260528" title="cubesandbox 9e2c64ab871b77f59ba6fc41cd427bca72dca12a；角色：supporting">版本基线：pre-soft-dirty@9e2c64ab871b</a><a class="badge" href="../../versions/index.html#cubesandbox-62e0d56d-20260528" title="cubesandbox 62e0d56d80cdf86d4b3ad83f7dc1e5b8253528c4；角色：primary">版本基线：v0.3.0-rc1@62e0d56d80cd</a><span class="badge">复核日期：2026-09-22</span></div><p class="status-explainer"><strong>已固定 A/B 源码，运行未验证</strong>：本文的行为结论已在两端固定提交上完成源码级复核，但未运行任何 build/runtime/快照/benchmark 验证，也不表示任何一端是上游最新版本。</p>
+<div class="page-meta" aria-label="文档元数据"><span class="badge">机制解析</span><a class="badge badge-status" href="../../methodology/status-and-evidence.html#status">状态：已固定 A/B 源码，运行未验证</a><span class="badge">CubeSandbox</span><span class="badge">角色：核心研究项目 / 沙箱平台</span><a class="badge" href="../../versions/index.html#cubesandbox-9e2c64ab-20260528" title="cubesandbox 9e2c64ab871b77f59ba6fc41cd427bca72dca12a；角色：supporting">版本基线：v0.3.0-rc1^@9e2c64ab871b</a><a class="badge" href="../../versions/index.html#cubesandbox-62e0d56d-20260528" title="cubesandbox 62e0d56d80cdf86d4b3ad83f7dc1e5b8253528c4；角色：primary">版本基线：v0.3.0-rc1@62e0d56d80cd</a><span class="badge">复核日期：2026-09-22</span></div><p class="status-explainer"><strong>已固定 A/B 源码，运行未验证</strong>：本文的行为结论已在两端固定提交上完成源码级复核，但未运行任何 build/runtime/快照/benchmark 验证，也不表示任何一端是上游最新版本。</p>
     <article class="markdown-body"><h1 id="cubesandbox-fullincremental-softdirty">CubeSandbox 增量内存快照演进：从 Full/Incremental 到 SoftDirty 逐周期增量</h1>
 <p>本文回答一个版本演进问题：CubeSandbox 从提交 A 到提交 B，内存快照的增量
 捕获机制发生了什么变化，为什么变，影响与代价是什么？</p>
@@ -56,6 +56,7 @@ evidence，未经运行验证。</p>
 <thead>
 <tr>
 <th>端</th>
+<th>版本基线</th>
 <th>完整提交</th>
 <th>提交者（committer）时间</th>
 <th>提交标题</th>
@@ -65,6 +66,7 @@ evidence，未经运行验证。</p>
 <tbody>
 <tr>
 <td>A（前）</td>
+<td><code>v0.3.0-rc1^</code>（B 的直接父提交；无独立 tag）</td>
 <td><code>9e2c64ab871b77f59ba6fc41cd427bca72dca12a</code></td>
 <td>2026-05-28 21:41:36 +0800（author maxlong 21:38:37）</td>
 <td><code>test(python-sdk): cover stderr and harden file fallback</code></td>
@@ -72,6 +74,7 @@ evidence，未经运行验证。</p>
 </tr>
 <tr>
 <td>B（后）</td>
+<td><code>v0.3.0-rc1</code></td>
 <td><code>62e0d56d80cdf86d4b3ad83f7dc1e5b8253528c4</code></td>
 <td>2026-05-28 21:49:57 +0800（author 与 committer 同时刻）</td>
 <td><code>feat(snapshot): add soft-dirty per-cycle incremental memory snapshots (#389)</code></td>
@@ -87,6 +90,8 @@ committer 时间为 2026-07-13（author 2026-07-10）。</p>
 <li>B 是 canonical 分析基线 <code>5135a40d…</code> 的祖先（merge-base 成立），即本机制
   随后的演化（含下文页大小修复）都在当前基线的历史链上。</li>
 <li>标签只作身份说明；两端身份以完整提交哈希为准。</li>
+<li><code>v0.3.0-rc1^</code> 是 Git 的相对版本标记，明确表示
+  “<code>v0.3.0-rc1</code> 的直接父提交”，不是虚构的官方发行版本。</li>
 </ul>
 <h2 id="_1">背景与术语</h2>
 <ul>

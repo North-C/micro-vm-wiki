@@ -391,8 +391,8 @@
   },
   {
     "path": "assets/search.json",
-    "size": 276767,
-    "sha256": "e39b9030d3fd941ba0156e48fe0c33a5ba5c5cf964d3028c4fd0c0b226880b79"
+    "size": 276764,
+    "sha256": "c9b169d414f2bddeffa51d09cc4fb3a82479c9487f9677ac99a80b2aa8eb82b6"
   },
   {
     "path": "assets/style.css",
@@ -626,13 +626,13 @@
   },
   {
     "path": "evolution/cubesandbox/soft-dirty-snapshot.html",
-    "size": 37189,
-    "sha256": "d95fcea33bb9364aa04846336e8889df7e64a3ee22875502fb6cbeb6642efbaa"
+    "size": 37486,
+    "sha256": "438d9a8bd93f7056b9358b0bbe3297ca0acb7e1fa27e81104b1d57901a4eccbb"
   },
   {
     "path": "evolution/index.html",
-    "size": 5433,
-    "sha256": "42466898a61e74e08ab77f7276d3c77daad9be890c5bd5e1de9e6e34822e8e24"
+    "size": 5501,
+    "sha256": "98770f3d08ee3dbd5b4c9033205cbd08a05c0b256120468359c3d502e2643229"
   },
   {
     "path": "firecracker/analysis/api-event-loop-thread-chain.html",
@@ -901,8 +901,8 @@
   },
   {
     "path": "platforms/cubesandbox.html",
-    "size": 12433,
-    "sha256": "6f57c8df2ed8673d16006f6be2bc5e3d0f07653cf66894e9c6dce015fa20a202"
+    "size": 12456,
+    "sha256": "3b8884fced112af5ecac5197839af7d8ae588431ab6254018c8d5a82ba47fbf3"
   },
   {
     "path": "platforms/e2b-infra/architecture-and-sandbox-lifecycle.html",
@@ -936,8 +936,8 @@
   },
   {
     "path": "projects/cubesandbox.html",
-    "size": 11870,
-    "sha256": "a15ee1336051fdf7fe15921bf244878e8c160b8e645bdadda328586f8d66ef67"
+    "size": 11893,
+    "sha256": "b8b4d661e7b34dc32d4798f11065b0962442945d79db47249da708df9380c13d"
   },
   {
     "path": "projects/firecracker.html",
@@ -971,8 +971,8 @@
   },
   {
     "path": "topics/curated/template-snapshot.html",
-    "size": 19231,
-    "sha256": "d5a1e8a7e29e942ba3c4a8c8a3cc1370fbdc553298da6abb29f221a9a97b070d"
+    "size": 19254,
+    "sha256": "fe8937d30ac76a8eac3547fee2457d03f4650bd32a2f0d5d0831381615efbc86"
   },
   {
     "path": "topics/index.html",
@@ -996,8 +996,8 @@
   },
   {
     "path": "topics/snapshot-restore-migration.html",
-    "size": 8969,
-    "sha256": "a7a8c0486b0a43843c9748ff829535131affd5edde99faa7c692f5043202f28e"
+    "size": 8992,
+    "sha256": "78ba8ba5aed8d2f001c0309d231d1c855ceca73e4b9d8d2a2e954ae7928e6bc8"
   },
   {
     "path": "topics/storage-device-io.html",
@@ -1006,7 +1006,7 @@
   },
   {
     "path": "versions/index.html",
-    "size": 8809,
-    "sha256": "bc2b059090fb526bf075f0930ff5ed67ccb1ec52972d3ded9c2e7eee199bb720"
+    "size": 8800,
+    "sha256": "7c637c84bfd9faf350e35aa618ce5fc752783834825d35cfb980dce2b2ad99d8"
   }
 ]
