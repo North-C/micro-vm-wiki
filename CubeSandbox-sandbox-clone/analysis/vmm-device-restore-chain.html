@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="CubeSandbox VMM Device Restore 设备恢复链路 本文展开 VMM Snapshot Restore 状态恢复链路 vmm-snapshot-restore-state-chain.md 的下一步，聚焦 DeviceManager::create devices 与 DeviceManager::restore devices 如何协同恢复设备拓扑、后端和内部状态。 结论只来自当前仓库源码。 中断状态恢复（GIC/ITS/MSI-X route re-enable）见 中断状态恢复链路 i">
+<meta name="description" content="CubeSandbox VMM Device Restore 设备恢复链路 本文展开 VMM Snapshot Restore 状态恢复链路 vmm-snapshot-restore-state-chain.md 的下一步，聚焦 DeviceManager::create devices 与 DeviceManager::restore devices 如何协同恢复设备拓扑、后端和内部状态。 源码基线固定为 CubeSandbox canonical 工作树提交 5135a40d86c94a85fe2521fd9e">
 <meta property="og:type" content="article">
 <meta property="og:title" content="CubeSandbox VMM Device Restore 设备恢复链路">
-<meta property="og:description" content="CubeSandbox VMM Device Restore 设备恢复链路 本文展开 VMM Snapshot Restore 状态恢复链路 vmm-snapshot-restore-state-chain.md 的下一步，聚焦 DeviceManager::create devices 与 DeviceManager::restore devices 如何协同恢复设备拓扑、后端和内部状态。 结论只来自当前仓库源码。 中断状态恢复（GIC/ITS/MSI-X route re-enable）见 中断状态恢复链路 i">
+<meta property="og:description" content="CubeSandbox VMM Device Restore 设备恢复链路 本文展开 VMM Snapshot Restore 状态恢复链路 vmm-snapshot-restore-state-chain.md 的下一步，聚焦 DeviceManager::create devices 与 DeviceManager::restore devices 如何协同恢复设备拓扑、后端和内部状态。 源码基线固定为 CubeSandbox canonical 工作树提交 5135a40d86c94a85fe2521fd9e">
 <link rel="canonical" href="https://north-c.github.io/micro-vm-wiki/CubeSandbox-sandbox-clone/analysis/vmm-device-restore-chain.html">
 <title>CubeSandbox VMM Device Restore 设备恢复链路 · Micro-VM 技术研究 Wiki</title>
 <link rel="stylesheet" href="../../assets/style.css">
@@ -20,7 +20,7 @@
     <input id="search" type="search" autocomplete="off" aria-controls="search-results" aria-expanded="false">
     <div id="search-status" class="search-status" role="status" aria-live="polite"></div>
     <div id="search-results" class="search-results" role="listbox"></div>
-    <nav aria-label="主要导航" data-global-nav="true"><ul class="nav-tree"><li><a href="../../index.html">首页</a></li><li><details class="nav-group" open><summary>开始</summary><ul><li><a href="../../analysis/vm-design-landscape-overview.html">从零理解 Micro-VM</a></li><li><a href="../../projects/index.html">按项目查实现</a></li><li><a href="../../topics/index.html">按机制做比较</a></li></ul></details></li><li><details class="nav-group"><summary>项目</summary><ul><li><a href="../../projects/firecracker.html">Firecracker</a></li><li><a href="../../projects/cloud-hypervisor.html">Cloud Hypervisor</a></li><li><a href="../../projects/kata-containers.html">Kata Containers</a></li><li><a href="../../projects/cubesandbox.html">CubeSandbox</a></li><li><a href="../../projects/crosvm.html">crosvm（历史参考）</a></li></ul></details></li><li><details class="nav-group"><summary>沙箱平台</summary><ul><li><a href="../../platforms/index.html">沙箱平台与基础设施</a></li></ul></details></li><li><details class="nav-group"><summary>专题</summary><ul><li><a href="../../topics/lifecycle-control-plane.html">生命周期与控制面</a></li><li><a href="../../topics/cpu-memory-machine.html">CPU、内存与机器模型</a></li><li><a href="../../topics/snapshot-restore-migration.html">Snapshot、Restore 与 Migration</a></li><li><a href="../../topics/storage-device-io.html">存储、设备与 I/O</a></li><li><a href="../../topics/network-isolation.html">网络与隔离</a></li><li><a href="../../topics/operations-observability-performance.html">操作、可观测性与性能</a></li></ul></details></li><li><details class="nav-group"><summary>方法与索引</summary><ul><li><a href="../../methodology/status-and-evidence.html">研究状态与证据方法</a></li><li><a href="../../versions/index.html">版本与证据覆盖</a></li><li><a href="../../changes.html">变更记录</a></li><li><a href="../../sitemap.html">站点地图</a></li></ul></details></li></ul></nav>
+    <nav aria-label="主要导航" data-global-nav="true"><ul class="nav-tree"><li><a href="../../index.html">首页</a></li><li><details class="nav-group" open><summary>三轴入口</summary><ul><li><a href="../../projects/index.html">项目</a></li><li><a href="../../topics/index.html">特性与横向比较</a></li><li><a href="../../evolution/index.html">版本演进</a></li></ul></details></li><li><details class="nav-group"><summary>方法与索引</summary><ul><li><a href="../../methodology/status-and-evidence.html">研究方法与报告规范</a></li><li><a href="../../versions/index.html">版本与证据覆盖</a></li><li><a href="../../changes.html">Wiki 更新记录</a></li><li><a href="../../sitemap.html">站点地图</a></li></ul></details></li></ul></nav>
   </aside>
   <button class="sidebar-scrim" id="sidebar-scrim" aria-label="关闭导航"></button>
   <main class="content" id="main-content" tabindex="-1">
@@ -30,10 +30,10 @@
       <a class="back-home" href="../../index.html">首页</a>
     </div>
 <nav class="breadcrumbs" aria-label="面包屑"><ol><li><a href="../../index.html">首页</a></li><li><a href="../../projects/index.html">项目目录</a></li><li><a href="../../projects/cubesandbox.html">CubeSandbox</a></li><li><a href="../../topics/snapshot-restore-migration.html">Snapshot、Restore 与 Migration</a></li><li aria-current="page">CubeSandbox VMM Device Restore 设备恢复链路</li></ol></nav>
-<div class="page-meta" aria-label="文档元数据"><span class="badge">机制解析</span><a class="badge badge-status" href="../../methodology/status-and-evidence.html#status">状态：待固定版本复核</a><span class="badge">CubeSandbox</span><span class="badge">角色：核心研究项目 / 沙箱平台</span></div><p class="status-explainer"><strong>待固定版本复核</strong>表示本文尚未按结构化的 pinned baseline 重新验证，不表示文章内容为假。状态不会因为进入目录或公开站点而自动升级。</p>
+<div class="page-meta" aria-label="文档元数据"><span class="badge">机制解析</span><a class="badge badge-status" href="../../methodology/status-and-evidence.html#status">状态：源码版本已固定，证据仍未完备</a><span class="badge">CubeSandbox</span><span class="badge">角色：核心研究项目 / 沙箱平台</span><a class="badge" href="../../versions/index.html#cubesandbox-5135a40d-20260731" title="cubesandbox 5135a40d86c94a85fe2521fd9ed913ac5fd6cfd9；角色：primary">版本基线：commit-pinned@5135a40d86c9</a><span class="badge">复核日期：2026-09-22</span></div><p class="status-explainer"><strong>源码版本已固定，证据仍未完备</strong>是本文的读者状态：页面已按显示的固定源码版本完成版本登记与源码级复核，但 build、runtime、跨组件或完整 claim-level 证据尚未齐备；机器状态保持 <code>unconfirmed</code>，登记 baseline 不会自动升级为 <code>current</code>。</p>
     <article class="markdown-body"><h1 id="cubesandbox-vmm-device-restore">CubeSandbox VMM Device Restore 设备恢复链路</h1>
 <p>本文展开 <a href="vmm-snapshot-restore-state-chain.html">VMM Snapshot Restore 状态恢复链路</a> 的下一步，聚焦 <code>DeviceManager::create_devices()</code> 与 <code>DeviceManager::restore_devices()</code> 如何协同恢复设备拓扑、后端和内部状态。</p>
-<p>结论只来自当前仓库源码。</p>
+<p>源码基线固定为 CubeSandbox canonical 工作树提交 <code>5135a40d86c94a85fe2521fd9ed913ac5fd6cfd9</code>（分支记录为 <code>0731-after-v0.6.0</code>）。结论只来自该基线源码。</p>
 <blockquote>
 <p>中断状态恢复（GIC/ITS/MSI-X route re-enable）见 <a href="interrupt-state-restore-chain.html">中断状态恢复链路</a>；virtio-net/fs 设备内部状态见 <a href="virtio-net-fs-restore-chain.html">Virtio Net/Fs Restore 链路</a>。</p>
 </blockquote>
@@ -64,8 +64,8 @@
 </table>
 <h3 id="_2">关键概念</h3>
 <ul>
-<li><strong>device tree</strong>：restore 的<strong>物理拓扑记录</strong>。不只是逻辑设备列表，还保存 parent/children 关系、PCI BDF、BAR/MMIO 资源（<code>Resource::MmioAddressRange</code>）。<code>DeviceManagerState</code> 只有 <code>device_tree</code> 和 <code>device_id_cnt</code> 两个字段（<code>device_manager.rs:1305</code>）。</li>
-<li><strong><code>restoring</code> 标志</strong>：<code>Vm::new_from_memory_manager()</code> 创建 DeviceManager 时传入（<code>vm.rs:557</code>）。restore 路径下 <code>restoring=true</code>，设备构造函数据此决定"复用快照资源"还是"新分配"。</li>
+<li><strong>device tree</strong>：restore 的<strong>物理拓扑记录</strong>。不只是逻辑设备列表，还保存 parent/children 关系、PCI BDF、BAR/MMIO 资源（<code>Resource::MmioAddressRange</code>）。<code>DeviceManagerState</code> 只有 <code>device_tree</code> 和 <code>device_id_cnt</code> 两个字段（<code>device_manager.rs:800</code>）。</li>
+<li><strong><code>restoring</code> 标志</strong>：<code>Vm::new_from_memory_manager()</code> 创建 DeviceManager 时传入（<code>vm.rs:509</code>）。restore 路径下 <code>restoring=true</code>，设备构造函数据此决定"复用快照资源"还是"新分配"。</li>
 <li><strong><code>state_from_id(snapshot, id)</code></strong>：多数 virtio 构造函数会调它，把快照里对应 id 的子状态传给设备对象——所以设备在<strong>构造阶段</strong>就已经读到了自己的快照状态。</li>
 <li><strong><code>Migratable</code> trait</strong>：设备实现 <code>snapshot()</code>/<code>restore()</code>/<code>pause()</code>。阶段 ② 只对 <code>node.migratable</code> 非空的节点操作。</li>
 </ul>
@@ -115,10 +115,10 @@
     Console --&gt; Virtio[&quot;make_virtio_devices&quot;]
     Virtio --&gt; PCI[&quot;add_pci_devices&quot;]
     PCI --&gt; Other[&quot;pvpanic / ivshmem&quot;]</code></pre></details></figure>
-<p>先建中断控制器再建 legacy interrupt manager（依赖顺序，详见 <a href="virtio-interrupt-injection-trace.html">中断注入 trace §3</a>）→ 挂 MemoryManager ACPI 区 → legacy/ACPI/console/TPM → virtio 设备收集成 <code>MetaVirtioDevice</code> 列表 → <code>add_pci_devices()</code> 统一变 PCI 设备（<code>device_manager.rs:1216/1288</code>）。</p>
+<p>先建中断控制器再建 legacy interrupt manager（依赖顺序，详见 <a href="virtio-interrupt-injection-trace.html">中断注入 trace §3</a>）→ 挂 MemoryManager ACPI 区 → legacy/ACPI/console/TPM → virtio 设备收集成 <code>MetaVirtioDevice</code> 列表 → <code>add_pci_devices()</code> 统一变 PCI 设备（<code>device_manager.rs:1219/1341</code>）。</p>
 <p>阶段 ① 先 <code>set_state()</code>，所以后续构造函数能从<strong>旧 device tree</strong> 找回资源（BDF、BAR、MMIO range）。</p>
 <h2 id="4-virtio">4. virtio 设备构造顺序</h2>
-<p><code>make_virtio_devices()</code> 顺序：block → net → rng → fs → pmem → vsock → mem → balloon → watchdog → vDPA（<code>device_manager.rs:2172</code>）。每个设备先构造自身 virtio backend，再把 migratable 句柄写入 device tree。</p>
+<p><code>make_virtio_devices()</code> 顺序：block → net → rng → fs → pmem → vsock → mem → balloon → watchdog → vDPA（<code>device_manager.rs:2175</code>）。每个设备先构造自身 virtio backend，再把 migratable 句柄写入 device tree。</p>
 <table>
 <thead>
 <tr>
@@ -131,12 +131,12 @@
 <tr>
 <td>block</td>
 <td><code>make_virtio_block_device()</code></td>
-<td>重新打开 disk path，按 id 读设备快照（<code>device_manager.rs:2214</code>）</td>
+<td>重新打开 disk path，按 id 读设备快照（<code>device_manager.rs:2217</code>）</td>
 </tr>
 <tr>
 <td>net</td>
 <td><code>make_virtio_net_device()</code></td>
-<td>tap/fds/ip 后端，按 id 读快照（<code>:2384</code>）</td>
+<td>tap/fds/ip 后端，按 id 读快照（<code>:2387</code>）</td>
 </tr>
 <tr>
 <td>fs</td>
@@ -151,13 +151,13 @@
 <tr>
 <td>vsock</td>
 <td><code>make_virtio_vsock_device()</code></td>
-<td>同时恢复 device 和 backend 子状态（<code>:2898</code>）</td>
+<td>同时恢复 device 和 backend 子状态（<code>:2927</code>）</td>
 </tr>
 </tbody>
 </table>
 <h2 id="5-pmem-file">5. pmem 的资源复用（"换 file，不换地址"）</h2>
 <p>pmem 是理解 restore 拓扑边界的关键。<code>make_virtio_pmem_device()</code> 先查 device tree——找到同 id node 就认为在 restore，从 <code>node.resources</code> 里复用 <code>MmioAddressRange</code>：</p>
-<pre><code class="language-rust">// hypervisor/vmm/src/device_manager.rs:2712
+<pre><code class="language-rust">// hypervisor/vmm/src/device_manager.rs:2733
 let region_range = if let Some(node) = self.device_tree.lock().unwrap().get(&amp;id) {
     debug!(&quot;Restoring virtio-pmem {} resources&quot;, id);
     let mut region_range: Option&lt;(u64, u64)&gt; = None;
@@ -196,10 +196,10 @@ let region_range = if let Some(node) = self.device_tree.lock().unwrap().get(&amp
 <p><strong>这就是"换后端，不换拓扑"的具体实现</strong>：pmem 的 <strong>guest 地址布局来自快照</strong>（base/size 复用），但 <strong>file 来自当前节点</strong>。所以 CubeShim 要在 restore 前对齐 pmem metadata——VMM 能换 file，但不能改 pmem 的 guest 地址。</p>
 </blockquote>
 <h2 id="6-pci-device-tree">6. PCI 包装与 device tree</h2>
-<p>virtio 设备最终包装成 <code>VirtioPciDevice</code>。<code>add_virtio_pci_device()</code> 创建 <code>virtio-pci-&lt;id&gt;</code> 父节点，原 virtio device node 的 parent 指向它（<code>device_manager.rs:3591</code>）；PCI BDF/BAR 经 <code>pci_resources()</code> 分配或复用后写回 node；包装完注册 ioeventfd 并保存 BDF/handle/migratable 句柄（<code>:3699</code>）。<code>AddressManager</code> 在 BAR 更新时同步更新 allocator/bus range/device tree resource（<code>:625</code>）。</p>
+<p>virtio 设备最终包装成 <code>VirtioPciDevice</code>。<code>add_virtio_pci_device()</code> 创建 <code>virtio-pci-&lt;id&gt;</code> 父节点，原 virtio device node 的 parent 指向它（<code>device_manager.rs:3620</code>）；PCI BDF/BAR 经 <code>pci_resources()</code> 分配或复用后写回 node；包装完注册 ioeventfd 并保存 BDF/handle/migratable 句柄（<code>:3741</code>）。<code>AddressManager</code> 在 BAR 更新时同步更新 allocator/bus range/device tree resource（<code>:625</code>）。</p>
 <h2 id="7-restore_devices">7. <code>restore_devices</code> 的顺序语义</h2>
 <p>阶段 ② 的核心是<strong>两组反序遍历 + 组间等待</strong>。源码最能说明：</p>
-<pre><code class="language-rust">// hypervisor/vmm/src/device_manager.rs:4478
+<pre><code class="language-rust">// hypervisor/vmm/src/device_manager.rs:4519
 pub fn restore_devices(&amp;mut self, snapshot: Snapshot) -&gt; Result&lt;(), MigratableError&gt; {
     // 注释：必须按正确顺序恢复——children 先于 parent。所以用 device tree 反序遍历。
     let devices_children: Vec&lt;_&gt; = self.device_tree.lock().unwrap()
@@ -212,7 +212,7 @@ pub fn restore_devices(&amp;mut self, snapshot: Snapshot) -&gt; Result&lt;(), Mi
 }
 </code></pre>
 <p><code>restore_device_node</code> 用 tokio 多线程运行时，<strong>组内并发、组间严格等待</strong>；每个 migratable 节点要求快照里有同 id 子快照（否则 <code>Missing device &lt;id&gt;</code>），且<strong>先 <code>pause()</code> 再 <code>restore()</code></strong>：</p>
-<pre><code class="language-rust">// hypervisor/vmm/src/device_manager.rs:4426
+<pre><code class="language-rust">// hypervisor/vmm/src/device_manager.rs:4467
 rt.block_on(async move {
     let groups = [device_groups.0, device_groups.1];
     for (group_index, nodes) in groups.into_iter().enumerate() {        // 逐组处理
@@ -265,13 +265,13 @@ rt.block_on(async move {
 <tbody>
 <tr>
 <td>interrupt controller</td>
-<td>IOAPIC，进 MMIO bus 和 device tree（<code>:1462</code>）</td>
-<td>GIC 对象，不作为普通 device tree node（<code>:1435</code>）</td>
+<td>IOAPIC，进 MMIO bus 和 device tree（<code>:1466</code>）</td>
+<td>GIC 对象，不作为普通 device tree node（<code>:1439</code>）</td>
 </tr>
 <tr>
 <td>legacy I/O</td>
-<td>PIO + io_bus（<code>:1603</code>）</td>
-<td>MMIO + <code>id_to_dev_info</code>（<code>:1694</code>）</td>
+<td>PIO + io_bus（<code>:1607</code>）</td>
+<td>MMIO + <code>id_to_dev_info</code>（<code>:1698</code>）</td>
 </tr>
 <tr>
 <td>serial</td>
@@ -295,7 +295,7 @@ rt.block_on(async move {
 </tr>
 <tr>
 <td>ACPI serial 描述</td>
-<td>PNP0501 + I/O port（<code>:4710</code>）</td>
+<td>PNP0501 + I/O port（<code>:4774</code>）</td>
 <td>ARMH0011 + MMIO 地址</td>
 </tr>
 </tbody>

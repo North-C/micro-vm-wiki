@@ -20,7 +20,7 @@
     <input id="search" type="search" autocomplete="off" aria-controls="search-results" aria-expanded="false">
     <div id="search-status" class="search-status" role="status" aria-live="polite"></div>
     <div id="search-results" class="search-results" role="listbox"></div>
-    <nav aria-label="主要导航" data-global-nav="true"><ul class="nav-tree"><li><a href="../../index.html">首页</a></li><li><details class="nav-group" open><summary>开始</summary><ul><li><a href="../../analysis/vm-design-landscape-overview.html">从零理解 Micro-VM</a></li><li><a href="../../projects/index.html">按项目查实现</a></li><li><a href="../../topics/index.html">按机制做比较</a></li></ul></details></li><li><details class="nav-group"><summary>项目</summary><ul><li><a href="../../projects/firecracker.html">Firecracker</a></li><li><a href="../../projects/cloud-hypervisor.html">Cloud Hypervisor</a></li><li><a href="../../projects/kata-containers.html">Kata Containers</a></li><li><a href="../../projects/cubesandbox.html">CubeSandbox</a></li><li><a href="../../projects/crosvm.html">crosvm（历史参考）</a></li></ul></details></li><li><details class="nav-group"><summary>沙箱平台</summary><ul><li><a href="../../platforms/index.html">沙箱平台与基础设施</a></li></ul></details></li><li><details class="nav-group"><summary>专题</summary><ul><li><a href="../../topics/lifecycle-control-plane.html">生命周期与控制面</a></li><li><a href="../../topics/cpu-memory-machine.html">CPU、内存与机器模型</a></li><li><a href="../../topics/snapshot-restore-migration.html">Snapshot、Restore 与 Migration</a></li><li><a href="../../topics/storage-device-io.html">存储、设备与 I/O</a></li><li><a href="../../topics/network-isolation.html">网络与隔离</a></li><li><a href="../../topics/operations-observability-performance.html">操作、可观测性与性能</a></li></ul></details></li><li><details class="nav-group"><summary>方法与索引</summary><ul><li><a href="../../methodology/status-and-evidence.html">研究状态与证据方法</a></li><li><a href="../../versions/index.html">版本与证据覆盖</a></li><li><a href="../../changes.html">变更记录</a></li><li><a href="../../sitemap.html">站点地图</a></li></ul></details></li></ul></nav>
+    <nav aria-label="主要导航" data-global-nav="true"><ul class="nav-tree"><li><a href="../../index.html">首页</a></li><li><details class="nav-group" open><summary>三轴入口</summary><ul><li><a href="../../projects/index.html">项目</a></li><li><a href="../../topics/index.html">特性与横向比较</a></li><li><a href="../../evolution/index.html">版本演进</a></li></ul></details></li><li><details class="nav-group"><summary>方法与索引</summary><ul><li><a href="../../methodology/status-and-evidence.html">研究方法与报告规范</a></li><li><a href="../../versions/index.html">版本与证据覆盖</a></li><li><a href="../../changes.html">Wiki 更新记录</a></li><li><a href="../../sitemap.html">站点地图</a></li></ul></details></li></ul></nav>
   </aside>
   <button class="sidebar-scrim" id="sidebar-scrim" aria-label="关闭导航"></button>
   <main class="content" id="main-content" tabindex="-1">
@@ -30,16 +30,16 @@
       <a class="back-home" href="../../index.html">首页</a>
     </div>
 <nav class="breadcrumbs" aria-label="面包屑"><ol><li><a href="../../index.html">首页</a></li><li><a href="../../projects/index.html">项目目录</a></li><li><a href="../../projects/cubesandbox.html">CubeSandbox</a></li><li><a href="../../topics/snapshot-restore-migration.html">Snapshot、Restore 与 Migration</a></li><li aria-current="page">CubeSandbox 中断状态恢复链路（snapshot → restore → route re-enable）</li></ol></nav>
-<div class="page-meta" aria-label="文档元数据"><span class="badge">机制解析</span><a class="badge badge-status" href="../../methodology/status-and-evidence.html#status">状态：待固定版本复核</a><span class="badge">CubeSandbox</span><span class="badge">角色：核心研究项目 / 沙箱平台</span></div><p class="status-explainer"><strong>待固定版本复核</strong>表示本文尚未按结构化的 pinned baseline 重新验证，不表示文章内容为假。状态不会因为进入目录或公开站点而自动升级。</p>
+<div class="page-meta" aria-label="文档元数据"><span class="badge">机制解析</span><a class="badge badge-status" href="../../methodology/status-and-evidence.html#status">状态：源码版本已固定，证据仍未完备</a><span class="badge">CubeSandbox</span><span class="badge">角色：核心研究项目 / 沙箱平台</span><a class="badge" href="../../versions/index.html#cubesandbox-5135a40d-20260731" title="cubesandbox 5135a40d86c94a85fe2521fd9ed913ac5fd6cfd9；角色：primary">版本基线：commit-pinned@5135a40d86c9</a><span class="badge">复核日期：2026-09-22</span></div><p class="status-explainer"><strong>源码版本已固定，证据仍未完备</strong>是本文的读者状态：页面已按显示的固定源码版本完成版本登记与源码级复核，但 build、runtime、跨组件或完整 claim-level 证据尚未齐备；机器状态保持 <code>unconfirmed</code>，登记 baseline 不会自动升级为 <code>current</code>。</p>
     <article class="markdown-body"><h1 id="cubesandbox-snapshot-restore-route-re-enable">CubeSandbox 中断状态恢复链路（snapshot → restore → route re-enable）</h1>
 <p>本文承接 <a href="deep-routes.html">CubeSandbox 深入路线</a>，沿一条具体链路做函数级分析：</p>
 <p><strong><code>MsixConfig snapshot → VirtioPciDevice restore → GIC/IOAPIC route re-enable</code></strong></p>
 <p>研究目标：说清 CubeSandbox（Cloud Hypervisor 派生 VMM）在 snapshot/restore 时，PCI 设备的 MSI-X 中断状态怎么存、怎么恢复，以及 ARM64 GIC/ITS 与 x86 IOAPIC 的路由在 restore 哪一步重新使能、为什么这个顺序是硬约束。</p>
-<p>源码基线：当前仓库工作树，VMM 在 <code>hypervisor/</code> 子目录。</p>
+<p>源码基线固定为 CubeSandbox canonical 工作树提交 <code>5135a40d86c94a85fe2521fd9ed913ac5fd6cfd9</code>（分支记录为 <code>0731-after-v0.6.0</code>），VMM 在 <code>hypervisor/</code> 子目录。</p>
 <p>相关横向专题：<a href="../../analysis/interrupt-event-notification-cross-project.html">中断与事件通知跨项目专题分析</a>。</p>
 <p>相关项目级链路：<a href="virtio-interrupt-injection-trace.html">Virtio 中断注入函数级链路</a>、<a href="vmm-snapshot-restore-state-chain.html">VMM snapshot restore state chain</a>、<a href="vmm-device-restore-chain.html">VMM device restore chain</a>。</p>
 <h2 id="1-vmrestore">1. 整体顺序：<code>Vm::restore</code> 的分层</h2>
-<p>CubeSandbox 的中断恢复不是单点，而是嵌在 <code>Vm::restore()</code> 的分层恢复里。先看全局顺序（<code>hypervisor/vmm/src/vm.rs:2772-2907</code>）：</p>
+<p>CubeSandbox 的中断恢复不是单点，而是嵌在 <code>Vm::restore()</code> 的分层恢复里。先看全局顺序（<code>hypervisor/vmm/src/vm.rs:2736-2871</code>）：</p>
 <figure class="diagram" aria-label="Mermaid 架构或流程图"><div class="mermaid">sequenceDiagram
     participant R as Vm::restore
     participant DM as DeviceManager
@@ -88,32 +88,32 @@
 <tr>
 <td>② metadata</td>
 <td><code>device_manager.restore()</code> 仅恢复 metadata，不建设备</td>
-<td><code>vm.rs:2801-2815</code></td>
+<td><code>vm.rs:2751-2763</code></td>
 </tr>
 <tr>
 <td>③ vCPU</td>
 <td><code>cpu_manager.restore()</code> 恢复 vCPU 状态（含 saved_vcpu_states）</td>
-<td><code>vm.rs:2817-2831</code></td>
+<td><code>vm.rs:2765-2777</code></td>
 </tr>
 <tr>
 <td>④ controller（aarch64）</td>
 <td><code>restore_vgic_and_enable_interrupt()</code></td>
-<td><code>vm.rs:2833-2841</code></td>
+<td><code>vm.rs:2779-2780</code></td>
 </tr>
 <tr>
 <td>⑤ devices</td>
 <td><code>device_manager.restore_devices()</code> 建设备 + 逐个 restore（含 MSI-X）</td>
-<td><code>vm.rs:2843-2857</code></td>
+<td><code>vm.rs:2782-2788</code></td>
 </tr>
 <tr>
 <td>⑥ 启动</td>
 <td><code>cpu_manager.start_restored_vcpus()</code></td>
-<td><code>vm.rs:2859-2871</code></td>
+<td><code>vm.rs:2790-2798</code></td>
 </tr>
 <tr>
 <td>⑦ 外设</td>
 <td><code>setup_signal_handler()</code> + <code>setup_tty()</code></td>
-<td><code>vm.rs:2873-2887</code></td>
+<td><code>vm.rs:2800-2814</code></td>
 </tr>
 </tbody>
 </table>
@@ -172,16 +172,16 @@
 <li>snapshot 调用方：<code>VirtioPciDevice::snapshot()</code> 内 <code>msix_config.lock().unwrap().snapshot()</code>。</li>
 </ul>
 <h2 id="3-virtiopcidevice-restoremsi-x">3. VirtioPciDevice restore：MSI-X 最先恢复</h2>
-<p><code>VirtioPciDevice</code> 在 <code>hypervisor/virtio-devices/src/transport/pci_device.rs:315</code> 持有 PCI 配置、common config、<code>msix_config: Option&lt;Arc&lt;Mutex&lt;MsixConfig&gt;&gt;&gt;</code>、queues、<code>interrupt_source_group</code> 等。</p>
+<p><code>VirtioPciDevice</code> 在 <code>hypervisor/virtio-devices/src/transport/pci_device.rs:335</code> 持有 PCI 配置、common config、<code>msix_config: Option&lt;Arc&lt;Mutex&lt;MsixConfig&gt;&gt;&gt;</code>、queues、<code>interrupt_source_group</code> 等。</p>
 <h3 id="31-snapshot">3.1 snapshot 保存的子状态</h3>
-<p><code>VirtioPciDevice::snapshot()</code>（<code>pci_device.rs:1167</code>）依次保存：</p>
+<p><code>VirtioPciDevice::snapshot()</code>（<code>pci_device.rs:1176</code>）依次保存：</p>
 <ol>
 <li>PCI 配置空间 <code>configuration.snapshot()</code>；</li>
 <li>virtio 公共配置 <code>common_config.snapshot()</code>；</li>
 <li>MSI-X 配置（若存在）<code>msix_config.lock().unwrap().snapshot()</code>。</li>
 </ol>
 <h3 id="32-restore-msi-x">3.2 restore 顺序（MSI-X 优先）</h3>
-<p><code>VirtioPciDevice::restore()</code>（<code>pci_device.rs:1184</code>）按固定顺序恢复：</p>
+<p><code>VirtioPciDevice::restore()</code>（<code>pci_device.rs:1197</code>）按固定顺序恢复：</p>
 <table>
 <thead>
 <tr>
@@ -205,6 +205,11 @@
 <td>3</td>
 <td><code>configuration.restore()</code></td>
 <td>PCI 配置空间</td>
+</tr>
+<tr>
+<td>4</td>
+<td>virtqueue 状态 <code>set_state()</code> + 满足 <code>device_activated &amp;&amp; is_driver_ready</code> 时 <code>activate()</code>（<code>pci_device.rs:1229-1240</code>）</td>
+<td>恢复队列运行态并按条件重新激活</td>
 </tr>
 </tbody>
 </table>
@@ -263,7 +268,7 @@ if self.enabled &amp;&amp; !self.masked {
 <li>这里没有"照搬 fd"，而是用 snapshot 里的地址/数据/devid <strong>重新构造</strong> KVM route 与 irqfd。</li>
 </ol>
 <h2 id="5-arm64-gicits-restorevm">5. ARM64 GIC/ITS restore：VM 级硬约束</h2>
-<p>CubeSandbox 在 ARM64 下不靠 <code>DeviceManager</code> 顺带 restore GIC，而是在 <code>Vm::restore</code> 里走专门的 <code>restore_vgic_and_enable_interrupt()</code>（<code>vm.rs:2288-2396</code>）。这是它与 Cloud Hypervisor 的关键差异。</p>
+<p>CubeSandbox 在 ARM64 下不靠 <code>DeviceManager</code> 顺带 restore GIC，而是在 <code>Vm::restore</code> 里走专门的 <code>restore_vgic_and_enable_interrupt()</code>（<code>vm.rs:2288-2378</code>）。这是它与 Cloud Hypervisor 的关键差异。</p>
 <p>完整步骤：</p>
 <table>
 <thead>
@@ -277,7 +282,7 @@ if self.enabled &amp;&amp; !self.masked {
 <tr>
 <td>1</td>
 <td><code>cpu_manager.get_saved_states()</code> 取恢复后的 vCPU 状态</td>
-<td><code>vm.rs:2288-2396</code></td>
+<td><code>vm.rs:2288-2378</code></td>
 </tr>
 <tr>
 <td>2</td>
@@ -308,7 +313,7 @@ if self.enabled &amp;&amp; !self.masked {
 </table>
 <p><strong>硬前提</strong>：缺少 <code>GicV3Its snapshot</code> 直接报错返回——GIC/ITS snapshot 不是"最好有"，而是 restore 成立的硬前提。</p>
 <h3 id="snapshot">snapshot 对侧</h3>
-<p><code>add_vgic_snapshot_section()</code>（<code>vm.rs:2256-2284</code>）在 snapshot 时：先用 <code>saved_vcpu_states</code> 调 <code>set_gicr_typers()</code>，再把 interrupt controller 的 snapshot 加入 VM snapshot。</p>
+<p><code>add_vgic_snapshot_section()</code>（<code>vm.rs:2258-2284</code>）在 snapshot 时：先用 <code>saved_vcpu_states</code> 调 <code>set_gicr_typers()</code>，再把 interrupt controller 的 snapshot 加入 VM snapshot。</p>
 <p><strong>机制结论</strong>：ARM64 下 controller restore（阶段 ④）必须在 device restore（阶段 ⑤）<strong>之前</strong>完成。设备 MSI-X <code>enable()</code> 注册的 irqfd，最终要靠 GIC/ITS 路由才能注入 guest——若 GIC 未恢复，设备路由即使重建也无法送达。</p>
 <h2 id="6-x86_64-ioapic-restore-restore">6. x86_64 IOAPIC restore：随设备 restore</h2>
 <p>x86_64 下没有 VM 级 GIC 编排，IOAPIC 作为设备在 <code>device_manager.restore_devices()</code> 阶段恢复。</p>
@@ -361,7 +366,7 @@ if self.enabled &amp;&amp; !self.masked {
 <tbody>
 <tr>
 <td>中断控制器</td>
-<td>GICv3 + ITS（显式创建）</td>
+<td>GICv3（显式创建；snapshot ID 沿用 <code>GIC_V3_ITS_SNAPSHOT_ID</code>，源码注释明确当前仅支持 bare GICv3 without ITS，<code>vm.rs:2300-2303</code>）</td>
 <td>IOAPIC + PIC（设备树中）</td>
 </tr>
 <tr>
@@ -407,18 +412,18 @@ if self.enabled &amp;&amp; !self.masked {
 </tbody>
 </table>
 <h2 id="8">8. 完整调用链</h2>
-<pre><code class="language-text">Vm::restore()                                    [vm.rs:2772]
-├─ device_manager.restore()                      (metadata)  [vm.rs:2801]
-├─ cpu_manager.restore()                         [vm.rs:2817]
-├─ [aarch64] restore_vgic_and_enable_interrupt() [vm.rs:2833]
+<pre><code class="language-text">Vm::restore()                                    [vm.rs:2736]
+├─ device_manager.restore()                      (metadata)  [vm.rs:2751]
+├─ cpu_manager.restore()                         [vm.rs:2765]
+├─ [aarch64] restore_vgic_and_enable_interrupt() [vm.rs:2779]
 │  ├─ get_saved_states()
 │  ├─ create_vgic()
 │  ├─ init_pmu()
 │  ├─ set_gicr_typers(&amp;saved_vcpu_states)
 │  ├─ gic.restore(gicv3_its_snapshot)   ← 必须 snapshot 存在
 │  └─ gic.enable()
-├─ device_manager.restore_devices()              [vm.rs:2843]
-│  └─ [每个设备] VirtioPciDevice::restore()      [pci_device.rs:1184]
+├─ device_manager.restore_devices()              [vm.rs:2782]
+│  └─ [每个设备] VirtioPciDevice::restore()      [pci_device.rs:1197]
 │     ├─ msix_config.restore() → MsixConfig::set_state()  [msix.rs:112]
 │     │  ├─ 恢复 table_entries/pba/masked/enabled
 │     │  └─ if enabled &amp;&amp; !masked:
@@ -426,8 +431,8 @@ if self.enabled &amp;&amp; !self.masked {
 │     │     └─ interrupt_source_group.enable()             ← 重注册 irqfd
 │     ├─ common_config.restore()
 │     └─ configuration.restore()
-├─ cpu_manager.start_restored_vcpus()            [vm.rs:2859]
-└─ setup_signal_handler() / setup_tty()          [vm.rs:2873]
+├─ cpu_manager.start_restored_vcpus()            [vm.rs:2790]
+└─ setup_signal_handler() / setup_tty()          [vm.rs:2800]
 </code></pre>
 <p><strong>路由重建的三个分支点：</strong></p>
 <ol>
@@ -465,12 +470,12 @@ if self.enabled &amp;&amp; !self.masked {
 <tr>
 <td>VirtioPciDevice 顺序</td>
 <td>restore 是否 MSI-X 先于 common/configuration</td>
-<td><code>pci_device.rs:1184</code></td>
+<td><code>pci_device.rs:1197</code></td>
 </tr>
 <tr>
 <td>ARM64 controller</td>
 <td><code>restore_vgic_and_enable_interrupt</code> 五步是否全走完；<code>GicV3Its snapshot</code> 是否存在</td>
-<td><code>vm.rs:2288-2396</code></td>
+<td><code>vm.rs:2288-2378</code></td>
 </tr>
 <tr>
 <td>x86 IOAPIC</td>

@@ -20,7 +20,7 @@
     <input id="search" type="search" autocomplete="off" aria-controls="search-results" aria-expanded="false">
     <div id="search-status" class="search-status" role="status" aria-live="polite"></div>
     <div id="search-results" class="search-results" role="listbox"></div>
-    <nav aria-label="主要导航" data-global-nav="true"><ul class="nav-tree"><li><a href="../index.html">首页</a></li><li><details class="nav-group" open><summary>开始</summary><ul><li><a href="../analysis/vm-design-landscape-overview.html">从零理解 Micro-VM</a></li><li><a href="../projects/index.html">按项目查实现</a></li><li><a href="../topics/index.html">按机制做比较</a></li></ul></details></li><li><details class="nav-group"><summary>项目</summary><ul><li><a href="../projects/firecracker.html">Firecracker</a></li><li><a href="../projects/cloud-hypervisor.html">Cloud Hypervisor</a></li><li><a href="../projects/kata-containers.html">Kata Containers</a></li><li><a href="../projects/cubesandbox.html">CubeSandbox</a></li><li><a href="../projects/crosvm.html">crosvm（历史参考）</a></li></ul></details></li><li><details class="nav-group"><summary>沙箱平台</summary><ul><li><a href="../platforms/index.html">沙箱平台与基础设施</a></li></ul></details></li><li><details class="nav-group"><summary>专题</summary><ul><li><a href="../topics/lifecycle-control-plane.html">生命周期与控制面</a></li><li><a href="../topics/cpu-memory-machine.html">CPU、内存与机器模型</a></li><li><a href="../topics/snapshot-restore-migration.html">Snapshot、Restore 与 Migration</a></li><li><a href="../topics/storage-device-io.html">存储、设备与 I/O</a></li><li><a href="../topics/network-isolation.html">网络与隔离</a></li><li><a href="../topics/operations-observability-performance.html">操作、可观测性与性能</a></li></ul></details></li><li><details class="nav-group"><summary>方法与索引</summary><ul><li><a href="../methodology/status-and-evidence.html">研究状态与证据方法</a></li><li><a href="../versions/index.html">版本与证据覆盖</a></li><li><a href="../changes.html">变更记录</a></li><li><a href="../sitemap.html">站点地图</a></li></ul></details></li></ul></nav>
+    <nav aria-label="主要导航" data-global-nav="true"><ul class="nav-tree"><li><a href="../index.html">首页</a></li><li><details class="nav-group" open><summary>三轴入口</summary><ul><li><a href="../projects/index.html">项目</a></li><li><a href="../topics/index.html">特性与横向比较</a></li><li><a href="../evolution/index.html">版本演进</a></li></ul></details></li><li><details class="nav-group"><summary>方法与索引</summary><ul><li><a href="../methodology/status-and-evidence.html">研究方法与报告规范</a></li><li><a href="../versions/index.html">版本与证据覆盖</a></li><li><a href="../changes.html">Wiki 更新记录</a></li><li><a href="../sitemap.html">站点地图</a></li></ul></details></li></ul></nav>
   </aside>
   <button class="sidebar-scrim" id="sidebar-scrim" aria-label="关闭导航"></button>
   <main class="content" id="main-content" tabindex="-1">
@@ -29,7 +29,7 @@
       <button id="theme-toggle" aria-label="切换到深色模式">🌙</button>
       <a class="back-home" href="../index.html">首页</a>
     </div>
-<nav class="breadcrumbs" aria-label="面包屑"><ol><li><a href="../index.html">首页</a></li><li><a href="../methodology/status-and-evidence.html">研究状态与证据方法</a></li><li aria-current="page">Protected VM 与 snapshot/migration 跨项目专题分析</li></ol></nav>
+<nav class="breadcrumbs" aria-label="面包屑"><ol><li><a href="../index.html">首页</a></li><li><a href="../methodology/status-and-evidence.html">研究方法与报告规范</a></li><li aria-current="page">Protected VM 与 snapshot/migration 跨项目专题分析</li></ol></nav>
 <div class="page-meta" aria-label="文档元数据"><span class="badge">机制解析</span><a class="badge badge-status" href="../methodology/status-and-evidence.html#status">状态：历史参考</a></div><p class="status-explainer"><strong>历史参考</strong>表示本文保留原始范围，不代表当前上游实现。</p>
     <article class="markdown-body"><h1 id="protected-vm-snapshotmigration">Protected VM 与 snapshot/migration 跨项目专题分析</h1>
 <p>本文承接 <a href="coco-pvm-protected-vm-cross-project.html">CoCo / pVM / 受保护 VM 跨项目专题分析</a>、<a href="snapshot-restore-cross-project.html">Snapshot / Restore / Clone 跨项目专题分析</a> 和 <a href="guest-memory-dma-iommu-cross-project.html">Guest Memory、DMA/IOMMU 与地址转换跨项目专题分析</a>。</p>
@@ -148,7 +148,7 @@
 <p>第三，runtime 层不能凭抽象接口承诺能力。Kata 的 <code>SaveVM()</code> 语义取决于 QEMU、Cloud Hypervisor、Firecracker 等 plugin 的真实实现。</p>
 <p>第四，平台级 snapshot 可以绕开部分 VMM 限制，但会引入平台一致性要求。CubeSandbox 需要同步 VMM、CubeCoW、catalog、network 和 runtime metadata。</p>
 <p>后续深挖应按“具体组合”展开，而不是按单词展开：Cloud Hypervisor TDX snapshot 拒绝、crosvm protected VM + virtio-iommu、Kata TDX rootfs/hotplug、CubeSandbox PVM + snapshot/rollback。</p></article>
-<aside class="related-reading" aria-labelledby="related-title"><h2 id="related-title">继续阅读</h2><ul><li><strong>研究方法：</strong><a href="../methodology/status-and-evidence.html">研究状态与证据方法</a></li></ul></aside>
+<aside class="related-reading" aria-labelledby="related-title"><h2 id="related-title">继续阅读</h2><ul><li><strong>研究方法：</strong><a href="../methodology/status-and-evidence.html">研究方法与报告规范</a></li></ul></aside>
     <footer class="page-foot">公开来源：<code>analysis/protected-vm-snapshot-migration-cross-project.md</code> · 文档 ID：<code>analysis.protected-vm-snapshot-migration-cross-project</code></footer>
   </main>
 </div>

@@ -19,6 +19,7 @@
   <url><loc>https://north-c.github.io/micro-vm-wiki/topics/network-isolation.html</loc></url>
   <url><loc>https://north-c.github.io/micro-vm-wiki/topics/operations-observability-performance.html</loc></url>
   <url><loc>https://north-c.github.io/micro-vm-wiki/methodology/status-and-evidence.html</loc></url>
+  <url><loc>https://north-c.github.io/micro-vm-wiki/evolution/index.html</loc></url>
   <url><loc>https://north-c.github.io/micro-vm-wiki/versions/index.html</loc></url>
   <url><loc>https://north-c.github.io/micro-vm-wiki/changes.html</loc></url>
   <url><loc>https://north-c.github.io/micro-vm-wiki/sitemap.html</loc></url>
@@ -193,4 +194,5 @@
   <url><loc>https://north-c.github.io/micro-vm-wiki/platforms/agentenv/snapshot-template-overlaybd-ublk-chain.html</loc></url>
   <url><loc>https://north-c.github.io/micro-vm-wiki/platforms/e2b-infra/architecture-and-sandbox-lifecycle.html</loc></url>
   <url><loc>https://north-c.github.io/micro-vm-wiki/platforms/e2b-infra/template-rootfs-memory-publish.html</loc></url>
+  <url><loc>https://north-c.github.io/micro-vm-wiki/evolution/cubesandbox/soft-dirty-snapshot.html</loc></url>
 </urlset>

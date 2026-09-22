@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="CubeSandbox VMM Snapshot Restore 状态恢复链路 本文展开 CubeSandbox 快照路线，聚焦 CubeShim 之后的 CubeHypervisor / VMM 内部恢复机制。 结论只来自当前仓库源码，不把上游 Cloud Hypervisor 的通用说明当作依据。 设备恢复细节见 VMM Device Restore 设备恢复链路 vmm-device-restore-chain.md ；virtio-net/fs 内部状态见 Virtio Net/Fs Restore 链路 ">
+<meta name="description" content="CubeSandbox VMM Snapshot Restore 状态恢复链路 本文展开 CubeSandbox 快照路线，聚焦 CubeShim 之后的 CubeHypervisor / VMM 内部恢复机制。 源码基线固定为 CubeSandbox canonical 工作树提交 5135a40d86c94a85fe2521fd9ed913ac5fd6cfd9 （分支记录为 0731-after-v0.6.0 ）。结论只来自该基线源码，不把上游 Cloud Hypervisor 的通用说明当作依据。 设备恢复细">
 <meta property="og:type" content="article">
 <meta property="og:title" content="CubeSandbox VMM Snapshot Restore 状态恢复链路">
-<meta property="og:description" content="CubeSandbox VMM Snapshot Restore 状态恢复链路 本文展开 CubeSandbox 快照路线，聚焦 CubeShim 之后的 CubeHypervisor / VMM 内部恢复机制。 结论只来自当前仓库源码，不把上游 Cloud Hypervisor 的通用说明当作依据。 设备恢复细节见 VMM Device Restore 设备恢复链路 vmm-device-restore-chain.md ；virtio-net/fs 内部状态见 Virtio Net/Fs Restore 链路 ">
+<meta property="og:description" content="CubeSandbox VMM Snapshot Restore 状态恢复链路 本文展开 CubeSandbox 快照路线，聚焦 CubeShim 之后的 CubeHypervisor / VMM 内部恢复机制。 源码基线固定为 CubeSandbox canonical 工作树提交 5135a40d86c94a85fe2521fd9ed913ac5fd6cfd9 （分支记录为 0731-after-v0.6.0 ）。结论只来自该基线源码，不把上游 Cloud Hypervisor 的通用说明当作依据。 设备恢复细">
 <link rel="canonical" href="https://north-c.github.io/micro-vm-wiki/CubeSandbox-sandbox-clone/analysis/vmm-snapshot-restore-state-chain.html">
 <title>CubeSandbox VMM Snapshot Restore 状态恢复链路 · Micro-VM 技术研究 Wiki</title>
 <link rel="stylesheet" href="../../assets/style.css">
@@ -20,7 +20,7 @@
     <input id="search" type="search" autocomplete="off" aria-controls="search-results" aria-expanded="false">
     <div id="search-status" class="search-status" role="status" aria-live="polite"></div>
     <div id="search-results" class="search-results" role="listbox"></div>
-    <nav aria-label="主要导航" data-global-nav="true"><ul class="nav-tree"><li><a href="../../index.html">首页</a></li><li><details class="nav-group" open><summary>开始</summary><ul><li><a href="../../analysis/vm-design-landscape-overview.html">从零理解 Micro-VM</a></li><li><a href="../../projects/index.html">按项目查实现</a></li><li><a href="../../topics/index.html">按机制做比较</a></li></ul></details></li><li><details class="nav-group"><summary>项目</summary><ul><li><a href="../../projects/firecracker.html">Firecracker</a></li><li><a href="../../projects/cloud-hypervisor.html">Cloud Hypervisor</a></li><li><a href="../../projects/kata-containers.html">Kata Containers</a></li><li><a href="../../projects/cubesandbox.html">CubeSandbox</a></li><li><a href="../../projects/crosvm.html">crosvm（历史参考）</a></li></ul></details></li><li><details class="nav-group"><summary>沙箱平台</summary><ul><li><a href="../../platforms/index.html">沙箱平台与基础设施</a></li></ul></details></li><li><details class="nav-group"><summary>专题</summary><ul><li><a href="../../topics/lifecycle-control-plane.html">生命周期与控制面</a></li><li><a href="../../topics/cpu-memory-machine.html">CPU、内存与机器模型</a></li><li><a href="../../topics/snapshot-restore-migration.html">Snapshot、Restore 与 Migration</a></li><li><a href="../../topics/storage-device-io.html">存储、设备与 I/O</a></li><li><a href="../../topics/network-isolation.html">网络与隔离</a></li><li><a href="../../topics/operations-observability-performance.html">操作、可观测性与性能</a></li></ul></details></li><li><details class="nav-group"><summary>方法与索引</summary><ul><li><a href="../../methodology/status-and-evidence.html">研究状态与证据方法</a></li><li><a href="../../versions/index.html">版本与证据覆盖</a></li><li><a href="../../changes.html">变更记录</a></li><li><a href="../../sitemap.html">站点地图</a></li></ul></details></li></ul></nav>
+    <nav aria-label="主要导航" data-global-nav="true"><ul class="nav-tree"><li><a href="../../index.html">首页</a></li><li><details class="nav-group" open><summary>三轴入口</summary><ul><li><a href="../../projects/index.html">项目</a></li><li><a href="../../topics/index.html">特性与横向比较</a></li><li><a href="../../evolution/index.html">版本演进</a></li></ul></details></li><li><details class="nav-group"><summary>方法与索引</summary><ul><li><a href="../../methodology/status-and-evidence.html">研究方法与报告规范</a></li><li><a href="../../versions/index.html">版本与证据覆盖</a></li><li><a href="../../changes.html">Wiki 更新记录</a></li><li><a href="../../sitemap.html">站点地图</a></li></ul></details></li></ul></nav>
   </aside>
   <button class="sidebar-scrim" id="sidebar-scrim" aria-label="关闭导航"></button>
   <main class="content" id="main-content" tabindex="-1">
@@ -30,10 +30,10 @@
       <a class="back-home" href="../../index.html">首页</a>
     </div>
 <nav class="breadcrumbs" aria-label="面包屑"><ol><li><a href="../../index.html">首页</a></li><li><a href="../../projects/index.html">项目目录</a></li><li><a href="../../projects/cubesandbox.html">CubeSandbox</a></li><li><a href="../../topics/snapshot-restore-migration.html">Snapshot、Restore 与 Migration</a></li><li aria-current="page">CubeSandbox VMM Snapshot Restore 状态恢复链路</li></ol></nav>
-<div class="page-meta" aria-label="文档元数据"><span class="badge">机制解析</span><a class="badge badge-status" href="../../methodology/status-and-evidence.html#status">状态：待固定版本复核</a><span class="badge">CubeSandbox</span><span class="badge">角色：核心研究项目 / 沙箱平台</span></div><p class="status-explainer"><strong>待固定版本复核</strong>表示本文尚未按结构化的 pinned baseline 重新验证，不表示文章内容为假。状态不会因为进入目录或公开站点而自动升级。</p>
+<div class="page-meta" aria-label="文档元数据"><span class="badge">机制解析</span><a class="badge badge-status" href="../../methodology/status-and-evidence.html#status">状态：源码版本已固定，证据仍未完备</a><span class="badge">CubeSandbox</span><span class="badge">角色：核心研究项目 / 沙箱平台</span><a class="badge" href="../../versions/index.html#cubesandbox-5135a40d-20260731" title="cubesandbox 5135a40d86c94a85fe2521fd9ed913ac5fd6cfd9；角色：primary">版本基线：commit-pinned@5135a40d86c9</a><span class="badge">复核日期：2026-09-22</span></div><p class="status-explainer"><strong>源码版本已固定，证据仍未完备</strong>是本文的读者状态：页面已按显示的固定源码版本完成版本登记与源码级复核，但 build、runtime、跨组件或完整 claim-level 证据尚未齐备；机器状态保持 <code>unconfirmed</code>，登记 baseline 不会自动升级为 <code>current</code>。</p>
     <article class="markdown-body"><h1 id="cubesandbox-vmm-snapshot-restore">CubeSandbox VMM Snapshot Restore 状态恢复链路</h1>
 <p>本文展开 CubeSandbox 快照路线，聚焦 CubeShim 之后的 CubeHypervisor / VMM 内部恢复机制。</p>
-<p>结论只来自当前仓库源码，不把上游 Cloud Hypervisor 的通用说明当作依据。</p>
+<p>源码基线固定为 CubeSandbox canonical 工作树提交 <code>5135a40d86c94a85fe2521fd9ed913ac5fd6cfd9</code>（分支记录为 <code>0731-after-v0.6.0</code>）。结论只来自该基线源码，不把上游 Cloud Hypervisor 的通用说明当作依据。</p>
 <blockquote>
 <p>设备恢复细节见 <a href="vmm-device-restore-chain.html">VMM Device Restore 设备恢复链路</a>；virtio-net/fs 内部状态见 <a href="virtio-net-fs-restore-chain.html">Virtio Net/Fs Restore 链路</a>；中断状态恢复见 <a href="interrupt-state-restore-chain.html">中断状态恢复链路</a>。</p>
 </blockquote>
@@ -64,7 +64,7 @@
 </table>
 <h3 id="_1">关键概念</h3>
 <ul>
-<li><strong><code>RestoreConfig</code></strong>：恢复请求的覆盖配置。restore 端先读快照 <code>config.json</code>，再用 <code>RestoreConfig</code> <strong>覆盖已有设备的后端</strong>（disk path / tap / fs shared_dir / vsock socket / pmem file），而不是新增设备。</li>
+<li><strong><code>RestoreConfig</code></strong>：恢复请求的覆盖配置。restore 端先读快照 <code>config.json</code>，再用 <code>RestoreConfig</code> <strong>覆盖已有设备的后端</strong>（disk path / tap / fs shared_dir / vsock socket / pmem file / ivshmem 配置），而不是新增设备。</li>
 <li><strong><code>Migratable</code> / <code>Snapshot</code> trait</strong>：Cloud Hypervisor 抽象（CubeSandbox 继承）。每个可快照设备实现 <code>snapshot()</code>/<code>restore()</code>/<code>pause()</code>。<code>restore()</code> 恢复运行时状态。</li>
 <li><strong>fast restore vs slow restore</strong>：内存恢复的两条路径。fast = 把 memory blob 整个 mmap 成 guest 内存（无 shared memory、无 hotplug virtio-mem 时）；slow = 先建内存区域，再把 blob 内容拷回各 GPA。</li>
 <li><strong>两阶段设备恢复</strong>：① 先按快照拓扑重建设备对象（<code>create_devices</code>），② 再恢复每个设备内部状态（<code>restore_devices</code>）。</li>
@@ -77,7 +77,7 @@
 <p>restore 先读 <code>config.json</code>/<code>state.json</code>，用 <code>RestoreConfig</code> 覆盖已有设备后端，再按快照状态恢复内存、设备、vCPU、中断控制器。<code>RestoreConfig</code> 边界很窄——<strong>只替换、不新增</strong>（如 <code>update_nets()</code> 只按已有 net id 替换 tap）。</p>
 <p>ARM64 与 x86_64 最大差异在架构状态：x86_64 有 CPUID 兼容性检查、VM clock 恢复、TSC MSR 重设；ARM64 要额外保存/恢复 GIC/ITS 并在恢复后启用中断路由。</p>
 <h2 id="2">2. 入口链路</h2>
-<p>CubeShim 构造 restore 请求（从 snapshot metadata 校验 CPU/memory/kernel/disk/pmem，生成覆盖配置，<code>sb.rs:946</code>）→ 发 <code>ApiRequest::VmRestore</code>（<code>cube_hypervisor.rs:173</code>）→ VMM control loop 匹配后调 <code>self.vm_restore()</code>（<code>lib.rs:1996</code>）。</p>
+<p>CubeShim 构造 restore 请求（从 snapshot metadata 校验 CPU/memory/kernel/disk/pmem，生成覆盖配置，<code>sb.rs:946</code>）→ 发 <code>ApiRequest::VmRestore</code>（<code>cube_hypervisor.rs:178</code>）→ VMM control loop 匹配后调 <code>self.vm_restore()</code>（<code>lib.rs:2001</code>）。</p>
 <figure class="diagram" aria-label="Mermaid 架构或流程图"><div class="mermaid">sequenceDiagram
     participant Shim as CubeShim
     participant Vmm as VMM control loop
@@ -110,7 +110,7 @@
     VM-&gt;&gt;CPU: restore / create vCPUs
     VM-&gt;&gt;Vmm: resume</code></pre></details></figure>
 <h2 id="3-restoreconfig">3. RestoreConfig 的真实能力</h2>
-<p><code>RestoreConfig</code> 字段：<code>source_url</code>、<code>prefault</code>、<code>disks</code>、<code>net</code>、<code>fs</code>、<code>vsock</code>、<code>pmem</code>、<code>dirty_log</code>、<code>memory_vol_url</code>（<code>config.rs:2095</code>）。<code>source_url</code> 是快照目录，恢复端从它读 <code>config.json</code>/<code>state.json</code>（<code>migration.rs:92</code>）。</p>
+<p><code>RestoreConfig</code> 字段：<code>source_url</code>、<code>prefault</code>、<code>disks</code>、<code>net</code>、<code>fs</code>、<code>vsock</code>、<code>pmem</code>、<code>ivshmem</code>、<code>dirty_log</code>、<code>memory_vol_url</code>（<code>config.rs:2108</code>，<code>ivshmem</code> 为 <code>Option&lt;IvshmemConfig&gt;</code>）。<code>source_url</code> 是快照目录，恢复端从它读 <code>config.json</code>/<code>state.json</code>（<code>migration.rs:92</code>）。</p>
 <p>覆盖边界一目了然：</p>
 <table>
 <thead>
@@ -154,7 +154,7 @@
 </tbody>
 </table>
 <p><code>update_nets()</code> 的代码最能说明"只替换、不新增"——它只遍历<strong>已有</strong> <code>vm_config.net</code>，命中同 id 才替换 tap：</p>
-<pre><code class="language-rust">// hypervisor/vmm/src/config.rs:2287
+<pre><code class="language-rust">// hypervisor/vmm/src/config.rs:2304
 pub fn update_nets(&amp;mut self, net_cfgs: &amp;Vec&lt;NetConfig&gt;) {
     if let Some(nets) = &amp;mut self.net {
         // 先把 RestoreConfig 里的 net 按 id 收成 map
@@ -193,6 +193,7 @@ fn vm_restore(&amp;mut self, restore_cfg: RestoreConfig) -&gt; result::Result&lt
         if let Some(vsock) = &amp;restore_cfg.vsock { vm_config.update_vsock(vsock); }
         if let Some(fses)  = &amp;restore_cfg.fs    { vm_config.update_fses(fses); }
         if let Some(pmems) = &amp;restore_cfg.pmem  { vm_config.update_pmem(pmems); }
+        if let Some(ivshmem) = &amp;restore_cfg.ivshmem { vm_config.update_ivshmem(ivshmem); }
         vm_config.memory.dirty_log = restore_cfg.dirty_log;
         vm_config
     }));
@@ -231,9 +232,9 @@ fn vm_restore(&amp;mut self, restore_cfg: RestoreConfig) -&gt; result::Result&lt
 <p><strong><code>Vm::new_from_snapshot()</code> 返回的 VM 尚未完全恢复运行态</strong>——它已有 hypervisor VM、内存映射、DeviceManager/CpuManager 框架，但设备状态和 vCPU 状态要靠后面的 <code>vm.restore(snapshot)</code> 继续。</p>
 </blockquote>
 <h2 id="5">5. 内存恢复机制</h2>
-<p>内存先于设备和 vCPU 恢复。<code>Vm::new_from_snapshot()</code> 取 <code>MEMORY_MANAGER_SNAPSHOT_ID</code> 调 <code>MemoryManager::new_from_snapshot()</code>（<code>vm.rs:821</code>）。<code>MemoryManagerSnapshotData</code> 保存内存布局（ranges、guest_ram_mappings、device area、boot/current RAM、arch mem regions、hotplug slot，<code>memory_manager.rs:2891</code>）。</p>
+<p>内存先于设备和 vCPU 恢复。<code>Vm::new_from_snapshot()</code> 取 <code>MEMORY_MANAGER_SNAPSHOT_ID</code> 调 <code>MemoryManager::new_from_snapshot()</code>（<code>vm.rs:822</code>）。<code>MemoryManagerSnapshotData</code> 保存内存布局（ranges、guest_ram_mappings、device area、boot/current RAM、arch mem regions、hotplug slot，<code>memory_manager.rs:2978</code>）。</p>
 <p><strong>fast vs slow 两条路径</strong>的关键判断在 <code>support_fast_restore_check</code>（无 shared memory、无 hotplug virtio-mem 时为 fast）：</p>
-<pre><code class="language-rust">// hypervisor/vmm/src/memory_manager.rs:1319  (fast restore)
+<pre><code class="language-rust">// hypervisor/vmm/src/memory_manager.rs:1340  (fast restore)
 let fast_restore = Self::support_fast_restore_check(config);
 let memory_file = if fast_restore {
     info!(&quot;restore non-shared map, speed up restore by share map memory file&quot;);
@@ -243,7 +244,7 @@ let memory_file = if fast_restore {
 let mm = MemoryManager::new(vm, config, Some(prefault), phys_bits, /*...*/,
                             Some(&amp;mem_snapshot), None, memory_file, /*...*/)?;
 </code></pre>
-<pre><code class="language-rust">// hypervisor/vmm/src/memory_manager.rs:1349  (slow restore)
+<pre><code class="language-rust">// hypervisor/vmm/src/memory_manager.rs:1370  (slow restore)
 if !fast_restore {
     info!(&quot;restore shared map, fall back to slow restore&quot;);
     mm.lock().unwrap()
@@ -274,7 +275,7 @@ if !fast_restore {
     Copy --&gt; Ready</code></pre></details></figure>
 <h2 id="6-vcpu">6. 设备与 vCPU 恢复</h2>
 <p><code>Vm::restore()</code> 要求能迁移到 <code>Paused</code>，然后按严格顺序恢复。源码骨架最能说明顺序：</p>
-<pre><code class="language-rust">// hypervisor/vmm/src/vm.rs:2772
+<pre><code class="language-rust">// hypervisor/vmm/src/vm.rs:2736
 fn restore(&amp;mut self, snapshot: Snapshot) -&gt; std::result::Result&lt;(), MigratableError&gt; {
     current_state.valid_transition(VmState::Paused)?;                     // 必须能迁到 Paused
 
@@ -292,7 +293,7 @@ fn restore(&amp;mut self, snapshot: Snapshot) -&gt; std::result::Result&lt;(), M
 <blockquote>
 <p><strong>顺序是硬约束</strong>：<code>start_restored_vcpus()</code> <strong>最后</strong>才调——vCPU 不能在设备和中断状态完整前运行。缺 <code>DEVICE_MANAGER_SNAPSHOT_ID</code> 或 <code>CPU_MANAGER_SNAPSHOT_ID</code> 都直接报错。aarch64 的 ③（GIC/ITS restore）在 ① ② 之后、④ 之前，详见 <a href="interrupt-state-restore-chain.html">中断状态恢复链路</a>。</p>
 </blockquote>
-<p>CpuManager restore 为每个 vCPU 调 <code>create_vcpu(..., Some(snapshot))</code>，x86_64 还重设 TSC MSR（<code>cpu.rs:2135</code>）。</p>
+<p>CpuManager restore 为每个 vCPU 调 <code>create_vcpu(..., Some(snapshot))</code>，x86_64 还重设 TSC MSR（<code>cpu.rs:2170</code>）。</p>
 <h2 id="7-x86_64-arm64">7. x86_64 与 ARM64 差异</h2>
 <table>
 <thead>
@@ -305,12 +306,12 @@ fn restore(&amp;mut self, snapshot: Snapshot) -&gt; std::result::Result&lt;(), M
 <tbody>
 <tr>
 <td>CPU 兼容性</td>
-<td>restore 前检查 CPUID（<code>vm.rs:2685</code>、<code>lib.rs:1773</code>）</td>
+<td>restore 前检查 CPUID（<code>vm.rs:2685</code>、<code>lib.rs:1777</code>）</td>
 <td>当前无对应 CPUID 检查</td>
 </tr>
 <tr>
 <td>VM clock</td>
-<td>snapshot/restore VM clock（<code>vm.rs:2245</code>）</td>
+<td>snapshot/restore VM clock（<code>vm.rs:2247</code>）</td>
 <td>无该 x86 clock 分支</td>
 </tr>
 <tr>
@@ -321,12 +322,12 @@ fn restore(&amp;mut self, snapshot: Snapshot) -&gt; std::result::Result&lt;(), M
 <tr>
 <td>中断控制器</td>
 <td>IOAPIC/MSI 随设备模型恢复</td>
-<td>显式 snapshot/restore GIC/ITS（<code>vm.rs:2256/2286</code>）</td>
+<td>显式 snapshot/restore GIC/ITS（<code>vm.rs:2258/2286</code>）</td>
 </tr>
 <tr>
 <td>pause 行为</td>
 <td>主要 pause vCPU 和设备</td>
-<td>还要 pause GIC flush pending/ITS table（<code>device_manager.rs:4784</code>）</td>
+<td>还要 pause GIC flush pending/ITS table（<code>device_manager.rs:4825</code>）</td>
 </tr>
 <tr>
 <td>失败边界</td>
@@ -336,7 +337,7 @@ fn restore(&amp;mut self, snapshot: Snapshot) -&gt; std::result::Result&lt;(), M
 </tbody>
 </table>
 <h2 id="8-snapshot-restore">8. Snapshot 与 restore 的对称关系</h2>
-<p>snapshot 要求 VM 已 Paused，否则 <code>Vm::snapshot()</code> 直接报错（<code>vm.rs:2678</code>）。snapshot 聚合 VM/CPU/MemoryManager/DeviceManager，ARM64 额外加 VGIC section（<code>vm.rs:2715</code>）。MemoryManager transport 阶段写 memory blob：full 写所有 range，incremental/soft-dirty 走各自脏页选择（<code>memory_manager.rs:3023</code>）。</p>
+<p>snapshot 要求 VM 已 Paused，否则 <code>Vm::snapshot()</code> 直接报错（<code>vm.rs:2673</code>）。snapshot 聚合 VM/CPU/MemoryManager/DeviceManager，ARM64 额外加 VGIC section（<code>vm.rs:2258</code>）。MemoryManager transport 阶段写 memory blob：full 写所有 range，incremental/soft-dirty 走各自脏页选择（<code>memory_manager.rs:3012</code>）。</p>
 <blockquote>
 <p>因此 VMM 层 restore 依赖<strong>两个文件面</strong>：状态面（<code>state.json</code>/<code>config.json</code>）+ 数据面（<code>memory-ranges</code> 或外部 memory volume）。CubeSandbox app snapshot/commit 把 <code>memory_vol_url</code> 传给 snapshot，restore 再用 <code>RestoreConfig.memory_vol_url</code> 读回。</p>
 </blockquote>

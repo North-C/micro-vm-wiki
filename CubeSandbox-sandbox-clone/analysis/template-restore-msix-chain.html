@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="基于 Template 启动到 RestoreVm 与 MSI-X Restore 的链路分析 本文解释两个问题： 1. 基于 CubeSandbox Template 创建沙箱进行并发启动时延测试时，为什么运行链路会进入 RestoreVm 。 2. MSI-X restore 和观测到的 interrupt group update many 分别对应哪一段执行链路。 本文聚焦 Template 启动时延路径，也就是基准测试中“基于 Template 创建沙箱”的 create-only 路径。 结论概览 基于">
+<meta name="description" content="基于 Template 启动到 RestoreVm 与 MSI-X Restore 的链路分析 本文解释两个问题： 1. 基于 CubeSandbox Template 创建沙箱进行并发启动时延测试时，为什么运行链路会进入 RestoreVm 。 2. MSI-X restore 和观测到的 interrupt group update many 分别对应哪一段执行链路。 本文聚焦 Template 启动时延路径，也就是基准测试中“基于 Template 创建沙箱”的 create-only 路径。 源码基线固定为">
 <meta property="og:type" content="article">
 <meta property="og:title" content="基于 Template 启动到 RestoreVm 与 MSI-X Restore 的链路分析">
-<meta property="og:description" content="基于 Template 启动到 RestoreVm 与 MSI-X Restore 的链路分析 本文解释两个问题： 1. 基于 CubeSandbox Template 创建沙箱进行并发启动时延测试时，为什么运行链路会进入 RestoreVm 。 2. MSI-X restore 和观测到的 interrupt group update many 分别对应哪一段执行链路。 本文聚焦 Template 启动时延路径，也就是基准测试中“基于 Template 创建沙箱”的 create-only 路径。 结论概览 基于">
+<meta property="og:description" content="基于 Template 启动到 RestoreVm 与 MSI-X Restore 的链路分析 本文解释两个问题： 1. 基于 CubeSandbox Template 创建沙箱进行并发启动时延测试时，为什么运行链路会进入 RestoreVm 。 2. MSI-X restore 和观测到的 interrupt group update many 分别对应哪一段执行链路。 本文聚焦 Template 启动时延路径，也就是基准测试中“基于 Template 创建沙箱”的 create-only 路径。 源码基线固定为">
 <link rel="canonical" href="https://north-c.github.io/micro-vm-wiki/CubeSandbox-sandbox-clone/analysis/template-restore-msix-chain.html">
 <title>基于 Template 启动到 RestoreVm 与 MSI-X Restore 的链路分析 · Micro-VM 技术研究 Wiki</title>
 <link rel="stylesheet" href="../../assets/style.css">
@@ -20,7 +20,7 @@
     <input id="search" type="search" autocomplete="off" aria-controls="search-results" aria-expanded="false">
     <div id="search-status" class="search-status" role="status" aria-live="polite"></div>
     <div id="search-results" class="search-results" role="listbox"></div>
-    <nav aria-label="主要导航" data-global-nav="true"><ul class="nav-tree"><li><a href="../../index.html">首页</a></li><li><details class="nav-group" open><summary>开始</summary><ul><li><a href="../../analysis/vm-design-landscape-overview.html">从零理解 Micro-VM</a></li><li><a href="../../projects/index.html">按项目查实现</a></li><li><a href="../../topics/index.html">按机制做比较</a></li></ul></details></li><li><details class="nav-group"><summary>项目</summary><ul><li><a href="../../projects/firecracker.html">Firecracker</a></li><li><a href="../../projects/cloud-hypervisor.html">Cloud Hypervisor</a></li><li><a href="../../projects/kata-containers.html">Kata Containers</a></li><li><a href="../../projects/cubesandbox.html">CubeSandbox</a></li><li><a href="../../projects/crosvm.html">crosvm（历史参考）</a></li></ul></details></li><li><details class="nav-group"><summary>沙箱平台</summary><ul><li><a href="../../platforms/index.html">沙箱平台与基础设施</a></li></ul></details></li><li><details class="nav-group"><summary>专题</summary><ul><li><a href="../../topics/lifecycle-control-plane.html">生命周期与控制面</a></li><li><a href="../../topics/cpu-memory-machine.html">CPU、内存与机器模型</a></li><li><a href="../../topics/snapshot-restore-migration.html">Snapshot、Restore 与 Migration</a></li><li><a href="../../topics/storage-device-io.html">存储、设备与 I/O</a></li><li><a href="../../topics/network-isolation.html">网络与隔离</a></li><li><a href="../../topics/operations-observability-performance.html">操作、可观测性与性能</a></li></ul></details></li><li><details class="nav-group"><summary>方法与索引</summary><ul><li><a href="../../methodology/status-and-evidence.html">研究状态与证据方法</a></li><li><a href="../../versions/index.html">版本与证据覆盖</a></li><li><a href="../../changes.html">变更记录</a></li><li><a href="../../sitemap.html">站点地图</a></li></ul></details></li></ul></nav>
+    <nav aria-label="主要导航" data-global-nav="true"><ul class="nav-tree"><li><a href="../../index.html">首页</a></li><li><details class="nav-group" open><summary>三轴入口</summary><ul><li><a href="../../projects/index.html">项目</a></li><li><a href="../../topics/index.html">特性与横向比较</a></li><li><a href="../../evolution/index.html">版本演进</a></li></ul></details></li><li><details class="nav-group"><summary>方法与索引</summary><ul><li><a href="../../methodology/status-and-evidence.html">研究方法与报告规范</a></li><li><a href="../../versions/index.html">版本与证据覆盖</a></li><li><a href="../../changes.html">Wiki 更新记录</a></li><li><a href="../../sitemap.html">站点地图</a></li></ul></details></li></ul></nav>
   </aside>
   <button class="sidebar-scrim" id="sidebar-scrim" aria-label="关闭导航"></button>
   <main class="content" id="main-content" tabindex="-1">
@@ -30,7 +30,7 @@
       <a class="back-home" href="../../index.html">首页</a>
     </div>
 <nav class="breadcrumbs" aria-label="面包屑"><ol><li><a href="../../index.html">首页</a></li><li><a href="../../projects/index.html">项目目录</a></li><li><a href="../../projects/cubesandbox.html">CubeSandbox</a></li><li><a href="../../topics/snapshot-restore-migration.html">Snapshot、Restore 与 Migration</a></li><li aria-current="page">基于 Template 启动到 RestoreVm 与 MSI-X Restore 的链路分析</li></ol></nav>
-<div class="page-meta" aria-label="文档元数据"><span class="badge">机制解析</span><a class="badge badge-status" href="../../methodology/status-and-evidence.html#status">状态：待固定版本复核</a><span class="badge">CubeSandbox</span><span class="badge">角色：核心研究项目 / 沙箱平台</span></div><p class="status-explainer"><strong>待固定版本复核</strong>表示本文尚未按结构化的 pinned baseline 重新验证，不表示文章内容为假。状态不会因为进入目录或公开站点而自动升级。</p>
+<div class="page-meta" aria-label="文档元数据"><span class="badge">机制解析</span><a class="badge badge-status" href="../../methodology/status-and-evidence.html#status">状态：源码版本已固定，证据仍未完备</a><span class="badge">CubeSandbox</span><span class="badge">角色：核心研究项目 / 沙箱平台</span><a class="badge" href="../../versions/index.html#cubesandbox-5135a40d-20260731" title="cubesandbox 5135a40d86c94a85fe2521fd9ed913ac5fd6cfd9；角色：primary">版本基线：commit-pinned@5135a40d86c9</a><span class="badge">复核日期：2026-09-22</span></div><p class="status-explainer"><strong>源码版本已固定，证据仍未完备</strong>是本文的读者状态：页面已按显示的固定源码版本完成版本登记与源码级复核，但 build、runtime、跨组件或完整 claim-level 证据尚未齐备；机器状态保持 <code>unconfirmed</code>，登记 baseline 不会自动升级为 <code>current</code>。</p>
     <article class="markdown-body"><h1 id="template-restorevm-msi-x-restore">基于 Template 启动到 RestoreVm 与 MSI-X Restore 的链路分析</h1>
 <p>本文解释两个问题：</p>
 <ol>
@@ -38,6 +38,7 @@
 <li><code>MSI-X restore</code> 和观测到的 <code>interrupt_group_update_many</code> 分别对应哪一段执行链路。</li>
 </ol>
 <p>本文聚焦 Template 启动时延路径，也就是基准测试中“基于 Template 创建沙箱”的 create-only 路径。</p>
+<p>源码基线固定为 CubeSandbox canonical 工作树提交 <code>5135a40d86c94a85fe2521fd9ed913ac5fd6cfd9</code>（分支记录为 <code>0731-after-v0.6.0</code>）；§10 内核实验一节的基线单独标注。</p>
 <h2 id="_1">结论概览</h2>
 <p>基于 Template 创建沙箱不是一次冷启动 VM。CubeSandbox 的 Template 背后绑定的是 AppSnapshot/runtime snapshot。创建请求进入 CubeMaster 后，会先根据 template id 展开历史保存的创建请求；Cubelet 再把 snapshot 元数据转换成 OCI annotations；CubeShim 读取到 <code>cube.appsnapshot.restore=true</code> 后，会调用 hypervisor 的 VM restore 接口，而不是走完整冷启动路径。</p>
 <p>核心调用链如下：</p>
@@ -62,7 +63,7 @@
 <p>因此，在并发 Template 启动压测中，如果 Cubelet 侧的 storage/network 阶段耗时很小，而 CubeShim 的 <code>RestoreVm</code> 统计值接近整体 <code>sandbox-start</code> 耗时，说明瓶颈已经进入 shim/VMM 的 VM restore 阶段。后续定位应重点关注 VM 内存恢复、CPU/device manager 恢复、arm64 vGIC 恢复、virtio PCI 设备恢复、MSI-X 路由恢复和 KVM GSI routing 更新。</p>
 <h2 id="1-cubemaster-template">1. CubeMaster 展开 Template 请求</h2>
 <p>Template 路径从创建请求携带 template id annotation 开始。<code>dealCubeboxCreateReqWithTemplate</code> 会规范化 AppSnapshot annotations，然后在默认 Template 版本下进入 template-center 路径。</p>
-<pre><code class="language-go">// CubeMaster/pkg/service/httpservice/cube/cubeboxutil.go:325
+<pre><code class="language-go">// CubeMaster/pkg/service/httpservice/cube/cubeboxutil.go:376
 func dealCubeboxCreateReqWithTemplate(ctx context.Context, reqInOut *types.CreateCubeSandboxReq) error {
     if reqInOut.InstanceType != cubebox.InstanceType_cubebox.String() {
         return nil
@@ -83,7 +84,7 @@ func dealCubeboxCreateReqWithTemplate(ctx context.Context, reqInOut *types.Creat
 }
 </code></pre>
 <p><code>dealCubeboxCreateReqWithTemplateCenter</code> 会读取 Template 保存的创建参数，确认本地 Template 可用，判断 Template 类型，然后把 Template 中的 annotations、volumes、containers、network type、runtime handler、namespace 等信息合并到当前创建请求中。</p>
-<pre><code class="language-go">// CubeMaster/pkg/service/httpservice/cube/cubeboxutil.go:368
+<pre><code class="language-go">// CubeMaster/pkg/service/httpservice/cube/cubeboxutil.go:423
 func dealCubeboxCreateReqWithTemplateCenter(ctx context.Context, templateID string, reqInOut *types.CreateCubeSandboxReq) error {
     templateReq, err := templatecenter.GetTemplateRequest(ctx, templateID)
     if err != nil {
@@ -132,7 +133,7 @@ func dealCubeboxCreateReqWithTemplateCenter(ctx context.Context, templateID stri
 <p>这一阶段完成后，请求形式上仍然是普通 sandbox create request，但它已经携带了 Template/AppSnapshot 所需的元数据。</p>
 <h2 id="2-cubemaster-cubelet">2. CubeMaster 构造 Cubelet 请求</h2>
 <p><code>ConstructCubeletReq</code> 会保留 labels 和 annotations，并把 API 层的创建请求转换成 Cubelet 使用的 <code>cubebox.RunCubeSandboxRequest</code>。</p>
-<pre><code class="language-go">// CubeMaster/pkg/service/sandbox/util.go:121
+<pre><code class="language-go">// CubeMaster/pkg/service/sandbox/util.go:213
 func ConstructCubeletReq(ctx context.Context, req *types.CreateCubeSandboxReq) (*cubebox.RunCubeSandboxRequest, error) {
     out := &amp;cubebox.RunCubeSandboxRequest{
         RequestID:      req.RequestID,
@@ -142,7 +143,7 @@ func ConstructCubeletReq(ctx context.Context, req *types.CreateCubeSandboxReq) (
         Annotations:    make(map[string]string),
         RuntimeHandler: req.RuntimeHandler,
         Namespace:      req.Namespace,
-        CubevsContext:  mapCubeVSContext(req.CubeVSContext),
+        CubeNetworkConfig: mapCubeNetworkConfig(req.CubeNetworkConfig),
     }
 
     err := checkAndGetAnnotation(req, out)
@@ -167,7 +168,7 @@ func ConstructCubeletReq(ctx context.Context, req *types.CreateCubeSandboxReq) (
 <pre><code class="language-text">cube.appsnapshot.restore=true
 </code></pre>
 <p>该 annotation 被 CubeShim 读取后，会让启动路径进入 snapshot restore。</p>
-<pre><code class="language-go">// Cubelet/plugins/cbri/cubeboxcbri/cubebox.go:180
+<pre><code class="language-go">// Cubelet/plugins/cbri/cubeboxcbri/cubebox.go:185
 if flowOpts.IsCubeboxV2() {
     paths, err := e.resolveSnapshotPaths(templateID, flowOpts.LocalRunTemplate.Snapshot.Snapshot.Path, flowOpts.ReqInfo)
     if err != nil {
@@ -198,7 +199,7 @@ annotations[constants.AnnotationAppSnapshotContainerID] = snapshotRestoreContain
 <p>这就是基于 Template 启动会进入 restore 路径，而不是从空 VM 冷启动的直接原因。</p>
 <h2 id="4-cubelet-containerd-task-cubeshim">4. Cubelet 创建并启动 containerd Task / CubeShim</h2>
 <p>Cubelet 随后创建并启动 containerd task。基准测试中看到的 <code>sandbox-start</code> 统计，覆盖的是 <code>NewTask</code> 之前到 <code>task.Start</code> 之后的时间区间。</p>
-<pre><code class="language-go">// Cubelet/services/cubebox/cube_container_create.go:1185
+<pre><code class="language-go">// Cubelet/services/cubebox/cube_container_create.go:1244
 taskStart := time.Now()
 task, err := c.NewTask(ctx, ioCreater, taskOpts...)
 if err != nil {
@@ -221,7 +222,7 @@ workflow.RecordCreateMetric(ctx, err, constants.CubeShimStartId, time.Since(task
 <p>因此，如果压测数据中 <code>sandbox-start</code> 的大部分耗时与 CubeShim 的 <code>RestoreVm</code> stat 对齐，说明主要耗时已经在 shim/VMM restore，而不是 Cubelet 的存储准备或网络准备阶段。</p>
 <h2 id="5-cubeshim-restorevm">5. CubeShim 判断并进入 RestoreVm</h2>
 <p>CubeShim 在 sandbox 初始化时解析 OCI annotations。如果 <code>app_snapshot_restore</code> 为 true，它会校验 fresh memory volume URL 是否存在。</p>
-<pre><code class="language-rust">// CubeShim/shim/src/sandbox/sb.rs:137
+<pre><code class="language-rust">// CubeShim/shim/src/sandbox/sb.rs:139
 pub fn init(&amp;mut self, spec: Spec) -&gt; CResult&lt;()&gt; {
     self.spec = spec;
     let annotations = self.spec.annotations();
@@ -248,7 +249,7 @@ pub fn init(&amp;mut self, spec: Spec) -&gt; CResult&lt;()&gt; {
 }
 </code></pre>
 <p><code>start_vm</code> 会先启动 VMM，然后在 sandbox 基于 snapshot 时调用 <code>restore_vm</code>。对于 AppSnapshot restore，restore 失败是致命错误，不会继续走冷启动兜底。</p>
-<pre><code class="language-rust">// CubeShim/shim/src/sandbox/sb.rs:781
+<pre><code class="language-rust">// CubeShim/shim/src/sandbox/sb.rs:832
 async fn start_vm(&amp;mut self) -&gt; CResult&lt;bool&gt; {
     infof!(self.log, &quot;start vm start&quot;);
     {
@@ -276,7 +277,7 @@ async fn start_vm(&amp;mut self) -&gt; CResult&lt;bool&gt; {
 }
 </code></pre>
 <p>CubeShim 的 <code>restore_vm</code> 会构造 <code>RestoreConfig</code>，其中包含 snapshot path、运行时设备配置、网络配置、磁盘/pmem/vsock 配置，以及 fresh memory volume URL。</p>
-<pre><code class="language-rust">// CubeShim/shim/src/sandbox/sb.rs:946
+<pre><code class="language-rust">// CubeShim/shim/src/sandbox/sb.rs:889
 async fn restore_vm(&amp;mut self) -&gt; CResult&lt;()&gt; {
     let ss_file = SnapshotInfo::load(
         self.conf.snapshot_base.as_str(),
@@ -396,8 +397,8 @@ fn restore(&amp;mut self, snapshot: Snapshot) -&gt; std::result::Result&lt;(), M
 </code></pre>
 <p>这说明 arm64 的 restore 路径比普通设备恢复多了一段 vGIC/中断控制器恢复逻辑。并发启动时，如果该路径存在锁竞争、ioctl 开销或串行化热点，就可能放大整体启动时延。</p>
 <h2 id="7-msi-x-restore">7. MSI-X Restore 发生在哪里</h2>
-<p><code>DeviceManager::restore_devices</code> 会遍历 device tree，并对每个可迁移设备调用 <code>restore()</code>。virtio PCI 设备的恢复就在这个阶段发生。</p>
-<pre><code class="language-rust">// hypervisor/vmm/src/device_manager.rs:4478
+<p><code>DeviceManager::restore_devices</code> 会遍历 device tree，并对每个可迁移设备调用 <code>restore()</code>；并发度受 <code>MAX_WORKER_THREADS</code> 上限约束（tokio 组内并发、组间等待，<code>device_manager.rs:4467-4489</code>）。virtio PCI 设备的恢复就在这个阶段发生。</p>
+<pre><code class="language-rust">// hypervisor/vmm/src/device_manager.rs:4519
 pub fn restore_devices(&amp;mut self, snapshot: Snapshot) -&gt; std::result::Result&lt;(), MigratableError&gt; {
     let devices_children: Vec&lt;_&gt; = self.device_tree.lock().unwrap()
         .breadth_first_traversal_children()
@@ -418,7 +419,7 @@ pub fn restore_devices(&amp;mut self, snapshot: Snapshot) -&gt; std::result::Res
 }
 </code></pre>
 <p>遍历过程中，每个 migratable device 都会执行自己的 <code>restore</code> 方法。</p>
-<pre><code class="language-rust">// hypervisor/vmm/src/device_manager.rs:4450
+<pre><code class="language-rust">// hypervisor/vmm/src/device_manager.rs:4489
 for node in nodes {
     if let Some(migratable) = node.migratable {
         if let Some(snapshot) = snapshot.snapshots.get(&amp;node.id).cloned() {
@@ -462,7 +463,7 @@ fn restore(&amp;mut self, snapshot: Snapshot) -&gt; std::result::Result&lt;(), M
     Ok(())
 }
 </code></pre>
-<p>因此，日志或 profile 中看到的 <code>virtio_pci_restore_detail</code>、<code>msix_restore_profile</code>，对应的就是 <code>DeviceManager::restore_devices -&gt; VirtioPciDevice::restore -&gt; MsixConfig::restore/set_state</code> 这一段。</p>
+<p>因此，日志或 profile 中看到的 <code>virtio_pci_restore_detail</code>、<code>msix_restore_profile</code>（部署环境的 profile 名，源码中无同名标识符），对应的就是 <code>DeviceManager::restore_devices -&gt; VirtioPciDevice::restore -&gt; MsixConfig::restore/set_state</code> 这一段。</p>
 <h2 id="8-interrupt_group_update_many">8. interrupt_group_update_many 对应什么</h2>
 <p><code>interrupt_group_update_many</code> 是部署版本日志/profile 中观测到的阶段名。当前源码中没有完全同名函数时，可以把它理解为 MSI-X restore 过程中对多个 MSI-X vector 重复或批量执行的 interrupt route update 工作。</p>
 <p>更具体地说，它对应的是：</p>

@@ -447,7 +447,7 @@
       "1. snapshot job 创建 + Cubelet gRPC",
       "2. 能力边界"
     ],
-    "summary": "CubeMaster Snapshot Job Contract 链路 本文展开 CubeMaster templatecenter 如何把同步 API 转成 snapshot job、Cubelet gRPC 和 READY/FAILED 终态。 源码基线：当前仓库工作树。 相关： CubeAPI Long Operation Contract cubeapi-long-operation-contract-chain.md 、 snapshot create/commit snapshot-create-com",
+    "summary": "CubeMaster Snapshot Job Contract 链路 本文展开 CubeMaster templatecenter 如何把同步 API 转成 snapshot job、Cubelet gRPC 和 READY/FAILED 终态。 源码基线固定为 CubeSandbox canonical 工作树提交 5135a40d86c94a85fe2521fd9ed913ac5fd6cfd9 （分支记录为 0731-after-v0.6.0 ）。 相关： CubeAPI Long Operation Con",
     "scope": "project",
     "projects": [
       "cubesandbox"
@@ -459,7 +459,17 @@
       "snapshot-restore-migration"
     ],
     "component_baselines": [],
-    "baseline_refs": [],
+    "baseline_refs": [
+      {
+        "id": "cubesandbox-5135a40d-20260731",
+        "component": "cubesandbox",
+        "version": "commit-pinned",
+        "commit": "5135a40d86c94a85fe2521fd9ed913ac5fd6cfd9",
+        "selected_at": "2026-07-31",
+        "review_state": "active-review",
+        "role": "primary"
+      }
+    ],
     "curated_topics": [
       "template-snapshot"
     ],
@@ -474,7 +484,7 @@
     ],
     "architectures": [],
     "evidence_classes": [],
-    "reviewed_at": ""
+    "reviewed_at": "2026-09-22"
   },
   {
     "doc_id": "cubesandbox.cubesandbox-redis-hugepages-report-20260627",
@@ -890,7 +900,17 @@
       "snapshot-restore-migration"
     ],
     "component_baselines": [],
-    "baseline_refs": [],
+    "baseline_refs": [
+      {
+        "id": "cubesandbox-5135a40d-20260731",
+        "component": "cubesandbox",
+        "version": "commit-pinned",
+        "commit": "5135a40d86c94a85fe2521fd9ed913ac5fd6cfd9",
+        "selected_at": "2026-07-31",
+        "review_state": "active-review",
+        "role": "primary"
+      }
+    ],
     "curated_topics": [
       "template-snapshot"
     ],
@@ -904,7 +924,7 @@
     ],
     "architectures": [],
     "evidence_classes": [],
-    "reviewed_at": ""
+    "reviewed_at": "2026-09-22"
   },
   {
     "doc_id": "cubesandbox.network-agent-ensure-network-chain",
@@ -1112,7 +1132,7 @@
       "2. VmSetFs（运行时 fs update）",
       "3. 能力边界"
     ],
-    "summary": "CubeSandbox Rollback / Runtime Update 链路 本文展开 rollback 到 snapshot 与运行时 fs update 的关系——两者都穿过 shim/VMM，但语义完全不同。 源码基线：当前仓库工作树。 相关： virtio net/fs restore virtio-net-fs-restore-chain.md 、 snapshot catalog restore binding snapshot-catalog-restore-binding-chain.md 、 ",
+    "summary": "CubeSandbox Rollback / Runtime Update 链路 本文展开 rollback 到 snapshot 与运行时 fs update 的关系——两者都穿过 shim/VMM，但语义完全不同。 源码基线固定为 CubeSandbox canonical 工作树提交 5135a40d86c94a85fe2521fd9ed913ac5fd6cfd9 （分支记录为 0731-after-v0.6.0 ）。 相关： virtio net/fs restore virtio-net-fs-resto",
     "scope": "project",
     "projects": [
       "cubesandbox"
@@ -1124,7 +1144,17 @@
       "snapshot-restore-migration"
     ],
     "component_baselines": [],
-    "baseline_refs": [],
+    "baseline_refs": [
+      {
+        "id": "cubesandbox-5135a40d-20260731",
+        "component": "cubesandbox",
+        "version": "commit-pinned",
+        "commit": "5135a40d86c94a85fe2521fd9ed913ac5fd6cfd9",
+        "selected_at": "2026-07-31",
+        "review_state": "active-review",
+        "role": "primary"
+      }
+    ],
     "curated_topics": [
       "template-snapshot"
     ],
@@ -1138,7 +1168,7 @@
     ],
     "architectures": [],
     "evidence_classes": [],
-    "reviewed_at": ""
+    "reviewed_at": "2026-09-22"
   },
   {
     "doc_id": "cubesandbox.runtime-control-vmm-update-chain",
@@ -1299,7 +1329,7 @@
       "2. catalog binding labels",
       "3. 能力边界"
     ],
-    "summary": "Snapshot Catalog / Restore Binding 链路 本文分析 logical snapshot id 如何变成 Cubelet 本地物理对象，并最终注入到新 sandbox 或 running rollback 中。 源码基线：当前仓库工作树。 相关： snapshot create/commit snapshot-create-commit-chain.md 、 CubeCoW 存储引擎 cubecow-storage-engine-chain.md 、 rollback runtime ",
+    "summary": "Snapshot Catalog / Restore Binding 链路 本文分析 logical snapshot id 如何变成 Cubelet 本地物理对象，并最终注入到新 sandbox 或 running rollback 中。 源码基线固定为 CubeSandbox canonical 工作树提交 5135a40d86c94a85fe2521fd9ed913ac5fd6cfd9 （分支记录为 0731-after-v0.6.0 ）。 相关： snapshot create/commit snapsho",
     "scope": "project",
     "projects": [
       "cubesandbox"
@@ -1311,7 +1341,17 @@
       "snapshot-restore-migration"
     ],
     "component_baselines": [],
-    "baseline_refs": [],
+    "baseline_refs": [
+      {
+        "id": "cubesandbox-5135a40d-20260731",
+        "component": "cubesandbox",
+        "version": "commit-pinned",
+        "commit": "5135a40d86c94a85fe2521fd9ed913ac5fd6cfd9",
+        "selected_at": "2026-07-31",
+        "review_state": "active-review",
+        "role": "primary"
+      }
+    ],
     "curated_topics": [
       "template-snapshot"
     ],
@@ -1326,7 +1366,7 @@
     ],
     "architectures": [],
     "evidence_classes": [],
-    "reviewed_at": ""
+    "reviewed_at": "2026-09-22"
   },
   {
     "doc_id": "cubesandbox.snapshot-create-commit-chain",
@@ -1350,7 +1390,7 @@
       "10. ARM64 与 x86_64 观察点",
       "11. 下一步深挖"
     ],
-    "summary": "Snapshot Create / Commit 生成链路 本文分析 CubeSandbox 的 snapshot 如何被创建——重点不是 API 名称，而是 VM state、guest memory、rootfs、CubeCoW 对象和本地 catalog 如何组合成可 restore/rollback 的平台级快照。 源码基线：当前仓库工作树。 相关： CubeCoW storage engine cubecow-storage-engine-chain.md 、 snapshot catalog resto",
+    "summary": "Snapshot Create / Commit 生成链路 本文分析 CubeSandbox 的 snapshot 如何被创建——重点不是 API 名称，而是 VM state、guest memory、rootfs、CubeCoW 对象和本地 catalog 如何组合成可 restore/rollback 的平台级快照。 源码基线固定为 CubeSandbox canonical 工作树提交 5135a40d86c94a85fe2521fd9ed913ac5fd6cfd9 （分支记录为 0731-after-v0",
     "scope": "project",
     "projects": [
       "cubesandbox"
@@ -1362,7 +1402,17 @@
       "snapshot-restore-migration"
     ],
     "component_baselines": [],
-    "baseline_refs": [],
+    "baseline_refs": [
+      {
+        "id": "cubesandbox-5135a40d-20260731",
+        "component": "cubesandbox",
+        "version": "commit-pinned",
+        "commit": "5135a40d86c94a85fe2521fd9ed913ac5fd6cfd9",
+        "selected_at": "2026-07-31",
+        "review_state": "active-review",
+        "role": "primary"
+      }
+    ],
     "curated_topics": [
       "template-snapshot"
     ],
@@ -1376,7 +1426,7 @@
     ],
     "architectures": [],
     "evidence_classes": [],
-    "reviewed_at": ""
+    "reviewed_at": "2026-09-22"
   },
   {
     "doc_id": "cubesandbox.snapshot-replica-reconciler-chain",
@@ -1389,7 +1439,7 @@
       "1. reconcileSnapshotReplicaPresence",
       "2. 能力边界"
     ],
-    "summary": "Snapshot Replica Reconciler 链路 本文分析 snapshot/template replica 如何被 Master 发现、缓存、校验和用于调度——承接 catalog/restore binding：如果 Cubelet local catalog 是物理权威，Master 的 replica ready 状态就必须能被 catalog 证明。 源码基线：当前仓库工作树。 相关： snapshot catalog restore binding snapshot-catalog-res",
+    "summary": "Snapshot Replica Reconciler 链路 本文分析 snapshot/template replica 如何被 Master 发现、缓存、校验和用于调度——承接 catalog/restore binding：如果 Cubelet local catalog 是物理权威，Master 的 replica ready 状态就必须能被 catalog 证明。 源码基线固定为 CubeSandbox canonical 工作树提交 5135a40d86c94a85fe2521fd9ed913ac5fd",
     "scope": "project",
     "projects": [
       "cubesandbox"
@@ -1401,7 +1451,17 @@
       "snapshot-restore-migration"
     ],
     "component_baselines": [],
-    "baseline_refs": [],
+    "baseline_refs": [
+      {
+        "id": "cubesandbox-5135a40d-20260731",
+        "component": "cubesandbox",
+        "version": "commit-pinned",
+        "commit": "5135a40d86c94a85fe2521fd9ed913ac5fd6cfd9",
+        "selected_at": "2026-07-31",
+        "review_state": "active-review",
+        "role": "primary"
+      }
+    ],
     "curated_topics": [
       "template-snapshot"
     ],
@@ -1415,7 +1475,7 @@
     ],
     "architectures": [],
     "evidence_classes": [],
-    "reviewed_at": ""
+    "reviewed_at": "2026-09-22"
   },
   {
     "doc_id": "cubesandbox.snapshot-restore-network-chain",
@@ -1428,7 +1488,7 @@
       "1. restore_vm（RestoreConfig 含 net）",
       "2. 能力边界"
     ],
-    "summary": "Snapshot Restore 网络恢复链路 本文聚焦 CubeSandbox 恢复 VM 时网络如何恢复——核心问题不是\"snapshot 是否包含网卡\"，而是恢复时 host 侧 TAP、VMM virtio-net 后端、guest 内接口状态分别由谁负责。 源码基线：当前仓库工作树。 相关： snapshot create/commit snapshot-create-commit-chain.md 、 rollback runtime update rollback-runtime-update-cha",
+    "summary": "Snapshot Restore 网络恢复链路 本文聚焦 CubeSandbox 恢复 VM 时网络如何恢复——核心问题不是\"snapshot 是否包含网卡\"，而是恢复时 host 侧 TAP、VMM virtio-net 后端、guest 内接口状态分别由谁负责。 源码基线固定为 CubeSandbox canonical 工作树提交 5135a40d86c94a85fe2521fd9ed913ac5fd6cfd9 （分支记录为 0731-after-v0.6.0 ）。 相关： snapshot create/c",
     "scope": "project",
     "projects": [
       "cubesandbox"
@@ -1440,7 +1500,17 @@
       "snapshot-restore-migration"
     ],
     "component_baselines": [],
-    "baseline_refs": [],
+    "baseline_refs": [
+      {
+        "id": "cubesandbox-5135a40d-20260731",
+        "component": "cubesandbox",
+        "version": "commit-pinned",
+        "commit": "5135a40d86c94a85fe2521fd9ed913ac5fd6cfd9",
+        "selected_at": "2026-07-31",
+        "review_state": "active-review",
+        "role": "primary"
+      }
+    ],
     "curated_topics": [
       "template-snapshot"
     ],
@@ -1454,7 +1524,7 @@
     ],
     "architectures": [],
     "evidence_classes": [],
-    "reviewed_at": ""
+    "reviewed_at": "2026-09-22"
   },
   {
     "doc_id": "cubesandbox.snapshot-template-storage-format-chain",
@@ -1486,7 +1556,7 @@
       "5.3 Runtime Snapshot 对象生命周期",
       "6. 使用场景总结"
     ],
-    "summary": "CubeSandbox Snapshot 与 Template 存储、格式、恢复链路专题 本文系统分析 CubeSandbox 中 Snapshot 和 Template 的 保存位置、保存格式、恢复链路、使用场景 ——从物理目录结构到 CubeCoW 对象再到 catalog 绑定，逐层拆解。 源码基线：当前仓库工作树。 相关： snapshot create/commit snapshot-create-commit-chain.md 、 template build from OCI template-bui",
+    "summary": "CubeSandbox Snapshot 与 Template 存储、格式、恢复链路专题 本文系统分析 CubeSandbox 中 Snapshot 和 Template 的 保存位置、保存格式、恢复链路、使用场景 ——从物理目录结构到 CubeCoW 对象再到 catalog 绑定，逐层拆解。 源码基线固定为 CubeSandbox canonical 工作树提交 5135a40d86c94a85fe2521fd9ed913ac5fd6cfd9 （分支记录为 0731-after-v0.6.0 ）。 相关： sn",
     "scope": "project",
     "projects": [
       "cubesandbox"
@@ -1498,7 +1568,17 @@
       "snapshot-restore-migration"
     ],
     "component_baselines": [],
-    "baseline_refs": [],
+    "baseline_refs": [
+      {
+        "id": "cubesandbox-5135a40d-20260731",
+        "component": "cubesandbox",
+        "version": "commit-pinned",
+        "commit": "5135a40d86c94a85fe2521fd9ed913ac5fd6cfd9",
+        "selected_at": "2026-07-31",
+        "review_state": "active-review",
+        "role": "primary"
+      }
+    ],
     "curated_topics": [
       "template-snapshot"
     ],
@@ -1513,7 +1593,7 @@
     ],
     "architectures": [],
     "evidence_classes": [],
-    "reviewed_at": ""
+    "reviewed_at": "2026-09-22"
   },
   {
     "doc_id": "cubesandbox.tap-fd-networkinfo-chain",
@@ -1628,7 +1708,7 @@
       "5. 配置空间",
       "5.1 Template 构建时的可配项"
     ],
-    "summary": "CubeSandbox Template 构建链路：从 OCI 镜像到 Template 本文追踪 CubeSandbox 如何从 OCI 容器镜像构建出可 clone/rollback 的 Template——分析完整构建过程、各产物组成以及配置空间。 源码基线：当前仓库工作树。 相关： snapshot create/commit snapshot-create-commit-chain.md 、 CubeCoW 存储引擎 cubecow-storage-engine-chain.md 、 cubelet wo",
+    "summary": "CubeSandbox Template 构建链路：从 OCI 镜像到 Template 本文追踪 CubeSandbox 如何从 OCI 容器镜像构建出可 clone/rollback 的 Template——分析完整构建过程、各产物组成以及配置空间。 源码基线固定为 CubeSandbox canonical 工作树提交 5135a40d86c94a85fe2521fd9ed913ac5fd6cfd9 （分支记录为 0731-after-v0.6.0 ）。 相关： snapshot create/commit ",
     "scope": "project",
     "projects": [
       "cubesandbox"
@@ -1640,7 +1720,17 @@
       "lifecycle-control-plane"
     ],
     "component_baselines": [],
-    "baseline_refs": [],
+    "baseline_refs": [
+      {
+        "id": "cubesandbox-5135a40d-20260731",
+        "component": "cubesandbox",
+        "version": "commit-pinned",
+        "commit": "5135a40d86c94a85fe2521fd9ed913ac5fd6cfd9",
+        "selected_at": "2026-07-31",
+        "review_state": "active-review",
+        "role": "primary"
+      }
+    ],
     "curated_topics": [
       "template-snapshot"
     ],
@@ -1655,7 +1745,7 @@
     ],
     "architectures": [],
     "evidence_classes": [],
-    "reviewed_at": ""
+    "reviewed_at": "2026-09-22"
   },
   {
     "doc_id": "cubesandbox.template-restore-msix-chain",
@@ -1681,7 +1771,7 @@
       "10.6 启动时延测试结果",
       "10.7 结论"
     ],
-    "summary": "基于 Template 启动到 RestoreVm 与 MSI-X Restore 的链路分析 本文解释两个问题： 1. 基于 CubeSandbox Template 创建沙箱进行并发启动时延测试时，为什么运行链路会进入 RestoreVm 。 2. MSI-X restore 和观测到的 interrupt group update many 分别对应哪一段执行链路。 本文聚焦 Template 启动时延路径，也就是基准测试中“基于 Template 创建沙箱”的 create-only 路径。 结论概览 基于",
+    "summary": "基于 Template 启动到 RestoreVm 与 MSI-X Restore 的链路分析 本文解释两个问题： 1. 基于 CubeSandbox Template 创建沙箱进行并发启动时延测试时，为什么运行链路会进入 RestoreVm 。 2. MSI-X restore 和观测到的 interrupt group update many 分别对应哪一段执行链路。 本文聚焦 Template 启动时延路径，也就是基准测试中“基于 Template 创建沙箱”的 create-only 路径。 源码基线固定为",
     "scope": "project",
     "projects": [
       "cubesandbox"
@@ -1693,7 +1783,17 @@
       "snapshot-restore-migration"
     ],
     "component_baselines": [],
-    "baseline_refs": [],
+    "baseline_refs": [
+      {
+        "id": "cubesandbox-5135a40d-20260731",
+        "component": "cubesandbox",
+        "version": "commit-pinned",
+        "commit": "5135a40d86c94a85fe2521fd9ed913ac5fd6cfd9",
+        "selected_at": "2026-07-31",
+        "review_state": "active-review",
+        "role": "primary"
+      }
+    ],
     "curated_topics": [
       "template-snapshot"
     ],
@@ -1707,7 +1807,7 @@
     ],
     "architectures": [],
     "evidence_classes": [],
-    "reviewed_at": ""
+    "reviewed_at": "2026-09-22"
   },
   {
     "doc_id": "cubesandbox.virtio-interrupt-injection-trace",
@@ -1787,7 +1887,7 @@
       "11. 能力边界",
       "12. 下一步深入点"
     ],
-    "summary": "CubeSandbox Virtio Net / Fs Restore 内部状态链路 本文展开 VMM Device Restore 设备恢复链路 vmm-device-restore-chain.md 的下一步，聚焦 virtio-net 与 virtio-fs 在 restore 中 到底恢复了哪些状态、哪些只是重新绑定当前节点后端 。 结论只来自当前仓库源码。 transport 层 MSI-X/queue 恢复详见 中断状态恢复链路 interrupt-state-restore-chain.md ；网络 ",
+    "summary": "CubeSandbox Virtio Net / Fs Restore 内部状态链路 本文展开 VMM Device Restore 设备恢复链路 vmm-device-restore-chain.md 的下一步，聚焦 virtio-net 与 virtio-fs 在 restore 中 到底恢复了哪些状态、哪些只是重新绑定当前节点后端 。 源码基线固定为 CubeSandbox canonical 工作树提交 5135a40d86c94a85fe2521fd9ed913ac5fd6cfd9 （分支记录为 0731",
     "scope": "project",
     "projects": [
       "cubesandbox"
@@ -1799,7 +1899,17 @@
       "snapshot-restore-migration"
     ],
     "component_baselines": [],
-    "baseline_refs": [],
+    "baseline_refs": [
+      {
+        "id": "cubesandbox-5135a40d-20260731",
+        "component": "cubesandbox",
+        "version": "commit-pinned",
+        "commit": "5135a40d86c94a85fe2521fd9ed913ac5fd6cfd9",
+        "selected_at": "2026-07-31",
+        "review_state": "active-review",
+        "role": "primary"
+      }
+    ],
     "curated_topics": [
       "template-snapshot"
     ],
@@ -1814,7 +1924,7 @@
     ],
     "architectures": [],
     "evidence_classes": [],
-    "reviewed_at": ""
+    "reviewed_at": "2026-09-22"
   },
   {
     "doc_id": "cubesandbox.vmm-device-restore-chain",
@@ -1836,7 +1946,7 @@
       "10. 能力边界",
       "11. 下一步深入点"
     ],
-    "summary": "CubeSandbox VMM Device Restore 设备恢复链路 本文展开 VMM Snapshot Restore 状态恢复链路 vmm-snapshot-restore-state-chain.md 的下一步，聚焦 DeviceManager::create devices 与 DeviceManager::restore devices 如何协同恢复设备拓扑、后端和内部状态。 结论只来自当前仓库源码。 中断状态恢复（GIC/ITS/MSI-X route re-enable）见 中断状态恢复链路 i",
+    "summary": "CubeSandbox VMM Device Restore 设备恢复链路 本文展开 VMM Snapshot Restore 状态恢复链路 vmm-snapshot-restore-state-chain.md 的下一步，聚焦 DeviceManager::create devices 与 DeviceManager::restore devices 如何协同恢复设备拓扑、后端和内部状态。 源码基线固定为 CubeSandbox canonical 工作树提交 5135a40d86c94a85fe2521fd9e",
     "scope": "project",
     "projects": [
       "cubesandbox"
@@ -1848,7 +1958,17 @@
       "snapshot-restore-migration"
     ],
     "component_baselines": [],
-    "baseline_refs": [],
+    "baseline_refs": [
+      {
+        "id": "cubesandbox-5135a40d-20260731",
+        "component": "cubesandbox",
+        "version": "commit-pinned",
+        "commit": "5135a40d86c94a85fe2521fd9ed913ac5fd6cfd9",
+        "selected_at": "2026-07-31",
+        "review_state": "active-review",
+        "role": "primary"
+      }
+    ],
     "curated_topics": [
       "template-snapshot"
     ],
@@ -1862,7 +1982,7 @@
     ],
     "architectures": [],
     "evidence_classes": [],
-    "reviewed_at": ""
+    "reviewed_at": "2026-09-22"
   },
   {
     "doc_id": "cubesandbox.vmm-snapshot-restore-state-chain",
@@ -1884,7 +2004,7 @@
       "10. 与上一层文档的关系",
       "11. 下一步深入点"
     ],
-    "summary": "CubeSandbox VMM Snapshot Restore 状态恢复链路 本文展开 CubeSandbox 快照路线，聚焦 CubeShim 之后的 CubeHypervisor / VMM 内部恢复机制。 结论只来自当前仓库源码，不把上游 Cloud Hypervisor 的通用说明当作依据。 设备恢复细节见 VMM Device Restore 设备恢复链路 vmm-device-restore-chain.md ；virtio-net/fs 内部状态见 Virtio Net/Fs Restore 链路 ",
+    "summary": "CubeSandbox VMM Snapshot Restore 状态恢复链路 本文展开 CubeSandbox 快照路线，聚焦 CubeShim 之后的 CubeHypervisor / VMM 内部恢复机制。 源码基线固定为 CubeSandbox canonical 工作树提交 5135a40d86c94a85fe2521fd9ed913ac5fd6cfd9 （分支记录为 0731-after-v0.6.0 ）。结论只来自该基线源码，不把上游 Cloud Hypervisor 的通用说明当作依据。 设备恢复细",
     "scope": "project",
     "projects": [
       "cubesandbox"
@@ -1896,7 +2016,17 @@
       "snapshot-restore-migration"
     ],
     "component_baselines": [],
-    "baseline_refs": [],
+    "baseline_refs": [
+      {
+        "id": "cubesandbox-5135a40d-20260731",
+        "component": "cubesandbox",
+        "version": "commit-pinned",
+        "commit": "5135a40d86c94a85fe2521fd9ed913ac5fd6cfd9",
+        "selected_at": "2026-07-31",
+        "review_state": "active-review",
+        "role": "primary"
+      }
+    ],
     "curated_topics": [
       "template-snapshot"
     ],
@@ -1911,7 +2041,7 @@
     ],
     "architectures": [],
     "evidence_classes": [],
-    "reviewed_at": ""
+    "reviewed_at": "2026-09-22"
   },
   {
     "doc_id": "analysis.arm64-x86-cross-project-matrix",
@@ -7311,5 +7441,81 @@
       "unconfirmed"
     ],
     "reviewed_at": "2026-09-09"
+  },
+  {
+    "doc_id": "cubesandbox.soft-dirty-snapshot-evolution",
+    "title": "CubeSandbox 增量内存快照演进：从 Full/Incremental 到 SoftDirty 逐周期增量",
+    "route": "evolution/cubesandbox/soft-dirty-snapshot.html",
+    "headings": [
+      "A/B 身份与祖先关系",
+      "背景与术语",
+      "A 端旧机制（local fact）",
+      "变更点（change ledger）",
+      "B 端新机制（local fact）",
+      "1. 类型入口：`SnapshotType::SoftDirty`",
+      "2. VMM 侧：`soft_dirty.rs` 的布防-读取-过滤原语",
+      "3. 周期状态机：首扫写完整 anon 集、后续真差、写后重布防",
+      "4. Cubelet 三层退化：base 血缘选择",
+      "5. CLI 与文档链",
+      "不变量（跨 A/B 保持）",
+      "兼容与迁移影响",
+      "优点与代价",
+      "失败/反例与错误矩阵",
+      "x86_64 与 ARM64 边界",
+      "双端证据表",
+      "未确认项与运行验证边界"
+    ],
+    "summary": "CubeSandbox 增量内存快照演进：从 Full/Incremental 到 SoftDirty 逐周期增量 本文回答一个版本演进问题：CubeSandbox 从提交 A 到提交 B，内存快照的增量 捕获机制发生了什么变化，为什么变，影响与代价是什么？ 先行结论 ：B 在不破坏既有 full / incremental 语义的前提下，新增了 第三种快照类型 soft-dirty ——用内核 soft-dirty PTE 位（ clear refs 布防 + pagemap bit 55 读取）替代 pagem",
+    "scope": "evolution",
+    "projects": [
+      "cubesandbox"
+    ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
+    "topics": [
+      "snapshot-restore-migration"
+    ],
+    "component_baselines": [],
+    "baseline_refs": [
+      {
+        "id": "cubesandbox-9e2c64ab-20260528",
+        "component": "cubesandbox",
+        "version": "pre-soft-dirty",
+        "commit": "9e2c64ab871b77f59ba6fc41cd427bca72dca12a",
+        "selected_at": "2026-09-22",
+        "review_state": "historical-reference",
+        "role": "supporting"
+      },
+      {
+        "id": "cubesandbox-62e0d56d-20260528",
+        "component": "cubesandbox",
+        "version": "v0.3.0-rc1",
+        "commit": "62e0d56d80cdf86d4b3ad83f7dc1e5b8253528c4",
+        "selected_at": "2026-09-22",
+        "review_state": "historical-reference",
+        "role": "primary"
+      }
+    ],
+    "curated_topics": [],
+    "baselines": [],
+    "status": "unconfirmed",
+    "kind": "explanation",
+    "tags": [
+      "snapshot",
+      "soft-dirty",
+      "incremental",
+      "evolution"
+    ],
+    "architectures": [
+      "x86_64",
+      "aarch64"
+    ],
+    "evidence_classes": [
+      "local-source-fact",
+      "inference",
+      "unconfirmed"
+    ],
+    "reviewed_at": "2026-09-22"
   }
 ]

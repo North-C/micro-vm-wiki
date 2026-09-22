@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="Snapshot Create / Commit 生成链路 本文分析 CubeSandbox 的 snapshot 如何被创建——重点不是 API 名称，而是 VM state、guest memory、rootfs、CubeCoW 对象和本地 catalog 如何组合成可 restore/rollback 的平台级快照。 源码基线：当前仓库工作树。 相关： CubeCoW storage engine cubecow-storage-engine-chain.md 、 snapshot catalog resto">
+<meta name="description" content="Snapshot Create / Commit 生成链路 本文分析 CubeSandbox 的 snapshot 如何被创建——重点不是 API 名称，而是 VM state、guest memory、rootfs、CubeCoW 对象和本地 catalog 如何组合成可 restore/rollback 的平台级快照。 源码基线固定为 CubeSandbox canonical 工作树提交 5135a40d86c94a85fe2521fd9ed913ac5fd6cfd9 （分支记录为 0731-after-v0">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Snapshot Create / Commit 生成链路">
-<meta property="og:description" content="Snapshot Create / Commit 生成链路 本文分析 CubeSandbox 的 snapshot 如何被创建——重点不是 API 名称，而是 VM state、guest memory、rootfs、CubeCoW 对象和本地 catalog 如何组合成可 restore/rollback 的平台级快照。 源码基线：当前仓库工作树。 相关： CubeCoW storage engine cubecow-storage-engine-chain.md 、 snapshot catalog resto">
+<meta property="og:description" content="Snapshot Create / Commit 生成链路 本文分析 CubeSandbox 的 snapshot 如何被创建——重点不是 API 名称，而是 VM state、guest memory、rootfs、CubeCoW 对象和本地 catalog 如何组合成可 restore/rollback 的平台级快照。 源码基线固定为 CubeSandbox canonical 工作树提交 5135a40d86c94a85fe2521fd9ed913ac5fd6cfd9 （分支记录为 0731-after-v0">
 <link rel="canonical" href="https://north-c.github.io/micro-vm-wiki/CubeSandbox-sandbox-clone/analysis/snapshot-create-commit-chain.html">
 <title>Snapshot Create / Commit 生成链路 · Micro-VM 技术研究 Wiki</title>
 <link rel="stylesheet" href="../../assets/style.css">
@@ -20,7 +20,7 @@
     <input id="search" type="search" autocomplete="off" aria-controls="search-results" aria-expanded="false">
     <div id="search-status" class="search-status" role="status" aria-live="polite"></div>
     <div id="search-results" class="search-results" role="listbox"></div>
-    <nav aria-label="主要导航" data-global-nav="true"><ul class="nav-tree"><li><a href="../../index.html">首页</a></li><li><details class="nav-group" open><summary>开始</summary><ul><li><a href="../../analysis/vm-design-landscape-overview.html">从零理解 Micro-VM</a></li><li><a href="../../projects/index.html">按项目查实现</a></li><li><a href="../../topics/index.html">按机制做比较</a></li></ul></details></li><li><details class="nav-group"><summary>项目</summary><ul><li><a href="../../projects/firecracker.html">Firecracker</a></li><li><a href="../../projects/cloud-hypervisor.html">Cloud Hypervisor</a></li><li><a href="../../projects/kata-containers.html">Kata Containers</a></li><li><a href="../../projects/cubesandbox.html">CubeSandbox</a></li><li><a href="../../projects/crosvm.html">crosvm（历史参考）</a></li></ul></details></li><li><details class="nav-group"><summary>沙箱平台</summary><ul><li><a href="../../platforms/index.html">沙箱平台与基础设施</a></li></ul></details></li><li><details class="nav-group"><summary>专题</summary><ul><li><a href="../../topics/lifecycle-control-plane.html">生命周期与控制面</a></li><li><a href="../../topics/cpu-memory-machine.html">CPU、内存与机器模型</a></li><li><a href="../../topics/snapshot-restore-migration.html">Snapshot、Restore 与 Migration</a></li><li><a href="../../topics/storage-device-io.html">存储、设备与 I/O</a></li><li><a href="../../topics/network-isolation.html">网络与隔离</a></li><li><a href="../../topics/operations-observability-performance.html">操作、可观测性与性能</a></li></ul></details></li><li><details class="nav-group"><summary>方法与索引</summary><ul><li><a href="../../methodology/status-and-evidence.html">研究状态与证据方法</a></li><li><a href="../../versions/index.html">版本与证据覆盖</a></li><li><a href="../../changes.html">变更记录</a></li><li><a href="../../sitemap.html">站点地图</a></li></ul></details></li></ul></nav>
+    <nav aria-label="主要导航" data-global-nav="true"><ul class="nav-tree"><li><a href="../../index.html">首页</a></li><li><details class="nav-group" open><summary>三轴入口</summary><ul><li><a href="../../projects/index.html">项目</a></li><li><a href="../../topics/index.html">特性与横向比较</a></li><li><a href="../../evolution/index.html">版本演进</a></li></ul></details></li><li><details class="nav-group"><summary>方法与索引</summary><ul><li><a href="../../methodology/status-and-evidence.html">研究方法与报告规范</a></li><li><a href="../../versions/index.html">版本与证据覆盖</a></li><li><a href="../../changes.html">Wiki 更新记录</a></li><li><a href="../../sitemap.html">站点地图</a></li></ul></details></li></ul></nav>
   </aside>
   <button class="sidebar-scrim" id="sidebar-scrim" aria-label="关闭导航"></button>
   <main class="content" id="main-content" tabindex="-1">
@@ -30,10 +30,10 @@
       <a class="back-home" href="../../index.html">首页</a>
     </div>
 <nav class="breadcrumbs" aria-label="面包屑"><ol><li><a href="../../index.html">首页</a></li><li><a href="../../projects/index.html">项目目录</a></li><li><a href="../../projects/cubesandbox.html">CubeSandbox</a></li><li><a href="../../topics/snapshot-restore-migration.html">Snapshot、Restore 与 Migration</a></li><li aria-current="page">Snapshot Create / Commit 生成链路</li></ol></nav>
-<div class="page-meta" aria-label="文档元数据"><span class="badge">机制解析</span><a class="badge badge-status" href="../../methodology/status-and-evidence.html#status">状态：待固定版本复核</a><span class="badge">CubeSandbox</span><span class="badge">角色：核心研究项目 / 沙箱平台</span></div><p class="status-explainer"><strong>待固定版本复核</strong>表示本文尚未按结构化的 pinned baseline 重新验证，不表示文章内容为假。状态不会因为进入目录或公开站点而自动升级。</p>
+<div class="page-meta" aria-label="文档元数据"><span class="badge">机制解析</span><a class="badge badge-status" href="../../methodology/status-and-evidence.html#status">状态：源码版本已固定，证据仍未完备</a><span class="badge">CubeSandbox</span><span class="badge">角色：核心研究项目 / 沙箱平台</span><a class="badge" href="../../versions/index.html#cubesandbox-5135a40d-20260731" title="cubesandbox 5135a40d86c94a85fe2521fd9ed913ac5fd6cfd9；角色：primary">版本基线：commit-pinned@5135a40d86c9</a><span class="badge">复核日期：2026-09-22</span></div><p class="status-explainer"><strong>源码版本已固定，证据仍未完备</strong>是本文的读者状态：页面已按显示的固定源码版本完成版本登记与源码级复核，但 build、runtime、跨组件或完整 claim-level 证据尚未齐备；机器状态保持 <code>unconfirmed</code>，登记 baseline 不会自动升级为 <code>current</code>。</p>
     <article class="markdown-body"><h1 id="snapshot-create-commit">Snapshot Create / Commit 生成链路</h1>
 <p>本文分析 CubeSandbox 的 snapshot 如何被创建——重点不是 API 名称，而是 VM state、guest memory、rootfs、CubeCoW 对象和本地 catalog 如何组合成可 restore/rollback 的平台级快照。</p>
-<p>源码基线：当前仓库工作树。</p>
+<p>源码基线固定为 CubeSandbox canonical 工作树提交 <code>5135a40d86c94a85fe2521fd9ed913ac5fd6cfd9</code>（分支记录为 <code>0731-after-v0.6.0</code>）。</p>
 <blockquote>
 <p>相关：<a href="cubecow-storage-engine-chain.html">CubeCoW storage engine</a>、<a href="snapshot-catalog-restore-binding-chain.html">snapshot catalog restore binding</a>、<a href="vmm-snapshot-restore-state-chain.html">VMM snapshot restore state</a>。</p>
 </blockquote>
@@ -204,7 +204,7 @@ func runtimeSnapshotBindingLabels(snapshotID string, attachedAt time.Time) map[s
 func runtimeRestoreBaseLabels(snapshotID string, attachedAt time.Time) map[string]string {
     return map[string]string{ constants.MasterAnnotationRuntimeRestoreSnapshotID: snapshotID, /* attachedAt */ }
 }
-// :79  opaque restore 时把两类标 invalid，迫使下次 Commit 走 full
+// :85  opaque restore 时把两类标 invalid，迫使下次 Commit 走 full
 func invalidateRuntimeSnapshotBindingsAfterOpaqueRestore(cb, attachedAt) {
     cb.Metadata.AddLabels(map[string]string{
         constants.MasterAnnotationRuntimeSnapshotID:        runtimeSnapshotBindingInvalidID,
@@ -217,7 +217,7 @@ func invalidateRuntimeSnapshotBindingsAfterOpaqueRestore(cb, attachedAt) {
 </blockquote>
 <h2 id="6-cube-runtime-snapshot">6. cube-runtime snapshot 命令</h2>
 <p><code>buildCubeRuntimeSnapshotArgs()</code> 生成命令形态：</p>
-<pre><code class="language-go">// Cubelet/services/cubebox/appsnapshot.go:586
+<pre><code class="language-go">// Cubelet/services/cubebox/appsnapshot.go:598
 func buildCubeRuntimeSnapshotArgs(sandboxID, spec, snapshotPath, memoryVol, snapshotType string) []string {
     return []string{
         &quot;snapshot&quot;, &quot;--app-snapshot&quot;, &quot;--vm-id&quot;, sandboxID, &quot;--path&quot;, snapshotPath, &quot;--force&quot;,
@@ -242,12 +242,12 @@ async fn do_app_snapshot(&amp;mut self) -&gt; CResult&lt;()&gt; {
 </blockquote>
 <h2 id="7-catalog-vmm">7. catalog 与 VMM 写入</h2>
 <p><code>SnapshotCatalogEntry</code> 记录 snapshot id/path/meta_dir/rootfs vol+kind/memory vol+kind/size/kind；<code>WriteSnapshotCatalog</code> 原子写（tmp + rename）：</p>
-<pre><code class="language-go">// Cubelet/storage/snapshot_catalog.go:30
+<pre><code class="language-go">// Cubelet/storage/snapshot_catalog.go:36
 type SnapshotCatalogEntry struct {
     SnapshotID, SnapshotPath, MetaDir, RootfsVol, RootfsKind, MemoryVol, MemoryKind string
     RootfsSizeBytes uint64; Kind string  // CatalogKindTemplate / CatalogKindRuntimeSnapshot
 }
-// :140
+// :148
 func WriteSnapshotCatalog(entry *SnapshotCatalogEntry) error {
     os.MkdirAll(entry.SnapshotPath, 0o755)
     tmp := path + &quot;.tmp&quot;
@@ -263,7 +263,7 @@ fn vm_snapshot(&amp;mut self, snapshot_config: &amp;SnapshotConfig) -&gt; result
             .and_then(|snapshot| vm.send(&amp;snapshot, snapshot_config).map_err(VmError::SnapshotSend))
     } else { Err(VmError::VmNotRunning) }
 }
-// hypervisor/vmm/src/vm.rs:2911
+// hypervisor/vmm/src/vm.rs:2815
 fn send(&amp;self, snapshot: &amp;Snapshot, config: &amp;SnapshotConfig) -&gt; Result&lt;(), MigratableError&gt; {
     // 写 VM config 到 destination/SNAPSHOT_CONFIG_FILE
     // 写 VM state（附 SnapshotMetadata.snapshot_type）到 destination/SNAPSHOT_STATE_FILE
@@ -335,7 +335,7 @@ fn send(&amp;self, snapshot: &amp;Snapshot, config: &amp;SnapshotConfig) -&gt; R
 <p>网络状态不写入 snapshot catalog——host 侧网络仍依赖 network-agent 当前状态；VMM restore 时 net 后端替换依赖 <code>RestoreConfig.net</code>。</p>
 </blockquote>
 <h2 id="10-arm64-x86_64">10. ARM64 与 x86_64 观察点</h2>
-<p>Cubelet 层 AppSnapshot/CommitSandbox/CubeCoW catalog/memory artifact 选择<strong>无显式架构分支</strong>。Shim snapshot 命令的 VMM seccomp 有架构差异（x86 放行 <code>mkdir</code>，aarch64 放行 <code>mkdirat</code>）。VMM snapshot 本身的架构差异在 VM state（x86 含 CPUID/IRQ/ACPI；ARM64 关注 GIC/FDT/MPIDR/设备枚举稳定性）；MemoryManager 的 full/incremental/soft-dirty 逻辑依赖 Linux pagemap/kpageflags/soft-dirty，不是 vCPU 架构。</p>
+<p>Cubelet 层 AppSnapshot/CommitSandbox/CubeCoW catalog/memory artifact 选择<strong>无显式架构分支</strong>。Shim 经 <code>set_runtime_seccomp_rules</code> 下发给 VMM 的 runtime seccomp 有架构差异（x86 放行 <code>mkdir</code>，aarch64 放行 <code>mkdirat</code>，<code>snapshot/mod.rs:231-237</code>）。VMM snapshot 本身的架构差异在 VM state（x86 含 CPUID/IRQ/ACPI；ARM64 关注 GIC/FDT/MPIDR/设备枚举稳定性）；MemoryManager 的 full/incremental/soft-dirty 逻辑依赖 Linux pagemap/kpageflags/soft-dirty，不是 vCPU 架构。</p>
 <blockquote>
 <p><strong>soft-dirty 的 ARM64 关键点</strong>：宿主 kernel 是否支持 <code>CONFIG_MEM_SOFT_DIRTY</code>、<code>/proc/self/clear_refs</code> 和 pagemap bit 55 是否可用——不支持时退化到 pagemap_anon。</p>
 </blockquote>

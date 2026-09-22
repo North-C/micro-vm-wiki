@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="CubeSandbox 增量内存快照演进：从 Full/Incremental 到 SoftDirty 逐周期增量 本文回答一个版本演进问题：CubeSandbox 从提交 A 到提交 B，内存快照的增量 捕获机制发生了什么变化，为什么变，影响与代价是什么？ 先行结论 ：B 在不破坏既有 full / incremental 语义的前提下，新增了 第三种快照类型 soft-dirty ——用内核 soft-dirty PTE 位（ clear refs 布防 + pagemap bit 55 读取）替代 pagem">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CubeSandbox 增量内存快照演进：从 Full/Incremental 到 SoftDirty 逐周期增量">
+<meta property="og:description" content="CubeSandbox 增量内存快照演进：从 Full/Incremental 到 SoftDirty 逐周期增量 本文回答一个版本演进问题：CubeSandbox 从提交 A 到提交 B，内存快照的增量 捕获机制发生了什么变化，为什么变，影响与代价是什么？ 先行结论 ：B 在不破坏既有 full / incremental 语义的前提下，新增了 第三种快照类型 soft-dirty ——用内核 soft-dirty PTE 位（ clear refs 布防 + pagemap bit 55 读取）替代 pagem">
+<link rel="canonical" href="https://north-c.github.io/micro-vm-wiki/evolution/cubesandbox/soft-dirty-snapshot.html">
+<title>CubeSandbox 增量内存快照演进：从 Full/Incremental 到 SoftDirty 逐周期增量 · Micro-VM 技术研究 Wiki</title>
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body data-root="../../">
+<a class="skip-link" href="#main-content">跳到正文</a>
+<div class="layout">
+  <aside class="sidebar" id="site-sidebar" aria-label="站点导航" aria-hidden="false">
+    <a class="brand" href="../../index.html">Micro-VM 技术研究 Wiki</a>
+    <label class="search-label" for="search">搜索公开文档</label>
+    <input id="search" type="search" autocomplete="off" aria-controls="search-results" aria-expanded="false">
+    <div id="search-status" class="search-status" role="status" aria-live="polite"></div>
+    <div id="search-results" class="search-results" role="listbox"></div>
+    <nav aria-label="主要导航" data-global-nav="true"><ul class="nav-tree"><li><a href="../../index.html">首页</a></li><li><details class="nav-group" open><summary>三轴入口</summary><ul><li><a href="../../projects/index.html">项目</a></li><li><a href="../../topics/index.html">特性与横向比较</a></li><li><a href="../../evolution/index.html">版本演进</a></li></ul></details></li><li><details class="nav-group"><summary>方法与索引</summary><ul><li><a href="../../methodology/status-and-evidence.html">研究方法与报告规范</a></li><li><a href="../../versions/index.html">版本与证据覆盖</a></li><li><a href="../../changes.html">Wiki 更新记录</a></li><li><a href="../../sitemap.html">站点地图</a></li></ul></details></li></ul></nav>
+  </aside>
+  <button class="sidebar-scrim" id="sidebar-scrim" aria-label="关闭导航"></button>
+  <main class="content" id="main-content" tabindex="-1">
+    <div class="topbar">
+      <button class="menu-toggle" id="menu-toggle" aria-controls="site-sidebar" aria-expanded="false">目录</button>
+      <button id="theme-toggle" aria-label="切换到深色模式">🌙</button>
+      <a class="back-home" href="../../index.html">首页</a>
+    </div>
+<nav class="breadcrumbs" aria-label="面包屑"><ol><li><a href="../../index.html">首页</a></li><li><a href="../../topics/snapshot-restore-migration.html">Snapshot、Restore 与 Migration</a></li><li aria-current="page">CubeSandbox 增量内存快照演进：从 Full/Incremental 到 SoftDirty 逐周期增量</li></ol></nav>
+<div class="page-meta" aria-label="文档元数据"><span class="badge">机制解析</span><a class="badge badge-status" href="../../methodology/status-and-evidence.html#status">状态：已固定 A/B 源码，运行未验证</a><span class="badge">CubeSandbox</span><span class="badge">角色：核心研究项目 / 沙箱平台</span><a class="badge" href="../../versions/index.html#cubesandbox-9e2c64ab-20260528" title="cubesandbox 9e2c64ab871b77f59ba6fc41cd427bca72dca12a；角色：supporting">版本基线：pre-soft-dirty@9e2c64ab871b</a><a class="badge" href="../../versions/index.html#cubesandbox-62e0d56d-20260528" title="cubesandbox 62e0d56d80cdf86d4b3ad83f7dc1e5b8253528c4；角色：primary">版本基线：v0.3.0-rc1@62e0d56d80cd</a><span class="badge">复核日期：2026-09-22</span></div><p class="status-explainer"><strong>已固定 A/B 源码，运行未验证</strong>：本文的行为结论已在两端固定提交上完成源码级复核，但未运行任何 build/runtime/快照/benchmark 验证，也不表示任何一端是上游最新版本。</p>
+    <article class="markdown-body"><h1 id="cubesandbox-fullincremental-softdirty">CubeSandbox 增量内存快照演进：从 Full/Incremental 到 SoftDirty 逐周期增量</h1>
+<p>本文回答一个版本演进问题：CubeSandbox 从提交 A 到提交 B，内存快照的增量
+捕获机制发生了什么变化，为什么变，影响与代价是什么？</p>
+<blockquote>
+<p><strong>先行结论</strong>：B 在不破坏既有 <code>full</code>/<code>incremental</code> 语义的前提下，新增了
+第三种快照类型 <code>soft-dirty</code>——用内核 soft-dirty PTE 位（<code>clear_refs</code> 布防 +
+pagemap bit 55 读取）替代 pagemap+ kpageflags 的"生命周期单调累积"判定，
+使长期运行 VM 的重复增量快照从"单调增长的差集"变为"逐周期真差集"，并在
+Cubelet 侧配三层退化（soft-dirty → incremental → full）保证 base 血缘断裂
+时仍能产出正确镜像。机制对宿主架构不条件编译，可用性由内核
+<code>CONFIG_MEM_SOFT_DIRTY</code> 决定；页大小硬编码 4096 在 A 的 pagemap_anon 已
+存在、B 的 soft_dirty 复制了同一缺陷，在 64 KiB base page 的 ARM64 宿主上
+会错误索引 pagemap（6 周后由后续提交统一修复）。</p>
+<p><strong>范围与边界（集中声明）</strong>：读者问题与两端身份见下节；架构适用范围为
+x86_64 与 ARM64（不条件编译，按内核配置与页大小分化，见"架构边界"节）；
+不做事项：不运行任何 build/runtime/快照/benchmark 验证，不覆盖 <code>23d3126</code>
+之后的机制状态（该修复只作延伸边界），不讨论 Template/rootfs 特性。
+本文全部行为结论来自 A/B 两端源码；作者声明的动机单独标注为 author
+evidence，未经运行验证。</p>
+</blockquote>
+<h2 id="ab">A/B 身份与祖先关系</h2>
+<table>
+<thead>
+<tr>
+<th>端</th>
+<th>完整提交</th>
+<th>提交者（committer）时间</th>
+<th>提交标题</th>
+<th>标签</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A（前）</td>
+<td><code>9e2c64ab871b77f59ba6fc41cd427bca72dca12a</code></td>
+<td>2026-05-28 21:41:36 +0800（author maxlong 21:38:37）</td>
+<td><code>test(python-sdk): cover stderr and harden file fallback</code></td>
+<td>无</td>
+</tr>
+<tr>
+<td>B（后）</td>
+<td><code>62e0d56d80cdf86d4b3ad83f7dc1e5b8253528c4</code></td>
+<td>2026-05-28 21:49:57 +0800（author 与 committer 同时刻）</td>
+<td><code>feat(snapshot): add soft-dirty per-cycle incremental memory snapshots (#389)</code></td>
+<td>本地 tag <code>v0.3.0-rc1</code></td>
+</tr>
+</tbody>
+</table>
+<p>表中时间为 <strong>committer 时间</strong>（<code>git log --format=%ci</code> 口径）；<code>23d3126</code> 的
+committer 时间为 2026-07-13（author 2026-07-10）。</p>
+<ul>
+<li>A 是 B 的<strong>直接父提交</strong>（<code>git rev-parse 62e0d56^</code> = <code>9e2c64a</code>），因此
+  <code>git diff A B</code> 就是本报告讨论的全部行为差异（17 文件，+1638/−41）。</li>
+<li>B 是 canonical 分析基线 <code>5135a40d…</code> 的祖先（merge-base 成立），即本机制
+  随后的演化（含下文页大小修复）都在当前基线的历史链上。</li>
+<li>标签只作身份说明；两端身份以完整提交哈希为准。</li>
+</ul>
+<h2 id="_1">背景与术语</h2>
+<ul>
+<li><strong>full 快照</strong>：写全部 guest RAM，自包含，代价与内存同阶。</li>
+<li><strong>incremental（pagemap_anon）</strong>：只写 <strong>CoW 匿名页</strong>——通过
+  <code>/proc/self/pagemap</code> + <code>/proc/kpageflags</code> 判定自原始 <code>MAP_PRIVATE</code> mmap
+  建立以来被写过的页。关键性质：<strong>保存集随 VM 生命周期单调增长</strong>（每个被碰
+  过的页都进差集）。</li>
+<li><strong>soft-dirty</strong>：Linux 内核 PTE 的软件脏位（<code>CONFIG_MEM_SOFT_DIRTY</code>）。向
+  <code>/proc/self/clear_refs</code> 写 <code>"4"</code> 清零全部 PTE 脏位（"布防"），此后 guest
+  写内存会重新置位；<code>/proc/self/pagemap</code> 的 bit 55 即该位。由此得到的保存集
+  是<strong>自上次布防以来的真差集</strong>。</li>
+<li>组件链（按真实调用方向）：<strong>Cubelet 决策 → CubeShim/cube-runtime → VMM</strong>。
+  <code>prepareCommitMemoryArtifact</code> 在 Cubelet 先决定类型与 base
+  （<code>template_ops.go:158</code>），再经 <code>executeCubeRuntimeSnapshot</code> 以
+  <code>exec.CommandContext</code> 调 cube-runtime 把类型送进 CubeShim
+  （<code>template_ops.go:191-196</code>、<code>appsnapshot.go:621-642</code>），最终由 VMM
+  <code>memory_manager</code> 分派（<code>:3041</code>）。CubeShim 的 <code>--snapshot-type</code> CLI 与
+  hypervisor <code>ch-remote --snapshot-type</code> 是同一取值集合的两个用户入口。</li>
+</ul>
+<h2 id="a-local-fact">A 端旧机制（local fact）</h2>
+<ul>
+<li>快照类型只有两种：<code>hypervisor/vm-migration/src/lib.rs:108-116</code>
+  <code>enum SnapshotType { #[default] Full, Incremental }</code>；<code>Incremental</code> 的文档
+  注释即"only saves CoW anonymous pages via pagemap + kpageflags"。</li>
+<li>不存在 <code>hypervisor/vmm/src/soft_dirty.rs</code>（<code>git cat-file -e</code> 在 A 处报对象
+  不存在），CLI 也没有 <code>soft-dirty</code> 取值。</li>
+<li><code>hypervisor/docs/snapshot_restore.md</code> 在 A 处没有 <code>## Snapshot types</code>
+  章节（grep 计数为 0），类型语义只散落在枚举注释中。</li>
+</ul>
+<p>也就是说：A 已能做增量快照，但增量语义是"自 restore 以来碰过的所有匿名页"
+——对<strong>重复</strong>做增量快照的长运行 VM，每次快照要写的差集只增不减。</p>
+<h2 id="change-ledger">变更点（change ledger）</h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>对象</th>
+<th>kind</th>
+<th>A → B</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><code>SnapshotType</code> 枚举</td>
+<td>added</td>
+<td>新增 <code>SoftDirty</code> 变体（serde rename <code>"soft-dirty"</code>；<code>Display</code>/<code>FromStr</code> 同步，<code>vm-migration/src/lib.rs:110-149</code>）</td>
+</tr>
+<tr>
+<td>2</td>
+<td>VMM soft-dirty 模块</td>
+<td>added</td>
+<td>新文件 <code>hypervisor/vmm/src/soft_dirty.rs</code>（807 行）：布防/探测/读位/过滤；<code>vmm/src/lib.rs</code> 注册 <code>pub mod soft_dirty;</code></td>
+</tr>
+<tr>
+<td>3</td>
+<td>VMM 发送分派</td>
+<td>added</td>
+<td><code>memory_manager.rs</code> 新增 <code>send_soft_dirty_memory</code> 与 <code>SnapshotType::SoftDirty =&gt;</code> 分派</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Cubelet 血缘退化</td>
+<td>changed</td>
+<td><code>CommitSandbox</code> 重构为 <code>prepareCommitMemoryArtifact</code> 三层退化</td>
+</tr>
+<tr>
+<td>5</td>
+<td>CLI（两处）</td>
+<td>changed</td>
+<td>CubeShim <code>--snapshot-type</code>（<code>CubeShim/shim/src/snapshot/cmd.rs:86-93</code>，默认 <code>full</code>）与 hypervisor <code>ch-remote --snapshot-type</code> 两处 help 扩展为三值（默认 <code>incremental</code>，与 CubeShim 不同）</td>
+</tr>
+<tr>
+<td>6</td>
+<td>文档</td>
+<td>added</td>
+<td><code>hypervisor/docs/snapshot_restore.md:100-124</code> 新增 <code>## Snapshot types</code> 表与 <code>### Soft-dirty details</code></td>
+</tr>
+<tr>
+<td>7</td>
+<td>既有 full/incremental 行为</td>
+<td>unchanged</td>
+<td>枚举新增变体不改变两旧类型路径</td>
+</tr>
+</tbody>
+</table>
+<h2 id="b-local-fact">B 端新机制（local fact）</h2>
+<h3 id="1-snapshottypesoftdirty">1. 类型入口：<code>SnapshotType::SoftDirty</code></h3>
+<p><code>vm-migration/src/lib.rs:110-149</code>（变体 <code>:110-123</code>、<code>Display</code> <code>:125-133</code>、
+<code>FromStr</code> <code>:135-149</code>，<code>"soft-dirty"</code> 分支在 <code>:142</code>）：新变体的文档注释明确语义边界——"only
+saves pages written since the previous soft-dirty snapshot (true delta)"，
+并写明内核不支持时<strong>静默降级</strong>为 <code>Incremental</code>。serde rename 保证线上
+序列化值是 <code>"soft-dirty"</code>。</p>
+<h3 id="2-vmm-soft_dirtyrs-">2. VMM 侧：<code>soft_dirty.rs</code> 的布防-读取-过滤原语</h3>
+<p>决定行为的最小片段（<code>hypervisor/vmm/src/soft_dirty.rs</code>）：</p>
+<pre><code class="language-rust">pub const PAGE_SIZE: u64 = 4096;              // :36  ← B 端隐患，见 ARM64 节
+pub fn probe_soft_dirty_support() -&gt; bool     // :133 写 clear_refs 探测内核支持
+pub fn clear_soft_dirty() -&gt; Result&lt;()&gt;       // :150 写 &quot;4&quot; 重新布防
+pub fn get_soft_dirty_pages(...) -&gt; Vec&lt;bool&gt; // :193 读 pagemap bit 55
+pub fn filter_memory_ranges_by_anon_and_soft_dirty(...)  // :371 anon ∩ soft-dirty
+</code></pre>
+<p>保存集取 <strong>anon ∩ soft-dirty 的交集</strong>（<code>:371</code>），而不是单用 soft-dirty 位：
+只有"是匿名页且本周期被写过"的页进入 memory-ranges。交集是最小且安全的
+保存集——排除了非匿名映射上的脏位噪声。</p>
+<h3 id="3-anon">3. 周期状态机：首扫写完整 anon 集、后续真差、写后重布防</h3>
+<p><code>memory_manager.rs</code> 的 <code>send_soft_dirty_memory</code>（<code>:2413</code> 起）按
+<code>soft_dirty_armed</code> 原子标志分两态：</p>
+<ul>
+<li><strong>未布防（首扫或降级后）</strong>：<code>memory_manager.rs:2421-2443</code>——先执行
+  <code>send_pagemap_anon_memory</code> 写一个<strong>完整 anon 集快照</strong>（叠加在 Cubelet 预置
+  的 base 文件上，不是 <code>SnapshotType::Full</code> 的全 RAM 语义），再调
+  <code>probe_soft_dirty_support()</code> 布防（该探测本身就是向 <code>clear_refs</code> 写
+  <code>"4"</code>，成功即完成布防）。失败则 <code>soft_dirty_armed</code> 保持 false，下周期重试。</li>
+<li><strong>已布防（稳态）</strong>：要求目标 memory 文件<strong>已存在有效 base</strong>，否则直接返回
+  硬错误"Base snapshot file not found … take a full snapshot first"
+  （<code>memory_manager.rs:2490-2496</code>）；随后 <code>open_read_write()</code> 打开该文件并
+  <strong>就地叠加</strong> <code>filter_memory_ranges_by_anon_and_soft_dirty</code> 过滤出的真差页
+  （<code>:2463</code>、<code>:2497-2512</code>），写完调 <code>clear_soft_dirty()</code> 重布防
+  （<code>:2525-2532</code>）。若重布防失败（如 seccomp 拦截 <code>clear_refs</code> 写），<strong>disarm
+  并降级</strong>到 pagemap_anon 路径，只记 warning 不向调用方报错。</li>
+</ul>
+<p>Cubelet 侧把同一前置写进常量注释：soft-dirty 的目标文件"MUST already
+contain a valid base image … otherwise pages untouched-since-last-clear
+would read back as zero on restore"，Cubelet 通过先 reflink base 保证该前提
+（<code>appsnapshot.go:555-562</code>）。</p>
+<p>分派点在类型 match（<code>memory_manager.rs:3041-3047</code>）：
+<code>SnapshotType::SoftDirty =&gt; self.send_soft_dirty_memory(...)</code>。</p>
+<h3 id="4-cubelet-base">4. Cubelet 三层退化：base 血缘选择</h3>
+<p><code>Cubelet/services/cubebox/snapshot_base_memory.go:188</code> 的
+<code>prepareCommitMemoryArtifact</code> 是统一入口，按 base 血缘可用性退化：</p>
+<table>
+<thead>
+<tr>
+<th>Tier</th>
+<th>条件</th>
+<th>快照类型</th>
+<th>base 来源</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>上一快照 base 可解析</td>
+<td><code>soft-dirty</code></td>
+<td>reflink 上一快照 base（<code>resolveBaseMemoryObject</code>）</td>
+</tr>
+<tr>
+<td>2</td>
+<td>上一快照 base 缺失、上次 restore base 可解析</td>
+<td><code>incremental</code>（pagemap_anon）</td>
+<td>reflink 上次 restore base（<code>resolveRestoreBaseMemoryObject:114</code>）</td>
+</tr>
+<tr>
+<td>3</td>
+<td>两条血缘都断</td>
+<td><code>full</code></td>
+<td>全新空卷（<code>CreateTemplateMemoryVolume</code>）</td>
+</tr>
+</tbody>
+</table>
+<p>Tier 2 为什么<strong>必须</strong>换类型：soft-dirty 位图在上次 commit 时被重置，与更早
+的 last-restore 文件不一致；而 pagemap_anon 的"当前匿名脏页"集恰好在 VM 上
+次 restore 时归零——与 restore-base 标签记录的时刻一致（源码注释
+<code>snapshot_base_memory.go:205-216</code>）。<strong>类型选择与 base 血缘时刻必须匹配</strong>，
+这是正确性不变量，不是风格偏好。</p>
+<p><strong>前置（Tier 0）：opaque restore 使两条血缘同时失效。</strong><code>UpdateWithResume</code>
+（pause/resume 路径）调用
+<code>invalidateRuntimeSnapshotBindingsAfterOpaqueRestore</code> 把 runtime-snapshot 与
+restore-base 两条标签同时置为 <code>runtimeSnapshotBindingInvalidID</code>，强制下一次
+commit 走 Tier 3 full 重新锚定（<code>update.go:225-231</code>；无效 ID 常量与作废函数见
+<code>snapshot_runtime_binding.go:14,85-99</code>；守卫测试
+<code>snapshot_base_memory_fallback_test.go:262-291</code>）。这是已实现并有测试的
+local fact：CubeShim 从内部 full 快照 resume 不经过 cubecow catalog，旧标签
+必然失真，因此主动作废。</p>
+<p><strong>两条标签的维护规则不同（核心不变量，local fact）</strong>：</p>
+<ul>
+<li><strong>runtime-snapshot 标签</strong>在每次成功 commit 后推进
+  （<code>template_ops.go:208</code> <code>setRuntimeSnapshotBindingLabels</code>；Rollback 同样
+  推进，<code>rollback.go:186</code>）。</li>
+<li><strong>restore-base 标签</strong>只在 Create 的 restore 路径
+  （<code>cube_container_create.go:197</code>）与 Rollback（<code>rollback.go:190</code>）更新；
+  commit <strong>有意不推进</strong>——<code>snapshot_base_memory.go:76-81</code> 注释明确
+  "intentionally NOT updated by Commit"，因为 pagemap_anon 的脏页集恰以
+  上次 restore 为零点。守卫测试
+  <code>TestRestoreBaseLabelDoesNotAdvanceOnCommit</code>
+  （<code>snapshot_base_memory_fallback_test.go:183-246</code>）把"commit 误推进
+  restore-base 标签"判定为会静默损坏镜像的回归。</li>
+<li>注意：B 提交信息中的 "Update binding labels on every successful commit"
+  是作者意图陈述，且实际只覆盖 runtime-snapshot 标签；本文以源码与守卫测试
+  为准（见"作者动机"节的 author evidence 边界）。</li>
+</ul>
+<h3 id="5-cli">5. CLI 与文档链</h3>
+<ul>
+<li>CLI（两处入口）：<code>CubeShim/shim/src/snapshot/cmd.rs:86-93</code> 的
+  <code>--snapshot-type</code> 帮助扩展为 <code>'full', 'incremental' or 'soft-dirty'</code>
+  （默认 <code>full</code>）；hypervisor <code>ch-remote.rs</code> 的 <code>snapshot</code> 与 <code>pause2snapshot</code>
+  两处 <code>--snapshot-type</code> help 同步扩展（默认 <code>incremental</code>，与 CubeShim 的
+  默认值不同——两个入口的默认语义有差异，使用时需显式指定）。</li>
+<li>文档：<code>hypervisor/docs/snapshot_restore.md:100-124</code> 的 Snapshot types 表
+  逐行区分三种类型保存什么、何时用，并明确 incremental"单调增长"与
+  soft-dirty"真差集"的语义差别；<code>### Soft-dirty details</code> 补充三条边界——
+  其原文写法 "writes a full base image"（<code>snapshot_restore.md:114</code>）是对
+  上述完整 anon 集快照的描述措辞，不对应 <code>SnapshotType::Full</code> 枚举语义；
+  另两条为内核不支持降级与 seccomp 失败降级。</li>
+</ul>
+<h2 id="ab_1">不变量（跨 A/B 保持）</h2>
+<ol>
+<li><code>full</code> 与 <code>incremental</code> 的行为、序列化值、恢复路径在 B 完全不变（枚举
+   纯新增变体；diff 中两类型的发送/恢复代码零改动）。</li>
+<li>快照工件结构不变：<code>--snapshot-type</code> 只影响 <code>memory-ranges</code> 的内容选择，
+   <code>config.json</code>/<code>state.json</code> 等其余工件不受影响（B 端文档表第一段即此
+   声明，且分派只发生在内存发送路径）。</li>
+<li><strong>soft-dirty 稳态的目标文件契约</strong>：稳态写入是<strong>就地叠加</strong>——目标 memory
+   文件必须已含有效 base，否则 VMM 直接硬错误
+   （<code>memory_manager.rs:2490-2496</code>）；写入只叠加过滤页（<code>:2497-2512</code>）。
+   Cubelet 以 reflink 预置 base 保证该前提（<code>appsnapshot.go:555-562</code>）。
+   违反该前提的后果是"上次 clear 以来未触碰的页读回为零"，不是格式错误。</li>
+<li>恢复端不感知快照类型：<code>git grep snapshot_type 62e0d56 -- hypervisor/</code>
+   的命中分布为——CLI 入口（<code>ch-remote.rs</code>）、协议字段定义
+   （<code>vm-migration/src/lib.rs:156,166</code>）、类型分派
+   <code>memory_manager.rs:3041-3047</code> 与快照元数据写入 <code>vm.rs:2855-2877</code>；
+   即<strong>除 CLI 与协议字段定义外，<code>snapshot_type</code> 只在发送侧被读取/分派</strong>。
+   restore 读的是完整 memory-ranges 文件 + base 血缘，增量语义完全由发送
+   端决定（local fact：该 grep 范围为 <code>hypervisor/</code> 子树，无 restore 侧
+   读取点）。</li>
+<li>base 血缘一致性约束在两端等价存在：A 的 incremental 隐含要求 base 来自
+   上次 restore；B 把它显式化为三层退化、<strong>双标签差异化维护</strong>
+   （runtime-snapshot 随 commit 推进 / restore-base 钉在最近 VM 重启点）与
+   opaque-restore 失效（见上文 Tier 0 与标签规则）。</li>
+</ol>
+<h2 id="_2">兼容与迁移影响</h2>
+<ul>
+<li><strong>序列化兼容</strong>：新增 serde rename 值 <code>"soft-dirty"</code>，旧值 <code>"full"</code>/
+  <code>"incremental"</code> 不变；旧快照与旧请求不受影响（local fact）。</li>
+<li><strong>内核依赖</strong>：宿主需要 <code>CONFIG_MEM_SOFT_DIRTY=y</code>；不支持时请求被静默降级
+  为 incremental（<code>memory_manager.rs:2405-2411</code> 注释、文档
+  <code>snapshot_restore.md:119-120</code>）。降级只记 debug/warning 日志，调用方不
+  会收到错误——运维上需要靠日志识别"实际生效类型 ≠ 请求类型"。</li>
+<li><strong>Cubelet 运维前提</strong>：三层退化依赖两条血缘标签，但二者维护规则不同——
+  runtime-snapshot 标签随每次成功 commit 推进（<code>template_ops.go:208</code>），
+  restore-base 标签只在 Create-restore / Rollback 更新、commit 有意不推进
+  （<code>snapshot_base_memory.go:76-81</code>，守卫测试
+  <code>snapshot_base_memory_fallback_test.go:183-246</code>）。标签丢失或被
+  opaque restore 作废（<code>update.go:225-231</code>）只触发降级（Tier 2/3），
+  不产生错误镜像。</li>
+<li><strong>稳态 base 缺失是硬错误</strong>：若绕过 Cubelet 直接请求 VMM soft-dirty 而目标
+  文件无 base，VMM 拒绝并要求先做 full（<code>memory_manager.rs:2490-2496</code>）；
+  该失败路径不会静默产出坏镜像，但会把错误暴露给调用方（与内核降级路径
+  的"静默"形成对比）。</li>
+<li><strong>无迁移动作</strong>：对已存在的快照/模板无需任何转换。</li>
+</ul>
+<h2 id="_3">优点与代价</h2>
+<p>优点（local fact 层面）：</p>
+<ul>
+<li>保存集语义从"生命周期单调累积"变为"逐周期真差集"，重复增量快照的
+  数据量上界从"曾被写过的全部匿名页"变为"本周期写过的页"。</li>
+<li>三层退化保证任意血缘状态下都能产出正确（可能更大）的镜像，失败模式是
+  退化而非损坏。</li>
+<li>类型、CLI、文档向后兼容。</li>
+</ul>
+<p>代价（local fact + 标注 inference）：</p>
+<ul>
+<li>首次 soft-dirty 快照仍要写完整 anon 集（<code>memory_manager.rs:2421-2443</code>，
+  叠加在 Cubelet 预置 base 上），不能跳过（local fact）。</li>
+<li>稳态依赖目标文件已有有效 base：base 缺失即硬错误、opaque restore 后必须
+  回到 Tier 3 full 重锚（<code>memory_manager.rs:2490-2496</code>、<code>update.go:225-231</code>，
+  local fact）；这把"base 存在性"变成了每个稳态周期的正确性前提。</li>
+<li>每周期 <code>clear_soft_dirty()</code> 要求内核遍历所有 PTE 重布防；源码注释将其
+  标注为大 guest 上的主要暂停停顿来源（local fact：注释存在；停顿幅度
+  本身未经测量）。</li>
+<li>Cubelet 必须维护两条血缘标签，状态面比 A 增大（local fact）。</li>
+<li>作者声称 soft-dirty "typically much smaller"、能"cut snapshot-induced
+  pause-time spikes"——这是<strong>作者动机声明（author evidence）</strong>，本文不作为
+  性能结论（未运行验证）。</li>
+</ul>
+<h2 id="_4">失败/反例与错误矩阵</h2>
+<table>
+<thead>
+<tr>
+<th>观察到的现象（判错指引）</th>
+<th>说明什么假设不成立</th>
+<th>处置</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>请求 soft-dirty 但日志出现 "tracker not yet armed" 且多个周期连续出现</td>
+<td>内核无 <code>CONFIG_MEM_SOFT_DIRTY</code>（probe 失败），"实际生效类型 = incremental" 的假设未成立——实际一直在走 pagemap_anon</td>
+<td>换内核或接受 incremental 语义；靠日志识别降级，调用方无错误</td>
+</tr>
+<tr>
+<td>VMM 返回 "Base snapshot file not found … take a full snapshot first"</td>
+<td>"目标文件已含有效 base"的稳态前提被绕过（未经 Cubelet reflink 预置）</td>
+<td>先做一次 full/Tier 3 重建 base；不要重试 soft-dirty</td>
+</tr>
+<tr>
+<td>commit 后发现 restore-base 标签被推进</td>
+<td>违反"commit 有意不推进 restore-base"守卫不变量（<code>snapshot_base_memory_fallback_test.go:183-246</code> 判此类回归为静默损坏镜像）</td>
+<td>回滚该改动；该行为会使 Tier 2 选错 base 时刻</td>
+</tr>
+<tr>
+<td>pause/resume（opaque restore）后第一次 commit 产出 full 而非 soft-dirty</td>
+<td>不是 bug：<code>update.go:225-231</code> 有意作废两条血缘强制 Tier 3 重锚</td>
+<td>预期行为；下一次 commit 恢复 soft-dirty</td>
+</tr>
+<tr>
+<td>64 KiB base page 宿主上快照尺寸异常或恢复后数据错乱</td>
+<td>命中 <code>PAGE_SIZE=4096</code> 硬编码缺陷（A 的 pagemap_anon 与 B 的 soft_dirty 均有）</td>
+<td>升级到 <code>23d3126</code> 之后状态；不要在 B 状态的 64K 宿主上信任快照</td>
+</tr>
+<tr>
+<td>反例（限制场景）：增量快照差集不减反增</td>
+<td>该 VM 的访问模式使匿名页持续新增——incremental 的"单调累积"性质与此无关，soft-dirty 的真差集才按周期归零</td>
+<td>长运行重复快照选 soft-dirty；偶发第二次快照用 incremental 已够</td>
+</tr>
+</tbody>
+</table>
+<p>判错总则：soft-dirty 的两类静默行为（内核不支持降级、重布防失败降级）都不
+向调用方报错，运维判断"实际生效类型"只能依赖日志中 "Soft-dirty:" 前缀的
+info/warn 行；唯一的硬错误路径是稳态 base 缺失。</p>
+<h2 id="x86_64-arm64">x86_64 与 ARM64 边界</h2>
+<ul>
+<li>soft-dirty 机制<strong>不按 <code>target_arch</code> 条件编译</strong>（<code>soft_dirty.rs</code> 全文件无
+  <code>cfg(target_arch)</code>）；可用性只由宿主内核 <code>CONFIG_MEM_SOFT_DIRTY</code> 决定
+  （local fact）。x86_64 与按 4 KiB base page 配置的 ARM64 宿主上，B 的
+  索引计算正确。</li>
+<li><strong>页大小硬编码缺陷（inference，后续提交作者证据确认）</strong>：该缺陷<strong>在 A
+  已存在</strong>——<code>pagemap_anon.rs:27</code> 的 <code>pub const PAGE_SIZE: u64 = 4096;</code> 两端
+  相同；B 的 soft-dirty 路径在 <code>soft_dirty.rs:36</code> <strong>复制</strong>了同一硬编码，使
+  新路径继承同一问题。<code>/proc/self/pagemap</code> 与 <code>/proc/kpageflags</code> 按内核真实
+  页大小索引，在 64 KiB base page 的 ARM64 宿主上会错位索引，可能<strong>静默
+  损坏快照</strong>。</li>
+<li><strong>后续修复（延伸边界，不属于 A/B 主差异）</strong>：提交
+  <code>23d31267e5234f2dd05e6f0a854efccbbacb0519</code>（2026-07-13，
+  <code>fix(vmm): index snapshot pagemap by the host's real page size</code>）改为经
+  <code>sysconf(_SC_PAGESIZE)</code> 探测并缓存宿主真实页大小，统一
+  pagemap_anon/soft-dirty 的页索引、偏移与长度计算。其提交信息确认了上述
+  硬编码缺陷（"could silently corrupt snapshots"）。</li>
+<li>因此描述 ARM64 行为时必须区分版本：B 状态仅对 4 KiB 页内核可靠；
+  64 KiB 场景须以 <code>23d3126</code> 之后的状态为准。</li>
+</ul>
+<h2 id="_5">双端证据表</h2>
+<table>
+<thead>
+<tr>
+<th>claim</th>
+<th>端</th>
+<th>证据（A/B 处源码）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>快照类型仅有 Full/Incremental</td>
+<td>A</td>
+<td><code>vm-migration/src/lib.rs:108-116</code>（enum 定义 + 注释）</td>
+</tr>
+<tr>
+<td>无 soft_dirty 模块/CLI 值</td>
+<td>A</td>
+<td><code>git cat-file -e 9e2c64a:hypervisor/vmm/src/soft_dirty.rs</code> 报不存在；<code>cmd.rs</code> A 处无 soft-dirty</td>
+</tr>
+<tr>
+<td>文档无 Snapshot types 章节</td>
+<td>A</td>
+<td><code>hypervisor/docs/snapshot_restore.md</code> A 处 grep "Snapshot types" = 0</td>
+</tr>
+<tr>
+<td><code>SnapshotType::SoftDirty</code> serde/Display/FromStr</td>
+<td>B</td>
+<td><code>vm-migration/src/lib.rs:110-149</code>（FromStr soft-dirty 分支 <code>:142</code>）</td>
+</tr>
+<tr>
+<td>soft-dirty 原语集（probe/clear/get/filter）</td>
+<td>B</td>
+<td><code>vmm/src/soft_dirty.rs:36,101,133,150,193,265,371</code></td>
+</tr>
+<tr>
+<td>首扫写完整 anon 集 + 布防</td>
+<td>B</td>
+<td><code>vmm/src/memory_manager.rs:2421-2443</code>（<code>soft_dirty_armed</code> 分支，叠加到预置 base）</td>
+</tr>
+<tr>
+<td>真差过滤 + 写后重布防 + 失败 disarm</td>
+<td>B</td>
+<td><code>vmm/src/memory_manager.rs:2463,2525-2532</code></td>
+</tr>
+<tr>
+<td>类型分派</td>
+<td>B</td>
+<td><code>vmm/src/memory_manager.rs:3041-3047</code></td>
+</tr>
+<tr>
+<td>ch-remote 两处 <code>--snapshot-type</code> help（默认 incremental）</td>
+<td>B</td>
+<td><code>hypervisor/src/bin/ch-remote.rs</code>（diff +2/−2）</td>
+</tr>
+<tr>
+<td><code>pub mod soft_dirty;</code> 模块注册</td>
+<td>B</td>
+<td><code>hypervisor/vmm/src/lib.rs</code></td>
+</tr>
+<tr>
+<td>稳态 base 缺失硬错误 + 就地叠加</td>
+<td>B</td>
+<td><code>vmm/src/memory_manager.rs:2490-2512</code>；Cubelet 前置注释 <code>appsnapshot.go:555-562</code></td>
+</tr>
+<tr>
+<td>runtime-snapshot 标签随 commit 推进</td>
+<td>B</td>
+<td><code>Cubelet/services/cubebox/template_ops.go:208</code></td>
+</tr>
+<tr>
+<td>restore-base 标签只在 Create-restore/Rollback 更新</td>
+<td>B</td>
+<td><code>cube_container_create.go:197</code>、<code>rollback.go:190</code>（runtime-snapshot 侧为 <code>rollback.go:186</code>）；<code>snapshot_base_memory.go:76-81</code> "intentionally NOT updated by Commit"；守卫 <code>snapshot_base_memory_fallback_test.go:183-246</code></td>
+</tr>
+<tr>
+<td>opaque restore 作废双标签强制 full</td>
+<td>B</td>
+<td><code>update.go:225-231</code>、<code>snapshot_runtime_binding.go:14,85-99</code>；测试 <code>:262-291</code></td>
+</tr>
+<tr>
+<td>恢复端不感知类型（hypervisor 子树 grep：除 CLI 与协议字段定义外仅发送侧命中）</td>
+<td>B</td>
+<td><code>git grep snapshot_type 62e0d56 -- hypervisor/</code> → <code>ch-remote.rs</code>、<code>vm-migration/src/lib.rs:156,166</code>、<code>memory_manager.rs:3041</code>、<code>vm.rs:2855-2877</code></td>
+</tr>
+<tr>
+<td>A 已有 pagemap_anon 页大小硬编码</td>
+<td>A</td>
+<td><code>vmm/src/pagemap_anon.rs:27</code>（两端同为 4096）</td>
+</tr>
+<tr>
+<td>类型决定链 Cubelet→cube-runtime→VMM</td>
+<td>B</td>
+<td><code>template_ops.go:158,191-196</code>、<code>appsnapshot.go:621-642</code></td>
+</tr>
+<tr>
+<td>三层退化入口与 Tier 语义</td>
+<td>B</td>
+<td><code>Cubelet/services/cubebox/snapshot_base_memory.go:188-232</code></td>
+</tr>
+<tr>
+<td>CLI 三值</td>
+<td>B</td>
+<td><code>CubeShim/shim/src/snapshot/cmd.rs:86-93</code></td>
+</tr>
+<tr>
+<td>Snapshot types 表 + 降级文档</td>
+<td>B</td>
+<td><code>hypervisor/docs/snapshot_restore.md:100-124</code></td>
+</tr>
+<tr>
+<td>内核不支持→静默降级 incremental</td>
+<td>B</td>
+<td><code>memory_manager.rs:2405-2411</code> 注释 + 文档 <code>:119-120</code></td>
+</tr>
+<tr>
+<td>PAGE_SIZE 硬编码 4096</td>
+<td>B</td>
+<td><code>vmm/src/soft_dirty.rs:36</code>（修复提交 <code>23d3126</code> 信息确认缺陷）</td>
+</tr>
+<tr>
+<td>差异总量 = 17 文件 +1638/−41</td>
+<td>A→B</td>
+<td><code>git diff --stat 9e2c64a 62e0d56</code></td>
+</tr>
+<tr>
+<td>祖先关系 A←B←canonical 基线</td>
+<td>—</td>
+<td><code>git rev-parse 62e0d56^</code>；<code>git merge-base --is-ancestor</code> 两次成立</td>
+</tr>
+<tr>
+<td>页大小修复</td>
+<td>后续</td>
+<td><code>23d3126</code>（sysconf 探测，3 文件 +192/−145）</td>
+</tr>
+</tbody>
+</table>
+<p>作者动机（author evidence，与 local fact 分列）：B 提交信息（<code>git log -1
+--format=%B 62e0d56</code>）声明动因为长运行 VM 重复增量快照的差集过大
+（pagemap_anon "cumulative over the VM's lifetime"）、soft-dirty "true
+per-cycle delta and is typically much smaller"、以及"defer soft-dirty probe
+to first snapshot"用以降低多 GiB guest 的快照暂停尖峰。git author 为
+<code>LoGin</code>；<code>Signed-off-by: Songqian Li / jinlong</code>（sign-off 与 author 是两类
+署名）。这些是行为设计的动机陈述，性能幅度未经本报告验证；其中 Cubelet 侧
+bullet "Update binding labels on every successful commit" 经源码核实<strong>只
+覆盖 runtime-snapshot 标签</strong>（见"两条标签的维护规则"），是 author evidence
+被收窄为 local fact 的实例——意图陈述不得直接当作行为结论。</p>
+<h2 id="_6">未确认项与运行验证边界</h2>
+<ul>
+<li>本文<strong>未运行</strong>任何 build、runtime、快照或 benchmark 验证：全部行为结论
+  来自 A/B/修复提交的静态源码阅读。页面机器状态按证据契约保持
+  <code>unconfirmed</code>（"源码已双端复核，运行未验证"），不表示结论可疑，也不表示
+  soft-dirty 在任何具体宿主上的性能表现。</li>
+<li>unconfirmed 项：
+  1. 64 KiB base page 宿主上 B 状态的实际错误形态（需 <code>23d3126</code> 前后对照
+     运行验证）。
+  2. <code>clear_refs</code> 被 seccomp 拦截时的降级路径是否在所有周期都只降级、不损坏
+     既有快照（需故障注入）。
+  3. opaque restore 作废标签后，并发/重复 commit 的竞态边界（作废本身与
+     Tier 3 强制已是 local fact，见"前置（Tier 0）"；竞态行为未验证）。
+  4. 首扫完整 anon 集（叠加到预置 base）的实际暂停时长与
+     <code>clear_soft_dirty()</code> 的重布防开销
+     （作者声明为大 guest 主要停顿，无本地测量）。</li>
+</ul></article>
+<aside class="related-reading" aria-labelledby="related-title"><h2 id="related-title">继续阅读</h2><ul><li><strong>项目目录：</strong><a href="../../projects/cubesandbox.html">CubeSandbox</a></li><li><strong>专题目录：</strong><a href="../../topics/snapshot-restore-migration.html">Snapshot、Restore 与 Migration</a></li><li><strong>演进目录：</strong><a href="../index.html">版本演进</a></li><li><strong>B 端机制上下文：</strong><a href="../../CubeSandbox-sandbox-clone/analysis/snapshot-create-commit-chain.html">Snapshot Create / Commit 生成链路</a></li></ul></aside>
+    <footer class="page-foot">公开来源：<code>analysis/projects/cubesandbox/soft-dirty-snapshot-evolution.md</code> · 文档 ID：<code>cubesandbox.soft-dirty-snapshot-evolution</code></footer>
+  </main>
+</div>
+
+<script defer src="../../assets/wiki.js"></script>
+</body>
+</html>

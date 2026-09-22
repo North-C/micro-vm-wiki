@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="Snapshot Replica Reconciler 链路 本文分析 snapshot/template replica 如何被 Master 发现、缓存、校验和用于调度——承接 catalog/restore binding：如果 Cubelet local catalog 是物理权威，Master 的 replica ready 状态就必须能被 catalog 证明。 源码基线：当前仓库工作树。 相关： snapshot catalog restore binding snapshot-catalog-res">
+<meta name="description" content="Snapshot Replica Reconciler 链路 本文分析 snapshot/template replica 如何被 Master 发现、缓存、校验和用于调度——承接 catalog/restore binding：如果 Cubelet local catalog 是物理权威，Master 的 replica ready 状态就必须能被 catalog 证明。 源码基线固定为 CubeSandbox canonical 工作树提交 5135a40d86c94a85fe2521fd9ed913ac5fd">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Snapshot Replica Reconciler 链路">
-<meta property="og:description" content="Snapshot Replica Reconciler 链路 本文分析 snapshot/template replica 如何被 Master 发现、缓存、校验和用于调度——承接 catalog/restore binding：如果 Cubelet local catalog 是物理权威，Master 的 replica ready 状态就必须能被 catalog 证明。 源码基线：当前仓库工作树。 相关： snapshot catalog restore binding snapshot-catalog-res">
+<meta property="og:description" content="Snapshot Replica Reconciler 链路 本文分析 snapshot/template replica 如何被 Master 发现、缓存、校验和用于调度——承接 catalog/restore binding：如果 Cubelet local catalog 是物理权威，Master 的 replica ready 状态就必须能被 catalog 证明。 源码基线固定为 CubeSandbox canonical 工作树提交 5135a40d86c94a85fe2521fd9ed913ac5fd">
 <link rel="canonical" href="https://north-c.github.io/micro-vm-wiki/CubeSandbox-sandbox-clone/analysis/snapshot-replica-reconciler-chain.html">
 <title>Snapshot Replica Reconciler 链路 · Micro-VM 技术研究 Wiki</title>
 <link rel="stylesheet" href="../../assets/style.css">
@@ -20,7 +20,7 @@
     <input id="search" type="search" autocomplete="off" aria-controls="search-results" aria-expanded="false">
     <div id="search-status" class="search-status" role="status" aria-live="polite"></div>
     <div id="search-results" class="search-results" role="listbox"></div>
-    <nav aria-label="主要导航" data-global-nav="true"><ul class="nav-tree"><li><a href="../../index.html">首页</a></li><li><details class="nav-group" open><summary>开始</summary><ul><li><a href="../../analysis/vm-design-landscape-overview.html">从零理解 Micro-VM</a></li><li><a href="../../projects/index.html">按项目查实现</a></li><li><a href="../../topics/index.html">按机制做比较</a></li></ul></details></li><li><details class="nav-group"><summary>项目</summary><ul><li><a href="../../projects/firecracker.html">Firecracker</a></li><li><a href="../../projects/cloud-hypervisor.html">Cloud Hypervisor</a></li><li><a href="../../projects/kata-containers.html">Kata Containers</a></li><li><a href="../../projects/cubesandbox.html">CubeSandbox</a></li><li><a href="../../projects/crosvm.html">crosvm（历史参考）</a></li></ul></details></li><li><details class="nav-group"><summary>沙箱平台</summary><ul><li><a href="../../platforms/index.html">沙箱平台与基础设施</a></li></ul></details></li><li><details class="nav-group"><summary>专题</summary><ul><li><a href="../../topics/lifecycle-control-plane.html">生命周期与控制面</a></li><li><a href="../../topics/cpu-memory-machine.html">CPU、内存与机器模型</a></li><li><a href="../../topics/snapshot-restore-migration.html">Snapshot、Restore 与 Migration</a></li><li><a href="../../topics/storage-device-io.html">存储、设备与 I/O</a></li><li><a href="../../topics/network-isolation.html">网络与隔离</a></li><li><a href="../../topics/operations-observability-performance.html">操作、可观测性与性能</a></li></ul></details></li><li><details class="nav-group"><summary>方法与索引</summary><ul><li><a href="../../methodology/status-and-evidence.html">研究状态与证据方法</a></li><li><a href="../../versions/index.html">版本与证据覆盖</a></li><li><a href="../../changes.html">变更记录</a></li><li><a href="../../sitemap.html">站点地图</a></li></ul></details></li></ul></nav>
+    <nav aria-label="主要导航" data-global-nav="true"><ul class="nav-tree"><li><a href="../../index.html">首页</a></li><li><details class="nav-group" open><summary>三轴入口</summary><ul><li><a href="../../projects/index.html">项目</a></li><li><a href="../../topics/index.html">特性与横向比较</a></li><li><a href="../../evolution/index.html">版本演进</a></li></ul></details></li><li><details class="nav-group"><summary>方法与索引</summary><ul><li><a href="../../methodology/status-and-evidence.html">研究方法与报告规范</a></li><li><a href="../../versions/index.html">版本与证据覆盖</a></li><li><a href="../../changes.html">Wiki 更新记录</a></li><li><a href="../../sitemap.html">站点地图</a></li></ul></details></li></ul></nav>
   </aside>
   <button class="sidebar-scrim" id="sidebar-scrim" aria-label="关闭导航"></button>
   <main class="content" id="main-content" tabindex="-1">
@@ -30,10 +30,10 @@
       <a class="back-home" href="../../index.html">首页</a>
     </div>
 <nav class="breadcrumbs" aria-label="面包屑"><ol><li><a href="../../index.html">首页</a></li><li><a href="../../projects/index.html">项目目录</a></li><li><a href="../../projects/cubesandbox.html">CubeSandbox</a></li><li><a href="../../topics/snapshot-restore-migration.html">Snapshot、Restore 与 Migration</a></li><li aria-current="page">Snapshot Replica Reconciler 链路</li></ol></nav>
-<div class="page-meta" aria-label="文档元数据"><span class="badge">机制解析</span><a class="badge badge-status" href="../../methodology/status-and-evidence.html#status">状态：待固定版本复核</a><span class="badge">CubeSandbox</span><span class="badge">角色：核心研究项目 / 沙箱平台</span></div><p class="status-explainer"><strong>待固定版本复核</strong>表示本文尚未按结构化的 pinned baseline 重新验证，不表示文章内容为假。状态不会因为进入目录或公开站点而自动升级。</p>
+<div class="page-meta" aria-label="文档元数据"><span class="badge">机制解析</span><a class="badge badge-status" href="../../methodology/status-and-evidence.html#status">状态：源码版本已固定，证据仍未完备</a><span class="badge">CubeSandbox</span><span class="badge">角色：核心研究项目 / 沙箱平台</span><a class="badge" href="../../versions/index.html#cubesandbox-5135a40d-20260731" title="cubesandbox 5135a40d86c94a85fe2521fd9ed913ac5fd6cfd9；角色：primary">版本基线：commit-pinned@5135a40d86c9</a><span class="badge">复核日期：2026-09-22</span></div><p class="status-explainer"><strong>源码版本已固定，证据仍未完备</strong>是本文的读者状态：页面已按显示的固定源码版本完成版本登记与源码级复核，但 build、runtime、跨组件或完整 claim-level 证据尚未齐备；机器状态保持 <code>unconfirmed</code>，登记 baseline 不会自动升级为 <code>current</code>。</p>
     <article class="markdown-body"><h1 id="snapshot-replica-reconciler">Snapshot Replica Reconciler 链路</h1>
 <p>本文分析 snapshot/template replica 如何被 Master 发现、缓存、校验和用于调度——承接 catalog/restore binding：如果 Cubelet local catalog 是物理权威，Master 的 replica ready 状态就必须能被 catalog 证明。</p>
-<p>源码基线：当前仓库工作树。</p>
+<p>源码基线固定为 CubeSandbox canonical 工作树提交 <code>5135a40d86c94a85fe2521fd9ed913ac5fd6cfd9</code>（分支记录为 <code>0731-after-v0.6.0</code>）。</p>
 <blockquote>
 <p>相关：<a href="snapshot-catalog-restore-binding-chain.html">snapshot catalog restore binding</a>、<a href="snapshot-create-commit-chain.html">snapshot create/commit</a>。</p>
 </blockquote>
@@ -44,7 +44,7 @@
 <h3 id="getlocalsnapshot">权威校验：GetLocalSnapshot</h3>
 <p>定时 reconciler 调对应节点 Cubelet <code>GetLocalSnapshot</code>——只有 Cubelet local catalog 能返回该 snapshot id，Master 才认为 replica 没漂移。</p>
 <h2 id="1-reconcilesnapshotreplicapresence">1. reconcileSnapshotReplicaPresence</h2>
-<pre><code class="language-go">// CubeMaster/pkg/templatecenter/snapshot_reconciler.go:201
+<pre><code class="language-go">// CubeMaster/pkg/templatecenter/snapshot_reconciler.go:199
 func reconcileSnapshotReplicaPresence(ctx context.Context) error {
     for _, def := range defs {        // 遍历 READY/FAILED/DELETING 的 snapshot definitions
         replicas, _ := ListReplicas(ctx, def.TemplateID)

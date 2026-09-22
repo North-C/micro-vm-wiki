@@ -3,12 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="按共同机制浏览项目页面与已有的跨项目综合。">
+<meta name="description" content="按六类机制问题查看各项目的独立实现证据、已有横向综合与相关版本演进。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="专题目录">
-<meta property="og:description" content="按共同机制浏览项目页面与已有的跨项目综合。">
+<meta property="og:title" content="特性与横向比较">
+<meta property="og:description" content="按六类机制问题查看各项目的独立实现证据、已有横向综合与相关版本演进。">
 <link rel="canonical" href="https://north-c.github.io/micro-vm-wiki/topics/index.html">
-<title>专题目录 · Micro-VM 技术研究 Wiki</title>
+<title>特性与横向比较 · Micro-VM 技术研究 Wiki</title>
 <link rel="stylesheet" href="../assets/style.css">
 </head>
 <body data-root="../">
@@ -20,7 +20,7 @@
     <input id="search" type="search" autocomplete="off" aria-controls="search-results" aria-expanded="false">
     <div id="search-status" class="search-status" role="status" aria-live="polite"></div>
     <div id="search-results" class="search-results" role="listbox"></div>
-    <nav aria-label="主要导航" data-global-nav="true"><ul class="nav-tree"><li><a href="../index.html">首页</a></li><li><details class="nav-group" open><summary>开始</summary><ul><li><a href="../analysis/vm-design-landscape-overview.html">从零理解 Micro-VM</a></li><li><a href="../projects/index.html">按项目查实现</a></li><li><a href="../topics/index.html">按机制做比较</a></li></ul></details></li><li><details class="nav-group"><summary>项目</summary><ul><li><a href="../projects/firecracker.html">Firecracker</a></li><li><a href="../projects/cloud-hypervisor.html">Cloud Hypervisor</a></li><li><a href="../projects/kata-containers.html">Kata Containers</a></li><li><a href="../projects/cubesandbox.html">CubeSandbox</a></li><li><a href="../projects/crosvm.html">crosvm（历史参考）</a></li></ul></details></li><li><details class="nav-group"><summary>沙箱平台</summary><ul><li><a href="../platforms/index.html">沙箱平台与基础设施</a></li></ul></details></li><li><details class="nav-group"><summary>专题</summary><ul><li><a href="../topics/lifecycle-control-plane.html">生命周期与控制面</a></li><li><a href="../topics/cpu-memory-machine.html">CPU、内存与机器模型</a></li><li><a href="../topics/snapshot-restore-migration.html">Snapshot、Restore 与 Migration</a></li><li><a href="../topics/storage-device-io.html">存储、设备与 I/O</a></li><li><a href="../topics/network-isolation.html">网络与隔离</a></li><li><a href="../topics/operations-observability-performance.html">操作、可观测性与性能</a></li></ul></details></li><li><details class="nav-group"><summary>方法与索引</summary><ul><li><a href="../methodology/status-and-evidence.html">研究状态与证据方法</a></li><li><a href="../versions/index.html">版本与证据覆盖</a></li><li><a href="../changes.html">变更记录</a></li><li><a href="../sitemap.html">站点地图</a></li></ul></details></li></ul></nav>
+    <nav aria-label="主要导航" data-global-nav="true"><ul class="nav-tree"><li><a href="../index.html">首页</a></li><li><details class="nav-group" open><summary>三轴入口</summary><ul><li><a href="../projects/index.html">项目</a></li><li><a href="../topics/index.html">特性与横向比较</a></li><li><a href="../evolution/index.html">版本演进</a></li></ul></details></li><li><details class="nav-group"><summary>方法与索引</summary><ul><li><a href="../methodology/status-and-evidence.html">研究方法与报告规范</a></li><li><a href="../versions/index.html">版本与证据覆盖</a></li><li><a href="../changes.html">Wiki 更新记录</a></li><li><a href="../sitemap.html">站点地图</a></li></ul></details></li></ul></nav>
   </aside>
   <button class="sidebar-scrim" id="sidebar-scrim" aria-label="关闭导航"></button>
   <main class="content" id="main-content" tabindex="-1">
@@ -29,9 +29,9 @@
       <button id="theme-toggle" aria-label="切换到深色模式">🌙</button>
       <a class="back-home" href="../index.html">首页</a>
     </div>
-<nav class="breadcrumbs" aria-label="面包屑"><ol><li><a href="../index.html">首页</a></li><li aria-current="page">专题目录</li></ol></nav>
+<nav class="breadcrumbs" aria-label="面包屑"><ol><li><a href="../index.html">首页</a></li><li aria-current="page">特性与横向比较</li></ol></nav>
 <div class="page-meta" aria-label="页面类型"><span class="badge">生成目录</span></div>
-    <article class="markdown-body"><h1>专题目录</h1><p>专题 hub 只组织现有证据，不自行产生跨项目实现结论。</p><div class="home-grid"><section class="card"><h2><a href="lifecycle-control-plane.html">生命周期与控制面</a></h2><p>配置、API 与运行时如何把 VM 或 Sandbox 推进到可运行状态？</p><p>40 篇公开读者页面。</p></section><section class="card"><h2><a href="cpu-memory-machine.html">CPU、内存与机器模型</a></h2><p>CPU、内存布局与机器描述如何定义 guest 可见边界？</p><p>17 篇公开读者页面。</p></section><section class="card"><h2><a href="snapshot-restore-migration.html">Snapshot、Restore 与 Migration</a></h2><p>运行状态如何捕获、恢复或迁移，失败边界在哪里？</p><p>28 篇公开读者页面。</p></section><section class="card"><h2><a href="storage-device-io.html">存储、设备与 I/O</a></h2><p>块设备、共享文件系统与 virtio I/O 如何连接 guest 和 host？</p><p>29 篇公开读者页面。</p></section><section class="card"><h2><a href="network-isolation.html">网络与隔离</a></h2><p>网络数据面与隔离边界如何组合，哪些状态对 guest 可见？</p><p>25 篇公开读者页面。</p></section><section class="card"><h2><a href="operations-observability-performance.html">操作、可观测性与性能</a></h2><p>如何观察、验证和解释运行行为与性能边界？</p><p>10 篇公开读者页面。</p></section></div><h2>策展阅读</h2><div class="home-grid"><section class="card"><h2><a href="curated/template-snapshot.html">Template 与 Snapshot</a></h2><p>Template 如何组织可复用资产，Snapshot 如何捕获、登记并恢复运行状态？</p><p>显式阶段化阅读路径，不新增事实综合。</p></section></div></article>
+    <article class="markdown-body"><h1>特性与横向比较</h1><p>每个特性轴按固定顺序组织：问题与术语 → 各项目独立实现证据 → 已有横向综合 → 相关版本演进 → 策展阅读。没有结构化 <code>project_evidence</code> 的横向综合显示"待版本化证据复核"，不因标题含"跨项目"而提升可信度。</p><div class="home-grid"><section class="card"><h2><a href="lifecycle-control-plane.html">生命周期与控制面</a></h2><p>配置、API 与运行时如何把 VM 或 Sandbox 推进到可运行状态？</p><p>40 篇公开读者页面。</p></section><section class="card"><h2><a href="cpu-memory-machine.html">CPU、内存与机器模型</a></h2><p>CPU、内存布局与机器描述如何定义 guest 可见边界？</p><p>17 篇公开读者页面。</p></section><section class="card"><h2><a href="snapshot-restore-migration.html">Snapshot、Restore 与 Migration</a></h2><p>运行状态如何捕获、恢复或迁移，失败边界在哪里？</p><p>29 篇公开读者页面。</p></section><section class="card"><h2><a href="storage-device-io.html">存储、设备与 I/O</a></h2><p>块设备、共享文件系统与 virtio I/O 如何连接 guest 和 host？</p><p>29 篇公开读者页面。</p></section><section class="card"><h2><a href="network-isolation.html">网络与隔离</a></h2><p>网络数据面与隔离边界如何组合，哪些状态对 guest 可见？</p><p>25 篇公开读者页面。</p></section><section class="card"><h2><a href="operations-observability-performance.html">操作、可观测性与性能</a></h2><p>如何观察、验证和解释运行行为与性能边界？</p><p>10 篇公开读者页面。</p></section></div><h2>策展阅读</h2><div class="home-grid"><section class="card"><h2><a href="curated/template-snapshot.html">Template 与 Snapshot</a></h2><p>Template 如何组织可复用资产，Snapshot 如何捕获、登记并恢复运行状态？</p><p>显式阶段化阅读路径，不新增事实综合。</p></section></div><h2>验证与操作综合（非六类特性轴）</h2><p>以下横向综合的主专题是验证/操作类分组，不属于六类机制特性轴，在此提供显式入口；不因此扩张 primary taxonomy。未声明逐项目 <code>project_evidence</code> 的条目同样按"待版本化证据复核"呈现。</p><ul><li><a href="../analysis/ch-cubesandbox-restore-guest-unavailability-checklist.html">Cloud Hypervisor 与 CubeSandbox：Restore 后 Guest 不可用验证清单</a> <span class="badge badge-status">待版本化证据复核</span></li></ul></article>
 
     <footer class="page-foot">公开来源：<code>manifest generated</code> · 文档 ID：<code>hub.topics</code></footer>
   </main>

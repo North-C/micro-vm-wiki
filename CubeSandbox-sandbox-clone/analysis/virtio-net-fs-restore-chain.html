@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="CubeSandbox Virtio Net / Fs Restore 内部状态链路 本文展开 VMM Device Restore 设备恢复链路 vmm-device-restore-chain.md 的下一步，聚焦 virtio-net 与 virtio-fs 在 restore 中 到底恢复了哪些状态、哪些只是重新绑定当前节点后端 。 结论只来自当前仓库源码。 transport 层 MSI-X/queue 恢复详见 中断状态恢复链路 interrupt-state-restore-chain.md ；网络 ">
+<meta name="description" content="CubeSandbox Virtio Net / Fs Restore 内部状态链路 本文展开 VMM Device Restore 设备恢复链路 vmm-device-restore-chain.md 的下一步，聚焦 virtio-net 与 virtio-fs 在 restore 中 到底恢复了哪些状态、哪些只是重新绑定当前节点后端 。 源码基线固定为 CubeSandbox canonical 工作树提交 5135a40d86c94a85fe2521fd9ed913ac5fd6cfd9 （分支记录为 0731">
 <meta property="og:type" content="article">
 <meta property="og:title" content="CubeSandbox Virtio Net / Fs Restore 内部状态链路">
-<meta property="og:description" content="CubeSandbox Virtio Net / Fs Restore 内部状态链路 本文展开 VMM Device Restore 设备恢复链路 vmm-device-restore-chain.md 的下一步，聚焦 virtio-net 与 virtio-fs 在 restore 中 到底恢复了哪些状态、哪些只是重新绑定当前节点后端 。 结论只来自当前仓库源码。 transport 层 MSI-X/queue 恢复详见 中断状态恢复链路 interrupt-state-restore-chain.md ；网络 ">
+<meta property="og:description" content="CubeSandbox Virtio Net / Fs Restore 内部状态链路 本文展开 VMM Device Restore 设备恢复链路 vmm-device-restore-chain.md 的下一步，聚焦 virtio-net 与 virtio-fs 在 restore 中 到底恢复了哪些状态、哪些只是重新绑定当前节点后端 。 源码基线固定为 CubeSandbox canonical 工作树提交 5135a40d86c94a85fe2521fd9ed913ac5fd6cfd9 （分支记录为 0731">
 <link rel="canonical" href="https://north-c.github.io/micro-vm-wiki/CubeSandbox-sandbox-clone/analysis/virtio-net-fs-restore-chain.html">
 <title>CubeSandbox Virtio Net / Fs Restore 内部状态链路 · Micro-VM 技术研究 Wiki</title>
 <link rel="stylesheet" href="../../assets/style.css">
@@ -20,7 +20,7 @@
     <input id="search" type="search" autocomplete="off" aria-controls="search-results" aria-expanded="false">
     <div id="search-status" class="search-status" role="status" aria-live="polite"></div>
     <div id="search-results" class="search-results" role="listbox"></div>
-    <nav aria-label="主要导航" data-global-nav="true"><ul class="nav-tree"><li><a href="../../index.html">首页</a></li><li><details class="nav-group" open><summary>开始</summary><ul><li><a href="../../analysis/vm-design-landscape-overview.html">从零理解 Micro-VM</a></li><li><a href="../../projects/index.html">按项目查实现</a></li><li><a href="../../topics/index.html">按机制做比较</a></li></ul></details></li><li><details class="nav-group"><summary>项目</summary><ul><li><a href="../../projects/firecracker.html">Firecracker</a></li><li><a href="../../projects/cloud-hypervisor.html">Cloud Hypervisor</a></li><li><a href="../../projects/kata-containers.html">Kata Containers</a></li><li><a href="../../projects/cubesandbox.html">CubeSandbox</a></li><li><a href="../../projects/crosvm.html">crosvm（历史参考）</a></li></ul></details></li><li><details class="nav-group"><summary>沙箱平台</summary><ul><li><a href="../../platforms/index.html">沙箱平台与基础设施</a></li></ul></details></li><li><details class="nav-group"><summary>专题</summary><ul><li><a href="../../topics/lifecycle-control-plane.html">生命周期与控制面</a></li><li><a href="../../topics/cpu-memory-machine.html">CPU、内存与机器模型</a></li><li><a href="../../topics/snapshot-restore-migration.html">Snapshot、Restore 与 Migration</a></li><li><a href="../../topics/storage-device-io.html">存储、设备与 I/O</a></li><li><a href="../../topics/network-isolation.html">网络与隔离</a></li><li><a href="../../topics/operations-observability-performance.html">操作、可观测性与性能</a></li></ul></details></li><li><details class="nav-group"><summary>方法与索引</summary><ul><li><a href="../../methodology/status-and-evidence.html">研究状态与证据方法</a></li><li><a href="../../versions/index.html">版本与证据覆盖</a></li><li><a href="../../changes.html">变更记录</a></li><li><a href="../../sitemap.html">站点地图</a></li></ul></details></li></ul></nav>
+    <nav aria-label="主要导航" data-global-nav="true"><ul class="nav-tree"><li><a href="../../index.html">首页</a></li><li><details class="nav-group" open><summary>三轴入口</summary><ul><li><a href="../../projects/index.html">项目</a></li><li><a href="../../topics/index.html">特性与横向比较</a></li><li><a href="../../evolution/index.html">版本演进</a></li></ul></details></li><li><details class="nav-group"><summary>方法与索引</summary><ul><li><a href="../../methodology/status-and-evidence.html">研究方法与报告规范</a></li><li><a href="../../versions/index.html">版本与证据覆盖</a></li><li><a href="../../changes.html">Wiki 更新记录</a></li><li><a href="../../sitemap.html">站点地图</a></li></ul></details></li></ul></nav>
   </aside>
   <button class="sidebar-scrim" id="sidebar-scrim" aria-label="关闭导航"></button>
   <main class="content" id="main-content" tabindex="-1">
@@ -30,10 +30,10 @@
       <a class="back-home" href="../../index.html">首页</a>
     </div>
 <nav class="breadcrumbs" aria-label="面包屑"><ol><li><a href="../../index.html">首页</a></li><li><a href="../../projects/index.html">项目目录</a></li><li><a href="../../projects/cubesandbox.html">CubeSandbox</a></li><li><a href="../../topics/snapshot-restore-migration.html">Snapshot、Restore 与 Migration</a></li><li aria-current="page">CubeSandbox Virtio Net / Fs Restore 内部状态链路</li></ol></nav>
-<div class="page-meta" aria-label="文档元数据"><span class="badge">机制解析</span><a class="badge badge-status" href="../../methodology/status-and-evidence.html#status">状态：待固定版本复核</a><span class="badge">CubeSandbox</span><span class="badge">角色：核心研究项目 / 沙箱平台</span></div><p class="status-explainer"><strong>待固定版本复核</strong>表示本文尚未按结构化的 pinned baseline 重新验证，不表示文章内容为假。状态不会因为进入目录或公开站点而自动升级。</p>
+<div class="page-meta" aria-label="文档元数据"><span class="badge">机制解析</span><a class="badge badge-status" href="../../methodology/status-and-evidence.html#status">状态：源码版本已固定，证据仍未完备</a><span class="badge">CubeSandbox</span><span class="badge">角色：核心研究项目 / 沙箱平台</span><a class="badge" href="../../versions/index.html#cubesandbox-5135a40d-20260731" title="cubesandbox 5135a40d86c94a85fe2521fd9ed913ac5fd6cfd9；角色：primary">版本基线：commit-pinned@5135a40d86c9</a><span class="badge">复核日期：2026-09-22</span></div><p class="status-explainer"><strong>源码版本已固定，证据仍未完备</strong>是本文的读者状态：页面已按显示的固定源码版本完成版本登记与源码级复核，但 build、runtime、跨组件或完整 claim-level 证据尚未齐备；机器状态保持 <code>unconfirmed</code>，登记 baseline 不会自动升级为 <code>current</code>。</p>
     <article class="markdown-body"><h1 id="cubesandbox-virtio-net-fs-restore">CubeSandbox Virtio Net / Fs Restore 内部状态链路</h1>
 <p>本文展开 <a href="vmm-device-restore-chain.html">VMM Device Restore 设备恢复链路</a> 的下一步，聚焦 virtio-net 与 virtio-fs 在 restore 中<strong>到底恢复了哪些状态、哪些只是重新绑定当前节点后端</strong>。</p>
-<p>结论只来自当前仓库源码。</p>
+<p>源码基线固定为 CubeSandbox canonical 工作树提交 <code>5135a40d86c94a85fe2521fd9ed913ac5fd6cfd9</code>（分支记录为 <code>0731-after-v0.6.0</code>）。结论只来自该基线源码。</p>
 <blockquote>
 <p>transport 层 MSI-X/queue 恢复详见 <a href="interrupt-state-restore-chain.html">中断状态恢复链路</a>；网络 RX/TX 热路径见 <a href="network-data-plane-interrupt-wakeup-chain.html">网络数据面与中断唤醒链路</a>。</p>
 </blockquote>
@@ -104,9 +104,9 @@
     I --&gt; J[&quot;spawn worker threads&quot;]
     G --&gt;|no| K[&quot;wait for driver activation&quot;]</code></pre></details></figure>
 <h2 id="3-virtiopcidevice-transport">3. VirtioPciDevice 保存与恢复的状态（transport 层）</h2>
-<p><code>VirtioPciDeviceState</code> 保存 <code>device_activated</code>、每个 queue 的 size/ready/desc/avail/used ring 地址、<code>interrupt_status</code>（<code>pci_device.rs:279</code>）。<code>state()</code> 从当前 <code>Queue</code> 读三段 ring 地址（<code>:508</code>），<code>set_state()</code> 恢复并用 guest memory 中的 used idx 重设 next avail/used（<code>:527</code>）。</p>
+<p><code>VirtioPciDeviceState</code> 保存 <code>device_activated</code>、每个 queue 的 size/ready/desc/avail/used ring 地址、<code>interrupt_status</code>（<code>pci_device.rs:288</code>）。<code>state()</code> 从当前 <code>Queue</code> 读三段 ring 地址（<code>:508</code>），<code>set_state()</code> 恢复并用 guest memory 中的 used idx 重设 next avail/used（<code>:527</code>）。</p>
 <p><code>restore()</code> 的<strong>顺序刻意 MSI-X 最先</strong>，确保设备配置恢复前中断路由已重建：</p>
-<pre><code class="language-rust">// hypervisor/virtio-devices/src/transport/pci_device.rs:1184  (顺序骨架)
+<pre><code class="language-rust">// hypervisor/virtio-devices/src/transport/pci_device.rs:1201  (顺序骨架)
 fn restore(&amp;mut self, snapshot: Snapshot) -&gt; Result&lt;()&gt; {
     // 1. 先恢复 MSI-X（重建中断路由）—— MsixConfig::set_state 见 interrupt-state-restore-chain
     if let Some(msix_config) = &amp;self.msix_config { /* msix_config.restore(...)? */ }
@@ -169,12 +169,12 @@ pub struct NetState {
     pub queue_size: Vec&lt;u16&gt;,
 }
 </code></pre>
-<p>tap 不在 <code>NetState</code> 里。<code>Net::new()</code> 按<strong>当前</strong> <code>NetConfig</code> 重新 <code>open_tap()</code>；<code>from_tap_fds()</code> dup 传入的 donated fd 构造 Tap（<code>net.rs:514</code>）。</p>
+<p>tap 不在 <code>NetState</code> 里。<code>Net::new()</code> 按<strong>当前</strong> <code>NetConfig</code> 重新 <code>open_tap()</code>；<code>from_tap_fds()</code> dup 传入的 donated fd 构造 Tap（<code>net.rs:570</code>）。</p>
 <blockquote>
 <p><strong>guest-visible 配置来自快照，host tap 后端来自当前恢复请求</strong>。CubeSandbox restore 网络走的是当前节点的新 tap：VMM 先在 <code>RestoreConfig.net</code> 替换 tap，再创建 <code>Net</code>。所以 virtio-net 的 features/config 来自快照，但 tap 是新的。</p>
 </blockquote>
 <h2 id="5-virtio-net-activate">5. virtio-net activate</h2>
-<p><code>Net::activate()</code> 先 <code>common.activate()</code>，再按 queue 数创建 control queue worker 和 RX/TX queue pair worker（<code>net.rs:646</code>）。每个 RX/TX pair 都新建 <code>RxVirtio</code>/<code>TxVirtio</code>/rate limiter/tap clone/queue eventfd/epoll worker。tap offload 按 restored <code>acked_features</code> 重配；<strong>donated tap 不被 VMM 改 offload</strong>（<code>net.rs:723</code>）。<code>Net::snapshot()</code> 只存 <code>NetState</code>，<code>Pausable</code> 只转发到 <code>VirtioCommon</code>，无额外 backend 序列化（<code>:832</code>）。</p>
+<p><code>Net::activate()</code> 先 <code>common.activate()</code>，再按 queue 数创建 control queue worker 和 RX/TX queue pair worker（<code>net.rs:658</code>）。每个 RX/TX pair 都新建 <code>RxVirtio</code>/<code>TxVirtio</code>/rate limiter/tap clone/queue eventfd/epoll worker。tap offload 按 restored <code>acked_features</code> 重配；<strong>donated tap 不被 VMM 改 offload</strong>（<code>net.rs:737</code>）。<code>Net::snapshot()</code> 只存 <code>NetState</code>，<code>Pausable</code> 只转发到 <code>VirtioCommon</code>，无额外 backend 序列化（<code>:844</code>/<code>:863</code>）。</p>
 <figure class="diagram" aria-label="Mermaid 架构或流程图"><div class="mermaid">flowchart LR
     A[&quot;Restored NetState&quot;] --&gt; B[&quot;Net::new_with_tap&quot;]
     C[&quot;Current tap/tap fd&quot;] --&gt; B
@@ -189,9 +189,9 @@ pub struct NetState {
     E --&gt; F[&quot;spawn ctrl queue worker&quot;]
     E --&gt; G[&quot;spawn RX/TX workers&quot;]</code></pre></details></figure>
 <h2 id="6-native-virtio-fs-back_state">6. native virtio-fs 状态（<code>back_state</code>）</h2>
-<p>native <code>Fs</code> 比 net 重——它序列化 backend server 内部状态到 <code>back_state</code>。<code>Fs</code> 结构含 <code>backendfs_config</code>、<code>pending_dev_message</code>、<code>server</code>、<code>back_state</code>、<code>restore</code> 标志（<code>fs.rs:657</code>）。</p>
+<p>native <code>Fs</code> 比 net 重——它序列化 backend server 内部状态到 <code>back_state</code>。<code>Fs</code> 结构含 <code>backendfs_config</code>、<code>pending_dev_message</code>、<code>server</code>、<code>back_state</code>、<code>restore</code> 标志（<code>fs.rs:771</code>）。</p>
 <p><strong>snapshot 时</strong>，若 server 已存在，<code>Fs::snapshot()</code> 调 <code>server.serialize_data()</code> 把返回数据写进 <code>state.back_state</code>：</p>
-<pre><code class="language-rust">// hypervisor/virtio-devices/src/fs.rs:1094
+<pre><code class="language-rust">// hypervisor/virtio-devices/src/fs.rs:1217
 fn snapshot(&amp;mut self) -&gt; std::result::Result&lt;Snapshot, MigratableError&gt; {
     let mut state = self.state();
     if let Some(server) = &amp;self.server {
@@ -204,7 +204,7 @@ fn snapshot(&amp;mut self) -&gt; std::result::Result&lt;Snapshot, MigratableErro
 }
 </code></pre>
 <p><strong>restore activate 时</strong>，<code>Fs::activate()</code> 先建新 backend server；若 <code>restore</code> 为 true 且 <code>back_state</code> 非空，反序列化应用：</p>
-<pre><code class="language-rust">// hypervisor/virtio-devices/src/fs.rs:916
+<pre><code class="language-rust">// hypervisor/virtio-devices/src/fs.rs:1034
 fn activate(&amp;mut self, mem, interrupt_cb, mut queues) -&gt; ActivateResult {
     self.common.activate(&amp;queues, &amp;interrupt_cb)?;
     let server = self.init_backend_fs_server(&amp;self.backendfs_config)?;
@@ -220,8 +220,8 @@ fn activate(&amp;mut self, mem, interrupt_cb, mut queues) -&gt; ActivateResult {
 <p><strong>native virtio-fs 不只是重新打开目录</strong>——它还尝试恢复 backend server 的内部序列化状态。前提是新 <code>shared_dir</code>/allowed_dirs/backend 配置能被 server 接受。</p>
 </blockquote>
 <h2 id="7-allowed_dirs-fs">7. allowed_dirs 与 fs 更新</h2>
-<p><code>BackendFsConfig</code> 含 <code>shared_dir</code>/cache/xattr/writeback/read_only/<code>allowed_dirs</code>（<code>fs.rs:520</code>）。restore 前 <code>RestoreConfig.fs</code> 经 <code>update_fses()</code> 覆盖 shared_dir/allowed_dirs/cache/rate limiter（<code>config.rs:2322</code>）。activate 时 <code>init_backend_fs_server()</code> canonicalize <code>shared_dir</code>、构造 passthrough fs、把 <code>allowed_dirs</code> 传给 <code>Server::new()</code>（<code>fs.rs:775</code>）。</p>
-<p><strong>运行中更新走另一条路</strong>（非 restore）：<code>vm_set_fs()</code> 更新 VM config 后调 <code>vm.fs_device_update()</code>（<code>lib.rs:1070</code>）→ DeviceManager 把 <code>FsEvent</code> 推入 node 的 <code>pending_dev_message</code> 再写 <code>dev_evt</code> 唤醒 worker（<code>device_manager.rs:1173</code>）→ worker 收 <code>DEVICE_EVENT</code> 后调 <code>server.update_filter(&amp;allowed_dirs)</code>（<code>fs.rs:466</code>）。</p>
+<p><code>BackendFsConfig</code> 含 <code>shared_dir</code>/cache/xattr/writeback/read_only/<code>allowed_dirs</code>（<code>fs.rs:614</code>）。restore 前 <code>RestoreConfig.fs</code> 经 <code>update_fses()</code> 覆盖 shared_dir/allowed_dirs/cache/rate limiter（<code>config.rs:2339</code>）。activate 时 <code>init_backend_fs_server()</code> canonicalize <code>shared_dir</code>、构造 passthrough fs、把 <code>allowed_dirs</code> 传给 <code>Server::new()</code>（<code>fs.rs:889</code>）。</p>
+<p><strong>运行中更新走另一条路</strong>（非 restore）：<code>vm_set_fs()</code> 更新 VM config 后调 <code>vm.fs_device_update()</code>（<code>lib.rs:1073</code>）→ DeviceManager 把 <code>FsEvent</code> 推入 node 的 <code>pending_dev_message</code> 再写 <code>dev_evt</code> 唤醒 worker（<code>device_manager.rs:1193</code>）→ worker 收 <code>DEVICE_EVENT</code> 后调 <code>server.update_filter(&amp;allowed_dirs)</code>（<code>fs.rs:580</code>）。</p>
 <figure class="diagram" aria-label="Mermaid 架构或流程图"><div class="mermaid">sequenceDiagram
     participant API as VmSetFs
     participant VMM as VMM
@@ -272,7 +272,7 @@ fn activate(&amp;mut self, mem, interrupt_cb, mut queues) -&gt; ActivateResult {
 </table>
 <p>restore 构造时两者都重新连 socket，再用保存的 features/protocol features 调 <code>set_protocol_features_vhost_user()</code>（net <code>:83</code>、fs <code>:102</code>）。snapshot 都调 <code>vu_common.snapshot(id, state)</code> 合并通用 vhost-user 状态（net <code>:403</code>、fs <code>:368</code>）。</p>
 <h2 id="9-vhost-user-vring">9. vhost-user vring 重建</h2>
-<p><code>setup_vhost_user()</code> 先把 guest memory table 重发 backend，再为每个 queue 发 vring num/addr/base/call eventfd/kick eventfd（<code>vu_common_ctrl.rs:153</code>）。它按 queue 的 desc/used/avail 地址从 guest memory 转出 host address 调 <code>set_vring_addr()</code>（<code>:204</code>）；vring base 用当前 queue 的 avail idx；call eventfd 来自 virtio interrupt notifier，kick eventfd 来自 transport 传入的 queue eventfd。最后 <code>set_vring_enable(..., true)</code>、保存 <code>vrings_info</code>、标记 ready。若 backend 协商到 <code>LOG_SHMFD</code> + <code>VHOST_F_LOG_ALL</code> 还建 inflight tracking shared memory（<code>:440</code>）。</p>
+<p><code>setup_vhost_user()</code> 先把 guest memory table 重发 backend，再为每个 queue 发 vring num/addr/base/call eventfd/kick eventfd（<code>vu_common_ctrl.rs:154</code>）。它按 queue 的 desc/used/avail 地址从 guest memory 转出 host address 调 <code>set_vring_addr()</code>（<code>:239</code>）；vring base 用当前 queue 的 avail idx；call eventfd 来自 virtio interrupt notifier，kick eventfd 来自 transport 传入的 queue eventfd。最后 <code>set_vring_enable(..., true)</code>、保存 <code>vrings_info</code>、标记 ready。若 backend 协商到 <code>LOG_SHMFD</code> + <code>VHOST_F_LOG_ALL</code> 还建 inflight tracking shared memory（<code>:442</code>）。</p>
 <h2 id="10-arm64-x86_64">10. ARM64 与 x86_64 落点</h2>
 <p>virtio-net、native virtio-fs、vhost-user net/fs 的 <strong>device 层代码不按 <code>target_arch</code> 分裂</strong>：</p>
 <ul>
