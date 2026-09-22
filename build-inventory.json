@@ -62,7 +62,7 @@
   {
     "path": "CubeSandbox-sandbox-clone/analysis/cubemaster-snapshot-job-contract-chain.html",
     "size": 8551,
-    "sha256": "dd172316ea51b88b629f0d6c5558c7d18de0fbd4c67b6f45d8ceece97fe8cc18"
+    "sha256": "88e41d30575c9b8294f83e4e0b2bf53aa5f7417fa6dc2e7a2619e0dbe54c3698"
   },
   {
     "path": "CubeSandbox-sandbox-clone/analysis/cubesandbox-redis-hugepages-report-20260627.html",
@@ -117,7 +117,7 @@
   {
     "path": "CubeSandbox-sandbox-clone/analysis/interrupt-state-restore-chain.html",
     "size": 27089,
-    "sha256": "25cb9a7882111be05063c6d4862e9f472b7870b8ab9e033220521fcd67b5eac8"
+    "sha256": "b7fda83537ce58c806b7cd933be5587b4625d75a9f10dcb275b1511646230be0"
   },
   {
     "path": "CubeSandbox-sandbox-clone/analysis/network-agent-ensure-network-chain.html",
@@ -142,7 +142,7 @@
   {
     "path": "CubeSandbox-sandbox-clone/analysis/rollback-runtime-update-chain.html",
     "size": 9745,
-    "sha256": "a1f5317414c5ac5f66b4896de51df88ac59f068375a9c49297ac369fa38f941e"
+    "sha256": "52612e3fe6565e5fd1dd7ea417d2a60bbac3bd601026e7a2125c1fc8e353c0dd"
   },
   {
     "path": "CubeSandbox-sandbox-clone/analysis/runtime-control-vmm-update-chain.html",
@@ -157,32 +157,32 @@
   {
     "path": "CubeSandbox-sandbox-clone/analysis/sandbox-vm-container-template-runtime-hierarchy.html",
     "size": 89782,
-    "sha256": "db09fd6014a8f68f68fceb2b657d31dd61878216d3baeb29620892b81e125d0f"
+    "sha256": "d2a8f21e1f9d7535ad0b8cb4682c541e975ebff093c74050ef9ac2f812e2427c"
   },
   {
     "path": "CubeSandbox-sandbox-clone/analysis/snapshot-catalog-restore-binding-chain.html",
     "size": 9243,
-    "sha256": "4b7756bafb32c2e2809a9cb7322d02f9e8b2bcc50c2db58a8b1a330065ac2042"
+    "sha256": "9b446e1fd9f3c07fb1aab69326a86e3f50394577718d4500f36291ea451fde2d"
   },
   {
     "path": "CubeSandbox-sandbox-clone/analysis/snapshot-create-commit-chain.html",
     "size": 26391,
-    "sha256": "5112bce268c3b1de42d175cdee7a4d3040536a7b8c12c94135c3368d771837dc"
+    "sha256": "c515ca89909b813210fe83bdf0179ad1bf6dfce9c317c66b9c370367a6b6aace"
   },
   {
     "path": "CubeSandbox-sandbox-clone/analysis/snapshot-replica-reconciler-chain.html",
     "size": 8685,
-    "sha256": "eb15a0e4f0fa9e124ec8dfdd861272a6cd8ae7d63975e097834a2b29c9368b30"
+    "sha256": "a3ffecabcdfa5398be36119b8645f08bd3d3389da515f55d5eeaa32d8bdb010a"
   },
   {
     "path": "CubeSandbox-sandbox-clone/analysis/snapshot-restore-network-chain.html",
     "size": 9448,
-    "sha256": "1b137019a7f2364247fcb6799683167ee9a9cfd6e6cb75ab3dd647dbf877af22"
+    "sha256": "659910cc2a17211cc5027566b7eef576a80a7047e6a8df60fcd1ecb8953ee169"
   },
   {
     "path": "CubeSandbox-sandbox-clone/analysis/snapshot-template-storage-format-chain.html",
     "size": 37081,
-    "sha256": "5c784433a2e380623126ba1c66afe44c62163df87fb09f2570af1735ee7fe572"
+    "sha256": "18934333a0d57d88fab1d8357937ed9077f56425c720ae73e723e04fb632d203"
   },
   {
     "path": "CubeSandbox-sandbox-clone/analysis/tap-fd-networkinfo-chain.html",
@@ -197,12 +197,12 @@
   {
     "path": "CubeSandbox-sandbox-clone/analysis/template-build-from-oci-chain.html",
     "size": 29282,
-    "sha256": "497224344ff24000dd4056c33e087e8a46f5b344fa70bf25fd1edb1fe9a569fd"
+    "sha256": "18340e471cdb662b4c2863beb98050be78d002ce2744931d6b0434f42b98c488"
   },
   {
     "path": "CubeSandbox-sandbox-clone/analysis/template-restore-msix-chain.html",
     "size": 50224,
-    "sha256": "4a9573be7395db77d7cf31fa6e6e381c63cae67bed7c26e9b188d85a14889c75"
+    "sha256": "94e486f097918e5ec936cbb94cd3be9fff2b0fb4c4f0e22e228da4011c4243dc"
   },
   {
     "path": "CubeSandbox-sandbox-clone/analysis/virtio-interrupt-injection-trace.html",
@@ -212,17 +212,17 @@
   {
     "path": "CubeSandbox-sandbox-clone/analysis/virtio-net-fs-restore-chain.html",
     "size": 23577,
-    "sha256": "599da3315d62295e2c239c59ad82a5d44a95136327073b07fb44e85f7bc52bd1"
+    "sha256": "a560c5774f7ac82a308c15b8128618453ced338a9b200fbb14d69c67417c043f"
   },
   {
     "path": "CubeSandbox-sandbox-clone/analysis/vmm-device-restore-chain.html",
     "size": 22970,
-    "sha256": "c03e0cfde90d29845831eeb967bbc8c4e1b86793bbd9e81733f48aeabd9a9d37"
+    "sha256": "f3b7993863f565464ec3fdd8aacdd74ec5d8cf23812594db8343afa638d89e8a"
   },
   {
     "path": "CubeSandbox-sandbox-clone/analysis/vmm-snapshot-restore-state-chain.html",
     "size": 25828,
-    "sha256": "3fd01bf628072d12bc547298713256117c18cbfd747489f82e8ed1c46259e51a"
+    "sha256": "421d6528f906d49eae5f709e1d8b9f99e5ffc6364d376f78a013000bd505e080"
   },
   {
     "path": "README.md",
@@ -882,42 +882,42 @@
   {
     "path": "platforms/agentenv/architecture-runtime-boundaries.html",
     "size": 16477,
-    "sha256": "1476ddda48a818bc0dd922fabee0c1969e1c40622852287884e6c92edff0c0c4"
+    "sha256": "e162388a07235f37ca2d6a0a405e387895f9463224fe7f3988009aecf4ccc5ce"
   },
   {
     "path": "platforms/agentenv/sandbox-lifecycle-e2b-api-chain.html",
     "size": 16897,
-    "sha256": "b1c3dd683e143c1f95e73ddbb7c32f61a3305807eefe0041225edd435c704b0c"
+    "sha256": "3d187e7e6ca57c11c08c5040fc5b744937f8a330012afd83b92289a10d333496"
   },
   {
     "path": "platforms/agentenv/snapshot-template-overlaybd-ublk-chain.html",
     "size": 17026,
-    "sha256": "1312477f3d4778225e97afcaf68028d865845dad5fa54a164605e078f77c652d"
+    "sha256": "6fac4c8b0cdc9e65f9bcb41c234b2e156d5dec3d65ec31f247ad749b4d59ce9b"
   },
   {
     "path": "platforms/agentenv.html",
     "size": 5523,
-    "sha256": "78f7ebd02b1c433151c02f22374b11b9121574b2c4a0a81c76da036bf951a60f"
+    "sha256": "9b672f7cb2e9f94b85f41fec94a2bcf9d83f832b109cd084f74f3ceb446db204"
   },
   {
     "path": "platforms/cubesandbox.html",
     "size": 12433,
-    "sha256": "0d0a1653ec59fdf7af25186edc9848a5223b6d9a91f16cf7b433a90ae264dbdf"
+    "sha256": "6f57c8df2ed8673d16006f6be2bc5e3d0f07653cf66894e9c6dce015fa20a202"
   },
   {
     "path": "platforms/e2b-infra/architecture-and-sandbox-lifecycle.html",
     "size": 17041,
-    "sha256": "bd5dbb1792f282bec7c8c897d13166f0543d6963f4a64710920ea2cc717ab645"
+    "sha256": "1dc511bd7c819a85a21e3c0e5498a5acd6794001b5ecd7a2aae8d2c1d57d0b9d"
   },
   {
     "path": "platforms/e2b-infra/template-rootfs-memory-publish.html",
     "size": 15305,
-    "sha256": "ddb39900e229081bd851f86140ba054bd750956aaf91bc6652dc68588cc21b3d"
+    "sha256": "a449fbe8c0a7d118be7e44f81d670464354e6942b7ca6f31cb54db0a882468d1"
   },
   {
     "path": "platforms/e2b-infra.html",
     "size": 5380,
-    "sha256": "3b6ecc5335bf08658f3275916462a9b00540beb06984f58c1e7cf37df309de26"
+    "sha256": "7aa4e243b02108327c1696d8b91bea168d11f0e79d5fc148fef7bbdf81ed4e6e"
   },
   {
     "path": "platforms/index.html",
@@ -977,12 +977,12 @@
   {
     "path": "topics/index.html",
     "size": 5618,
-    "sha256": "4216aa4762de4af18f52a4d71ea004e19d4ba5f8e2ee23b65ad717081845e2c2"
+    "sha256": "340eab906b3c96e23bc6dcc7be0e5e8c12885b2c846238e86bf34f7e61943bce"
   },
   {
     "path": "topics/lifecycle-control-plane.html",
     "size": 10500,
-    "sha256": "cd5fe349cfbc15497fea5b1c9bd9b0e7228562393db38d36d20d51f6261bc88e"
+    "sha256": "a83caf469d310e62180f5dc124cc9feb08f0491a60ed0548c17b1f4a8ca60cb3"
   },
   {
     "path": "topics/network-isolation.html",
@@ -997,12 +997,12 @@
   {
     "path": "topics/snapshot-restore-migration.html",
     "size": 8969,
-    "sha256": "59347a09ad5060d5d4e340fc8fc200258dc8d403570f4d098b153fd26c2ec083"
+    "sha256": "a7a8c0486b0a43843c9748ff829535131affd5edde99faa7c692f5043202f28e"
   },
   {
     "path": "topics/storage-device-io.html",
     "size": 8672,
-    "sha256": "0d7adf2bd84ad61654e5cea0f4fc9fe8f7b311963d88760abe0a1855ac68925c"
+    "sha256": "16a0098f90a307af6c9ccb0741d8088ce49a7a79a7218e43be755a08e5c69509"
   },
   {
     "path": "versions/index.html",
