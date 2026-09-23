@@ -622,17 +622,33 @@
   },
   {
     "doc_id": "cubesandbox.cubeshim-sandbox-hypervisor-chain",
-    "title": "CubeShim sandbox 与 CubeHypervisor 创建链路",
+    "title": "CubeShim、VMM 与 guest：控制 socket、网络和 I/O 分层",
     "route": "CubeSandbox-sandbox-clone/analysis/cubeshim-sandbox-hypervisor-chain.html",
     "headings": [
-      "0. 术语与背景",
-      "CubeShim = containerd shim v2 + 内嵌 CubeHypervisor",
-      "关键链路",
-      "1. start_vm（launch VMM + wait VsockServerReady）",
-      "2. create_sandbox（VM + agent + CreateSandboxRequest）",
-      "3. 能力边界"
+      "A. 身份与基线",
+      "B. 背景与术语",
+      "B.1 这里没有独立的“管理 VM”",
+      "B.2 五类容易混淆的通道",
+      "C. 对象、所有权与生命周期",
+      "D. 控制、数据与状态链",
+      "D.1 主控制链：不是 socket，而是 channel + eventfd",
+      "D.2 `chapi`：同一 VMM 的 HTTP/Unix socket 旁路",
+      "D.3 guest agent：`cube.sock` 只是 host 入口",
+      "D.4 普通 cold boot",
+      "D.5 创建期 snapshot restore 与 app snapshot restore",
+      "D.6 snapshot、pause-to-snapshot、resume 与 rollback",
+      "D.7 TAP fd 如何进入 VMM",
+      "D.8 virtio-net RX/TX 热路径",
+      "D.9 container stdio：legacy ttrpc 与可选 passfd",
+      "D.10 block、rootfs 与 virtio-fs 不走这些 socket 的数据面",
+      "E. 失败与兼容边界",
+      "F. 优点与代价",
+      "G. 失败、反例与错误矩阵",
+      "H. 证据账本",
+      "I. 架构边界与未确认项",
+      "继续阅读"
     ],
-    "summary": "CubeShim sandbox 与 CubeHypervisor 创建链路 本文承接 API 到 Cubelet 创建链路 api-master-cubelet-create-chain.md ，从 containerd NewTask 之后追踪 CubeShim 如何创建 VM、连接 guest agent、完成 sandbox/container 生命周期。 源码基线：当前仓库工作树。 相关： cubehypervisor API request cubehypervisor-api-request-chai",
+    "summary": "CubeShim、VMM 与 guest：控制 socket、网络和 I/O 分层 本文回答：CubeShim 与 CubeHypervisor/VMM 到底通过什么通信，普通创建、 snapshot restore、pause/resume、容器 stdio 和网络收发如何组合这些通道？ 先行结论 ：CubeSandbox 没有在 CubeShim 与 VMM 之间再放一台“管理 VM”。 v0.7.1 中 CubeShim 与 CubeHypervisor 处于 同一 shim 进程 ，常规 VM 控制走 mp",
     "scope": "project",
     "projects": [
       "cubesandbox"
@@ -641,10 +657,23 @@
     "layer": "",
     "integrates_with_projects": [],
     "topics": [
-      "lifecycle-control-plane"
+      "lifecycle-control-plane",
+      "network-isolation",
+      "snapshot-restore-migration",
+      "storage-device-io"
     ],
     "component_baselines": [],
-    "baseline_refs": [],
+    "baseline_refs": [
+      {
+        "id": "cubesandbox-v0-7-1-31d911e4",
+        "component": "cubesandbox",
+        "version": "v0.7.1",
+        "commit": "31d911e430fdf8a8879bd062b8e78066c1a8e89d",
+        "selected_at": "2026-09-23",
+        "review_state": "unconfirmed",
+        "role": "primary"
+      }
+    ],
     "curated_topics": [],
     "baselines": [],
     "status": "unconfirmed",
@@ -652,11 +681,24 @@
     "tags": [
       "cubeshim",
       "sandbox",
-      "hypervisor"
+      "hypervisor",
+      "socket",
+      "vsock",
+      "tap",
+      "virtio",
+      "passfd"
     ],
-    "architectures": [],
-    "evidence_classes": [],
-    "reviewed_at": ""
+    "architectures": [
+      "x86_64",
+      "aarch64"
+    ],
+    "evidence_classes": [
+      "local-source-fact",
+      "inference",
+      "engineering-judgment",
+      "unconfirmed"
+    ],
+    "reviewed_at": "2026-09-24"
   },
   {
     "doc_id": "cubesandbox.cubevs-ebpf-data-plane-chain",
@@ -7441,6 +7483,91 @@
       "unconfirmed"
     ],
     "reviewed_at": "2026-09-09"
+  },
+  {
+    "doc_id": "cubesandbox.cubeshim-hypervisor-transport-evolution",
+    "title": "CubeSandbox CubeShim ↔ Hypervisor 通信与 I/O 演进：v0.5.1 → v0.7.1",
+    "route": "evolution/cubesandbox/cubeshim-hypervisor-transport-io.html",
+    "headings": [
+      "背景与术语",
+      "A/B 身份与祖先关系",
+      "旧机制（A 端）",
+      "A.1 控制面已经是内嵌 VMM thread",
+      "A.2 chapi、cube.sock 与 TAP pool 已经分层",
+      "A.3 A 端没有 container stdio passfd",
+      "变更点（change ledger）",
+      "v0.5.1 → v0.6.0：I/O backend 扩展，但 transport 不换轨",
+      "v0.6.0 → v0.7.1：stdio passfd",
+      "v0.6.0 → v0.7.1：网络错误语义与 restore workaround",
+      "v0.6.0 → v0.7.1：pause/resume 生命周期收敛",
+      "新机制（B 端）",
+      "不变量（跨 A/B 保持）",
+      "兼容与迁移影响",
+      "优点与代价",
+      "架构边界（x86_64 / ARM64）",
+      "失败/反例与错误矩阵",
+      "双端证据表",
+      "未确认项与运行验证边界"
+    ],
+    "summary": "CubeSandbox CubeShim ↔ Hypervisor 通信与 I/O 演进：v0.5.1 → v0.7.1 本文回答：从 v0.5.1 到 v0.7.1 ，CubeShim 与 VMM 的控制关系、host↔guest socket、TAP/virtio-net 和 container stdio 到底改变了什么，哪些核心契约保持 不变？ 先行结论 ：三版都没有把 CubeShim 常规 VM 控制改成 socket RPC； VmmInstance/VMM SERVICE 的进程内 mpsc + e",
+    "scope": "evolution",
+    "projects": [
+      "cubesandbox"
+    ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
+    "topics": [
+      "lifecycle-control-plane",
+      "network-isolation",
+      "snapshot-restore-migration",
+      "storage-device-io"
+    ],
+    "component_baselines": [],
+    "baseline_refs": [
+      {
+        "id": "cubesandbox-v0-5-1-a164417f",
+        "component": "cubesandbox",
+        "version": "v0.5.1",
+        "commit": "a164417f497234a0d787cb328b0ae96480b1569b",
+        "selected_at": "2026-09-23",
+        "review_state": "unconfirmed",
+        "role": "supporting"
+      },
+      {
+        "id": "cubesandbox-v0-7-1-31d911e4",
+        "component": "cubesandbox",
+        "version": "v0.7.1",
+        "commit": "31d911e430fdf8a8879bd062b8e78066c1a8e89d",
+        "selected_at": "2026-09-23",
+        "review_state": "unconfirmed",
+        "role": "primary"
+      }
+    ],
+    "curated_topics": [],
+    "baselines": [],
+    "status": "unconfirmed",
+    "kind": "explanation",
+    "tags": [
+      "cubeshim",
+      "hypervisor",
+      "socket",
+      "vsock",
+      "tap",
+      "passfd",
+      "evolution"
+    ],
+    "architectures": [
+      "x86_64",
+      "aarch64"
+    ],
+    "evidence_classes": [
+      "local-source-fact",
+      "inference",
+      "engineering-judgment",
+      "unconfirmed"
+    ],
+    "reviewed_at": "2026-09-24"
   },
   {
     "doc_id": "cubesandbox.soft-dirty-snapshot-evolution",

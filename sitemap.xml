@@ -194,5 +194,6 @@
   <url><loc>https://north-c.github.io/micro-vm-wiki/platforms/agentenv/snapshot-template-overlaybd-ublk-chain.html</loc></url>
   <url><loc>https://north-c.github.io/micro-vm-wiki/platforms/e2b-infra/architecture-and-sandbox-lifecycle.html</loc></url>
   <url><loc>https://north-c.github.io/micro-vm-wiki/platforms/e2b-infra/template-rootfs-memory-publish.html</loc></url>
+  <url><loc>https://north-c.github.io/micro-vm-wiki/evolution/cubesandbox/cubeshim-hypervisor-transport-io.html</loc></url>
   <url><loc>https://north-c.github.io/micro-vm-wiki/evolution/cubesandbox/soft-dirty-snapshot.html</loc></url>
 </urlset>

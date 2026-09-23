@@ -3,12 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="CubeShim sandbox 与 CubeHypervisor 创建链路 本文承接 API 到 Cubelet 创建链路 api-master-cubelet-create-chain.md ，从 containerd NewTask 之后追踪 CubeShim 如何创建 VM、连接 guest agent、完成 sandbox/container 生命周期。 源码基线：当前仓库工作树。 相关： cubehypervisor API request cubehypervisor-api-request-chai">
+<meta name="description" content="CubeShim、VMM 与 guest：控制 socket、网络和 I/O 分层 本文回答：CubeShim 与 CubeHypervisor/VMM 到底通过什么通信，普通创建、 snapshot restore、pause/resume、容器 stdio 和网络收发如何组合这些通道？ 先行结论 ：CubeSandbox 没有在 CubeShim 与 VMM 之间再放一台“管理 VM”。 v0.7.1 中 CubeShim 与 CubeHypervisor 处于 同一 shim 进程 ，常规 VM 控制走 mp">
 <meta property="og:type" content="article">
-<meta property="og:title" content="CubeShim sandbox 与 CubeHypervisor 创建链路">
-<meta property="og:description" content="CubeShim sandbox 与 CubeHypervisor 创建链路 本文承接 API 到 Cubelet 创建链路 api-master-cubelet-create-chain.md ，从 containerd NewTask 之后追踪 CubeShim 如何创建 VM、连接 guest agent、完成 sandbox/container 生命周期。 源码基线：当前仓库工作树。 相关： cubehypervisor API request cubehypervisor-api-request-chai">
+<meta property="og:title" content="CubeShim、VMM 与 guest：控制 socket、网络和 I/O 分层">
+<meta property="og:description" content="CubeShim、VMM 与 guest：控制 socket、网络和 I/O 分层 本文回答：CubeShim 与 CubeHypervisor/VMM 到底通过什么通信，普通创建、 snapshot restore、pause/resume、容器 stdio 和网络收发如何组合这些通道？ 先行结论 ：CubeSandbox 没有在 CubeShim 与 VMM 之间再放一台“管理 VM”。 v0.7.1 中 CubeShim 与 CubeHypervisor 处于 同一 shim 进程 ，常规 VM 控制走 mp">
 <link rel="canonical" href="https://north-c.github.io/micro-vm-wiki/CubeSandbox-sandbox-clone/analysis/cubeshim-sandbox-hypervisor-chain.html">
-<title>CubeShim sandbox 与 CubeHypervisor 创建链路 · Micro-VM 技术研究 Wiki</title>
+<title>CubeShim、VMM 与 guest：控制 socket、网络和 I/O 分层 · Micro-VM 技术研究 Wiki</title>
 <link rel="stylesheet" href="../../assets/style.css">
 </head>
 <body data-root="../../">
@@ -29,62 +29,580 @@
       <button id="theme-toggle" aria-label="切换到深色模式">🌙</button>
       <a class="back-home" href="../../index.html">首页</a>
     </div>
-<nav class="breadcrumbs" aria-label="面包屑"><ol><li><a href="../../index.html">首页</a></li><li><a href="../../projects/index.html">项目目录</a></li><li><a href="../../projects/cubesandbox.html">CubeSandbox</a></li><li><a href="../../topics/lifecycle-control-plane.html">生命周期与控制面</a></li><li aria-current="page">CubeShim sandbox 与 CubeHypervisor 创建链路</li></ol></nav>
-<div class="page-meta" aria-label="文档元数据"><span class="badge">机制解析</span><a class="badge badge-status" href="../../methodology/status-and-evidence.html#status">状态：待固定版本复核</a><span class="badge">CubeSandbox</span><span class="badge">角色：核心研究项目 / 沙箱平台</span></div><p class="status-explainer"><strong>待固定版本复核</strong>表示本文尚未按结构化的 pinned baseline 重新验证，不表示文章内容为假。状态不会因为进入目录或公开站点而自动升级。</p>
-    <article class="markdown-body"><h1 id="cubeshim-sandbox-cubehypervisor">CubeShim sandbox 与 CubeHypervisor 创建链路</h1>
-<p>本文承接 <a href="api-master-cubelet-create-chain.html">API 到 Cubelet 创建链路</a>，从 containerd <code>NewTask</code> 之后追踪 CubeShim 如何创建 VM、连接 guest agent、完成 sandbox/container 生命周期。</p>
-<p>源码基线：当前仓库工作树。</p>
+<nav class="breadcrumbs" aria-label="面包屑"><ol><li><a href="../../index.html">首页</a></li><li><a href="../../projects/index.html">项目目录</a></li><li><a href="../../projects/cubesandbox.html">CubeSandbox</a></li><li><a href="../../topics/lifecycle-control-plane.html">生命周期与控制面</a></li><li aria-current="page">CubeShim、VMM 与 guest：控制 socket、网络和 I/O 分层</li></ol></nav>
+<div class="page-meta" aria-label="文档元数据"><span class="badge">机制解析</span><a class="badge badge-status" href="../../methodology/status-and-evidence.html#status">状态：源码版本已固定，证据仍未完备</a><span class="badge">CubeSandbox</span><span class="badge">角色：核心研究项目 / 沙箱平台</span><a class="badge" href="../../versions/index.html#cubesandbox-v0-7-1-31d911e4" title="cubesandbox 31d911e430fdf8a8879bd062b8e78066c1a8e89d；角色：primary">版本基线：v0.7.1@31d911e430fd</a><span class="badge">复核日期：2026-09-24</span></div><p class="status-explainer"><strong>源码版本已固定，证据仍未完备</strong>是本文的读者状态：页面已按显示的固定源码版本完成版本登记与源码级复核，但 build、runtime、跨组件或完整 claim-level 证据尚未齐备；机器状态保持 <code>unconfirmed</code>，登记 baseline 不会自动升级为 <code>current</code>。</p>
+    <article class="markdown-body"><h1 id="cubeshimvmm-guest-socket-io">CubeShim、VMM 与 guest：控制 socket、网络和 I/O 分层</h1>
+<p>本文回答：CubeShim 与 CubeHypervisor/VMM 到底通过什么通信，普通创建、
+snapshot restore、pause/resume、容器 stdio 和网络收发如何组合这些通道？</p>
 <blockquote>
-<p>相关：<a href="cubehypervisor-api-request-chain.html">cubehypervisor API request</a>、<a href="sandbox-ready-lifecycle-chain.html">sandbox ready lifecycle</a>。</p>
+<p><strong>先行结论</strong>：CubeSandbox 没有在 CubeShim 与 VMM 之间再放一台“管理
+VM”。<code>v0.7.1</code> 中 CubeShim 与 CubeHypervisor 处于<strong>同一 shim 进程</strong>，常规
+VM 控制走 <code>mpsc + eventfd + response channel</code>；<code>chapi</code> 才是可选的
+HTTP/Unix socket 旁路。<code>cube.sock</code> 是 host 侧 virtio-vsock backend，用来把
+host 连接映射到 guest agent；<code>cubetap.sock</code> 用来向 VMM 交付 TAP fd；真正
+网络和块设备热路径都走 virtqueue/设备 worker，不经过控制 socket。把这四条
+路径分开，是理解 create、restore 和 I/O 故障的第一步。</p>
+<p><strong>范围与边界</strong>：源码基线
+<code>v0.7.1@31d911e430fdf8a8879bd062b8e78066c1a8e89d</code>；覆盖 x86_64 与
+ARM64 共享的控制/vsock/TAP/virtio 机制，并单列架构分歧。本文没有运行
+build、VM、网络或性能实验；“源码存在”不等于部署默认启用或运行已验证。</p>
 </blockquote>
-<hr>
-<h2 id="0">0. 术语与背景</h2>
-<h3 id="cubeshim-containerd-shim-v2-cubehypervisor">CubeShim = containerd shim v2 + 内嵌 CubeHypervisor</h3>
-<p>containerd <code>NewTask</code> 触发 CubeShim（shim v2），CubeShim 内嵌 CubeHypervisor（Cloud Hypervisor 派生 VMM）。经 <code>ApiRequest</code> mpsc + eventfd 控制 VMM thread，经 <code>NotifyEvent</code> channel 接收 guest 生命周期事件。</p>
-<h3 id="_1">关键链路</h3>
-<pre><code>containerd NewTask → TaskService.create → SandBox.init → SandBox.create_sandbox
-  → CubeHypervisor launch_vmm → VMM thread
-  → start_vm/boot_vm 或 restore_vm
-  → wait_notify(VsockServerReady) → connect_agent → CreateSandboxRequest
-TaskService.start → agent StartContainer
-</code></pre>
-<h2 id="1-start_vmlaunch-vmm-wait-vsockserverready">1. start_vm（launch VMM + wait VsockServerReady）</h2>
-<pre><code class="language-rust">// CubeShim/shim/src/sandbox/sb.rs:781
-async fn start_vm(&amp;mut self) -&gt; CResult&lt;bool&gt; {
-    ch.launch_vmm().await?;    // 创建 VmmInstance + 启动 VMM thread
-    // ... boot_vm 或 restore_vm ...
-    // :810  wait VsockServerReady
-    let total_wait = Duration::from_secs(30);
-    let wait_res = ch.wait_notify(total_wait).await;
-    match &amp;wait_res {
-        Ok(ev) if *ev == CH::NotifyEvent::VsockServerReady =&gt; { /* agent 可连 */ }
-        Ok(ev) =&gt; { /* 其他事件 → fallback vsock probe */ }
-        Err(_) =&gt; { /* 超时 → fallback vsock probe */ }
-    }
-}
-</code></pre>
-<blockquote>
-<p><code>launch_vmm()</code> 建 <code>VmmInstance</code>（VMM thread + ApiRequest mpsc + eventfd + NotifyEvent channel）。<code>boot_vm()</code> 发 <code>ApiRequest::VmBoot</code>，<code>restore_vm()</code> 发 <code>ApiRequest::VmRestore</code>。VMM thread 经 <code>event_notify!</code> 发 <code>NotifyEvent::VsockServerReady</code>（guest 写 sys_ctrl 设备）。</p>
-</blockquote>
-<h2 id="2-create_sandboxvm-agent-createsandboxrequest">2. create_sandbox（VM + agent + CreateSandboxRequest）</h2>
-<pre><code class="language-rust">// CubeShim/shim/src/sandbox/sb.rs:436
-pub async fn create_sandbox(&amp;mut self) -&gt; CResult&lt;()&gt; {
-    // start_vm → launch VMM + boot/restore + wait VsockServerReady
-    // connect_agent → vsock 连接 cube-agent
-    // 构造 CreateSandboxRequest { interfaces, routes, ARPNeighbors, dns, storages, ... }
-    // agent.create_sandbox(req) → guest agent 配置网络/storage/namespace
-}
-</code></pre>
-<blockquote>
-<p><code>create_sandbox</code> 是 CubeShim→guest agent 的语义收敛点：把 <code>cube.net</code> annotation 转成 <code>CreateSandboxRequest</code> 的 interfaces/routes/ARPNeighbors/dns；storages 来自 storage action 产出的 CubeCoW rootfs/volume binding。</p>
-</blockquote>
-<h2 id="3">3. 能力边界</h2>
-<p>CubeShim 不直接实现 virtio queue notify / irqfd 注入——它通过 <code>ApiRequest</code> 下发 VM/device 操作，通过 <code>NotifyEvent</code> 等待生命周期事件。真正设备中断/VMM 执行在 CubeHypervisor VMM thread。ready 不是单点——VM boot ready（VsockServerReady）只表示 VMM 已启动 guest + vsock 可连；sandbox ready 还需 agent CreateSandbox 完成。</p></article>
-<aside class="related-reading" aria-labelledby="related-title"><h2 id="related-title">继续阅读</h2><ul><li><strong>项目目录：</strong><a href="../../projects/cubesandbox.html">CubeSandbox</a></li><li><strong>平台视角：</strong><a href="../../platforms/cubesandbox.html">CubeSandbox</a></li><li><strong>专题目录：</strong><a href="../../topics/lifecycle-control-plane.html">生命周期与控制面</a></li><li><strong>横向比较：</strong><a href="../../analysis/arm64-x86-cross-project-matrix.html">ARM64 与 x86_64 跨项目架构差异专题分析</a></li><li><strong>继续本项目：</strong><a href="runtime-control-vmm-update-chain.html">CubeSandbox 运行期控制与 VMM 更新链路</a></li></ul></aside>
+<p>版本变化单独见 <a href="../../evolution/cubesandbox/cubeshim-hypervisor-transport-io.html">v0.5.1 → v0.7.1 演进</a>，
+避免把当前机制与历史变化混成一条时间线。</p>
+<h2 id="a">A. 身份与基线</h2>
+<ul>
+<li>版本：<code>v0.7.1</code>；完整提交：
+  <code>31d911e430fdf8a8879bd062b8e78066c1a8e89d</code>。</li>
+<li>证据来自固定 Git object 的源码；提交标题只说明作者意图，不替代行为证据。</li>
+<li>主要对象：<code>SandBox</code>、<code>CubeHypervisor</code>、<code>VmmInstance</code>、<code>VmmServiceInner</code>、
+  <code>VsockMuxer</code>、<code>Tap</code>、<code>NetEpollHandler</code>、<code>BlockEpollHandler</code>。</li>
+<li>不把独立 <code>cube-hypervisor</code> binary、README 或 <code>ch-remote</code> 的存在，当成
+  CubeShim 常规路径使用进程间 VMM 的证明。</li>
+</ul>
+<h2 id="b">B. 背景与术语</h2>
+<h3 id="b1-vm">B.1 这里没有独立的“管理 VM”</h3>
+<p><code>SandBox::new()</code> 在 shim 内创建 <code>CubeHypervisor</code> wrapper；<code>launch_vmm()</code> 直接
+调用库函数 <code>VmmInstance::new()</code>。后者创建 request/response channel、API
+eventfd 和名为 <code>vmm</code> 的线程，并在 barrier 返回后才向上层报告 launch 完成
+（<code>CubeShim/shim/src/sandbox/sb.rs:82-120</code>、
+<code>CubeShim/shim/src/hypervisor/cube_hypervisor.rs:75-102</code>、
+<code>hypervisor/src/lib.rs:179-187,228-256</code>）。<code>record_pid()</code> 还把同一个
+<code>process::id()</code> 同时写进 <code>shim.pid</code> 与 <code>vmm.pid</code>（
+<code>CubeShim/shim/src/common/utils.rs:184-195</code>）。</p>
+<p>因此更准确的对象关系是：</p>
+<figure class="diagram" aria-label="Mermaid 架构或流程图"><div class="mermaid">flowchart LR
+    CTD[containerd] --&gt; Shim[CubeShim process]
+    subgraph Shim
+      SB[SandBox]
+      CH[CubeHypervisor wrapper]
+      VS[VMM_SERVICE]
+      VT[VMM thread]
+      HTTP[chapi HTTP thread]
+      SB --&gt; CH --&gt; VS
+      VS --&gt; VT
+      HTTP --&gt; VT
+    end
+    VT --&gt; KVM[KVM / host kernel]
+    VT --&gt; Guest[sandbox guest VM]</div><details class="diagram-source"><summary>查看图表文本</summary><pre><code>flowchart LR
+    CTD[containerd] --&gt; Shim[CubeShim process]
+    subgraph Shim
+      SB[SandBox]
+      CH[CubeHypervisor wrapper]
+      VS[VMM_SERVICE]
+      VT[VMM thread]
+      HTTP[chapi HTTP thread]
+      SB --&gt; CH --&gt; VS
+      VS --&gt; VT
+      HTTP --&gt; VT
+    end
+    VT --&gt; KVM[KVM / host kernel]
+    VT --&gt; Guest[sandbox guest VM]</code></pre></details></figure>
+<p>图中 <code>chapi</code> 是同一进程中的额外 API 线程，不代表 VMM 被拆成独立管理 VM。</p>
+<h3 id="b2">B.2 五类容易混淆的通道</h3>
+<table>
+<thead>
+<tr>
+<th>通道</th>
+<th>边界</th>
+<th>传什么</th>
+<th>是否是常规 VM 控制</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>VMM_SERVICE</code></td>
+<td>CubeShim thread ↔ VMM thread</td>
+<td><code>ApiRequest</code> / <code>ApiResponse</code></td>
+<td><strong>是</strong></td>
+</tr>
+<tr>
+<td><code>chapi</code></td>
+<td>Unix socket 上的 HTTP/1.1</td>
+<td><code>/api/v1/vm.*</code></td>
+<td>否；app snapshot 等旁路</td>
+</tr>
+<tr>
+<td><code>cube.sock</code></td>
+<td>host AF_UNIX ↔ virtio-vsock ↔ guest AF_VSOCK</td>
+<td>ttrpc、CONNECT、可选 passfd stdio</td>
+<td>否；这是 guest 通信</td>
+</tr>
+<tr>
+<td><code>cubetap.sock</code></td>
+<td>VMM ↔ Cubelet TAP pool</td>
+<td>JSON 请求 + <code>SCM_RIGHTS</code> TAP fd</td>
+<td>否；这是 host backend 获取</td>
+</tr>
+<tr>
+<td>virtqueue worker</td>
+<td>guest memory ↔ TAP/file/fs backend</td>
+<td>网络帧、块请求、文件系统请求</td>
+<td>否；这是 steady-state 数据面</td>
+</tr>
+</tbody>
+</table>
+<h2 id="c">C. 对象、所有权与生命周期</h2>
+<table>
+<thead>
+<tr>
+<th>对象</th>
+<th>所有者</th>
+<th>生命周期与关键边界</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>CubeHypervisor</code></td>
+<td><code>SandBox.ch</code></td>
+<td>保存状态、<code>VmmInstance</code> 与异步通知 receiver；每次 wrapper 调用加锁</td>
+</tr>
+<tr>
+<td><code>VmmInstance</code></td>
+<td><code>CubeHypervisor.ch</code></td>
+<td>持有 VMM thread handle；<code>new()</code> 初始化全局 <code>VMM_SERVICE</code></td>
+</tr>
+<tr>
+<td><code>VMM_SERVICE</code></td>
+<td>进程级静态单例</td>
+<td>保存一个 request sender、eventfd、response receiver；不是多实例路由表</td>
+</tr>
+<tr>
+<td><code>NotifyEvent</code> receiver</td>
+<td><code>CubeHypervisor</code></td>
+<td>与同步 <code>ApiResponse</code> 分离；用于 ready/shutdown 等生命周期事件</td>
+</tr>
+<tr>
+<td><code>VsockMuxer</code></td>
+<td>virtio-vsock device</td>
+<td>bind 每 sandbox 的 <code>cube.sock</code>，管理 host 发起的 vsock 连接与 passfd stream</td>
+</tr>
+<tr>
+<td>TAP fd</td>
+<td>Cubelet pool 或 VMM slow path</td>
+<td>donated fd 进入 <code>Tap</code> 后由 virtio-net worker 持有；CubeShim 只传 TAP name</td>
+</tr>
+<tr>
+<td>container stdio fd</td>
+<td>CubeShim/containerd 一侧</td>
+<td>passfd 模式经 <code>SCM_RIGHTS</code> 交给 <code>VsockMuxer</code>；legacy 模式由 ttrpc 流转发</td>
+</tr>
+</tbody>
+</table>
+<p><code>VMM_SERVICE</code> 是全局 <code>Mutex&lt;VmmService&gt;</code>，<code>init()</code> 会替换其中的单个
+<code>inner</code>（<code>hypervisor/vmm/src/api/service.rs:14-16,31-49</code>）。CubeSandbox 的
+shim-per-sandbox 模型使这个选择可用，但不能据此推断一个 shim 进程可安全托管
+多个独立 <code>VmmInstance</code>。</p>
+<h2 id="d">D. 控制、数据与状态链</h2>
+<h3 id="d1-socket-channel-eventfd">D.1 主控制链：不是 socket，而是 channel + eventfd</h3>
+<p><code>CubeHypervisor::{create_vm,boot_vm,restore_vm,...}</code> 把产品动作转换为
+<code>ApiRequest</code>（<code>cube_hypervisor.rs:113-193,197-250,289-342</code>）。同步请求顺序是：</p>
+<ol>
+<li><code>api_sender.send(request)</code>：把 enum 放进 mpsc；</li>
+<li><code>api_evt.write(1)</code>：唤醒 VMM epoll；</li>
+<li><code>res_receiver.recv()</code>：调用线程阻塞等待执行结果。</li>
+</ol>
+<p>决定行为的最小代码位于 <code>hypervisor/vmm/src/api/service.rs:85-88</code>。VMM
+control loop 读 eventfd 计数，按相同次数从 channel 取请求，再串行分派到
+<code>vm_create</code>、<code>vm_boot</code>、<code>vm_restore</code> 等方法并返回 response（
+<code>hypervisor/vmm/src/lib.rs:1971-2089</code>）。</p>
+<figure class="diagram" aria-label="Mermaid 架构或流程图"><div class="mermaid">sequenceDiagram
+    participant S as CubeShim/SandBox
+    participant C as CubeHypervisor
+    participant Q as VMM_SERVICE
+    participant V as VMM control_loop
+    S-&gt;&gt;C: boot_vm / restore_vm / set_fs
+    C-&gt;&gt;Q: ApiRequest
+    Q-&gt;&gt;Q: mpsc send + eventfd write
+    Q-&gt;&gt;V: epoll wakeup
+    V-&gt;&gt;V: vm_* operation
+    V--&gt;&gt;Q: ApiResponse
+    Q--&gt;&gt;C: blocking recv returns
+    C--&gt;&gt;S: Result</div><details class="diagram-source"><summary>查看图表文本</summary><pre><code>sequenceDiagram
+    participant S as CubeShim/SandBox
+    participant C as CubeHypervisor
+    participant Q as VMM_SERVICE
+    participant V as VMM control_loop
+    S-&gt;&gt;C: boot_vm / restore_vm / set_fs
+    C-&gt;&gt;Q: ApiRequest
+    Q-&gt;&gt;Q: mpsc send + eventfd write
+    Q-&gt;&gt;V: epoll wakeup
+    V-&gt;&gt;V: vm_* operation
+    V--&gt;&gt;Q: ApiResponse
+    Q--&gt;&gt;C: blocking recv returns
+    C--&gt;&gt;S: Result</code></pre></details></figure>
+<p><strong>边界</strong>：<code>ApiResponse</code> 只表示该 VMM 方法返回，不证明 guest agent 已 ready。
+而且 <code>VmmServiceInner::send_request()</code> 自身没有 timeout；若 VMM control loop
+不返回，wrapper 会一直等待。</p>
+<h3 id="d2-chapi-vmm-httpunix-socket">D.2 <code>chapi</code>：同一 VMM 的 HTTP/Unix socket 旁路</h3>
+<p>每个 <code>SandBox</code> 把 <code>HypConfig.ch_http_api</code> 设为
+<code>/run/vc/vm/&lt;sandbox-id&gt;/chapi</code>，随后 <code>start_vmm_thread()</code> 另起 HTTP 线程
+（<code>sb.rs:89-99</code>、<code>common/utils.rs:42,472-474</code>、
+<code>hypervisor/vmm/src/lib.rs:417-422</code>）。HTTP handler 最终仍把请求送进同一套
+VMM API。</p>
+<p>常规 <code>CubeHypervisor</code> wrapper 不走这条 socket。一个明确消费者是 app snapshot：
+<code>Snapshot::request_ch()</code> 连接 <code>chapi</code>，发送 HTTP/1.1 <code>PUT</code> 到
+<code>/api/v1/vm.pause</code>、<code>vm.snapshot</code>、<code>vm.resume</code>（
+<code>CubeShim/shim/src/snapshot/mod.rs:140-181,181-220</code>）。</p>
+<p>同一 snapshot 模块还包含一个 standalone helper，可直接
+<code>VmmInstance::new()</code> 启动自己的 VMM（<code>snapshot/mod.rs:230-254</code>）；它也没有把
+<code>SandBox</code> 的常规 create/start wrapper 改成 HTTP 调用。</p>
+<h3 id="d3-guest-agentcubesock-host">D.3 guest agent：<code>cube.sock</code> 只是 host 入口</h3>
+<p><code>Utils::vsock_path()</code> 生成 <code>/run/vc/vm/&lt;id&gt;/cube.sock</code>；同一配置把 guest CID
+固定为 3（<code>common/utils.rs:468-484</code>）。VMM 的 <code>VsockMuxer::new()</code> bind 该
+Unix socket；<code>epoll_nested=true</code> 时立即把 listener 加进 nested epoll，否则在
+device activate 阶段由 <code>add_host_sock_to_listener()</code> 补注册（
+<code>hypervisor/virtio-devices/src/vsock/unix/muxer.rs:674-725</code>）。</p>
+<p>CubeShim 连接 agent 时发送 <code>CONNECT 1024\n</code>，等待 <code>OK</code>，dup Unix stream fd
+后交给 ttrpc client（<code>common/utils.rs:529-559</code>）。VMM 接受 host stream，解析
+目标 port，再建立 host-CID 到 guest-CID 的 vsock connection（
+<code>muxer.rs:763-827,851-940</code>）。所以 guest agent 监听的是 guest 内 AF_VSOCK，
+不是 host 文件系统里的 Unix socket。</p>
+<p>ready 又是另一条状态链：guest 写 <code>SysCtrl</code> 的 <code>SYS_VSOCK_SERVER</code> 位，VMM
+发出 <code>NotifyEvent::VsockServerReady</code>，CubeShim 从独立 mpsc receiver 读取
+（<code>hypervisor/devices/src/legacy/sys_ctrl.rs:86-97</code>、
+<code>hypervisor/event_notifier/src/lib.rs:15-23,37-54</code>、
+<code>cube_hypervisor.rs:253-281</code>）。</p>
+<h3 id="d4-cold-boot">D.4 普通 cold boot</h3>
+<p><code>SandBox::start_vm()</code> 的实际顺序是：</p>
+<ol>
+<li><code>launch_vmm()</code>；</li>
+<li>没有可用 snapshot 时 <code>prepare_resource → VmCreate → VmBoot</code>；</li>
+<li>最多等待 10 秒取得<strong>恰好</strong> <code>VsockServerReady</code>；</li>
+<li><code>connect_agent()</code> 建 ttrpc；</li>
+<li><code>CreateSandboxRequest</code> 下发 interfaces/routes/ARP/DNS/storage；</li>
+<li>启动 OOM 与 VM monitor。</li>
+</ol>
+<p>证据：<code>sb.rs:866-921</code>、<code>sb.rs:472-550</code>。</p>
+<p>这里 <code>VmCreate</code> 只提交配置，实际 VM/设备创建发生在 <code>VmBoot</code>；控制完成、
+vsock ready、agent <code>CreateSandbox</code> 完成是三个不同的门槛。</p>
+<h3 id="d5-snapshot-restore-app-snapshot-restore">D.5 创建期 snapshot restore 与 app snapshot restore</h3>
+<p>普通 snapshot restore 仍先 <code>launch_vmm()</code>，但直接构造
+<code>RestoreConfig{source_url, fs, net, disks, pmem, vsock, ...}</code> 发
+<code>VmRestore</code>。其中 net/fs/disk/vsock 是<strong>当前 sandbox 的 backend 绑定</strong>，用来
+替换 snapshot 中的 host 侧资源；随后继续等待 <code>VsockServerReady</code>（
+<code>sb.rs:923-1008</code>）。</p>
+<p>app snapshot restore 有一个需要单独观察的分支：<code>restore_vm()</code> 成功后，
+<code>start_vm()</code> 在 <code>app_snapshot_restore</code> 为 true 时立即返回，不执行后面的
+10 秒 <code>VsockServerReady</code> 等待；<code>create_sandbox()</code> 随即尝试
+<code>connect_agent()</code>（<code>sb.rs:874-911,472-484</code>）。因此 app restore 的可见失败
+可能首先表现为 Unix socket connect/CONNECT handshake，而不是 ready event
+timeout。</p>
+<h3 id="d6-snapshotpause-to-snapshotresume-rollback">D.6 snapshot、pause-to-snapshot、resume 与 rollback</h3>
+<table>
+<thead>
+<tr>
+<th>场景</th>
+<th>控制路径</th>
+<th>状态/数据边界</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>在线 create snapshot</td>
+<td><code>VmPause → VmSnapshot → VmResume</code></td>
+<td>原 VM 对象保留（<code>sb.rs:1325-1335</code>）</td>
+</tr>
+<tr>
+<td>v0.7.1 pause-to-snapshot</td>
+<td><code>VmPauseToSnapshot</code></td>
+<td>disconnect agent，写 snapshot 后删除 MicroVM，等 <code>VmShutdown</code>，再写 metadata（<code>sb.rs:1365-1435</code>）</td>
+</tr>
+<tr>
+<td>v0.7.1 resume</td>
+<td>Master 重新 create from snapshot</td>
+<td>legacy <code>Task::Resume</code> 明确返回错误（<code>sb.rs:1346-1349,1459-1462</code>）</td>
+</tr>
+<tr>
+<td>rollback</td>
+<td><code>VmDelete → drain stale events → VmResumeFromSnapshot</code></td>
+<td>原 VMM thread 保留，VM 对象重建；随后重连 agent 与 container I/O（<code>sb.rs:1475-1580</code>）</td>
+</tr>
+</tbody>
+</table>
+<p>rollback 显式 drain <code>VmDelete</code> 留下的 <code>VmShutdown</code>，否则新 monitor 可能把旧事件
+误判为新 VM 退出（<code>sb.rs:1504-1519</code>）。这说明同步 API response 与异步
+<code>NotifyEvent</code> 必须按各自生命周期消费，不能合并理解。</p>
+<h3 id="d7-tap-fd-vmm">D.7 TAP fd 如何进入 VMM</h3>
+<p><code>NetConfig</code> 类型还支持 <code>fds</code>、MTU 与多队列；但当前 CubeShim
+<code>add_nets()</code>/restore 实际填写的是 id、TAP name、MAC 与限速，其余保持默认。VMM
+<code>DeviceManager</code> 创建 virtio-net 时把 <code>sandbox_id</code> 交给 <code>Net::new()</code>（
+<code>hypervisor/vmm/src/device_manager.rs:2437-2463</code>）。<code>Net::new()</code> 调
+<code>open_tap()</code>；单 RX queue 且有 TAP name/sandbox id 时，先走 pool fast path
+（<code>hypervisor/virtio-devices/src/net.rs:516-556</code>、
+<code>hypervisor/net_util/src/open_tap.rs:63-105</code>）。</p>
+<p>fast path 连接 <code>/data/cubelet/cubetap.sock</code>（或 <code>CUBE_TAP_SERV_PATH</code>），发送
+TAP name + sandbox id，请求通过 <code>SCM_RIGHTS</code> 取得 fd；<code>Tap</code> 把它标为
+<code>donated</code>（<code>hypervisor/net_util/src/tap.rs:198-228</code>）。失败才回退到
+<code>Tap::open_named()</code>。因此：</p>
+<ul>
+<li>CubeShim 不直接持有 TAP fd；</li>
+<li><code>cube.sock</code> 不传 TAP fd；</li>
+<li><code>cubetap.sock</code> 只交付 host TAP backend，不承载 guest 网络帧。</li>
+</ul>
+<h3 id="d8-virtio-net-rxtx">D.8 virtio-net RX/TX 热路径</h3>
+<p>每个 RX/TX queue pair 有独立 epoll worker。四个最重要的事件是：</p>
+<ul>
+<li><code>RX_QUEUE_EVENT</code>：guest 提供了可写 RX descriptor；</li>
+<li><code>TX_QUEUE_EVENT</code>：guest 把待发送 frame 放进 TX queue；</li>
+<li><code>RX_TAP_EVENT</code>：host TAP 上有 frame 可读；</li>
+<li><code>TX_TAP_EVENT</code>：之前 <code>EAGAIN</code> 的 TAP 重新可写。</li>
+</ul>
+<p><code>NetEpollHandler</code> 的事件与 signal 路径见
+<code>hypervisor/virtio-devices/src/net.rs:141-299</code>；真正搬运由
+<code>TxVirtio::process_desc_chain()</code> 对 TAP <code>writev()</code>、
+<code>RxVirtio::process_desc_chain()</code> 对 TAP <code>readv()</code> 完成（
+<code>hypervisor/net_util/src/queue_pair.rs:44-176,194-306</code>）。完成后更新 used ring，
+必要时经 <code>VirtioInterrupt</code> 通知 guest。</p>
+<figure class="diagram" aria-label="Mermaid 架构或流程图"><div class="mermaid">flowchart LR
+    GuestTX[guest TX descriptors] --&gt; TXEvt[TX queue event]
+    TXEvt --&gt; WriteV[writev to TAP]
+    WriteV --&gt; HostNet[host network / CubeVS]
+    HostNet --&gt; TapIn[TAP EPOLLIN]
+    TapIn --&gt; ReadV[readv into guest RX descriptors]
+    ReadV --&gt; Used[used ring update]
+    Used --&gt; IRQ[virtio interrupt]
+    IRQ --&gt; GuestRX[guest network stack]</div><details class="diagram-source"><summary>查看图表文本</summary><pre><code>flowchart LR
+    GuestTX[guest TX descriptors] --&gt; TXEvt[TX queue event]
+    TXEvt --&gt; WriteV[writev to TAP]
+    WriteV --&gt; HostNet[host network / CubeVS]
+    HostNet --&gt; TapIn[TAP EPOLLIN]
+    TapIn --&gt; ReadV[readv into guest RX descriptors]
+    ReadV --&gt; Used[used ring update]
+    Used --&gt; IRQ[virtio interrupt]
+    IRQ --&gt; GuestRX[guest network stack]</code></pre></details></figure>
+<h3 id="d9-container-stdiolegacy-ttrpc-passfd">D.9 container stdio：legacy ttrpc 与可选 passfd</h3>
+<p><code>v0.7.1</code> 新增了一条<strong>可选</strong> stdio fast path，但它仍不是 VMM control API：</p>
+<ol>
+<li>只有 annotation <code>cube.use_passfd_io=true</code>、不是 app snapshot create、且
+   stdout/stderr 非空才启用；默认值为 false（
+   <code>CubeShim/shim/src/sandbox/config.rs:79-105,185-190</code>、
+   <code>CubeShim/shim/src/container/mod.rs:559-571</code>）。</li>
+<li>CubeShim 打开 containerd 提供的 stdin/stdout/stderr 路径，连接
+   <code>cube.sock</code>，一次 <code>sendmsg()</code> 发送 <code>passfd 1027 &lt;labels&gt;\n</code> 和最多三个
+   <code>SCM_RIGHTS</code> fd（<code>common/utils.rs:562-681</code>）。</li>
+<li><code>VsockMuxer</code> 校验 Unix peer 与 VMM 同 UID，只接受 FIFO/socket，设置
+   <code>O_NONBLOCK</code>；批次中任一 fd 无效则整批拒绝（<code>muxer.rs:495-572,600-667</code>）。</li>
+<li>每个 fd 被包装成 <code>PassFdStream</code>，成为一条到 guest 端口 1027 的 vsock
+   backend；数据直接读写 fd，不再经过 host UnixStream payload（
+   <code>hypervisor/virtio-devices/src/vsock/unix/stream.rs:1-65,108-142</code>）。</li>
+<li>guest agent 的 AF_VSOCK listener 只接受 <code>CID_HOST</code>，按 VMM 回传的动态
+   local port 配对；等待 5 秒后过期（<code>agent/src/passfd_io.rs:13-18,84-195</code>）。</li>
+<li>create/exec 的 ttrpc 请求只携带三个 port；create-from-snapshot 在 agent 的
+   <code>do_create_container()</code> restore 分支重绑已有 process，原地 rollback/resume
+   则由 <code>ReconnectContainerIO</code> 重建 stdio stream（<code>container/mod.rs:573-657</code>、
+   <code>agent/src/rpc.rs:150-215,471-496</code>）。</li>
+</ol>
+<p><strong>当前部署边界</strong>：在该 tag 的 Cubelet 源码中未找到
+<code>cube.use_passfd_io</code> 的设置方。因此这里能证明“代码支持 opt-in”，不能证明
+标准 Cubelet 路径默认启用。未启用时仍使用独立 ttrpc/vsock log-forward
+连接。</p>
+<h3 id="d10-blockrootfs-virtio-fs-socket">D.10 block、rootfs 与 virtio-fs 不走这些 socket 的数据面</h3>
+<p>rootfs/agent image、disk、fs 的<strong>配置</strong>随 <code>VmCreate</code>/<code>VmRestore</code> 进入 VMM；
+设备激活后，steady-state 数据不再经过 <code>VMM_SERVICE</code> 或 <code>chapi</code>：</p>
+<ul>
+<li>virtio-block worker 从 descriptor 解析请求，向 async disk backend 提交并在
+  completion 后更新 used ring（<code>hypervisor/virtio-devices/src/block.rs:180-343</code>）；</li>
+<li><code>Block::activate()</code> 为每个 queue 创建 <code>BlockEpollHandler</code> 线程
+  （<code>block.rs:761-833</code>）；</li>
+<li>native virtio-fs 由设备 backend/worker 服务；只有明确配置 vhost-user socket
+  时才存在另一条外部 backend socket，这不等于 CubeShim↔VMM control socket
+  （<code>hypervisor/vmm/src/device_manager.rs:2588-2677</code>、
+  <code>hypervisor/virtio-devices/src/fs.rs:614-660</code>）。</li>
+</ul>
+<h2 id="e">E. 失败与兼容边界</h2>
+<table>
+<thead>
+<tr>
+<th>观察</th>
+<th>首先检查</th>
+<th>能排除什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ApiRequest</code> 调用一直不返回</td>
+<td>VMM control loop、eventfd、response sender</td>
+<td>不能先归因于 chapi socket；常规路径没走它</td>
+</tr>
+<tr>
+<td>chapi connect/HTTP 失败</td>
+<td><code>/run/vc/vm/&lt;id&gt;/chapi</code> listener 与 HTTP thread</td>
+<td>不等于进程内 <code>VMM_SERVICE</code> 已失败</td>
+</tr>
+<tr>
+<td><code>Recv len invalid:0</code> / CONNECT 无 <code>OK</code></td>
+<td><code>cube.sock</code> listener、VsockMuxer、guest agent port 1024</td>
+<td>不等于 TAP/virtio-net 数据面失败</td>
+</tr>
+<tr>
+<td><code>VsockServerReady</code> timeout</td>
+<td>guest SysCtrl write、通知 channel、事件顺序</td>
+<td><code>VmBoot</code> response 成功不能证明 ready</td>
+</tr>
+<tr>
+<td>TAP pool 请求失败但 VM 仍继续</td>
+<td><code>cubetap.sock</code> 与随后 slow path</td>
+<td>fast path 失败不等于最终没有 TAP</td>
+</tr>
+<tr>
+<td>guest 有网卡但网络不通</td>
+<td>TAP RX/TX、CubeVS/CNI、guest interface/route/ARP</td>
+<td>不能只凭 PCI 枚举认定网络闭环</td>
+</tr>
+<tr>
+<td>stdio 仍走 ttrpc</td>
+<td>annotation、stdout/stderr、app snapshot create</td>
+<td>passfd 源码存在不代表已启用</td>
+</tr>
+<tr>
+<td>restore 后 stdio 断开</td>
+<td>create-from-snapshot 的 <code>do_create_container</code> 分支；原地 rollback 的 <code>set_client()</code> / <code>ReconnectContainerIO</code></td>
+<td>旧 passfd fd 不会自动跨 VM 重建</td>
+</tr>
+<tr>
+<td>block I/O 慢或失败</td>
+<td>virtqueue、async backend、rate limiter、后端文件</td>
+<td>不应先检查 <code>cube.sock</code> payload</td>
+</tr>
+</tbody>
+</table>
+<p>关键超时并不统一：cold boot ready 等待 10 秒，<code>CreateSandboxRequest</code> 使用
+25 秒 ttrpc context，passfd host 连接有 10 秒上限、guest stream 等待 5 秒；
+而 <code>VMM_SERVICE::send_request()</code> 与 <code>connect_agent()</code> 的 connect/read 本层没有
+统一 timeout。诊断时必须记录卡在哪一层，不能笼统写“socket timeout”。</p>
+<h2 id="f">F. 优点与代价</h2>
+<ul>
+<li><strong>工程判断——进程内控制的收益</strong>：少一次序列化与进程切换，直接复用 Rust
+  类型；代价是 VMM 卡死会同步阻塞 shim，且全局单实例服务不适合无改造扩展为
+  同进程多 VMM。</li>
+<li><strong>工程判断——HTTP 旁路的收益</strong>：外部 snapshot 工具无需持有 wrapper；代价
+  是出现第二个控制入口，权限、错误和观测必须与主通道分别检查。</li>
+<li><strong>工程判断——TAP pool 的收益</strong>：把 netlink/TUN 初始化移出启动热路径；代价
+  是增加 <code>cubetap.sock</code>、fd 所有权与 fast/slow fallback 两套故障分支。</li>
+<li><strong>工程判断——passfd 的收益</strong>：container stdio payload 少经过一层 UnixStream
+  转发；代价是新增 fd 校验、动态 port 配对、timeout、restore reconnect 与
+  backpressure 语义。本报告没有运行数据，不能宣称性能提升幅度。</li>
+</ul>
+<h2 id="g">G. 失败、反例与错误矩阵</h2>
+<ol>
+<li><strong>反例：仓库有独立 hypervisor binary 和 HTTP API。</strong> 这不能推出 CubeShim
+   常规 create/start 走外部进程；固定版本源码显示 wrapper 直接调用库与
+   <code>VMM_SERVICE</code>。</li>
+<li><strong>反例：<code>NetConfig.fds</code> 与 <code>Net::from_tap_fds()</code> 存在。</strong> 当前 CubeShim
+   <code>add_nets</code>/restore 路径传 TAP name，不填该 fd 数组；产品主链的 TAP fd 来自
+   VMM 内的 pool lookup。</li>
+<li><strong>反例：<code>cube.sock</code> 是 Unix socket。</strong> guest agent 并不 bind 这个文件；
+   它监听 AF_VSOCK，Unix socket 是 host muxer 的入口。</li>
+<li><strong>反例：passfd 代码位于 vsock muxer。</strong> 它传的是 container stdio
+   FIFO/socket，不是 TAP fd，也不改变 VM control transport。</li>
+<li><strong>反例：<code>VmRestore</code> 返回成功。</strong> app snapshot restore 分支可能尚未消费
+   <code>VsockServerReady</code>；后续 agent handshake 仍可能失败。</li>
+</ol>
+<h2 id="h">H. 证据账本</h2>
+<table>
+<thead>
+<tr>
+<th>Claim</th>
+<th>分类</th>
+<th>固定版本证据</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CubeShim 与 VMM 常规控制同进程</td>
+<td>local fact</td>
+<td><code>CubeHypervisor::launch_vmm</code>；<code>VmmInstance::new</code>；<code>record_pid</code></td>
+</tr>
+<tr>
+<td>VM control 为 mpsc + eventfd + blocking response</td>
+<td>local fact</td>
+<td><code>hypervisor/src/lib.rs:179-187</code>；<code>api/service.rs:66-89</code></td>
+</tr>
+<tr>
+<td>chapi 是额外 HTTP/UDS 入口</td>
+<td>local fact</td>
+<td><code>HypConfig::to_vmm_config</code>；<code>start_vmm_thread:417-422</code>；<code>Snapshot::request_ch</code></td>
+</tr>
+<tr>
+<td>cube.sock 承载 host↔guest vsock 映射</td>
+<td>local fact</td>
+<td><code>Utils::vsock_path/connect_agent</code>；<code>VsockMuxer::new/read_local_stream_port</code></td>
+</tr>
+<tr>
+<td>ready event 与 API response 分离</td>
+<td>local fact</td>
+<td><code>SysCtrl::write</code>；<code>NotifyEvent</code>；<code>SandBox::start_vm</code></td>
+</tr>
+<tr>
+<td>CubeShim 只传 TAP name，VMM 从 pool 取 fd</td>
+<td>local fact</td>
+<td><code>config::add_nets</code>；<code>DeviceManager</code>；<code>open_tap</code>；<code>Tap::lookup_from_pool</code></td>
+</tr>
+<tr>
+<td>virtio-net 数据面是 virtqueue↔TAP</td>
+<td>local fact</td>
+<td><code>NetEpollHandler</code>；<code>TxVirtio/RxVirtio::process_desc_chain</code></td>
+</tr>
+<tr>
+<td>stdio passfd 为 opt-in 且可在 restore 后重连</td>
+<td>local fact</td>
+<td><code>Config::use_passfd_io</code>；<code>setup_passfd_streams</code>；<code>set_client/reconnect_passfd_io</code></td>
+</tr>
+<tr>
+<td>block/fs steady-state I/O 不经 VM control socket</td>
+<td>local fact</td>
+<td><code>BlockEpollHandler/Block::activate</code>；<code>DeviceManager::make_native_virtio_fs_device</code>；<code>BackendFsConfig</code></td>
+</tr>
+<tr>
+<td>standard Cubelet 默认启用 passfd</td>
+<td>unconfirmed / 未发现证据</td>
+<td>固定 tag 的 Cubelet 中未找到 annotation 写入方</td>
+</tr>
+<tr>
+<td>同进程多 <code>VmmInstance</code> 安全</td>
+<td>unconfirmed</td>
+<td><code>VMM_SERVICE::init</code> 只有单一 <code>inner</code>，无实例键</td>
+</tr>
+<tr>
+<td>各 timeout 足以覆盖生产最坏时延</td>
+<td>unconfirmed</td>
+<td>本次未运行负载、故障或性能实验</td>
+</tr>
+</tbody>
+</table>
+<h2 id="i">I. 架构边界与未确认项</h2>
+<p>控制 channel、chapi、vsock muxer、TAP 与 virtio-net worker 本身使用共享实现。
+已确认的架构分歧主要在外围：</p>
+<ul>
+<li>wrapper seccomp 在 x86_64 放行 <code>SYS_mkdir</code>，ARM64 放行 <code>SYS_mkdirat</code>
+  （<code>cube_hypervisor.rs:79-87</code>）；</li>
+<li>guest cmdline 在 ARM64 使用 <code>console=ttyAMA0,115200</code>，x86_64 追加
+  <code>no_timer_check/noreplace-smp</code> 并使用 <code>hvc0</code>（
+  <code>CubeShim/shim/src/hypervisor/config.rs:95-117</code>）；</li>
+<li>virtio used-ring 通知下游分别落到 x86 APIC/IOAPIC/MSI 或 ARM GIC/MSI；
+  本文没有把这层差异误写成 CubeShim transport 差异。</li>
+</ul>
+<p>尚未确认：生产环境是否开启 passfd；chapi socket 的部署权限/SELinux 策略；
+不同架构上 pause/restore 后第一包与 stdio reconnect 的运行稳定性；各 timeout
+在真实负载下是否合理。它们需要单独、明确授权的运行验证，不能从源码存在性
+推断。</p>
+<h2 id="_1">继续阅读</h2>
+<ul>
+<li><a href="cubehypervisor-api-request-chain.html">CubeHypervisor API request</a>：深入同步
+  request/response 与 VM 方法边界。</li>
+<li><a href="tap-fd-networkinfo-chain.html">TAP FD 与 NetworkInfo</a>：TAP 配置链与 fd 链。</li>
+<li><a href="network-data-plane-interrupt-wakeup-chain.html">网络数据面与中断唤醒</a>：
+  CubeVS、TAP、virtqueue 与中断闭环。</li>
+<li><a href="virtio-net-fs-restore-chain.html">Virtio Net/Fs Restore</a>：snapshot 中设备状态与
+  当前 host backend 的重新绑定。</li>
+<li><a href="../../evolution/cubesandbox/cubeshim-hypervisor-transport-io.html">v0.5.1 → v0.7.1 演进</a>：哪些机制
+  保持不变，哪些只在 <code>v0.7.1</code> 新增或收敛。</li>
+</ul></article>
+<aside class="related-reading" aria-labelledby="related-title"><h2 id="related-title">继续阅读</h2><ul><li><strong>项目目录：</strong><a href="../../projects/cubesandbox.html">CubeSandbox</a></li><li><strong>平台视角：</strong><a href="../../platforms/cubesandbox.html">CubeSandbox</a></li><li><strong>专题目录：</strong><a href="../../topics/lifecycle-control-plane.html">生命周期与控制面</a></li><li><strong>横向比较：</strong><a href="../../analysis/arm64-x86-cross-project-matrix.html">ARM64 与 x86_64 跨项目架构差异专题分析</a></li><li><strong>明确关联：</strong><a href="cubehypervisor-api-request-chain.html">CubeHypervisor API Request 内部调度链路</a></li></ul></aside>
     <footer class="page-foot">公开来源：<code>analysis/projects/cubesandbox/cubeshim-sandbox-hypervisor-chain.md</code> · 文档 ID：<code>cubesandbox.cubeshim-sandbox-hypervisor-chain</code></footer>
   </main>
 </div>
-
+<script defer src="https://cdn.jsdelivr.net/npm/mermaid@10.9.6/dist/mermaid.min.js" referrerpolicy="no-referrer"></script>
 <script defer src="../../assets/wiki.js"></script>
 </body>
 </html>

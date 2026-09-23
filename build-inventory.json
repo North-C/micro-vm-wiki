@@ -81,13 +81,13 @@
   },
   {
     "path": "CubeSandbox-sandbox-clone/analysis/cubeshim-container-agent-lifecycle-chain.html",
-    "size": 23832,
-    "sha256": "37d68c2b90bde52e0d93b4d731c24a5538b6b997f7b468db4cefe8803d441075"
+    "size": 23847,
+    "sha256": "0fff06705ab73ddf3fba25a57ed6bcc842e3ce46fc3e68f286f05be69a60ef2f"
   },
   {
     "path": "CubeSandbox-sandbox-clone/analysis/cubeshim-sandbox-hypervisor-chain.html",
-    "size": 9075,
-    "sha256": "86c49204260108f55e43b748b92ea9ebe3a4ab08b5cd873a5b4df44f07a3a0e4"
+    "size": 35741,
+    "sha256": "2a61f928fab85626be4f51cbb1c3d7c470e89962c720cc9b0999195713461ce8"
   },
   {
     "path": "CubeSandbox-sandbox-clone/analysis/cubevs-ebpf-data-plane-chain.html",
@@ -391,8 +391,8 @@
   },
   {
     "path": "assets/search.json",
-    "size": 276764,
-    "sha256": "c9b169d414f2bddeffa51d09cc4fb3a82479c9487f9677ac99a80b2aa8eb82b6"
+    "size": 281058,
+    "sha256": "65e40f0dcfa627c29e4ba4da7592226598d11909ebe5ce13289d8c0558ce16f1"
   },
   {
     "path": "assets/style.css",
@@ -625,14 +625,19 @@
     "sha256": "854f56dfdcca510a51ca023bc4152481539a79dad187d4986cef283d37982471"
   },
   {
+    "path": "evolution/cubesandbox/cubeshim-hypervisor-transport-io.html",
+    "size": 30143,
+    "sha256": "bee7a00065853d2945e54ff9cf23c86ea76d3e1a58facc2eeed0a476b4a02977"
+  },
+  {
     "path": "evolution/cubesandbox/soft-dirty-snapshot.html",
     "size": 37486,
     "sha256": "438d9a8bd93f7056b9358b0bbe3297ca0acb7e1fa27e81104b1d57901a4eccbb"
   },
   {
     "path": "evolution/index.html",
-    "size": 7905,
-    "sha256": "647cb29b324fb8fc045bb9309a82a430ff75720cb767c387f23d7ec05d36bff8"
+    "size": 8239,
+    "sha256": "633a3eab1f2029c813dce7c93e793a2d2f646b1023e9645465523a438aef2fce"
   },
   {
     "path": "firecracker/analysis/api-event-loop-thread-chain.html",
@@ -762,7 +767,7 @@
   {
     "path": "index.html",
     "size": 3978,
-    "sha256": "d46bd1e36f44258317c5e6a29c09486bf292ab7db1a472ea4aad56d27312e78d"
+    "sha256": "89b3109bb3217dad294b67c272357461d685862d4f7f7b1c6a57645f10522fc3"
   },
   {
     "path": "kata-containers/analysis/agent-container-lifecycle-chain.html",
@@ -901,8 +906,8 @@
   },
   {
     "path": "platforms/cubesandbox.html",
-    "size": 13032,
-    "sha256": "65d29e1608fb1e23ab6c389993f1b40c3c0984dc106ad4622e68188ad362c94a"
+    "size": 13258,
+    "sha256": "69fce011adf0843b386b6699a68267dde407ca7b9a31c198251c47ae1a060c11"
   },
   {
     "path": "platforms/e2b-infra/architecture-and-sandbox-lifecycle.html",
@@ -922,7 +927,7 @@
   {
     "path": "platforms/index.html",
     "size": 5119,
-    "sha256": "3f1e411fa96e0c2eb4c9347e34f7755f4f25bfcb8e21d84ab29cbcf1d207b3d1"
+    "sha256": "8cf990acf325443ba07b0d387da00d5ae840d1c1cff50a8fd6a2e6449a3882f4"
   },
   {
     "path": "projects/cloud-hypervisor.html",
@@ -936,8 +941,8 @@
   },
   {
     "path": "projects/cubesandbox.html",
-    "size": 12469,
-    "sha256": "e33ed5e027f8841e104d1bc33e009e6dbe8180cbc0dc9728714c87aa565c888f"
+    "size": 12695,
+    "sha256": "3f48f828e9c63d4d1ec7d41e1faf7ff547eabcd4cd72e1e7f1f87c526cf5a64c"
   },
   {
     "path": "projects/firecracker.html",
@@ -947,7 +952,7 @@
   {
     "path": "projects/index.html",
     "size": 8022,
-    "sha256": "5df017b52ccb3b83dcbb2375f2dd47ddb3670f0c60ff7bf4a0a898ab96d7b34e"
+    "sha256": "c1e416dff8e3c439487a6e0b856be28a9cb0ce6a49b212648ce3aaad2f2deebd"
   },
   {
     "path": "projects/kata-containers.html",
@@ -956,13 +961,13 @@
   },
   {
     "path": "sitemap.html",
-    "size": 27109,
-    "sha256": "faa70938f73a76d769e776eef9743a0445125fd024d97ea6daacf868a5549edd"
+    "size": 27284,
+    "sha256": "fef1028b8459b28e7efa70cd2b278c6f957e52bb6e1d34d021faaa3607b7a259"
   },
   {
     "path": "sitemap.xml",
-    "size": 23311,
-    "sha256": "666aaa29eb9e2adb4d11f4f7e6885fa57c81d70b416aa467fa2db292b9ee0945"
+    "size": 23435,
+    "sha256": "2e48322f5843ec0e6e12165d31245d6204cc200c1f0c54a928b0a98e01f77390"
   },
   {
     "path": "topics/cpu-memory-machine.html",
@@ -971,23 +976,23 @@
   },
   {
     "path": "topics/curated/template-snapshot.html",
-    "size": 19254,
-    "sha256": "fe8937d30ac76a8eac3547fee2457d03f4650bd32a2f0d5d0831381615efbc86"
+    "size": 19482,
+    "sha256": "980631d0a1c75d2fd3ca07358f839e699efa11a4465dbd0002e5f6fb2c9dfe76"
   },
   {
     "path": "topics/index.html",
     "size": 5618,
-    "sha256": "340eab906b3c96e23bc6dcc7be0e5e8c12885b2c846238e86bf34f7e61943bce"
+    "sha256": "3aaf74c4743a8f1de20ba3bdd2ca6d23e324004c29b549067de072a5798c69cf"
   },
   {
     "path": "topics/lifecycle-control-plane.html",
-    "size": 10500,
-    "sha256": "a83caf469d310e62180f5dc124cc9feb08f0491a60ed0548c17b1f4a8ca60cb3"
+    "size": 10628,
+    "sha256": "55184b361bf4f8a50cdc03033c7d24025b992d92629e16dc11f069bb58936441"
   },
   {
     "path": "topics/network-isolation.html",
-    "size": 7841,
-    "sha256": "a1e3cb5223b2dd59504fc3bc80431b076c3d493a27afa73bb0c63e326f715466"
+    "size": 7954,
+    "sha256": "75a1610789432a24eeda39df8c297200174e101407057111b23aec142a80a48a"
   },
   {
     "path": "topics/operations-observability-performance.html",
@@ -996,17 +1001,17 @@
   },
   {
     "path": "topics/snapshot-restore-migration.html",
-    "size": 8992,
-    "sha256": "78ba8ba5aed8d2f001c0309d231d1c855ceca73e4b9d8d2a2e954ae7928e6bc8"
+    "size": 9217,
+    "sha256": "73ba34a25b7437cb87c881666ce22de0569b872d66de1261fe745f646f766f2f"
   },
   {
     "path": "topics/storage-device-io.html",
-    "size": 8672,
-    "sha256": "16a0098f90a307af6c9ccb0741d8088ce49a7a79a7218e43be755a08e5c69509"
+    "size": 8785,
+    "sha256": "8b9a5e7e62e601bcd44b3b897f43dfad3597c9acb37c81075f8d853fe45aa839"
   },
   {
     "path": "versions/index.html",
     "size": 13317,
-    "sha256": "15e95658fcdcbdeced14eff51d40cea68647885ef16b06e4ce0bb315a9d74b08"
+    "sha256": "100c1fb04104ae8aa72a9cffe1b4282d0ac393f7b2ffcd8e227da4b9410bae7c"
   }
 ]

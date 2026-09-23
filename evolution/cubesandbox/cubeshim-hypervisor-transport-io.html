@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="CubeSandbox CubeShim ↔ Hypervisor 通信与 I/O 演进：v0.5.1 → v0.7.1 本文回答：从 v0.5.1 到 v0.7.1 ，CubeShim 与 VMM 的控制关系、host↔guest socket、TAP/virtio-net 和 container stdio 到底改变了什么，哪些核心契约保持 不变？ 先行结论 ：三版都没有把 CubeShim 常规 VM 控制改成 socket RPC； VmmInstance/VMM SERVICE 的进程内 mpsc + e">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CubeSandbox CubeShim ↔ Hypervisor 通信与 I/O 演进：v0.5.1 → v0.7.1">
+<meta property="og:description" content="CubeSandbox CubeShim ↔ Hypervisor 通信与 I/O 演进：v0.5.1 → v0.7.1 本文回答：从 v0.5.1 到 v0.7.1 ，CubeShim 与 VMM 的控制关系、host↔guest socket、TAP/virtio-net 和 container stdio 到底改变了什么，哪些核心契约保持 不变？ 先行结论 ：三版都没有把 CubeShim 常规 VM 控制改成 socket RPC； VmmInstance/VMM SERVICE 的进程内 mpsc + e">
+<link rel="canonical" href="https://north-c.github.io/micro-vm-wiki/evolution/cubesandbox/cubeshim-hypervisor-transport-io.html">
+<title>CubeSandbox CubeShim ↔ Hypervisor 通信与 I/O 演进：v0.5.1 → v0.7.1 · Micro-VM 技术研究 Wiki</title>
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body data-root="../../">
+<a class="skip-link" href="#main-content">跳到正文</a>
+<div class="layout">
+  <aside class="sidebar" id="site-sidebar" aria-label="站点导航" aria-hidden="false">
+    <a class="brand" href="../../index.html">Micro-VM 技术研究 Wiki</a>
+    <label class="search-label" for="search">搜索公开文档</label>
+    <input id="search" type="search" autocomplete="off" aria-controls="search-results" aria-expanded="false">
+    <div id="search-status" class="search-status" role="status" aria-live="polite"></div>
+    <div id="search-results" class="search-results" role="listbox"></div>
+    <nav aria-label="主要导航" data-global-nav="true"><ul class="nav-tree"><li><a href="../../index.html">首页</a></li><li><details class="nav-group" open><summary>三轴入口</summary><ul><li><a href="../../projects/index.html">项目</a></li><li><a href="../../topics/index.html">特性与横向比较</a></li><li><a href="../../evolution/index.html">版本演进</a></li></ul></details></li><li><details class="nav-group"><summary>方法与索引</summary><ul><li><a href="../../methodology/status-and-evidence.html">研究方法与报告规范</a></li><li><a href="../../versions/index.html">版本与证据覆盖</a></li><li><a href="../../changes.html">Wiki 更新记录</a></li><li><a href="../../sitemap.html">站点地图</a></li></ul></details></li></ul></nav>
+  </aside>
+  <button class="sidebar-scrim" id="sidebar-scrim" aria-label="关闭导航"></button>
+  <main class="content" id="main-content" tabindex="-1">
+    <div class="topbar">
+      <button class="menu-toggle" id="menu-toggle" aria-controls="site-sidebar" aria-expanded="false">目录</button>
+      <button id="theme-toggle" aria-label="切换到深色模式">🌙</button>
+      <a class="back-home" href="../../index.html">首页</a>
+    </div>
+<nav class="breadcrumbs" aria-label="面包屑"><ol><li><a href="../../index.html">首页</a></li><li><a href="../../topics/lifecycle-control-plane.html">生命周期与控制面</a></li><li aria-current="page">CubeSandbox CubeShim ↔ Hypervisor 通信与 I/O 演进：v0.5.1 → v0.7.1</li></ol></nav>
+<div class="page-meta" aria-label="文档元数据"><span class="badge">机制解析</span><a class="badge badge-status" href="../../methodology/status-and-evidence.html#status">状态：已固定 A/B 源码，运行未验证</a><span class="badge">CubeSandbox</span><span class="badge">角色：核心研究项目 / 沙箱平台</span><a class="badge" href="../../versions/index.html#cubesandbox-v0-5-1-a164417f" title="cubesandbox a164417f497234a0d787cb328b0ae96480b1569b；角色：supporting">版本基线：v0.5.1@a164417f4972</a><a class="badge" href="../../versions/index.html#cubesandbox-v0-7-1-31d911e4" title="cubesandbox 31d911e430fdf8a8879bd062b8e78066c1a8e89d；角色：primary">版本基线：v0.7.1@31d911e430fd</a><span class="badge">复核日期：2026-09-24</span></div><p class="status-explainer"><strong>已固定 A/B 源码，运行未验证</strong>：本文的行为结论已在两端固定提交上完成源码级复核，但未运行任何 build/runtime/快照/benchmark 验证，也不表示任何一端是上游最新版本。</p>
+    <article class="markdown-body"><h1 id="cubesandbox-cubeshim-hypervisor-io-v051-v071">CubeSandbox CubeShim ↔ Hypervisor 通信与 I/O 演进：v0.5.1 → v0.7.1</h1>
+<p>本文回答：从 <code>v0.5.1</code> 到 <code>v0.7.1</code>，CubeShim 与 VMM 的控制关系、host↔guest
+socket、TAP/virtio-net 和 container stdio 到底改变了什么，哪些核心契约保持
+不变？</p>
+<blockquote>
+<p><strong>先行结论</strong>：三版都没有把 CubeShim 常规 VM 控制改成 socket RPC；
+<code>VmmInstance/VMM_SERVICE</code> 的进程内 <code>mpsc + eventfd + response</code> 核心在三个
+tag 上是同一 blob。<code>v0.6.0</code> 的相关变化主要是可选 ivshmem 与 restore backend
+扩展。真正显著的 transport/I/O 变化集中在 <code>v0.7.1</code>：新增 opt-in container
+stdio passfd、改变 TAP slow path 的 IP 配置、把 TAP TX <code>EIO</code> 从 VM-fatal
+错误改为丢帧计数，并移除 virtio-net restore 期 <code>driver_awake</code> 强制中断
+workaround；同时 pause/resume 生命周期从同 shim 恢复收敛为
+pause-to-snapshot 后重新 create。上述都是源码行为；本次没有运行验证，不能
+据此声称性能或稳定性提升。</p>
+<p><strong>范围与边界</strong>：A=<code>v0.5.1</code>，中间里程碑=<code>v0.6.0</code>，B=<code>v0.7.1</code>；覆盖
+CubeShim、内嵌 CubeHypervisor、virtio-vsock、TAP/virtio-net、container
+stdio 与相关生命周期。无 build/runtime/benchmark；不把 commit title 当作
+实现证据。</p>
+</blockquote>
+<p>当前机制先读 <a href="../../CubeSandbox-sandbox-clone/analysis/cubeshim-sandbox-hypervisor-chain.html">CubeShim、VMM 与 guest 通信分层</a>。</p>
+<h2 id="_1">背景与术语</h2>
+<ul>
+<li><strong>主控制通道</strong>：<code>CubeHypervisor</code> wrapper 调 <code>VmmInstance::send_request()</code>；
+  request 走 mpsc，eventfd 唤醒 VMM thread，response 同步返回。</li>
+<li><strong><code>chapi</code></strong>：同进程 VMM 的 HTTP/Unix socket 旁路，主要供 snapshot 工具。</li>
+<li><strong><code>cube.sock</code></strong>：virtio-vsock 的 host AF_UNIX 入口，映射到 guest AF_VSOCK。</li>
+<li><strong><code>cubetap.sock</code></strong>：VMM 向 Cubelet TAP pool 请求 donated TAP fd 的 Unix
+  socket。</li>
+<li><strong>passfd</strong>：<code>v0.7.1</code> 新增的 container stdio 路线；CubeShim 用
+  <code>SCM_RIGHTS</code> 把 FIFO/socket fd 交给 vsock muxer，再映射为 guest vsock
+  stream。它不是 VM control，也不是 TAP fd 路线。</li>
+</ul>
+<h2 id="ab">A/B 身份与祖先关系</h2>
+<table>
+<thead>
+<tr>
+<th>角色</th>
+<th>版本</th>
+<th>完整 commit</th>
+<th>committer 时间</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A</td>
+<td><code>v0.5.1</code></td>
+<td><code>a164417f497234a0d787cb328b0ae96480b1569b</code></td>
+<td>2026-07-11T14:33:25+08:00</td>
+</tr>
+<tr>
+<td>中间</td>
+<td><code>v0.6.0</code></td>
+<td><code>8721dd151971ce3c2966482bbd32904ad98f378e</code></td>
+<td>2026-07-24T16:11:29+08:00</td>
+</tr>
+<tr>
+<td>B</td>
+<td><code>v0.7.1</code></td>
+<td><code>31d911e430fdf8a8879bd062b8e78066c1a8e89d</code></td>
+<td>2026-09-11T17:50:24+08:00</td>
+</tr>
+</tbody>
+</table>
+<p>本地 <code>git merge-base --is-ancestor</code> 分别确认 A→中间、中间→B，返回值均为 0。
+仓库总体差异为：</p>
+<ul>
+<li>A→中间：827 files changed，85,036 insertions，13,472 deletions；</li>
+<li>中间→B：2,196 files changed，291,759 insertions，58,521 deletions；</li>
+<li>A→B：2,454 files changed，369,670 insertions，64,868 deletions。</li>
+</ul>
+<p>这是一条很宽的 repo-wide 演进，所以下文只对选定 transport/I/O 文件做双端
+机制证明；不能把总体 diff 数量解释成本文特性的变更规模。</p>
+<h2 id="a">旧机制（A 端）</h2>
+<h3 id="a1-vmm-thread">A.1 控制面已经是内嵌 VMM thread</h3>
+<p>A 端 <code>CubeHypervisor::launch_vmm()</code> 创建 <code>VmmInstance</code>；wrapper 方法直接发
+<code>ApiRequest</code>。<code>VmmInstance::new()</code> 建 request/response channel 与 eventfd，
+启动 VMM thread；<code>VmmServiceInner::send_request()</code> 执行 send→eventfd→recv。</p>
+<p>关键证据：</p>
+<ul>
+<li>A <code>CubeShim/shim/src/hypervisor/cube_hypervisor.rs:75-181</code>；</li>
+<li>A <code>hypervisor/src/lib.rs:179-187,228-278</code>；</li>
+<li>A <code>hypervisor/vmm/src/api/service.rs:14-16,66-89</code>。</li>
+</ul>
+<p>这三个核心文件中的后两个在 A、中间、B 上分别是相同 blob：</p>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>A / v0.6.0 / B blob</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>hypervisor/src/lib.rs</code></td>
+<td><code>c4acfbfb746ed11c3dd5811099d67c1acf8da846</code></td>
+</tr>
+<tr>
+<td><code>hypervisor/vmm/src/api/service.rs</code></td>
+<td><code>744267e946f12dcb71e2f892360cfdeaf52c2447</code></td>
+</tr>
+</tbody>
+</table>
+<p>这是“主控制 transport 未变化”的直接证据，不是根据接口名推断。</p>
+<h3 id="a2-chapicubesock-tap-pool">A.2 chapi、cube.sock 与 TAP pool 已经分层</h3>
+<ul>
+<li>A 端 <code>SandBox::new()</code> 已设置 <code>ch_http_api</code>，app snapshot 已通过
+  <code>Snapshot::request_ch()</code> 访问 pause/snapshot/resume；A 与 <code>v0.6.0</code> 的
+  <code>CubeShim/shim/src/snapshot/mod.rs</code> 是相同 blob
+  <code>fc2b69edf2f391ef42192ddac1b9ecc0845bf6f4</code>。</li>
+<li>A 端 <code>AsyncUtils::connect_agent()</code> 已连接 <code>cube.sock</code>、发送
+  <code>CONNECT 1024</code> 并把 dup fd 交给 ttrpc（
+  <code>CubeShim/shim/src/common/utils.rs:335-368</code>）。</li>
+<li>A 端 TAP pool 已由 <code>Tap::lookup_from_pool()</code> 获取 fd；
+  <code>hypervisor/net_util/src/tap.rs</code> 在 A、中间、B 上都是 blob
+  <code>2240299a75664215a8d7c51c02cf72ab9e7866b5</code>。</li>
+<li>A 端 virtio-net RX/TX 已是 guest descriptor ↔ TAP 的 readv/writev 热路径。</li>
+</ul>
+<p>因此 <code>v0.7.1</code> 不是从“CubeShim 通过一个 socket 控制外部 hypervisor”迁移而来；
+这些分层在 A 已存在。</p>
+<h3 id="a3-a-container-stdio-passfd">A.3 A 端没有 container stdio passfd</h3>
+<p>在 A 与 <code>v0.6.0</code> 的 <code>CubeShim</code>、<code>agent</code>、<code>hypervisor</code> 范围内，
+<code>git grep passfd</code> 均无匹配；proto 没有 stdin/stdout/stderr port，vsock muxer
+只有传统 UnixStream backend。container stdio 由 agent ttrpc 的 read/write
+stream 路线转发。</p>
+<h2 id="change-ledger">变更点（change ledger）</h2>
+<table>
+<thead>
+<tr>
+<th>对象</th>
+<th>kind</th>
+<th>A → v0.6.0 → B</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>VMM 主控制 transport</td>
+<td>unchanged</td>
+<td>三版保持进程内 mpsc + eventfd + blocking response</td>
+</tr>
+<tr>
+<td>chapi HTTP/UDS 旁路</td>
+<td>unchanged</td>
+<td>三版都由 sandbox 配置并服务 snapshot HTTP 请求；B 有其他内容修改但入口语义不变</td>
+</tr>
+<tr>
+<td>guest agent CONNECT 1024</td>
+<td>unchanged</td>
+<td>三版继续由 <code>cube.sock</code> 映射到 guest AF_VSOCK</td>
+</tr>
+<tr>
+<td>TAP pool fd 获取</td>
+<td>unchanged</td>
+<td><code>tap.rs</code> 三版同 blob；CubeShim 仍只传 TAP name</td>
+</tr>
+<tr>
+<td>ivshmem restore backend</td>
+<td>added（v0.6.0）</td>
+<td>shim 新增 annotation、共享内存文件与 <code>RestoreConfig.ivshmem</code> 覆盖；不替换控制 transport</td>
+</tr>
+<tr>
+<td>soft-dirty/pagemap page-size 计算</td>
+<td>changed（v0.6.0）</td>
+<td>该子路径从固定 4 KiB 改为 host page size；<code>memory_manager</code> 原本已有运行时页大小探测，不能扩大成整个内存管理层的新能力</td>
+</tr>
+<tr>
+<td>container stdio passfd</td>
+<td>added（v0.7.1）</td>
+<td>SCM_RIGHTS → VsockMuxer <code>PassFdStream</code> → guest port 1027；opt-in，默认 false</td>
+</tr>
+<tr>
+<td>passfd restore 重连</td>
+<td>added（v0.7.1）</td>
+<td>proto 加 <code>ReconnectContainerIO</code>，<code>set_client()</code> 在 restore/rollback 后重建 stream</td>
+</tr>
+<tr>
+<td>named TAP IP 配置</td>
+<td>changed（v0.7.1）</td>
+<td>slow path 可接收 <code>NetConfig.ip/mask</code>；已存在 TAP 不再覆盖 IP/netmask</td>
+</tr>
+<tr>
+<td>TAP TX <code>EIO</code></td>
+<td>changed（v0.7.1）</td>
+<td>从返回 <code>WriteTap</code> 错误变为丢帧、完成 descriptor、累计 <code>tx_dropped_frames</code></td>
+</tr>
+<tr>
+<td>restore 初期 virtio-net 中断</td>
+<td>removed（v0.7.1）</td>
+<td>删除 <code>driver_awake</code> 与“driver 未通知前强制 IRQ”分支</td>
+</tr>
+<tr>
+<td>pause/resume 产品链</td>
+<td>changed（v0.7.1）</td>
+<td>legacy 同 shim pause/resume 变为 pause-to-snapshot 后 shim 退出、Master 重新 create</td>
+</tr>
+<tr>
+<td>passfd 默认部署状态</td>
+<td>uncertain</td>
+<td>B 代码默认 false，且 tag 内 Cubelet 未找到 annotation 生产者</td>
+</tr>
+</tbody>
+</table>
+<h3 id="v051-v060io-backend-transport">v0.5.1 → v0.6.0：I/O backend 扩展，但 transport 不换轨</h3>
+<p><code>CubeHypervisor</code> wrapper、<code>VmmInstance</code>、<code>VMM_SERVICE</code>、TAP、virtio-net、
+virtio-block 与 virtio-fs 的关键 blob 在这两个 tag 上相同。可见变化是：</p>
+<ul>
+<li><code>SandBox</code> 新增 <code>cube.master.enable_ivshmem</code>，创建
+  <code>/dev/shm/ivshmem-&lt;sandbox-id&gt;</code>，普通创建和 restore 都可绑定它（
+  v0.6.0 <code>CubeShim/shim/src/sandbox/sb.rs:50-51,773-812,889-951</code>）；</li>
+<li><code>RestoreConfig</code> 增加 <code>ivshmem</code>，VMM restore 调 <code>update_ivshmem()</code>（
+  v0.6.0 <code>hypervisor/vmm/src/lib.rs:676-684</code>）；</li>
+<li>ivshmem device 实现本身在 A 已存在且未变化，所以这里是 shim/config/restore
+  接入，不是新造一条 CubeShim↔VMM socket。</li>
+</ul>
+<p>另一个与 ARM64 snapshot 正确性相关的变化，是 soft-dirty/pagemap 子路径从
+固定 <code>PAGE_SIZE=4096</code> 改为 <code>host_page_size()</code>：A
+<code>hypervisor/vmm/src/soft_dirty.rs:36</code> 使用固定值；v0.6.0
+<code>hypervisor/vmm/src/pagemap_anon.rs:36-46</code> 通过 <code>_SC_PAGESIZE</code> 缓存 host 页
+大小，并被 <code>soft_dirty.rs:193,271,353</code> 等路径使用。<code>memory_manager</code> 在 A 端
+已经有运行时 <code>sysconf</code> 探测，因此这里不能写成整个内存管理层首次支持 host
+page size。该变化不改变本文的控制、vsock 或 TAP transport。</p>
+<h3 id="v060-v071stdio-passfd">v0.6.0 → v0.7.1：stdio passfd</h3>
+<p>B 端新增：</p>
+<ul>
+<li><code>Config.use_passfd_io</code>，默认 false，annotation 为大小写不敏感的 <code>true</code> 才启用
+  （B <code>CubeShim/shim/src/sandbox/config.rs:74,79-105,185-190</code>）；</li>
+<li><code>AsyncUtils::passfd_connect_many()</code> 一次 <code>sendmsg</code> 发送文本命令和最多三个
+  fd，解析带 label 的 ACK（B <code>common/utils.rs:562-681</code>）；</li>
+<li><code>VsockMuxer::read_local_stream_port()</code> 用 <code>recvmsg</code> 收 <code>SCM_RIGHTS</code>，校验
+  同 UID、fd 类型、非阻塞属性，再构造 <code>PassFdStream</code>（B
+  <code>hypervisor/virtio-devices/src/vsock/unix/muxer.rs:495-667,851-939</code>）；</li>
+<li>guest agent 在 AF_VSOCK 1027 接收 stream，并由 ttrpc request 中的动态 port
+  与具体 container/exec 绑定（B <code>agent/src/passfd_io.rs:13-18,84-195</code>、
+  <code>agent/src/rpc.rs:150-215,430-496</code>）。</li>
+</ul>
+<p>提交 <code>2aec7dd7f3d19cf7aff3a8caa8d3fa5d98cd45da</code> 的标题把它称为
+“high-performance passfd IO”；这只是 <strong>author evidence</strong>。固定 tag 源码能证明
+数据路径减少了一层 UnixStream payload 转发，但没有 benchmark，不能把
+“高性能”写成已验证结果。</p>
+<h3 id="v060-v071-restore-workaround">v0.6.0 → v0.7.1：网络错误语义与 restore workaround</h3>
+<ol>
+<li><strong>named TAP 配置</strong>：v0.6.0 slow path 对 <code>ip_addr/netmask</code> 无条件调用 setter
+   （<code>open_tap.rs:101-113</code>）；B 先检查 <code>/sys/class/net/&lt;name&gt;</code>，只有接口不存在
+   才写 IP/netmask（B <code>open_tap.rs:76-103,105-145</code>）。同时 B
+   <code>DeviceManager</code> 把 <code>net_cfg.ip/mask</code> 传入 <code>Net::new()</code>（B
+   <code>device_manager.rs:2441-2461</code>）。</li>
+<li><strong>TX <code>EIO</code></strong>：v0.6.0 在 <code>writev</code> 返回非 <code>EAGAIN</code> 时直接返回
+   <code>NetQueuePairError::WriteTap</code>（<code>queue_pair.rs:96-116</code>）；B 对 <code>EIO</code> 改为
+   丢帧、used length=0，并累计 <code>tx_dropped_frames</code>，其他错误仍失败（B
+   <code>queue_pair.rs:109-166,445-479</code>）。</li>
+<li><strong><code>driver_awake</code> 删除</strong>：v0.6.0 在 restore 后、guest 尚未发 queue event 时
+   无条件触发 RX/TX used queue IRQ（<code>net.rs:167-180,222-263,317-329,745-773</code>）；
+   B 删除字段与 <code>|| !driver_awake</code>，只在 <code>needs_notification()</code> 为真时触发
+   （B <code>net.rs:167-257,302-344,735-774</code>）。</li>
+</ol>
+<p>第 3 项是明确的机制删除，但没有本次运行数据支撑“更稳定”或“会回归”。若
+restore 后第一包只在旧版成功、新版失败，这一变化是应优先验证的候选，而非
+已确认根因。</p>
+<h3 id="v060-v071pauseresume">v0.6.0 → v0.7.1：pause/resume 生命周期收敛</h3>
+<p>v0.5.1/v0.6.0 的 <code>SandBox::pause_vm()</code> 把 snapshot 写到本地固定路径，保留 shim
+后由 <code>resume_vm_with_config(None)</code> 恢复（v0.6.0
+<code>CubeShim/shim/src/sandbox/sb.rs:1256-1288,1356-1375</code>）。B 中 legacy
+<code>pause_vm/resume_vm</code> 直接报错；新 <code>pause_vm_to_snapshot()</code> 使用调用方提供的
+spec dir/memory volume/snapshot type，写完后等待 <code>VmShutdown</code> 并保存 metadata，
+恢复改为 Master create from snapshot（B <code>sb.rs:1346-1462</code>）。</p>
+<p>底层仍发 <code>ApiRequest::VmPauseToSnapshot</code> / <code>VmResumeFromSnapshot</code>，所以这是
+产品生命周期和 artifact 所有权变化，不是 VMM control transport 变化。</p>
+<h2 id="b">新机制（B 端）</h2>
+<p>B 端可以按五条彼此独立的路径理解：</p>
+<figure class="diagram" aria-label="Mermaid 架构或流程图"><div class="mermaid">flowchart TB
+    Shim[CubeShim]
+    VMM[VMM thread]
+    Agent[guest agent]
+    GuestNet[guest network stack]
+    TapPool[Cubelet TAP pool]
+    Net[virtio-net worker]
+    IO[container stdio fd]
+
+    Shim --&gt;|ApiRequest mpsc + eventfd| VMM
+    Shim -.-&gt;|HTTP over chapi UDS: snapshot旁路| VMM
+    Shim --&gt;|CONNECT/ttrpc over cube.sock + virtio-vsock| Agent
+    IO --&gt;|SCM_RIGHTS to VsockMuxer; opt-in| VMM
+    VMM --&gt;|cubetap.sock + SCM_RIGHTS| TapPool
+    TapPool --&gt; Net
+    Net --&gt;|virtqueue| GuestNet</div><details class="diagram-source"><summary>查看图表文本</summary><pre><code>flowchart TB
+    Shim[CubeShim]
+    VMM[VMM thread]
+    Agent[guest agent]
+    GuestNet[guest network stack]
+    TapPool[Cubelet TAP pool]
+    Net[virtio-net worker]
+    IO[container stdio fd]
+
+    Shim --&gt;|ApiRequest mpsc + eventfd| VMM
+    Shim -.-&gt;|HTTP over chapi UDS: snapshot旁路| VMM
+    Shim --&gt;|CONNECT/ttrpc over cube.sock + virtio-vsock| Agent
+    IO --&gt;|SCM_RIGHTS to VsockMuxer; opt-in| VMM
+    VMM --&gt;|cubetap.sock + SCM_RIGHTS| TapPool
+    TapPool --&gt; Net
+    Net --&gt;|virtqueue| GuestNet</code></pre></details></figure>
+<p>普通 boot/restore 的主控制仍走实线第一条；stdio passfd 和 TAP fd 都用
+<code>SCM_RIGHTS</code>，但 socket、fd 类型、所有者和目标完全不同。</p>
+<h2 id="ab_1">不变量（跨 A/B 保持）</h2>
+<ol>
+<li><code>CubeHypervisor</code> 内嵌库 + VMM thread；没有新增独立管理 VM。</li>
+<li>常规 VM action 都经 <code>ApiRequest</code>，同步 response 与异步 <code>NotifyEvent</code> 分离。</li>
+<li><code>chapi</code> 是 HTTP/UDS 旁路，不是 wrapper 的默认调用路径。</li>
+<li><code>cube.sock</code> 将 host Unix stream 映射为 guest vsock connection。</li>
+<li>CubeShim 网络配置传 TAP name；VMM 内 <code>Tap::lookup_from_pool()</code> 取得 fd。</li>
+<li>virtio-net steady-state 数据在 guest ring 与 TAP 之间搬运；控制请求不承载帧。</li>
+<li>restore 必须重新绑定当前 host 的 net/fs/disk/vsock backend；snapshot 不保存
+   可跨 host 复用的开放 TAP fd。</li>
+</ol>
+<h2 id="_2">兼容与迁移影响</h2>
+<ul>
+<li><strong>passfd 是可选协议扩展</strong>：旧配置继续走 ttrpc；只有 shim、VMM muxer、agent
+  proto/实现同时支持且 annotation 开启时才能工作。部分升级会在 ACK、port 或
+  RPC 字段处失败。</li>
+<li><strong>passfd 不能跨 restore 自动存活</strong>：B 用 <code>ReconnectContainerIO</code> 重建；恢复
+  后仍持有旧 fd/port 的假设不成立。</li>
+<li><strong>TAP 既有配置保护</strong>：B slow path 不再覆盖既有 interface 的 IP/netmask；
+  依赖 VMM 重写既有 TAP 地址的环境需要显式复核。</li>
+<li><strong>TX <code>EIO</code> 语义变化</strong>：旧版把它传播为 device error；B 丢帧并计数。监控若
+  只看 VM 是否退出，会漏掉持续丢包，必须读取 <code>tx_dropped_frames</code>。</li>
+<li><strong>pause/resume API 行为变化</strong>：依赖旧 <code>Task::Pause/Resume</code> 原地恢复的调用方在
+  B 会收到明确错误，必须走 PauseToSnapshot + create-from-snapshot。</li>
+<li><strong>snapshot/设备格式兼容</strong>：本文证明的是代码路径变化，没有证明 A 快照可以由
+  B 无条件恢复；CPU/中断、ivshmem、独立 agent image 与设备 state 仍需各自
+  compatibility gate。</li>
+</ul>
+<h2 id="_3">优点与代价</h2>
+<ul>
+<li><strong>工程判断</strong>：保持进程内控制降低了版本迁移时的 transport 变量，但全局
+  <code>VMM_SERVICE</code> 与阻塞 response 仍是单点卡住风险。</li>
+<li><strong>工程判断</strong>：passfd 把 stdio fd 所有权显式送入 vsock muxer，减少 legacy
+  stream relay 层；同时增加同 UID 校验、批次原子性、动态 port、timeout 与
+  restore reconnect 的复杂度。</li>
+<li><strong>工程判断</strong>：TAP <code>EIO</code> 丢帧更接近链路暂时 down 时的容错，但把故障从
+  fail-fast 改成可持续数据丢失，必须依赖计数器与上层健康检查。</li>
+<li><strong>工程判断</strong>：移除 <code>driver_awake</code> 简化中断语义，却也删掉了一个明确针对
+  restore 首轮通知的保护；没有实测不能判断净收益。</li>
+</ul>
+<h2 id="x86_64-arm64">架构边界（x86_64 / ARM64）</h2>
+<p>三个版本的控制 service、vsock muxer、TAP pool 与 virtio-net queue worker 都
+不是按目标架构分叉的。架构差异位于外围：</p>
+<ul>
+<li>A/B 的 wrapper 分别为 x86_64 与 ARM64 添加不同 seccomp syscall；</li>
+<li>guest cmdline 分别使用 x86 <code>hvc0/no_timer_check</code> 与 ARM64 <code>ttyAMA0</code>；</li>
+<li>used-ring interrupt 下游进入 x86 APIC/IOAPIC/MSI 或 ARM GIC/MSI；</li>
+<li>v0.6.0 的 host-page-size 修正会影响 64 KiB ARM64 host 的 snapshot dirty-page
+  解释，但没有新增一条 ARM64 专属 socket。</li>
+</ul>
+<p>B 的 passfd、TAP <code>EIO</code> 与 <code>driver_awake</code> 变化是共享源码变化；“ARM64 更受益或
+更易回归”均属未确认，需要同场景运行证据。</p>
+<h2 id="_4">失败/反例与错误矩阵</h2>
+<table>
+<thead>
+<tr>
+<th>观察</th>
+<th>可支持的版本假设</th>
+<th>会推翻什么说法</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A、v0.6.0、B 的 <code>service.rs</code> blob 相同</td>
+<td>主控制 transport 是不变量</td>
+<td>“v0.7.1 把 VM 控制改成 HTTP socket”</td>
+</tr>
+<tr>
+<td>v0.6.0 中 <code>git grep passfd</code> 为零</td>
+<td>passfd 是 B 新增</td>
+<td>“v0.6.0 已默认支持 direct passfd stdio”</td>
+</tr>
+<tr>
+<td>B 没有 <code>cube.use_passfd_io</code> 的 Cubelet 设置方</td>
+<td>部署启用状态未确认</td>
+<td>“代码合入即默认生效”</td>
+</tr>
+<tr>
+<td>B restore 后 stdio 只有 legacy log forward</td>
+<td>annotation/路径未满足</td>
+<td>“所有 restore 都会走 passfd reconnect”</td>
+</tr>
+<tr>
+<td>B TAP <code>EIO</code> 不退出 VM但计数增长</td>
+<td>新容错分支在工作</td>
+<td>“VM 活着就代表网络没有丢包”</td>
+</tr>
+<tr>
+<td>B restore 首包不达且 A/v0.6.0 正常</td>
+<td><code>driver_awake</code> 删除是候选</td>
+<td>“已证实是 GIC 或 TAP fd 根因”</td>
+</tr>
+<tr>
+<td>chapi 失败但 wrapper create/boot 正常</td>
+<td>HTTP 旁路故障</td>
+<td>“CubeShim 与 VMM 主通道已断”</td>
+</tr>
+<tr>
+<td><code>cube.sock</code> CONNECT 失败但 TAP worker正常</td>
+<td>guest/vsock 层故障</td>
+<td>“网络数据面与 agent 控制是同一 socket”</td>
+</tr>
+</tbody>
+</table>
+<h2 id="_5">双端证据表</h2>
+<table>
+<thead>
+<tr>
+<th>Claim</th>
+<th>A / v0.5.1 证据</th>
+<th>中间 / v0.6.0 证据</th>
+<th>B / v0.7.1 证据</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>主控制 transport 不变</td>
+<td><code>hypervisor/src/lib.rs:179-278</code>; <code>api/service.rs:66-89</code></td>
+<td>同一 blob</td>
+<td>同一 blob、同行为</td>
+</tr>
+<tr>
+<td>chapi 是 snapshot 旁路</td>
+<td><code>sb.rs:91</code>; <code>snapshot/mod.rs:141-220</code></td>
+<td>相同 snapshot blob</td>
+<td><code>sb.rs:93</code>; <code>snapshot/mod.rs:140-220</code></td>
+</tr>
+<tr>
+<td>TAP fd pool 语义不变</td>
+<td><code>tap.rs:198-228</code></td>
+<td>同一 blob</td>
+<td>同一 blob</td>
+</tr>
+<tr>
+<td>ivshmem restore 接入</td>
+<td>无 shim annotation/restore override；device 实现已存在</td>
+<td><code>sb.rs:50-51,773-812,889-951</code>; <code>vmm/lib.rs:676-684</code></td>
+<td><code>sb.rs:50-51,807-845,923-985</code>；仍由 <code>RestoreConfig.ivshmem</code> 覆盖 backend</td>
+</tr>
+<tr>
+<td>soft-dirty/pagemap 页大小</td>
+<td><code>soft_dirty.rs:36</code> 固定 <code>PAGE_SIZE=4096</code>；<code>memory_manager.rs:200-210</code> 已独立探测 host 页大小</td>
+<td><code>pagemap_anon.rs:36-46</code>; <code>soft_dirty.rs:193,271,353</code> 等路径改用 <code>host_page_size()</code></td>
+<td><code>pagemap_anon.rs:36-46</code> blob 与 v0.6.0 相同；<code>soft_dirty.rs:157,268,346,428</code> 等仍调用该 helper</td>
+</tr>
+<tr>
+<td>passfd 新增</td>
+<td><code>git grep passfd</code> 无匹配</td>
+<td><code>git grep passfd</code> 无匹配</td>
+<td><code>utils.rs:562-681</code>; <code>muxer.rs:495-667</code>; <code>agent/passfd_io.rs:84-195</code></td>
+</tr>
+<tr>
+<td>TAP <code>EIO</code> 语义变化</td>
+<td>非 <code>EAGAIN</code> 返回错误</td>
+<td><code>queue_pair.rs:96-116</code></td>
+<td><code>queue_pair.rs:109-166,445-479</code></td>
+</tr>
+<tr>
+<td>restore 强制首轮 IRQ 删除</td>
+<td><code>driver_awake</code> 存在</td>
+<td><code>net.rs:167-180,222-263,317-329</code></td>
+<td>对应字段与 OR 分支删除，<code>net.rs:167-257</code></td>
+</tr>
+<tr>
+<td>pause/resume 产品链变化</td>
+<td>本地固定 path 后同 shim resume</td>
+<td><code>sb.rs:1256-1288,1356-1375</code></td>
+<td>legacy API 报错；<code>pause_vm_to_snapshot</code> + Master create，<code>sb.rs:1346-1462</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="_6">未确认项与运行验证边界</h2>
+<ul>
+<li>未确认任何版本的吞吐、延迟或 CPU 收益；<code>perf(passfd)</code> 只是提交作者命名。</li>
+<li>未确认 B 的标准部署是否设置 <code>cube.use_passfd_io=true</code>。</li>
+<li>未确认 <code>driver_awake</code> 删除对 ARM64/x86 restore 第一包的真实影响；不得把它
+  自动并入已 deferred 的 ARM64 2-vCPU restore 根因调查。</li>
+<li>未确认 A snapshot 到 B 的跨版本兼容；本报告不是 snapshot format
+  compatibility 声明。</li>
+<li>未确认生产 chapi/cube.sock/cubetap.sock 的权限、SELinux、namespace 与
+  systemd/containerd 配置；源码路径不是部署事实。</li>
+<li>未运行 benchmark、KVM、远端或网络实验；因此所有收益/风险只保持为工程判断
+  或待验证候选。</li>
+</ul></article>
+<aside class="related-reading" aria-labelledby="related-title"><h2 id="related-title">继续阅读</h2><ul><li><strong>项目目录：</strong><a href="../../projects/cubesandbox.html">CubeSandbox</a></li><li><strong>专题目录：</strong><a href="../../topics/lifecycle-control-plane.html">生命周期与控制面</a></li><li><strong>演进目录：</strong><a href="../index.html">版本演进</a></li><li><strong>B 端机制上下文：</strong><a href="../../CubeSandbox-sandbox-clone/analysis/cubeshim-sandbox-hypervisor-chain.html">CubeShim、VMM 与 guest：控制 socket、网络和 I/O 分层</a></li></ul></aside>
+    <footer class="page-foot">公开来源：<code>analysis/projects/cubesandbox/cubeshim-hypervisor-transport-evolution.md</code> · 文档 ID：<code>cubesandbox.cubeshim-hypervisor-transport-evolution</code></footer>
+  </main>
+</div>
+<script defer src="https://cdn.jsdelivr.net/npm/mermaid@10.9.6/dist/mermaid.min.js" referrerpolicy="no-referrer"></script>
+<script defer src="../../assets/wiki.js"></script>
+</body>
+</html>
