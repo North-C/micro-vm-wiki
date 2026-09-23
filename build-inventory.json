@@ -631,8 +631,8 @@
   },
   {
     "path": "evolution/index.html",
-    "size": 7217,
-    "sha256": "0a32e938e6f8df5ee586504800a143476bb71c663fb3353cf8c26b2bb459289d"
+    "size": 7905,
+    "sha256": "647cb29b324fb8fc045bb9309a82a430ff75720cb767c387f23d7ec05d36bff8"
   },
   {
     "path": "firecracker/analysis/api-event-loop-thread-chain.html",
@@ -896,13 +896,13 @@
   },
   {
     "path": "platforms/agentenv.html",
-    "size": 5838,
-    "sha256": "d7775ae8d95adc80328cbc043469c2cf96800b9f4410171e419a2e34fa0b197f"
+    "size": 5977,
+    "sha256": "d2819d16ad7679726e42b35d4b29c9ed9deeb8d5b3a3c47dff1a1d466d77a236"
   },
   {
     "path": "platforms/cubesandbox.html",
-    "size": 12998,
-    "sha256": "72e809c6bf958e968edda9ae5491b283720bc1c77cd888f78cef8fa36a110d62"
+    "size": 13032,
+    "sha256": "65d29e1608fb1e23ab6c389993f1b40c3c0984dc106ad4622e68188ad362c94a"
   },
   {
     "path": "platforms/e2b-infra/architecture-and-sandbox-lifecycle.html",
@@ -916,43 +916,43 @@
   },
   {
     "path": "platforms/e2b-infra.html",
-    "size": 5722,
-    "sha256": "2f3887a9ad8821e1ba85f6627af5c92ed850a57ab298d9f1ab74c3c32143bdc6"
+    "size": 5837,
+    "sha256": "05f335c57217d328d757170256b3453f0292a0922e39861085a2d8d2bb7f36cc"
   },
   {
     "path": "platforms/index.html",
-    "size": 4984,
-    "sha256": "e401323a4967c4ffa17f1c9e7160006c609bd2dde7a940cc5aafad54be1b61c2"
+    "size": 5119,
+    "sha256": "3f1e411fa96e0c2eb4c9347e34f7755f4f25bfcb8e21d84ab29cbcf1d207b3d1"
   },
   {
     "path": "projects/cloud-hypervisor.html",
-    "size": 9637,
-    "sha256": "b35c19a546520ff5edb2ec5039faa0cbf90c5bc0143f3825a7aec26568ef8cd2"
+    "size": 9701,
+    "sha256": "0dac54f37734fa79b2988e7bc97dd58ff3a5be0284fa45d4c82a2842a562b6d0"
   },
   {
     "path": "projects/crosvm.html",
-    "size": 7732,
-    "sha256": "6ff16b797737d6c147b008d4c4011a261699c701be185b187707b459e2bc39a2"
+    "size": 7786,
+    "sha256": "ac51007a564deee7e3106440a33fb01f23528325faea6e9f969918445dd4b91c"
   },
   {
     "path": "projects/cubesandbox.html",
-    "size": 12435,
-    "sha256": "c39c68f642e1fd633f2c0419f315c7c881c0206feb0f64686f10093889bab810"
+    "size": 12469,
+    "sha256": "e33ed5e027f8841e104d1bc33e009e6dbe8180cbc0dc9728714c87aa565c888f"
   },
   {
     "path": "projects/firecracker.html",
-    "size": 9001,
-    "sha256": "9b1543fcdda2a44e95f8c2bd2e8fb46460ff8ee4229e1b5c632d8dc6ba62fa3a"
+    "size": 9064,
+    "sha256": "995fea89bfa743103a1c5d69ae925f7ee2c0a86b6afdac7672d5c067b8e0ae19"
   },
   {
     "path": "projects/index.html",
-    "size": 7604,
-    "sha256": "415d66638a8d9d0a7ccaf8c528272a0bacf170d75c03f810240dcf9c81e1bcb3"
+    "size": 8022,
+    "sha256": "5df017b52ccb3b83dcbb2375f2dd47ddb3670f0c60ff7bf4a0a898ab96d7b34e"
   },
   {
     "path": "projects/kata-containers.html",
-    "size": 8882,
-    "sha256": "b847528ab166b80f44246ee357e53192e317cda6d04d2759e0ff8db3865c310b"
+    "size": 8948,
+    "sha256": "10c2543944afc080b52c25c1ea3998fc1917348f66607c5846fc67e4928c1b8e"
   },
   {
     "path": "sitemap.html",
@@ -1006,7 +1006,7 @@
   },
   {
     "path": "versions/index.html",
-    "size": 11292,
-    "sha256": "b4e342b39ea308049b5ca18cc55f72203abce533ae1325335e3eec457c05db91"
+    "size": 13317,
+    "sha256": "15e95658fcdcbdeced14eff51d40cea68647885ef16b06e4ce0bb315a9d74b08"
   }
 ]
