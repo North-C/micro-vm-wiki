@@ -248,6 +248,13 @@ html.dark .badge-status { color: #e3b341; }
 .markdown-body h3 { margin-top: 1.45rem; font-size: 1.17rem; }
 .markdown-body img,
 .markdown-body svg { max-width: 100%; height: auto; }
+.markdown-body .article-diagram {
+  display: block;
+  margin: 1rem auto;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+}
 .markdown-body table { display: block; max-width: 100%; overflow-x: auto; border-collapse: collapse; }
 .markdown-body th,
 .markdown-body td { padding: 0.45rem 0.7rem; border: 1px solid var(--border); vertical-align: top; }

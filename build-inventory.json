@@ -81,13 +81,13 @@
   },
   {
     "path": "CubeSandbox-sandbox-clone/analysis/cubeshim-container-agent-lifecycle-chain.html",
-    "size": 23847,
-    "sha256": "0fff06705ab73ddf3fba25a57ed6bcc842e3ce46fc3e68f286f05be69a60ef2f"
+    "size": 23851,
+    "sha256": "a704875eaca17e8d16b0e1d4b07324f787356cfceeb9a793a3093effbd0a2c8c"
   },
   {
     "path": "CubeSandbox-sandbox-clone/analysis/cubeshim-sandbox-hypervisor-chain.html",
-    "size": 35741,
-    "sha256": "2a61f928fab85626be4f51cbb1c3d7c470e89962c720cc9b0999195713461ce8"
+    "size": 18872,
+    "sha256": "2a8a79f65c33b3eeb889f329cfa07ae80d3aa26f8b15358c02273caa47125d14"
   },
   {
     "path": "CubeSandbox-sandbox-clone/analysis/cubevs-ebpf-data-plane-chain.html",
@@ -390,14 +390,29 @@
     "sha256": "ff7b37d4afe734ff1fa48f1a4676f5b0e3369077745681e0acec1e0ede913e68"
   },
   {
+    "path": "assets/diagrams/cubeshim-paths.svg",
+    "size": 5903,
+    "sha256": "658a18046e9c5963d4247e2aeb12f90320a713d508a6968463f195c2e1c19492"
+  },
+  {
+    "path": "assets/diagrams/cubeshim-restore.svg",
+    "size": 4265,
+    "sha256": "8d6b95055ecf423849cef8b310fb988e05bb7b97f0d96e21bf2ac87b94016182"
+  },
+  {
+    "path": "assets/diagrams/cubeshim-stdio.svg",
+    "size": 5051,
+    "sha256": "2cb1e5f562824b17f404c7268f82531a26167ab0b70549989cc9cdc688cb1875"
+  },
+  {
     "path": "assets/search.json",
-    "size": 281058,
-    "sha256": "65e40f0dcfa627c29e4ba4da7592226598d11909ebe5ce13289d8c0558ce16f1"
+    "size": 280216,
+    "sha256": "c03ad970937489ea641cb4fd2546c6c8fc78e03b53e3d435e07a45c9b08b5219"
   },
   {
     "path": "assets/style.css",
-    "size": 9552,
-    "sha256": "357c86caf38ee586d0b35682abf5a33682b7738c2a17c930a45a42bd62537293"
+    "size": 9707,
+    "sha256": "8c61a726c6f6730c69f51842ac39b97f04b66d80b53618e2bc231beeed62932f"
   },
   {
     "path": "assets/wiki.js",
@@ -626,8 +641,8 @@
   },
   {
     "path": "evolution/cubesandbox/cubeshim-hypervisor-transport-io.html",
-    "size": 30143,
-    "sha256": "bee7a00065853d2945e54ff9cf23c86ea76d3e1a58facc2eeed0a476b4a02977"
+    "size": 17905,
+    "sha256": "6ba6800cda102d30e27d24bb8097eb4b0beeff56c422fafb8521cdda6522205d"
   },
   {
     "path": "evolution/cubesandbox/soft-dirty-snapshot.html",
@@ -636,8 +651,8 @@
   },
   {
     "path": "evolution/index.html",
-    "size": 8239,
-    "sha256": "633a3eab1f2029c813dce7c93e793a2d2f646b1023e9645465523a438aef2fce"
+    "size": 8243,
+    "sha256": "0ab467f96fd096929e21d8a6de9193a77d8348ece227b6ac449bb072cb62c64d"
   },
   {
     "path": "firecracker/analysis/api-event-loop-thread-chain.html",
@@ -906,8 +921,8 @@
   },
   {
     "path": "platforms/cubesandbox.html",
-    "size": 13258,
-    "sha256": "69fce011adf0843b386b6699a68267dde407ca7b9a31c198251c47ae1a060c11"
+    "size": 13266,
+    "sha256": "bf3cfd5af3b94bac40c292d81a6e8a23cc47e1a5ad54e1dcd17cb8508115d713"
   },
   {
     "path": "platforms/e2b-infra/architecture-and-sandbox-lifecycle.html",
@@ -941,8 +956,8 @@
   },
   {
     "path": "projects/cubesandbox.html",
-    "size": 12695,
-    "sha256": "3f48f828e9c63d4d1ec7d41e1faf7ff547eabcd4cd72e1e7f1f87c526cf5a64c"
+    "size": 12703,
+    "sha256": "489095e3c2ab252931dd4e4b15ea352f076ccc16912e5e33e844019f311eb54a"
   },
   {
     "path": "projects/firecracker.html",
@@ -961,8 +976,8 @@
   },
   {
     "path": "sitemap.html",
-    "size": 27284,
-    "sha256": "fef1028b8459b28e7efa70cd2b278c6f957e52bb6e1d34d021faaa3607b7a259"
+    "size": 27292,
+    "sha256": "5f953cc9b9e452e524c0ea9a377d817bf0eb8664e58b408458393dea8838cffb"
   },
   {
     "path": "sitemap.xml",
@@ -976,8 +991,8 @@
   },
   {
     "path": "topics/curated/template-snapshot.html",
-    "size": 19482,
-    "sha256": "980631d0a1c75d2fd3ca07358f839e699efa11a4465dbd0002e5f6fb2c9dfe76"
+    "size": 19486,
+    "sha256": "b23c70bd705c75d4730dc67ebc4c31ed63da1592fd14e827351396acc551a971"
   },
   {
     "path": "topics/index.html",
@@ -986,13 +1001,13 @@
   },
   {
     "path": "topics/lifecycle-control-plane.html",
-    "size": 10628,
-    "sha256": "55184b361bf4f8a50cdc03033c7d24025b992d92629e16dc11f069bb58936441"
+    "size": 10636,
+    "sha256": "6f41bad4040c03ca6eadd48c5467de2fbadc1a50d9237e8513cbe1417ba615e8"
   },
   {
     "path": "topics/network-isolation.html",
-    "size": 7954,
-    "sha256": "75a1610789432a24eeda39df8c297200174e101407057111b23aec142a80a48a"
+    "size": 7958,
+    "sha256": "d6050ee28469a0d222c97a0ff55590034e51b26d5ea05e2c3936cf06fcca6b7e"
   },
   {
     "path": "topics/operations-observability-performance.html",
@@ -1001,13 +1016,13 @@
   },
   {
     "path": "topics/snapshot-restore-migration.html",
-    "size": 9217,
-    "sha256": "73ba34a25b7437cb87c881666ce22de0569b872d66de1261fe745f646f766f2f"
+    "size": 9221,
+    "sha256": "3cdd4d48959325658de9966b7bf3dadf654bcd078394f1640b80315dadb12d7c"
   },
   {
     "path": "topics/storage-device-io.html",
-    "size": 8785,
-    "sha256": "8b9a5e7e62e601bcd44b3b897f43dfad3597c9acb37c81075f8d853fe45aa839"
+    "size": 8789,
+    "sha256": "29cb2ccbb21cf189d59993d6a3f03858ce8ccc89ad3c80ad22731bc0f3643199"
   },
   {
     "path": "versions/index.html",
