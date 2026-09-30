@@ -421,8 +421,8 @@
   },
   {
     "path": "changes.html",
-    "size": 8398,
-    "sha256": "ebaf8ac79cf5ae2054f1310eee0fd402326ffda56b61be3be74160917f826c8d"
+    "size": 9165,
+    "sha256": "50ebc409fc50871dd25ef35f1b1b31c7b42a6131bf42b577970decc0566dbe29"
   },
   {
     "path": "cloud-hypervisor/analysis/02-Cloud-Hypervisor-架构分析报告.html",
