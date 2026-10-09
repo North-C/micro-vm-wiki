@@ -21,8 +21,8 @@
   },
   {
     "path": "CubeSandbox-sandbox-clone/analysis/cpu-vcpu-resource-boundary-chain.html",
-    "size": 14484,
-    "sha256": "f23cb3f8277290dc968ea9411f34ec437102c2ba9b24d955e4c6a51252facbdb"
+    "size": 14549,
+    "sha256": "a88ff475b1ebbb0ce15c9d36d5ea9883f9b6b121d16713e25747e385b9a7a83e"
   },
   {
     "path": "CubeSandbox-sandbox-clone/analysis/cubeapi-long-operation-contract-chain.html",
@@ -206,8 +206,8 @@
   },
   {
     "path": "CubeSandbox-sandbox-clone/analysis/virtio-interrupt-injection-trace.html",
-    "size": 39364,
-    "sha256": "2f022c3d83794b647a8790414c7a16052029860bb91a4b7140b97e438524b8a9"
+    "size": 39423,
+    "sha256": "a7c05cc337b8f3f320816ba9e1a3d06741f338c0257fce7a51b889d4af27d19f"
   },
   {
     "path": "CubeSandbox-sandbox-clone/analysis/virtio-net-fs-restore-chain.html",
@@ -405,9 +405,54 @@
     "sha256": "2cb1e5f562824b17f404c7268f82531a26167ab0b70549989cc9cdc688cb1875"
   },
   {
+    "path": "assets/diagrams/kvm-dirty-log-bitmap.svg",
+    "size": 6236,
+    "sha256": "c863e2f0c242d3bc08f0fad4e5a390606443a5102f3ebb7e55c4a8612b5c06f5"
+  },
+  {
+    "path": "assets/diagrams/snapshot-dirty-cycle.svg",
+    "size": 6250,
+    "sha256": "ee3c2a8516946b765550a30879ef3127000d94165a9a4410a3e81eeda34c554e"
+  },
+  {
+    "path": "assets/diagrams/snapshot-restore-path.svg",
+    "size": 5798,
+    "sha256": "af8d3eeb0d8f0f910a07f5be5cc47bb52f1b0101cffd6784a207f9f78cc03ec0"
+  },
+  {
+    "path": "assets/diagrams/snapshot-runtime-cow.svg",
+    "size": 5657,
+    "sha256": "40e32535562de8d6e69bdc776bbbbe4f79d38f626605a2e70d2b768d8241f86f"
+  },
+  {
+    "path": "assets/diagrams/soft-dirty-base-window.svg",
+    "size": 8849,
+    "sha256": "32f0b128fcbcff2c35ad70d8f4c5f7b7f96ad65d19ddd8228b9f81d5ddfa90c4"
+  },
+  {
+    "path": "assets/diagrams/soft-dirty-pages.svg",
+    "size": 11442,
+    "sha256": "dcc62204c0cdbeefbfa9061976a645086cf756613dada740dfd47ff2b6328537"
+  },
+  {
+    "path": "assets/diagrams/soft-dirty-probe-evolution.svg",
+    "size": 4535,
+    "sha256": "fed83fc4a0e32d6702fb4872ed2c2f5b061ff2ea5f86c4b32239dc6c178e74fd"
+  },
+  {
+    "path": "assets/diagrams/xfs-extent-block-mapping.svg",
+    "size": 6400,
+    "sha256": "4b3624b3d5d9323d632d492072e28b4373fb1df51dae7fb06740e8f5d1103042"
+  },
+  {
+    "path": "assets/diagrams/xfs-memory-reflink.svg",
+    "size": 5262,
+    "sha256": "35e4f1759a6c97fd17c1281726b700903674569faa5a8e4653e7379d27d75abe"
+  },
+  {
     "path": "assets/search.json",
-    "size": 280216,
-    "sha256": "c03ad970937489ea641cb4fd2546c6c8fc78e03b53e3d435e07a45c9b08b5219"
+    "size": 296786,
+    "sha256": "2a3db20847f19b773404afdd6b03bb503aea6c69b78d8fa4ffbae6a244c0a3f2"
   },
   {
     "path": "assets/style.css",
@@ -646,13 +691,13 @@
   },
   {
     "path": "evolution/cubesandbox/soft-dirty-snapshot.html",
-    "size": 37486,
-    "sha256": "438d9a8bd93f7056b9358b0bbe3297ca0acb7e1fa27e81104b1d57901a4eccbb"
+    "size": 29659,
+    "sha256": "21e9d5352807f964f2eed18d159edbe5abd48e1a52e50bc173862917b27e947c"
   },
   {
     "path": "evolution/index.html",
-    "size": 8243,
-    "sha256": "0ab467f96fd096929e21d8a6de9193a77d8348ece227b6ac449bb072cb62c64d"
+    "size": 8236,
+    "sha256": "81b53fea17ef87966312c5c24601542b84b5243ed70a71c1eba914636b16ca14"
   },
   {
     "path": "firecracker/analysis/api-event-loop-thread-chain.html",
@@ -782,7 +827,7 @@
   {
     "path": "index.html",
     "size": 3978,
-    "sha256": "89b3109bb3217dad294b67c272357461d685862d4f7f7b1c6a57645f10522fc3"
+    "sha256": "1784c16e2a69e389eee3d1bd5a37b73afa38f3245e99acd00919332fd1309000"
   },
   {
     "path": "kata-containers/analysis/agent-container-lifecycle-chain.html",
@@ -921,8 +966,8 @@
   },
   {
     "path": "platforms/cubesandbox.html",
-    "size": 13266,
-    "sha256": "bf3cfd5af3b94bac40c292d81a6e8a23cc47e1a5ad54e1dcd17cb8508115d713"
+    "size": 14138,
+    "sha256": "392c58a8a901ede813c0ccae06af844b5e2433455c0d48655e695ae22bbeae5a"
   },
   {
     "path": "platforms/e2b-infra/architecture-and-sandbox-lifecycle.html",
@@ -942,7 +987,7 @@
   {
     "path": "platforms/index.html",
     "size": 5119,
-    "sha256": "8cf990acf325443ba07b0d387da00d5ae840d1c1cff50a8fd6a2e6449a3882f4"
+    "sha256": "325846d9ac69ec7774c9c80a9664be58924970f1585293ffb0df57be0ddd13d4"
   },
   {
     "path": "projects/cloud-hypervisor.html",
@@ -955,9 +1000,34 @@
     "sha256": "ac51007a564deee7e3106440a33fb01f23528325faea6e9f969918445dd4b91c"
   },
   {
+    "path": "projects/cubesandbox/kvm-memory-slots-dirty-log.html",
+    "size": 22595,
+    "sha256": "51c73304f735b60f28e225cc4e21debc8d785340885a9d398a49125aadd28343"
+  },
+  {
+    "path": "projects/cubesandbox/snapshot-dirty-page-management.html",
+    "size": 26447,
+    "sha256": "9b9667a5027c601c07dd08c82d55a820a32ea163c184c5534650e062872ec1bd"
+  },
+  {
+    "path": "projects/cubesandbox/snapshot-memory-restore-runtime-cow.html",
+    "size": 27167,
+    "sha256": "cc38f31be359cb7f883dcf00168558ff36fca96ad3e175083dc066076a2d91c5"
+  },
+  {
+    "path": "projects/cubesandbox/xfs-extents-reflink-ficlone.html",
+    "size": 21047,
+    "sha256": "6105da48c0d0daea26d26107c692d4304804985a3548cbc256477a5d5db8ebee"
+  },
+  {
+    "path": "projects/cubesandbox/xfs-reflink-memory-volume.html",
+    "size": 25653,
+    "sha256": "f52ae86120032557ffe4d4b968bb713581732fce9d38d2e70159785d237198ba"
+  },
+  {
     "path": "projects/cubesandbox.html",
-    "size": 12703,
-    "sha256": "489095e3c2ab252931dd4e4b15ea352f076ccc16912e5e33e844019f311eb54a"
+    "size": 13515,
+    "sha256": "bc630cd9729cd0ab7a7641c17a39eb9bf46b939e6cf8031028ec3365694a6068"
   },
   {
     "path": "projects/firecracker.html",
@@ -967,7 +1037,7 @@
   {
     "path": "projects/index.html",
     "size": 8022,
-    "sha256": "c1e416dff8e3c439487a6e0b856be28a9cb0ce6a49b212648ce3aaad2f2deebd"
+    "sha256": "3c07b2dd56acf09c4f2a67d9c5ba992b7db5d224b9de6afb96ccf985bdba1ed5"
   },
   {
     "path": "projects/kata-containers.html",
@@ -976,28 +1046,28 @@
   },
   {
     "path": "sitemap.html",
-    "size": 27292,
-    "sha256": "5f953cc9b9e452e524c0ea9a377d817bf0eb8664e58b408458393dea8838cffb"
+    "size": 28033,
+    "sha256": "5b2d5f0446a966d28fa94740e0f5241cccf942a44ef60de0fd2fb4182c3901cf"
   },
   {
     "path": "sitemap.xml",
-    "size": 23435,
-    "sha256": "2e48322f5843ec0e6e12165d31245d6204cc200c1f0c54a928b0a98e01f77390"
+    "size": 24033,
+    "sha256": "ed6b563868dadb0291662a92efbaeeef7d34113abf88afb40dd1f10ab029b98e"
   },
   {
     "path": "topics/cpu-memory-machine.html",
-    "size": 6789,
-    "sha256": "9470756780935d19d6df908c4879f825a5e295d1468620c44ebfa0170605ee89"
+    "size": 6992,
+    "sha256": "37949c7e1f9c41b1bd73438178135a655c59448b166eb97779efe6392e5a2e17"
   },
   {
     "path": "topics/curated/template-snapshot.html",
-    "size": 19486,
-    "sha256": "b23c70bd705c75d4730dc67ebc4c31ed63da1592fd14e827351396acc551a971"
+    "size": 19503,
+    "sha256": "d1827aecb1175e633b8392b17e10ec7020dc27901f0dd656bb73228e13d8b219"
   },
   {
     "path": "topics/index.html",
     "size": 5618,
-    "sha256": "3aaf74c4743a8f1de20ba3bdd2ca6d23e324004c29b549067de072a5798c69cf"
+    "sha256": "567261c201de3132ac2fc0d56d9f5ff8402313e8e86765f30d3cfd34399cccd4"
   },
   {
     "path": "topics/lifecycle-control-plane.html",
@@ -1016,17 +1086,17 @@
   },
   {
     "path": "topics/snapshot-restore-migration.html",
-    "size": 9221,
-    "sha256": "3cdd4d48959325658de9966b7bf3dadf654bcd078394f1640b80315dadb12d7c"
+    "size": 9560,
+    "sha256": "f71ae01077c3de3453c13322fbb0dc31fc08b6f6add124c97b892e11a6c5f366"
   },
   {
     "path": "topics/storage-device-io.html",
-    "size": 8789,
-    "sha256": "29cb2ccbb21cf189d59993d6a3f03858ce8ccc89ad3c80ad22731bc0f3643199"
+    "size": 9119,
+    "sha256": "72750d9cb95617ba459d277caeb459d5909dcf586bbf99e2c6ffe34bf9e7ea35"
   },
   {
     "path": "versions/index.html",
-    "size": 13317,
-    "sha256": "100c1fb04104ae8aa72a9cffe1b4282d0ac393f7b2ffcd8e227da4b9410bae7c"
+    "size": 19360,
+    "sha256": "3585ac0a956147f6e72b17960b591447a0b02f96e581310b4a75f213bcff7b7d"
   }
 ]

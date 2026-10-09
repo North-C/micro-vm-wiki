@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="CubeSandbox 如何恢复快照内存：磁盘映射、缺页与运行时 CoW 内存恢复包含两个层次：先重建“客户机地址对应哪段宿主内存”的关系，再为 这些地址提供保存时的字节。CubeSandbox 满足快速恢复条件时，用快照文件的 私有映射提供 RAM；不满足时，先创建内存，再把文件字节复制进去。 全文沿用一组明确对象：S0是初始模板快照，A是从S0启动的运行实例；S1是A 后来保存的完整快照，B是从S1新建的独立运行实例。图中的“旧、甲、乙”只是 同一页在三个时点的示意内容，不是应用数据或真实内存转储。 本文先建立">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CubeSandbox 如何恢复快照内存：磁盘映射、缺页与运行时 CoW">
+<meta property="og:description" content="CubeSandbox 如何恢复快照内存：磁盘映射、缺页与运行时 CoW 内存恢复包含两个层次：先重建“客户机地址对应哪段宿主内存”的关系，再为 这些地址提供保存时的字节。CubeSandbox 满足快速恢复条件时，用快照文件的 私有映射提供 RAM；不满足时，先创建内存，再把文件字节复制进去。 全文沿用一组明确对象：S0是初始模板快照，A是从S0启动的运行实例；S1是A 后来保存的完整快照，B是从S1新建的独立运行实例。图中的“旧、甲、乙”只是 同一页在三个时点的示意内容，不是应用数据或真实内存转储。 本文先建立">
+<link rel="canonical" href="https://north-c.github.io/micro-vm-wiki/projects/cubesandbox/snapshot-memory-restore-runtime-cow.html">
+<title>CubeSandbox 如何恢复快照内存：磁盘映射、缺页与运行时 CoW · Micro-VM 技术研究 Wiki</title>
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body data-root="../../">
+<a class="skip-link" href="#main-content">跳到正文</a>
+<div class="layout">
+  <aside class="sidebar" id="site-sidebar" aria-label="站点导航" aria-hidden="false">
+    <a class="brand" href="../../index.html">Micro-VM 技术研究 Wiki</a>
+    <label class="search-label" for="search">搜索公开文档</label>
+    <input id="search" type="search" autocomplete="off" aria-controls="search-results" aria-expanded="false">
+    <div id="search-status" class="search-status" role="status" aria-live="polite"></div>
+    <div id="search-results" class="search-results" role="listbox"></div>
+    <nav aria-label="主要导航" data-global-nav="true"><ul class="nav-tree"><li><a href="../../index.html">首页</a></li><li><details class="nav-group" open><summary>三轴入口</summary><ul><li><a href="../../projects/index.html">项目</a></li><li><a href="../../topics/index.html">特性与横向比较</a></li><li><a href="../../evolution/index.html">版本演进</a></li></ul></details></li><li><details class="nav-group"><summary>方法与索引</summary><ul><li><a href="../../methodology/status-and-evidence.html">研究方法与报告规范</a></li><li><a href="../../versions/index.html">版本与证据覆盖</a></li><li><a href="../../changes.html">Wiki 更新记录</a></li><li><a href="../../sitemap.html">站点地图</a></li></ul></details></li></ul></nav>
+  </aside>
+  <button class="sidebar-scrim" id="sidebar-scrim" aria-label="关闭导航"></button>
+  <main class="content" id="main-content" tabindex="-1">
+    <div class="topbar">
+      <button class="menu-toggle" id="menu-toggle" aria-controls="site-sidebar" aria-expanded="false">目录</button>
+      <button id="theme-toggle" aria-label="切换到深色模式">🌙</button>
+      <a class="back-home" href="../../index.html">首页</a>
+    </div>
+<nav class="breadcrumbs" aria-label="面包屑"><ol><li><a href="../../index.html">首页</a></li><li><a href="../index.html">项目目录</a></li><li><a href="../cubesandbox.html">CubeSandbox</a></li><li><a href="../../topics/snapshot-restore-migration.html">Snapshot、Restore 与 Migration</a></li><li aria-current="page">CubeSandbox 如何恢复快照内存：磁盘映射、缺页与运行时 CoW</li></ol></nav>
+<div class="page-meta" aria-label="文档元数据"><span class="badge">机制解析</span><a class="badge badge-status" href="../../methodology/status-and-evidence.html#status">状态：源码版本已固定，证据仍未完备</a><span class="badge">CubeSandbox</span><span class="badge">角色：核心研究项目 / 沙箱平台</span><a class="badge" href="../../versions/index.html#cubesandbox-v0-5-1-a164417f" title="cubesandbox a164417f497234a0d787cb328b0ae96480b1569b；角色：supporting">版本基线：v0.5.1@a164417f4972</a><a class="badge" href="../../versions/index.html#cubesandbox-v0-6-0-8721dd15" title="cubesandbox 8721dd151971ce3c2966482bbd32904ad98f378e；角色：supporting">版本基线：v0.6.0@8721dd151971</a><a class="badge" href="../../versions/index.html#cubesandbox-v0-7-1-31d911e4" title="cubesandbox 31d911e430fdf8a8879bd062b8e78066c1a8e89d；角色：primary">版本基线：v0.7.1@31d911e430fd</a><span class="badge">复核日期：2026-10-08</span></div><p class="status-explainer"><strong>源码版本已固定，证据仍未完备</strong>是本文的读者状态：页面已按显示的固定源码版本完成版本登记与源码级复核，但 build、runtime、跨组件或完整 claim-level 证据尚未齐备；机器状态保持 <code>unconfirmed</code>，登记 baseline 不会自动升级为 <code>current</code>。</p>
+    <article class="markdown-body"><h1 id="cubesandbox-cow">CubeSandbox 如何恢复快照内存：磁盘映射、缺页与运行时 CoW</h1>
+<p>内存恢复包含两个层次：先重建“客户机地址对应哪段宿主内存”的关系，再为
+这些地址提供保存时的字节。CubeSandbox 满足快速恢复条件时，用快照文件的
+私有映射提供 RAM；不满足时，先创建内存，再把文件字节复制进去。</p>
+<p>全文沿用一组明确对象：S0是初始模板快照，A是从S0启动的运行实例；S1是A
+后来保存的完整快照，B是从S1新建的独立运行实例。图中的“旧、甲、乙”只是
+同一页在三个时点的示意内容，不是应用数据或真实内存转储。</p>
+<p>本文先建立文件、虚拟地址、物理页的关系，再沿映射与取页流程讲解恢复。
+随后用 A、B 的读写说明运行时 CoW（写时复制），并解释它与快照文件的磁盘块
+CoW 为何是两套机制。普通 Linux/KVM RAM 是主线，复制恢复另述。</p>
+<table>
+<thead>
+<tr>
+<th>版本</th>
+<th>固定源码</th>
+<th>大致时间（commit）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>v0.5.1</td>
+<td><a href="https://github.com/TencentCloud/CubeSandbox/commit/a164417f497234a0d787cb328b0ae96480b1569b">a164417f4972</a></td>
+<td>2026-07</td>
+</tr>
+<tr>
+<td>v0.6.0</td>
+<td><a href="https://github.com/TencentCloud/CubeSandbox/commit/8721dd151971ce3c2966482bbd32904ad98f378e">8721dd151971</a></td>
+<td>2026-07</td>
+</tr>
+<tr>
+<td>v0.7.1（主要讲解基线）</td>
+<td><a href="https://github.com/TencentCloud/CubeSandbox/commit/31d911e430fdf8a8879bd062b8e78066c1a8e89d">31d911e430fd</a></td>
+<td>2026-09</td>
+</tr>
+</tbody>
+</table>
+<p>日期采用 commit 月份，不是发布日期。本文核对这三个版本的相关实现，未做运行实验。</p>
+<p>系统层辅助源码固定为 <a href="https://github.com/torvalds/linux/commit/ffc253263a1375a65fa6c9f62a893e9767fbebfa">Linux v6.6</a>；
+不是本机宿主版本或已验证的部署配置。</p>
+<h2 id="1">1. 内存恢复的基础：内容、布局与映射</h2>
+<p>VMM 是宿主中管理 VM 的用户态程序。客户机看到自己的物理地址 GPA，而 VMM
+用宿主虚拟地址 HVA 访问为客户机准备的内存。KVM 是 Linux 的虚拟化内核接口，
+它通过 memory slot 记录这些范围的对应关系。磁盘上的内存文件则提供字节，
+不是客户机地址空间本身。<a href="#e1">E1</a>、<a href="#e3">E3</a></p>
+<p>文件映射把“文件的某段偏移”接到“一段 HVA”，KVM slot 再把这段 HVA 接到
+GPA。建立映射并不要求文件所有内容立即进入物理 RAM；真正访问时，宿主可从
+页缓存取得已驻留的页，也可能需要读文件。由此才能区分恢复设置和运行时取页。</p>
+<p>私有映射 <code>MAP_PRIVATE</code> 的关键语义是写入隔离：运行实例可以修改映射中的
+内容，但修改不回写源文件。需要时，宿主为该实例准备匿名私有页。这使同一份
+稳定的模板文件能够作为多个实例的恢复输入。<a href="#e2">E2</a>、<a href="#e4">E4</a></p>
+<p>页缓存为文件内容提供宿主 RAM 中的驻留副本，进程的页表则决定某个虚拟地址
+当前使用哪个页。文件私有映射最初可以引用文件页，私有化后改用匿名页。
+因此，原文件、文件页缓存和运行实例的私有页可以同时存在，修改其中的私有页
+不等于改写另外两者。<a href="#e4">E4</a></p>
+<p>这也解释了“延迟取页”的含义：延后的是部分内容进入或关联物理 RAM 的工作，
+不是省略保存布局，也不是允许恢复输入缺少字节。VMM 仍须先建立正确的地址
+关系；访问某页时，才能从对应文件位置获得正确内容。</p>
+<h3 id="_1">保存内容与地址布局必须一起恢复</h3>
+<p>一个可恢复 VM 的保存状态包含内存字节、内存布局、CPU/设备等状态和配置。
+Cubelet 从 snapshot catalog 解析内存对象的名字和类型，再交给恢复程序；
+VMM 的 <code>MemorySnapshotFile</code> 优先使用 <code>memory_vol_url</code>，否则读取保存目录里的
+<code>memory-ranges</code>。<a href="#e1">E1</a></p>
+<p>代码中的选择发生在 <code>MemorySnapshotFile::from_snapshot_url</code>：有外部内存
+对象地址就解析该地址，没有才把 <code>memory-ranges</code> 接到保存目录后面。
+<code>MemoryManager::new_from_snapshot</code> 读取内存布局状态，按快速路径检查的结果
+决定传入文件FD还是走稍后的逐范围复制。</p>
+<p>名字中有 volume 不意味着它一定是块设备。在 XFS/reflink backend 中，它
+可以是宿主的普通文件；外部内存对象 URL 与保存配置/状态的目录 URL 也不同。
+恢复过程据保存的 GPA（客户机物理地址）范围、memory-slot 和文件偏移重建 RAM，而不是猜一个
+文件名或沿历史 snapshot 目录回放。</p>
+<p>例如两段 guest RAM 中间有 MMIO 地址洞，文件中仍可把两段字节顺序保存。
+<code>restore_memory_regions_and_zones</code> 查找匹配的 GPA/长度，累计前面范围的长度
+作为文件偏移。因此 GPA、宿主地址和镜像文件偏移是三个不同坐标。</p>
+<p>例如保存了两段各8 KiB的RAM，第二段在镜像中从偏移8 KiB开始，即使它的GPA
+前面隔着设备地址洞也一样。只有保存记录中的GPA和长度匹配恢复区域时，代码
+才把该文件及累计偏移交给 <code>create_ram_region</code>；布局信息是恢复输入的一部分。</p>
+<h2 id="2">2. 正常流程：建立文件映射，再取得实际页面</h2>
+<p>下面把前述模型放回代码：MemoryManager 选择 RAM backing，KVM 登记地址范围，
+客户机开始访问后再通过宿主内存管理取得具体页。三个阶段各有职责，不能把
+其中某个函数返回理解为整个 VM 已经恢复完成。</p>
+<p>MemoryManager 先判断没有 shared memory zone，也没有已记录的 virtio-mem 热插拔容量。
+满足这两个条件才把保存文件以只读 FD 打开，给匹配区域构造
+<code>MAP_PRIVATE + PROT_READ/PROT_WRITE</code> 的映射；只读 FD 与私有可写映射并不矛盾，
+因为这些写入不会回写源文件。<a href="#e2">E2</a></p>
+<p>接下来注册 KVM memory slot：把每段 guest GPA、长度和 VMM 的 HVA（宿主
+虚拟地址）一起交给 <code>set_user_memory_region</code>。这是 KVM 的内存区域登记接口，
+建立地址对应关系，对应 Linux 的 <code>KVM_SET_USER_MEMORY_REGION</code> ioctl；不是把整个文件复制进 KVM，
+也没有把这份快照变成 guest 的 virtio 块盘。<a href="#e3">E3</a></p>
+<p>看图的两层：上行是恢复时的设置，下行是映射建立后的访问。guest 首次访问
+某段 RAM 时，宿主可以复用已驻留的文件页；冷缓存下则需把文件内容读入内存。
+真实页的到达时间取决于缺页、缓存和预先填充等条件。</p>
+<p>这里并不是客户机程序直接调用宿主的缺页处理。Linux 6.6 的 KVM MMU 路径先
+将 GFN（GPA 所在的页号）按 memory slot 换成 HVA，再通过 GUP（获取用户内存页）
+取 PFN。写访问需要时带 <code>FOLL_WRITE</code>，进入宿主私有映射的写缺页/CoW；读与写
+是否能直接复用已映射页，还受当前页表权限影响。<a href="#e4">E4</a></p>
+<p><img class="article-diagram" src="../../assets/diagrams/snapshot-restore-path.svg" alt="恢复时先设置文件映射与 KVM slot，运行时访问再获得页面内容。" loading="lazy"></p>
+<p>图 1：普通文件私有映射的机制示意，Linux 页缓存/缺页为辅助机制；不是
+“mmap 返回后文件全部驻留”的证明。证据：<a href="#e2">E2</a>、<a href="#e3">E3</a>、<a href="#e4">E4</a>。
+框外箭头表示设置和访问的先后；slot框中的GPA↔HVA表示范围登记关系，并非
+复制方向。下行从右向左读：guest访问相应RAM，宿主取页机制提供文件页或私有页。</p>
+<h2 id="3-cow">3. 运行时 CoW：共享读取与私有写入</h2>
+<p>CoW 把“可以复用已有内容”和“修改必须隔离”结合起来。它不要求在恢复之初
+复制所有文件页，也不允许一个实例通过私有写入改动其他实例的恢复基线。
+这里的共享对象是符合条件的文件页，私有化的对象是实例使用的 RAM 页。</p>
+<h3 id="_2">同一模板启动两个实例时会发生什么</h3>
+<p>如果 A 和另一个 Sandbox 分别映射同一个稳定的 S0 文件，在没有额外私有化
+等条件下，它们可以读到相同的文件页缓存；两者仍有独立地址空间和页表。
+这不要求用 <code>fork()</code> 创建子进程，更不表示两台 VM 的所有 RAM 始终共用。</p>
+<p>这里的“同一个文件”很关键：S0、S1 是不同 inode，即使 XFS 让它们共享磁盘
+extent，也不能据此断言它们共享同一份页缓存。文件系统节省的磁盘块与 VM
+节省的 RAM 要分别分析，不能互相换算。</p>
+<p>当 A 写页4，Linux 的文件私有映射 CoW 路径为它准备匿名副本，保留旧字节再
+应用修改。A 的对应地址转而使用私有页；S0 文件不因此改变。普通读缺页与
+这种写 CoW 缺页是不同处理路径；同一页之后反复写，也不意味着每次都复制整页。<a href="#e4">E4</a></p>
+<p>现在把 A 保存为 S1：保存程序克隆配套基线，再把 A 的选中 RAM 字节写入
+S1 文件。B 从 S1 恢复，读到的是这个保存时刻的完整内存内容。A 后续再写、
+B 自己写、S1 已保存的文件内容，三者各有自己的生命周期。</p>
+<p><img class="article-diagram" src="../../assets/diagrams/snapshot-runtime-cow.svg" alt="同一页从 S0 到 A 私有页、S1，再到 B 私有页的状态变化。" loading="lazy"></p>
+<p>图 2：单页示例，假设普通文件私有映射、未请求额外 prefault。A 写“甲”后，
+S0 仍是“旧”；S1 保存“甲”，B 再写“乙”也不会改写 S1。不是实测内容。
+证据：<a href="#e2">E2</a>、<a href="#e4">E4</a>、<a href="#e5">E5</a>。
+这里的“页4”从1开始计数，只是示意中的同一页；箭头表示时间先后。蓝色框是
+保存到文件的内容，绿色框是读取阶段，橙色框是某个运行实例的私有RAM修改。</p>
+<h2 id="4">4. 应用原理：保存窗口不改变运行实例的内存归属</h2>
+<p>CoW 解决写入隔离，SoftDirty 解决保存窗口，二者不互相替代。
+为什么清 SoftDirty 后旧匿名页仍在？因为清 pagemap 的软脏标记 bit 55 不会
+把 A 的私有页归还 S0；A 从 S0 恢复后产生的匿名页集合仍在。所以下次
+Incremental 会包含早前的私有页，已布防 SoftDirty 则只覆盖本轮带标记的那些页。</p>
+<p>B 从 S1 创建的是新 MemoryManager。它以 S1 为恢复基线，从未布防开始，
+不能继承 A 的“上次清位到现在”窗口。也不能拿 A 自 S0 累积的 anon 集合当成
+B 的脏页集合：这些状态属于各自运行实例。<a href="#e5">E5</a></p>
+<p>磁盘文件克隆也不会复制 VMM 的页表或运行中私有 RAM。FICLONE 克隆文件内容
+映射，真正的 VM 状态保存与加载还由 VMM 完成。这是“从 Snapshot 创建
+Sandbox”与“复制一个进程当前内存”之间需要拆开的部分。</p>
+<h2 id="5">5. 两种变体：预先取页与复制恢复</h2>
+<p>前面的例子以按需访问文件私有映射为前提。实际恢复还可以提前填充页面，
+或者完全不把快照文件用作 RAM backing。这两种变化发生在不同阶段，也会
+改变读者对“启动时是否复制”和“未写页是否共享”的判断。</p>
+<p>VMM 请求 prefault 时会加 <code>MAP_POPULATE</code>。它不只是“先读取文件”：Linux 6.6
+填充私有可写 VMA 时会带 <code>FOLL_WRITE</code>，以写缺页打破 CoW。因此可能在业务尚未
+写入前就准备匿名副本，减少后续按需共享，增大 anon 保存集合。<a href="#e6">E6</a></p>
+<p>不满足快速路径条件时，VMM 不传入快照文件作为 RAM 的私有 backing，而是
+先按配置创建内存，再由 <code>fill_saved_regions</code> 按保存范围逐段复制字节。
+关闭 fast path 的是 shared zone 或已记录的 virtio-mem 热插拔容量；hugepage
+本身不是这个检查中的第三个条件。进入复制路径后，shared/memfd、hugepage
+等配置再决定新建 RAM 的映射方式，不能套用“所有未写页都共享 S0”的图解。</p>
+<p>在这两个路径中，完整内存镜像和正确布局仍是前提。打开文件成功、mmap 成功、
+KVM slot 注册成功、CPU/设备恢复成功、guest 应用可用，都属于不同完成点。
+本文不将某个系统调用成功当作 VM 恢复或应用就绪的验证。</p>
+<h2 id="6">6. 版本范围与进一步阅读</h2>
+<p>v0.5.1/v0.6.0/v0.7.1 的快速路径检查、RAM 映射与复制恢复函数体在本次核查中
+保持一致。v0.6.0 改的是保存扫描的页尺度；v0.7.1 改了 probe、基线 backend
+和 Pause/Resume 相关对象管理，不能把恢复底层函数不变理解成整条恢复业务不变。</p>
+<p>v0.7.1 的 XFS 模板/FromSnap/同节点 Pause 恢复可解析原快照文件并私有映射，
+没有必需的 Sandbox 内存文件克隆；S3 同节点 Pause 恢复和跨节点导入有自己的
+私有存储卷路径。本文没有验证跨节点、共享内存、64 KiB、hugepage 或 guest/DMA
+写入组合的结果，也没有测量启动时间、RAM 共享比例或跨版本恢复兼容。</p>
+<p>进一步阅读：<a href="snapshot-dirty-page-management.html">脏页怎样识别与管理</a>、
+<a href="xfs-reflink-memory-volume.html">XFS 文件块何时 CoW</a>、
+<a href="../../evolution/cubesandbox/soft-dirty-snapshot.html">SoftDirty 版本演进</a>。</p>
+<p>想先读基础接口，可看 <a href="kvm-memory-slots-dirty-log.html">KVM内存槽与dirty log</a>；
+文件块共享的具体结构见 <a href="xfs-extents-reflink-ficlone.html">XFS extent与FICLONE</a>。</p>
+<h2 id="_3">源码证据</h2>
+<h3 id="e1-local-fact"><a id="e1"></a>E1 · 输入文件与布局（local fact）</h3>
+<p>v0.7.1</p>
+<ul>
+<li><a href="https://github.com/TencentCloud/CubeSandbox/blob/31d911e430fdf8a8879bd062b8e78066c1a8e89d/Cubelet/storage/local.go#L979-L1064">catalog 到恢复内存对象</a></li>
+<li><a href="https://github.com/TencentCloud/CubeSandbox/blob/31d911e430fdf8a8879bd062b8e78066c1a8e89d/hypervisor/vmm/src/memory_manager.rs#L74-L96">外部内存文件或 memory-ranges</a></li>
+<li><a href="https://github.com/TencentCloud/CubeSandbox/blob/31d911e430fdf8a8879bd062b8e78066c1a8e89d/hypervisor/vmm/src/memory_manager.rs#L692-L765">RAM 匹配及累计文件偏移</a>。</li>
+</ul>
+<h3 id="e2-slow-copylocal-fact"><a id="e2"></a>E2 · 快速路径 / slow copy（local fact，三版独立核对）</h3>
+<p>new_from_snapshot 与两条件检查</p>
+<ul>
+<li><a href="https://github.com/TencentCloud/CubeSandbox/blob/a164417f497234a0d787cb328b0ae96480b1569b/hypervisor/vmm/src/memory_manager.rs#L1339-L1398">v0.5.1:1339–1398</a></li>
+<li><a href="https://github.com/TencentCloud/CubeSandbox/blob/8721dd151971ce3c2966482bbd32904ad98f378e/hypervisor/vmm/src/memory_manager.rs#L1326-L1385">v0.6.0:1326–1385</a></li>
+<li><a href="https://github.com/TencentCloud/CubeSandbox/blob/31d911e430fdf8a8879bd062b8e78066c1a8e89d/hypervisor/vmm/src/memory_manager.rs#L1326-L1385">v0.7.1:1326–1385</a></li>
+</ul>
+<p>RAM flags</p>
+<ul>
+<li><a href="https://github.com/TencentCloud/CubeSandbox/blob/a164417f497234a0d787cb328b0ae96480b1569b/hypervisor/vmm/src/memory_manager.rs#L1508-L1558">v0.5.1:1508–1558</a></li>
+<li><a href="https://github.com/TencentCloud/CubeSandbox/blob/8721dd151971ce3c2966482bbd32904ad98f378e/hypervisor/vmm/src/memory_manager.rs#L1495-L1548">v0.6.0:1495–1548</a></li>
+<li><a href="https://github.com/TencentCloud/CubeSandbox/blob/31d911e430fdf8a8879bd062b8e78066c1a8e89d/hypervisor/vmm/src/memory_manager.rs#L1495-L1548">v0.7.1:1495–1548</a></li>
+<li><a href="https://github.com/TencentCloud/CubeSandbox/blob/31d911e430fdf8a8879bd062b8e78066c1a8e89d/hypervisor/vmm/src/memory_manager.rs#L767-L807">fill_saved_regions</a>。</li>
+<li><a href="https://github.com/TencentCloud/CubeSandbox/blob/31d911e430fdf8a8879bd062b8e78066c1a8e89d/hypervisor/vmm/src/config.rs#L921-L941">shared 与已热插拔容量检查的定义</a>。</li>
+</ul>
+<h3 id="e3-kvm-local-fact-kvm"><a id="e3"></a>E3 · KVM 地址注册（local fact，限定 KVM 后端）</h3>
+<ul>
+<li><a href="https://github.com/TencentCloud/CubeSandbox/blob/31d911e430fdf8a8879bd062b8e78066c1a8e89d/hypervisor/vmm/src/memory_manager.rs#L1819-L1845">GPA/HVA/长度到 memory slot</a></li>
+<li><a href="https://github.com/TencentCloud/CubeSandbox/blob/31d911e430fdf8a8879bd062b8e78066c1a8e89d/hypervisor/hypervisor/src/kvm/mod.rs#L617-L650">KVM set_user_memory_region 包装调用</a>。</li>
+<li><a href="https://github.com/torvalds/linux/blob/ffc253263a1375a65fa6c9f62a893e9767fbebfa/Documentation/virt/kvm/api.rst#L1293-L1320">Linux v6.6 的 ioctl 与 GPA/HVA 字段定义</a>。</li>
+</ul>
+<h3 id="e4-linux-cow-inference"><a id="e4"></a>E4 · Linux 文件读缺页与私有写 CoW（固定辅助源码；单页流程是 inference）</h3>
+<p>Linux v6.6</p>
+<ul>
+<li><a href="https://github.com/torvalds/linux/blob/ffc253263a1375a65fa6c9f62a893e9767fbebfa/virt/kvm/kvm_main.c#L2695-L2774">KVM GFN → HVA → PFN</a></li>
+<li><a href="https://github.com/torvalds/linux/blob/ffc253263a1375a65fa6c9f62a893e9767fbebfa/virt/kvm/kvm_main.c#L2515-L2588">GUP 写访问与 FOLL_WRITE</a></li>
+<li><a href="https://github.com/torvalds/linux/blob/ffc253263a1375a65fa6c9f62a893e9767fbebfa/arch/arm64/kvm/mmu.c#L1490-L1508">ARM64 KVM 调用点</a></li>
+<li><a href="https://github.com/torvalds/linux/blob/ffc253263a1375a65fa6c9f62a893e9767fbebfa/arch/x86/kvm/mmu/mmu.c#L4286-L4311">x86 KVM 调用点</a></li>
+<li><a href="https://github.com/torvalds/linux/blob/ffc253263a1375a65fa6c9f62a893e9767fbebfa/mm/memory.c#L4550-L4581">do_read_fault</a></li>
+<li><a href="https://github.com/torvalds/linux/blob/ffc253263a1375a65fa6c9f62a893e9767fbebfa/mm/memory.c#L4583-L4625">do_cow_fault 分配与复制匿名页</a>。</li>
+<li><a href="https://github.com/torvalds/linux/blob/ffc253263a1375a65fa6c9f62a893e9767fbebfa/include/linux/fs.h#L470-L490">页缓存 address_space 的 inode 与 i_pages</a>。</li>
+<li><a href="https://github.com/torvalds/linux/blob/ffc253263a1375a65fa6c9f62a893e9767fbebfa/mm/filemap.c#L3255-L3303">filemap_fault 按文件 mapping 查找/创建 folio</a>。</li>
+<li><a href="https://man7.org/linux/man-pages/man2/mmap.2.html">mmap 接口说明</a>仅作标准语义参考。</li>
+</ul>
+<h3 id="e5-local-fact"><a id="e5"></a>E5 · 基线克隆、覆盖写与实例窗口（local fact）</h3>
+<p>v0.7.1</p>
+<ul>
+<li><a href="https://github.com/TencentCloud/CubeSandbox/blob/31d911e430fdf8a8879bd062b8e78066c1a8e89d/Cubelet/storage/cubecow_volume_manager.go#L218-L265">从完整基线准备目标</a></li>
+<li><a href="https://github.com/TencentCloud/CubeSandbox/blob/31d911e430fdf8a8879bd062b8e78066c1a8e89d/hypervisor/vmm/src/memory_manager.rs#L2496-L2614">anon / SoftDirty 覆盖写入</a></li>
+<li><a href="https://github.com/TencentCloud/CubeSandbox/blob/31d911e430fdf8a8879bd062b8e78066c1a8e89d/hypervisor/vmm/src/memory_manager.rs#L2388-L2463">anon 的独立覆盖实现</a></li>
+<li><a href="https://github.com/TencentCloud/CubeSandbox/blob/31d911e430fdf8a8879bd062b8e78066c1a8e89d/hypervisor/vmm/src/memory_manager.rs#L1297">新实例初始未布防</a></li>
+<li><a href="https://github.com/TencentCloud/CubeSandbox/blob/31d911e430fdf8a8879bd062b8e78066c1a8e89d/hypervisor/vmm/src/memory_manager.rs#L2981-L2993">内存状态保存字段</a>。</li>
+</ul>
+<h3 id="e6-prefault-local-source-fact"><a id="e6"></a>E6 · prefault 不是只读预热（local source fact）</h3>
+<p>VMM MAP_POPULATE 见 E2；Linux v6.6</p>
+<ul>
+<li><a href="https://github.com/torvalds/linux/blob/ffc253263a1375a65fa6c9f62a893e9767fbebfa/mm/gup.c#L1621-L1669">populate_vma_page_range 的私有可写 FOLL_WRITE</a>。</li>
+</ul>
+<p>它解释可能提前打破 CoW 的条件，不提供真实 Sandbox 内存占用或性能数据。</p></article>
+<aside class="related-reading" aria-labelledby="related-title"><h2 id="related-title">继续阅读</h2><ul><li><strong>项目目录：</strong><a href="../cubesandbox.html">CubeSandbox</a></li><li><strong>平台视角：</strong><a href="../../platforms/cubesandbox.html">CubeSandbox</a></li><li><strong>专题目录：</strong><a href="../../topics/snapshot-restore-migration.html">Snapshot、Restore 与 Migration</a></li><li><strong>横向比较：</strong><a href="../../analysis/snapshot-restore-cross-project.html">Snapshot / Restore / Clone 跨项目专题分析</a></li><li><strong>明确关联：</strong><a href="../../evolution/cubesandbox/soft-dirty-snapshot.html">CubeSandbox 内存快照演进：v0.5.1 到 v0.7.1，SoftDirty 改了什么</a></li></ul></aside>
+    <footer class="page-foot">公开来源：<code>analysis/projects/cubesandbox/snapshot-memory-restore-runtime-cow.md</code> · 文档 ID：<code>cubesandbox.snapshot-memory-restore-runtime-cow</code></footer>
+  </main>
+</div>
+
+<script defer src="../../assets/wiki.js"></script>
+</body>
+</html>

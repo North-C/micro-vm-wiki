@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1152" height="440" viewBox="0 0 1152 440">
+<defs>
+<marker id="arrow-block" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+  <path d="M 0 0 L 10 5 L 0 10 Z" fill="currentColor"/>
+</marker>
+<marker id="arrow-open" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+  <path d="M 0 0 L 10 5 L 0 10" fill="none" stroke="currentColor" stroke-width="1.5"/>
+</marker>
+<marker id="arrow-classic" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+  <path d="M 0 0 L 10 5 L 0 10 L 3 5 Z" fill="currentColor"/>
+</marker>
+<marker id="arrow-diamond" viewBox="0 0 12 12" refX="12" refY="6" markerWidth="10" markerHeight="10" orient="auto-start-reverse">
+  <path d="M 0 6 L 6 0 L 12 6 L 6 12 Z" fill="currentColor"/>
+</marker>
+</defs>
+<rect width="100%" height="100%" fill="#FFFFFF"/>
+<text x="32" y="24" text-anchor="start" dominant-baseline="hanging" font-family="Noto Sans CJK SC, sans-serif" font-size="20" fill="#0f172a">SoftDirty 能力探测：从接口返回到页面标记（源码流程示意）</text>
+<text x="32" y="112" text-anchor="start" dominant-baseline="hanging" font-family="Noto Sans CJK SC, sans-serif" font-size="16" fill="#334155">v0.5.1 / v0.6.0</text>
+<rect x="248" y="112" width="264" height="64" rx="20" fill="#fff7ed" stroke="#b45309" stroke-width="1.5"/>
+<text x="380" y="144" text-anchor="middle" dominant-baseline="central" font-family="Noto Sans CJK SC, sans-serif" font-size="16" fill="#78350f">clear_refs 写入 4</text>
+<rect x="552" y="112" width="264" height="64" rx="20" fill="#fff7ed" stroke="#b45309" stroke-width="1.5"/>
+<text x="684" y="144" text-anchor="middle" dominant-baseline="central" font-family="Noto Sans CJK SC, sans-serif" font-size="16" fill="#78350f">检查写操作返回 Ok</text>
+<rect x="856" y="112" width="264" height="64" rx="20" fill="#fff7ed" stroke="#b45309" stroke-width="1.5"/>
+<text x="988" y="144" text-anchor="middle" dominant-baseline="central" font-family="Noto Sans CJK SC, sans-serif" font-size="16" fill="#78350f">probe = true，已布防</text>
+<text x="32" y="248" text-anchor="start" dominant-baseline="hanging" font-family="Noto Sans CJK SC, sans-serif" font-size="16" fill="#334155">v0.7.1</text>
+<rect x="248" y="248" width="264" height="64" rx="20" fill="#f0fdf4" stroke="#15803d" stroke-width="1.5"/>
+<text x="380" y="280" text-anchor="middle" dominant-baseline="central" font-family="Noto Sans CJK SC, sans-serif" font-size="16" fill="#14532d">写测试页，确认 bit 55</text>
+<rect x="552" y="248" width="264" height="64" rx="20" fill="#f0fdf4" stroke="#15803d" stroke-width="1.5"/>
+<text x="684" y="280" text-anchor="middle" dominant-baseline="central" font-family="Noto Sans CJK SC, sans-serif" font-size="16" fill="#14532d">确认置位后清零写入 4</text>
+<rect x="856" y="248" width="264" height="64" rx="20" fill="#f0fdf4" stroke="#15803d" stroke-width="1.5"/>
+<text x="988" y="280" text-anchor="middle" dominant-baseline="central" font-family="Noto Sans CJK SC, sans-serif" font-size="16" fill="#14532d">probe = true，已布防</text>
+<text x="248" y="208" text-anchor="start" dominant-baseline="hanging" font-family="Noto Sans CJK SC, sans-serif" font-size="15" fill="#78350f">旧判据只看接口返回，未检查真实写页后是否产生标记。</text>
+<text x="248" y="344" text-anchor="start" dominant-baseline="hanging" font-family="Noto Sans CJK SC, sans-serif" font-size="15" fill="#14532d">新判据先验证页面结果；读不到标记时不执行探测中的清零。</text>
+<text x="32" y="376" text-anchor="start" dominant-baseline="hanging" font-family="Noto Sans CJK SC, sans-serif" font-size="15" fill="#475569">两行均只画成功路径；任一步失败返回 false，保持未布防。首次快照仍先保存完整匿名页集。</text>
+<line x1="512" y1="144" x2="552" y2="144" stroke="#1E293B" stroke-width="2" marker-end="url(#arrow-block)" style="color: #1E293B" fill="none"/>
+<line x1="816" y1="144" x2="856" y2="144" stroke="#1E293B" stroke-width="2" marker-end="url(#arrow-block)" style="color: #1E293B" fill="none"/>
+<line x1="512" y1="280" x2="552" y2="280" stroke="#1E293B" stroke-width="2" marker-end="url(#arrow-block)" style="color: #1E293B" fill="none"/>
+<line x1="816" y1="280" x2="856" y2="280" stroke="#1E293B" stroke-width="2" marker-end="url(#arrow-block)" style="color: #1E293B" fill="none"/>
+</svg>

@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1152" height="520" viewBox="0 0 1152 520">
+<defs>
+<marker id="arrow-block" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+  <path d="M 0 0 L 10 5 L 0 10 Z" fill="currentColor" />
+</marker>
+<marker id="arrow-open" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+  <path d="M 0 0 L 10 5 L 0 10" fill="none" stroke="currentColor" stroke-width="1.5" />
+</marker>
+<marker id="arrow-classic" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+  <path d="M 0 0 L 10 5 L 0 10 L 3 5 Z" fill="currentColor" />
+</marker>
+<marker id="arrow-diamond" viewBox="0 0 12 12" refX="12" refY="6" markerWidth="10" markerHeight="10" orient="auto-start-reverse">
+  <path d="M 0 6 L 6 0 L 12 6 L 6 12 Z" fill="currentColor" />
+</marker>
+</defs>
+<rect width="100%" height="100%" fill="#FFFFFF" />
+<text x="32" y="24" text-anchor="start" dominant-baseline="hanging" font-family="Noto Sans CJK SC, sans-serif" font-size="20" fill="#334155">同一个slot的页索引：两种写入标记怎样取并集（演算示意）</text>
+<text x="32" y="72" text-anchor="start" dominant-baseline="hanging" font-family="Noto Sans CJK SC, sans-serif" font-size="15" fill="#334155">slot 7：GPA起点 0x40000000，长度16 KiB，宿主页4 KiB；下列位索引从0开始。</text>
+<text x="320" y="120" text-anchor="start" dominant-baseline="hanging" font-family="Noto Sans CJK SC, sans-serif" font-size="16" fill="#334155">位索引 0</text>
+<text x="512" y="120" text-anchor="start" dominant-baseline="hanging" font-family="Noto Sans CJK SC, sans-serif" font-size="16" fill="#334155">位索引 1</text>
+<text x="704" y="120" text-anchor="start" dominant-baseline="hanging" font-family="Noto Sans CJK SC, sans-serif" font-size="16" fill="#334155">位索引 2</text>
+<text x="896" y="120" text-anchor="start" dominant-baseline="hanging" font-family="Noto Sans CJK SC, sans-serif" font-size="16" fill="#334155">位索引 3</text>
+<text x="32" y="184" text-anchor="start" dominant-baseline="hanging" font-family="Noto Sans CJK SC, sans-serif" font-size="17" fill="#334155">KVM位图</text>
+<text x="32" y="272" text-anchor="start" dominant-baseline="hanging" font-family="Noto Sans CJK SC, sans-serif" font-size="17" fill="#334155">VMM软件位图</text>
+<text x="32" y="360" text-anchor="start" dominant-baseline="hanging" font-family="Noto Sans CJK SC, sans-serif" font-size="17" fill="#334155">按位 OR 的并集</text>
+<rect x="320" y="160" width="160" height="72" rx="20" fill="#f8fafc" stroke="#94a3b8" stroke-width="1.5" />
+<text x="400" y="196" text-anchor="middle" dominant-baseline="central" font-family="Noto Sans CJK SC, sans-serif" font-size="17" fill="#334155">0</text>
+<rect x="512" y="160" width="160" height="72" rx="20" fill="#f8fafc" stroke="#94a3b8" stroke-width="1.5" />
+<text x="592" y="196" text-anchor="middle" dominant-baseline="central" font-family="Noto Sans CJK SC, sans-serif" font-size="17" fill="#334155">0</text>
+<rect x="704" y="160" width="160" height="72" rx="20" fill="#dcfce7" stroke="#15803d" stroke-width="1.5" />
+<text x="784" y="196" text-anchor="middle" dominant-baseline="central" font-family="Noto Sans CJK SC, sans-serif" font-size="17" fill="#14532d">1</text>
+<rect x="896" y="160" width="160" height="72" rx="20" fill="#f8fafc" stroke="#94a3b8" stroke-width="1.5" />
+<text x="976" y="196" text-anchor="middle" dominant-baseline="central" font-family="Noto Sans CJK SC, sans-serif" font-size="17" fill="#334155">0</text>
+<rect x="320" y="248" width="160" height="72" rx="20" fill="#f8fafc" stroke="#94a3b8" stroke-width="1.5" />
+<text x="400" y="284" text-anchor="middle" dominant-baseline="central" font-family="Noto Sans CJK SC, sans-serif" font-size="17" fill="#334155">0</text>
+<rect x="512" y="248" width="160" height="72" rx="20" fill="#fef3c7" stroke="#b45309" stroke-width="1.5" />
+<text x="592" y="284" text-anchor="middle" dominant-baseline="central" font-family="Noto Sans CJK SC, sans-serif" font-size="17" fill="#78350f">1</text>
+<rect x="704" y="248" width="160" height="72" rx="20" fill="#f8fafc" stroke="#94a3b8" stroke-width="1.5" />
+<text x="784" y="284" text-anchor="middle" dominant-baseline="central" font-family="Noto Sans CJK SC, sans-serif" font-size="17" fill="#334155">0</text>
+<rect x="896" y="248" width="160" height="72" rx="20" fill="#f8fafc" stroke="#94a3b8" stroke-width="1.5" />
+<text x="976" y="284" text-anchor="middle" dominant-baseline="central" font-family="Noto Sans CJK SC, sans-serif" font-size="17" fill="#334155">0</text>
+<rect x="320" y="336" width="160" height="72" rx="20" fill="#f8fafc" stroke="#94a3b8" stroke-width="1.5" />
+<text x="400" y="372" text-anchor="middle" dominant-baseline="central" font-family="Noto Sans CJK SC, sans-serif" font-size="17" fill="#334155">0</text>
+<rect x="512" y="336" width="160" height="72" rx="20" fill="#dbeafe" stroke="#2563eb" stroke-width="1.5" />
+<text x="592" y="372" text-anchor="middle" dominant-baseline="central" font-family="Noto Sans CJK SC, sans-serif" font-size="17" fill="#1e3a8a">1</text>
+<rect x="704" y="336" width="160" height="72" rx="20" fill="#dbeafe" stroke="#2563eb" stroke-width="1.5" />
+<text x="784" y="372" text-anchor="middle" dominant-baseline="central" font-family="Noto Sans CJK SC, sans-serif" font-size="17" fill="#1e3a8a">1</text>
+<rect x="896" y="336" width="160" height="72" rx="20" fill="#f8fafc" stroke="#94a3b8" stroke-width="1.5" />
+<text x="976" y="372" text-anchor="middle" dominant-baseline="central" font-family="Noto Sans CJK SC, sans-serif" font-size="17" fill="#334155">0</text>
+<text x="32" y="432" text-anchor="start" dominant-baseline="hanging" font-family="Noto Sans CJK SC, sans-serif" font-size="15" fill="#334155">合并位1与位2 → GPA [0x40001000, 0x40003000)，长度8 KiB；之后才按文件偏移写出字节。</text>
+<text x="32" y="472" text-anchor="start" dominant-baseline="hanging" font-family="Noto Sans CJK SC, sans-serif" font-size="15" fill="#334155">绿=KVM来源，橙=VMM软件来源，蓝=并集；1=本轮标记，0=未标记，格内不是页内容。</text>
+</svg>

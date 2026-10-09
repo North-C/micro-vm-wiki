@@ -196,4 +196,9 @@
   <url><loc>https://north-c.github.io/micro-vm-wiki/platforms/e2b-infra/template-rootfs-memory-publish.html</loc></url>
   <url><loc>https://north-c.github.io/micro-vm-wiki/evolution/cubesandbox/cubeshim-hypervisor-transport-io.html</loc></url>
   <url><loc>https://north-c.github.io/micro-vm-wiki/evolution/cubesandbox/soft-dirty-snapshot.html</loc></url>
+  <url><loc>https://north-c.github.io/micro-vm-wiki/projects/cubesandbox/snapshot-dirty-page-management.html</loc></url>
+  <url><loc>https://north-c.github.io/micro-vm-wiki/projects/cubesandbox/snapshot-memory-restore-runtime-cow.html</loc></url>
+  <url><loc>https://north-c.github.io/micro-vm-wiki/projects/cubesandbox/xfs-reflink-memory-volume.html</loc></url>
+  <url><loc>https://north-c.github.io/micro-vm-wiki/projects/cubesandbox/kvm-memory-slots-dirty-log.html</loc></url>
+  <url><loc>https://north-c.github.io/micro-vm-wiki/projects/cubesandbox/xfs-extents-reflink-ficlone.html</loc></url>
 </urlset>

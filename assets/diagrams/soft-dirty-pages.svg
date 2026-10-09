@@ -1,0 +1,82 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1152" height="584" viewBox="0 0 1152 584">
+<defs>
+<marker id="arrow-block" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+  <path d="M 0 0 L 10 5 L 0 10 Z" fill="currentColor"/>
+</marker>
+<marker id="arrow-open" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+  <path d="M 0 0 L 10 5 L 0 10" fill="none" stroke="currentColor" stroke-width="1.5"/>
+</marker>
+<marker id="arrow-classic" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+  <path d="M 0 0 L 10 5 L 0 10 L 3 5 Z" fill="currentColor"/>
+</marker>
+<marker id="arrow-diamond" viewBox="0 0 12 12" refX="12" refY="6" markerWidth="10" markerHeight="10" orient="auto-start-reverse">
+  <path d="M 0 6 L 6 0 L 12 6 L 6 12 Z" fill="currentColor"/>
+</marker>
+</defs>
+<rect width="100%" height="100%" fill="#FFFFFF"/>
+<text x="32" y="24" text-anchor="start" dominant-baseline="hanging" font-family="Noto Sans CJK SC, sans-serif" font-size="20" fill="#0f172a">同一台 VM 的两次快照：三种类型各写入哪些页（示意）</text>
+<text x="32" y="64" text-anchor="start" dominant-baseline="hanging" font-family="Noto Sans CJK SC, sans-serif" font-size="15" fill="#334155">场景：t0 从 base 快照恢复 → 周期① 客户机写页2、页4 → 做快照① → 周期② 客户机写页4、页5 → 做快照②。下表比较快照② 写入的页。</text>
+<rect x="32" y="112" width="200" height="56" rx="20" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="132" y="140" text-anchor="middle" dominant-baseline="central" font-family="Noto Sans CJK SC, sans-serif" font-size="14" fill="#0f172a">写入历史</text>
+<rect x="248" y="112" width="72" height="56" rx="20" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="284" y="140" text-anchor="middle" dominant-baseline="central" font-family="Noto Sans CJK SC, sans-serif" font-size="15" fill="#334155">页1</text>
+<rect x="336" y="112" width="72" height="56" rx="20" fill="#fde68a" stroke="#b45309" stroke-width="1.5"/>
+<text x="372" y="140" text-anchor="middle" dominant-baseline="central" font-family="Noto Sans CJK SC, sans-serif" font-size="15" fill="#78350f">页2</text>
+<rect x="424" y="112" width="72" height="56" rx="20" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="460" y="140" text-anchor="middle" dominant-baseline="central" font-family="Noto Sans CJK SC, sans-serif" font-size="15" fill="#334155">页3</text>
+<rect x="512" y="112" width="72" height="56" rx="20" fill="#bbf7d0" stroke="#15803d" stroke-width="1.5"/>
+<text x="548" y="140" text-anchor="middle" dominant-baseline="central" font-family="Noto Sans CJK SC, sans-serif" font-size="15" fill="#14532d">页4</text>
+<rect x="600" y="112" width="72" height="56" rx="20" fill="#bbf7d0" stroke="#15803d" stroke-width="1.5"/>
+<text x="636" y="140" text-anchor="middle" dominant-baseline="central" font-family="Noto Sans CJK SC, sans-serif" font-size="15" fill="#14532d">页5</text>
+<rect x="688" y="112" width="72" height="56" rx="20" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="724" y="140" text-anchor="middle" dominant-baseline="central" font-family="Noto Sans CJK SC, sans-serif" font-size="15" fill="#334155">页6</text>
+<text x="784" y="112.0" text-anchor="start" dominant-baseline="hanging" font-family="Noto Sans CJK SC, sans-serif" font-size="14" fill="#334155">参照：颜色只编码写入历史，</text><text x="784" y="132.0" text-anchor="start" dominant-baseline="hanging" font-family="Noto Sans CJK SC, sans-serif" font-size="14" fill="#334155">与快照类型无关</text>
+<rect x="32" y="208" width="200" height="56" rx="20" fill="#eff6ff" stroke="#475569" stroke-width="1.5"/>
+<text x="132" y="236" text-anchor="middle" dominant-baseline="central" font-family="Noto Sans CJK SC, sans-serif" font-size="14" fill="#0f172a">Full</text>
+<rect x="248" y="208" width="72" height="56" rx="20" fill="#f1f5f9" stroke="#475569" stroke-width="2"/>
+<text x="284" y="236" text-anchor="middle" dominant-baseline="central" font-family="Noto Sans CJK SC, sans-serif" font-size="14" fill="#334155">页1｜写</text>
+<rect x="336" y="208" width="72" height="56" rx="20" fill="#fde68a" stroke="#475569" stroke-width="2"/>
+<text x="372" y="236" text-anchor="middle" dominant-baseline="central" font-family="Noto Sans CJK SC, sans-serif" font-size="14" fill="#78350f">页2｜写</text>
+<rect x="424" y="208" width="72" height="56" rx="20" fill="#f1f5f9" stroke="#475569" stroke-width="2"/>
+<text x="460" y="236" text-anchor="middle" dominant-baseline="central" font-family="Noto Sans CJK SC, sans-serif" font-size="14" fill="#334155">页3｜写</text>
+<rect x="512" y="208" width="72" height="56" rx="20" fill="#bbf7d0" stroke="#475569" stroke-width="2"/>
+<text x="548" y="236" text-anchor="middle" dominant-baseline="central" font-family="Noto Sans CJK SC, sans-serif" font-size="14" fill="#14532d">页4｜写</text>
+<rect x="600" y="208" width="72" height="56" rx="20" fill="#bbf7d0" stroke="#475569" stroke-width="2"/>
+<text x="636" y="236" text-anchor="middle" dominant-baseline="central" font-family="Noto Sans CJK SC, sans-serif" font-size="14" fill="#14532d">页5｜写</text>
+<rect x="688" y="208" width="72" height="56" rx="20" fill="#f1f5f9" stroke="#475569" stroke-width="2"/>
+<text x="724" y="236" text-anchor="middle" dominant-baseline="central" font-family="Noto Sans CJK SC, sans-serif" font-size="14" fill="#334155">页6｜写</text>
+<text x="784" y="208.0" text-anchor="start" dominant-baseline="hanging" font-family="Noto Sans CJK SC, sans-serif" font-size="14" fill="#334155">规则：每次写全部内存页。</text><text x="784" y="228.0" text-anchor="start" dominant-baseline="hanging" font-family="Noto Sans CJK SC, sans-serif" font-size="14" fill="#334155">快照② 写页1–页6（未写过也写）</text>
+<rect x="32" y="304" width="200" height="56" rx="20" fill="#eff6ff" stroke="#475569" stroke-width="1.5"/>
+<text x="132" y="332" text-anchor="middle" dominant-baseline="central" font-family="Noto Sans CJK SC, sans-serif" font-size="14" fill="#0f172a">Incremental</text>
+<rect x="248" y="304" width="72" height="56" rx="20" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="284" y="332" text-anchor="middle" dominant-baseline="central" font-family="Noto Sans CJK SC, sans-serif" font-size="15" fill="#334155">页1｜—</text>
+<rect x="336" y="304" width="72" height="56" rx="20" fill="#fde68a" stroke="#475569" stroke-width="2"/>
+<text x="372" y="332" text-anchor="middle" dominant-baseline="central" font-family="Noto Sans CJK SC, sans-serif" font-size="14" fill="#78350f">页2｜写</text>
+<rect x="424" y="304" width="72" height="56" rx="20" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="460" y="332" text-anchor="middle" dominant-baseline="central" font-family="Noto Sans CJK SC, sans-serif" font-size="15" fill="#334155">页3｜—</text>
+<rect x="512" y="304" width="72" height="56" rx="20" fill="#bbf7d0" stroke="#475569" stroke-width="2"/>
+<text x="548" y="332" text-anchor="middle" dominant-baseline="central" font-family="Noto Sans CJK SC, sans-serif" font-size="14" fill="#14532d">页4｜写</text>
+<rect x="600" y="304" width="72" height="56" rx="20" fill="#bbf7d0" stroke="#475569" stroke-width="2"/>
+<text x="636" y="332" text-anchor="middle" dominant-baseline="central" font-family="Noto Sans CJK SC, sans-serif" font-size="14" fill="#14532d">页5｜写</text>
+<rect x="688" y="304" width="72" height="56" rx="20" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="724" y="332" text-anchor="middle" dominant-baseline="central" font-family="Noto Sans CJK SC, sans-serif" font-size="15" fill="#334155">页6｜—</text>
+<text x="784" y="304.0" text-anchor="start" dominant-baseline="hanging" font-family="Noto Sans CJK SC, sans-serif" font-size="14" fill="#334155">规则：自上次 restore 写过即写。</text><text x="784" y="324.0" text-anchor="start" dominant-baseline="hanging" font-family="Noto Sans CJK SC, sans-serif" font-size="14" fill="#334155">快照② 写页2、页4、页5（页2 仍要再写）</text>
+<rect x="32" y="400" width="200" height="56" rx="20" fill="#eff6ff" stroke="#475569" stroke-width="1.5"/>
+<text x="132" y="428" text-anchor="middle" dominant-baseline="central" font-family="Noto Sans CJK SC, sans-serif" font-size="14" fill="#0f172a">SoftDirty</text>
+<rect x="248" y="400" width="72" height="56" rx="20" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="284" y="428" text-anchor="middle" dominant-baseline="central" font-family="Noto Sans CJK SC, sans-serif" font-size="15" fill="#334155">页1｜—</text>
+<rect x="336" y="400" width="72" height="56" rx="20" fill="#fde68a" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="372" y="428" text-anchor="middle" dominant-baseline="central" font-family="Noto Sans CJK SC, sans-serif" font-size="14" fill="#78350f">页2｜—</text>
+<rect x="424" y="400" width="72" height="56" rx="20" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="460" y="428" text-anchor="middle" dominant-baseline="central" font-family="Noto Sans CJK SC, sans-serif" font-size="15" fill="#334155">页3｜—</text>
+<rect x="512" y="400" width="72" height="56" rx="20" fill="#bbf7d0" stroke="#475569" stroke-width="2"/>
+<text x="548" y="428" text-anchor="middle" dominant-baseline="central" font-family="Noto Sans CJK SC, sans-serif" font-size="14" fill="#14532d">页4｜写</text>
+<rect x="600" y="400" width="72" height="56" rx="20" fill="#bbf7d0" stroke="#475569" stroke-width="2"/>
+<text x="636" y="428" text-anchor="middle" dominant-baseline="central" font-family="Noto Sans CJK SC, sans-serif" font-size="14" fill="#14532d">页5｜写</text>
+<rect x="688" y="400" width="72" height="56" rx="20" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="724" y="428" text-anchor="middle" dominant-baseline="central" font-family="Noto Sans CJK SC, sans-serif" font-size="15" fill="#334155">页6｜—</text>
+<text x="784" y="400.0" text-anchor="start" dominant-baseline="hanging" font-family="Noto Sans CJK SC, sans-serif" font-size="14" fill="#334155">规则：自上次快照写过才写。</text><text x="784" y="420.0" text-anchor="start" dominant-baseline="hanging" font-family="Noto Sans CJK SC, sans-serif" font-size="14" fill="#334155">快照② 只写页4、页5（窗口按周期清零）</text>
+<text x="32" y="496" text-anchor="start" dominant-baseline="hanging" font-family="Noto Sans CJK SC, sans-serif" font-size="14" fill="#334155">颜色 = 写入历史：绿 = 周期② 写过；橙 = 仅周期① 写过；灰 = 自恢复起未写过。「｜写」= 写入快照② 的镜像，「｜—」= 本次不写。</text>
+<text x="32" y="522" text-anchor="start" dominant-baseline="hanging" font-family="Noto Sans CJK SC, sans-serif" font-size="14" fill="#334155">前提：已成功布防、dirty log 关闭、无 swap 与映射变化、写入可被该跟踪观察到（已换出页会被保守计入，见正文）。</text>
+<text x="32" y="548" text-anchor="start" dominant-baseline="hanging" font-family="Noto Sans CJK SC, sans-serif" font-size="14" fill="#64748b">示意图，非实测数据。SoftDirty 首次执行写完整匿名页集（同 Incremental 行），本图比较第二次起的稳态。</text>
+</svg>

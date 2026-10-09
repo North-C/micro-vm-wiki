@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1152" height="488" viewBox="0 0 1152 488">
+<defs>
+<marker id="arrow-block" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+  <path d="M 0 0 L 10 5 L 0 10 Z" fill="currentColor" />
+</marker>
+<marker id="arrow-open" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+  <path d="M 0 0 L 10 5 L 0 10" fill="none" stroke="currentColor" stroke-width="1.5" />
+</marker>
+<marker id="arrow-classic" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+  <path d="M 0 0 L 10 5 L 0 10 L 3 5 Z" fill="currentColor" />
+</marker>
+<marker id="arrow-diamond" viewBox="0 0 12 12" refX="12" refY="6" markerWidth="10" markerHeight="10" orient="auto-start-reverse">
+  <path d="M 0 6 L 6 0 L 12 6 L 6 12 Z" fill="currentColor" />
+</marker>
+</defs>
+<rect width="100%" height="100%" fill="#FFFFFF" />
+<text x="32" y="24" text-anchor="start" dominant-baseline="hanging" font-family="Noto Sans CJK SC, sans-serif" font-size="20" fill="#334155">从快照文件到 guest RAM：设置与访问分开看（示意）</text>
+<rect x="32" y="104" width="224" height="88" rx="20" fill="#eff6ff" stroke="#2563eb" stroke-width="1.5" />
+<text x="144" y="137.5" text-anchor="middle" dominant-baseline="central" font-family="Noto Sans CJK SC, sans-serif" font-size="15" fill="#1e3a8a">快照输入</text>
+<text x="144" y="158.5" text-anchor="middle" dominant-baseline="central" font-family="Noto Sans CJK SC, sans-serif" font-size="15" fill="#1e3a8a">内存字节 + 布局/状态</text>
+<rect x="320" y="104" width="224" height="88" rx="20" fill="#eff6ff" stroke="#2563eb" stroke-width="1.5" />
+<text x="432" y="137.5" text-anchor="middle" dominant-baseline="central" font-family="Noto Sans CJK SC, sans-serif" font-size="15" fill="#1e3a8a">MemoryManager</text>
+<text x="432" y="158.5" text-anchor="middle" dominant-baseline="central" font-family="Noto Sans CJK SC, sans-serif" font-size="15" fill="#1e3a8a">恢复范围 / 文件偏移</text>
+<rect x="608" y="104" width="224" height="88" rx="20" fill="#eff6ff" stroke="#2563eb" stroke-width="1.5" />
+<text x="720" y="137.5" text-anchor="middle" dominant-baseline="central" font-family="Noto Sans CJK SC, sans-serif" font-size="15" fill="#1e3a8a">文件私有映射</text>
+<text x="720" y="158.5" text-anchor="middle" dominant-baseline="central" font-family="Noto Sans CJK SC, sans-serif" font-size="15" fill="#1e3a8a">MAP_PRIVATE</text>
+<rect x="896" y="104" width="224" height="88" rx="20" fill="#eff6ff" stroke="#2563eb" stroke-width="1.5" />
+<text x="1008" y="137.5" text-anchor="middle" dominant-baseline="central" font-family="Noto Sans CJK SC, sans-serif" font-size="15" fill="#1e3a8a">KVM memory slot</text>
+<text x="1008" y="158.5" text-anchor="middle" dominant-baseline="central" font-family="Noto Sans CJK SC, sans-serif" font-size="15" fill="#1e3a8a">GPA ↔ HVA</text>
+<rect x="896" y="272" width="224" height="88" rx="20" fill="#f0fdf4" stroke="#15803d" stroke-width="1.5" />
+<text x="1008" y="305.5" text-anchor="middle" dominant-baseline="central" font-family="Noto Sans CJK SC, sans-serif" font-size="15" fill="#14532d">运行中的 guest</text>
+<text x="1008" y="326.5" text-anchor="middle" dominant-baseline="central" font-family="Noto Sans CJK SC, sans-serif" font-size="15" fill="#14532d">访问相应 RAM</text>
+<rect x="608" y="272" width="224" height="88" rx="20" fill="#f0fdf4" stroke="#15803d" stroke-width="1.5" />
+<text x="720" y="305.5" text-anchor="middle" dominant-baseline="central" font-family="Noto Sans CJK SC, sans-serif" font-size="15" fill="#14532d">宿主取页 / CoW</text>
+<text x="720" y="326.5" text-anchor="middle" dominant-baseline="central" font-family="Noto Sans CJK SC, sans-serif" font-size="15" fill="#14532d">缓存或文件内容</text>
+<rect x="32" y="272" width="480" height="88" rx="20" fill="#fff7ed" stroke="#b45309" stroke-width="1.5" />
+<text x="272" y="305.5" text-anchor="middle" dominant-baseline="central" font-family="Noto Sans CJK SC, sans-serif" font-size="15" fill="#78350f">读：可复用文件页</text>
+<text x="272" y="326.5" text-anchor="middle" dominant-baseline="central" font-family="Noto Sans CJK SC, sans-serif" font-size="15" fill="#78350f">私有写：可触发匿名页 CoW</text>
+<text x="32" y="400" text-anchor="start" dominant-baseline="hanging" font-family="Noto Sans CJK SC, sans-serif" font-size="15" fill="#334155">快速映射前提：没有 shared zone，也没有已记录的 virtio-mem 热插拔容量；其他配置可复制恢复。</text>
+<text x="32" y="440" text-anchor="start" dominant-baseline="hanging" font-family="Noto Sans CJK SC, sans-serif" font-size="15" fill="#334155">框外箭头表示先后；GPA=客户机物理地址，HVA=宿主虚拟地址。映射建立不表示全部内容已驻留。</text>
+<line x1="256" y1="148" x2="320" y2="148" stroke="#1E293B" stroke-width="2" marker-end="url(#arrow-block)" style="color: #1E293B" fill="none" />
+<line x1="544" y1="148" x2="608" y2="148" stroke="#1E293B" stroke-width="2" marker-end="url(#arrow-block)" style="color: #1E293B" fill="none" />
+<line x1="832" y1="148" x2="896" y2="148" stroke="#1E293B" stroke-width="2" marker-end="url(#arrow-block)" style="color: #1E293B" fill="none" />
+<line x1="1008" y1="192" x2="1008" y2="272" stroke="#1E293B" stroke-width="2" marker-end="url(#arrow-block)" style="color: #1E293B" fill="none" />
+<line x1="896" y1="316" x2="832" y2="316" stroke="#1E293B" stroke-width="2" marker-end="url(#arrow-block)" style="color: #1E293B" fill="none" />
+<line x1="608" y1="316" x2="512" y2="316" stroke="#1E293B" stroke-width="2" marker-end="url(#arrow-block)" style="color: #1E293B" fill="none" />
+</svg>

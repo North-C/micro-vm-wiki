@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="CubeSandbox 的 XFS 内存卷：reflink 如何共享磁盘块 CubeSandbox 的内存卷把 VM 的 RAM 字节保存为存储对象。在 XFS backend 中， 这个对象由普通文件承载：VMM 决定保存哪些字节，cubecow 组织文件与克隆， XFS 管理底层磁盘块。三层配合，才让“产物内容完整”和“本次只写部分页”同时成立。 本文先解释内存镜像的逻辑内容、物理分配与对象生命周期，再走一遍克隆和 覆盖流程。假设模板内存文件大小为 2 GiB，只用其中一个区间演算；容量不是 实测配置。XFS ">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CubeSandbox 的 XFS 内存卷：reflink 如何共享磁盘块">
+<meta property="og:description" content="CubeSandbox 的 XFS 内存卷：reflink 如何共享磁盘块 CubeSandbox 的内存卷把 VM 的 RAM 字节保存为存储对象。在 XFS backend 中， 这个对象由普通文件承载：VMM 决定保存哪些字节，cubecow 组织文件与克隆， XFS 管理底层磁盘块。三层配合，才让“产物内容完整”和“本次只写部分页”同时成立。 本文先解释内存镜像的逻辑内容、物理分配与对象生命周期，再走一遍克隆和 覆盖流程。假设模板内存文件大小为 2 GiB，只用其中一个区间演算；容量不是 实测配置。XFS ">
+<link rel="canonical" href="https://north-c.github.io/micro-vm-wiki/projects/cubesandbox/xfs-reflink-memory-volume.html">
+<title>CubeSandbox 的 XFS 内存卷：reflink 如何共享磁盘块 · Micro-VM 技术研究 Wiki</title>
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body data-root="../../">
+<a class="skip-link" href="#main-content">跳到正文</a>
+<div class="layout">
+  <aside class="sidebar" id="site-sidebar" aria-label="站点导航" aria-hidden="false">
+    <a class="brand" href="../../index.html">Micro-VM 技术研究 Wiki</a>
+    <label class="search-label" for="search">搜索公开文档</label>
+    <input id="search" type="search" autocomplete="off" aria-controls="search-results" aria-expanded="false">
+    <div id="search-status" class="search-status" role="status" aria-live="polite"></div>
+    <div id="search-results" class="search-results" role="listbox"></div>
+    <nav aria-label="主要导航" data-global-nav="true"><ul class="nav-tree"><li><a href="../../index.html">首页</a></li><li><details class="nav-group" open><summary>三轴入口</summary><ul><li><a href="../../projects/index.html">项目</a></li><li><a href="../../topics/index.html">特性与横向比较</a></li><li><a href="../../evolution/index.html">版本演进</a></li></ul></details></li><li><details class="nav-group"><summary>方法与索引</summary><ul><li><a href="../../methodology/status-and-evidence.html">研究方法与报告规范</a></li><li><a href="../../versions/index.html">版本与证据覆盖</a></li><li><a href="../../changes.html">Wiki 更新记录</a></li><li><a href="../../sitemap.html">站点地图</a></li></ul></details></li></ul></nav>
+  </aside>
+  <button class="sidebar-scrim" id="sidebar-scrim" aria-label="关闭导航"></button>
+  <main class="content" id="main-content" tabindex="-1">
+    <div class="topbar">
+      <button class="menu-toggle" id="menu-toggle" aria-controls="site-sidebar" aria-expanded="false">目录</button>
+      <button id="theme-toggle" aria-label="切换到深色模式">🌙</button>
+      <a class="back-home" href="../../index.html">首页</a>
+    </div>
+<nav class="breadcrumbs" aria-label="面包屑"><ol><li><a href="../../index.html">首页</a></li><li><a href="../index.html">项目目录</a></li><li><a href="../cubesandbox.html">CubeSandbox</a></li><li><a href="../../topics/storage-device-io.html">存储、设备与 I/O</a></li><li aria-current="page">CubeSandbox 的 XFS 内存卷：reflink 如何共享磁盘块</li></ol></nav>
+<div class="page-meta" aria-label="文档元数据"><span class="badge">机制解析</span><a class="badge badge-status" href="../../methodology/status-and-evidence.html#status">状态：源码版本已固定，证据仍未完备</a><span class="badge">CubeSandbox</span><span class="badge">角色：核心研究项目 / 沙箱平台</span><a class="badge" href="../../versions/index.html#cubesandbox-v0-5-1-a164417f" title="cubesandbox a164417f497234a0d787cb328b0ae96480b1569b；角色：supporting">版本基线：v0.5.1@a164417f4972</a><a class="badge" href="../../versions/index.html#cubesandbox-v0-6-0-8721dd15" title="cubesandbox 8721dd151971ce3c2966482bbd32904ad98f378e；角色：supporting">版本基线：v0.6.0@8721dd151971</a><a class="badge" href="../../versions/index.html#cubesandbox-v0-7-1-31d911e4" title="cubesandbox 31d911e430fdf8a8879bd062b8e78066c1a8e89d；角色：primary">版本基线：v0.7.1@31d911e430fd</a><span class="badge">复核日期：2026-10-08</span></div><p class="status-explainer"><strong>源码版本已固定，证据仍未完备</strong>是本文的读者状态：页面已按显示的固定源码版本完成版本登记与源码级复核，但 build、runtime、跨组件或完整 claim-level 证据尚未齐备；机器状态保持 <code>unconfirmed</code>，登记 baseline 不会自动升级为 <code>current</code>。</p>
+    <article class="markdown-body"><h1 id="cubesandbox-xfs-reflink">CubeSandbox 的 XFS 内存卷：reflink 如何共享磁盘块</h1>
+<p>CubeSandbox 的内存卷把 VM 的 RAM 字节保存为存储对象。在 XFS backend 中，
+这个对象由普通文件承载：VMM 决定保存哪些字节，cubecow 组织文件与克隆，
+XFS 管理底层磁盘块。三层配合，才让“产物内容完整”和“本次只写部分页”同时成立。</p>
+<p>本文先解释内存镜像的逻辑内容、物理分配与对象生命周期，再走一遍克隆和
+覆盖流程。假设模板内存文件大小为 2 GiB，只用其中一个区间演算；容量不是
+实测配置。XFS 数据结构的完整介绍见 <a href="xfs-extents-reflink-ficlone.html">XFS 基础机制</a>。</p>
+<p>在本文图里，S0/S1专指原快照和新快照的<strong>内存文件</strong>，VM的其他保存状态不画。
+A是正在运行、准备被保存的Sandbox；E0是某个文件区间原先引用的磁盘extent，
+E1是该区间覆盖后使用的新extent。E0/E1不是内存页号、快照ID或实际块地址。</p>
+<table>
+<thead>
+<tr>
+<th>版本</th>
+<th>固定源码</th>
+<th>大致时间（commit）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>v0.5.1</td>
+<td><a href="https://github.com/TencentCloud/CubeSandbox/commit/a164417f497234a0d787cb328b0ae96480b1569b">a164417f4972</a></td>
+<td>2026-07</td>
+</tr>
+<tr>
+<td>v0.6.0</td>
+<td><a href="https://github.com/TencentCloud/CubeSandbox/commit/8721dd151971ce3c2966482bbd32904ad98f378e">8721dd151971</a></td>
+<td>2026-07</td>
+</tr>
+<tr>
+<td>v0.7.1（主要讲解基线）</td>
+<td><a href="https://github.com/TencentCloud/CubeSandbox/commit/31d911e430fdf8a8879bd062b8e78066c1a8e89d">31d911e430fd</a></td>
+<td>2026-09</td>
+</tr>
+</tbody>
+</table>
+<p>日期采用 commit 月份，不是发布日期。本文核对这三个版本的相关实现，未做运行实验。</p>
+<p>XFS 内核机制以 <a href="https://github.com/torvalds/linux/commit/ffc253263a1375a65fa6c9f62a893e9767fbebfa">Linux v6.6 固定源码</a>
+作辅助基准；实际宿主内核、文件系统参数和持久性未运行验证。</p>
+<h2 id="1">1. 内存卷模型：业务对象、文件内容与磁盘块</h2>
+<p>内存快照并不把客户机的“物理地址”原样变成磁盘地址。VMM 按保存布局，把
+RAM 范围写到内存镜像的文件偏移；存储层再把文件偏移映射到实际块。恢复时，
+VMM 可把快照文件作为 RAM backing 映射。文件和运行中 RAM 是两个阶段的载体，
+不是同一种设备。<a href="#e1">E1</a>、<a href="#e3">E3</a>、<a href="#e6">E6</a></p>
+<p>在这条链上，可以分别观察三种对象：</p>
+<table>
+<thead>
+<tr>
+<th>层次</th>
+<th>管理的对象</th>
+<th>负责的动作</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Cubelet / cubecow</td>
+<td>内存 volume、snapshot 名称与来源</td>
+<td>选择基线、创建目标、解析和回收对象</td>
+</tr>
+<tr>
+<td>VMM</td>
+<td>RAM 范围、保存布局与目标文件偏移</td>
+<td>识别选页，把当前字节写到正确位置</td>
+</tr>
+<tr>
+<td>XFS</td>
+<td>inode、extent 与共享引用</td>
+<td>承载文件内容，克隆映射并隔离后续写入</td>
+</tr>
+</tbody>
+</table>
+<p>一个上层对象操作可能涉及多个文件系统动作。创建目标文件不等于 VM 状态已
+保存，写完内存字节也不等于目录、catalog 和整份快照已经持久化。后面的代码
+流程应按这些完成边界阅读，而不能只看一个对象名字。</p>
+<h3 id="memory-volume-xfs-backend">memory volume 在 XFS backend 中由普通文件承载</h3>
+<p>在 CubeSandbox 的 XFS backend 中，cubecow 的 reflink engine 把 volume 与
+snapshot 表示为普通宿主文件，返回的 DevPath 就是文件路径，activation
+无需再生成一块 dm-thin 设备。业务对象叫 volume，不能据此把它理解成
+客户机挂载的磁盘或每个 Sandbox 都独占的一块物理盘。<a href="#e1">E1</a></p>
+<p>新建内存目标会用 <code>set_len</code> 设置逻辑长度；它不是逐字节写入 2 GiB 的操作。
+Linux 文件的空洞读作零，不等于所有逻辑字节都已分配物理块。若目标没有
+已有 base，只写变化页就会丢掉未写部分的真实值；这也是增量路径要先克隆
+完整基线，而 Full 可以从新建目标开始的原因。</p>
+<p>S0、S1 是不同文件和不同 inode，内容分别有自己的版本。inode 是文件的元数据
+与数据映射身份，pathname 则是访问它的名字。Snapshot 这个名称
+不是 XFS 的整文件系统快照，也不自动让普通文件不可修改；作为 VM 恢复
+基线使用时，仍要由对象管理与调用路径维持它的稳定性。</p>
+<h2 id="2">2. 保存原理：完整内容由基线与覆盖共同构成</h2>
+<p>全量保存从本次 RAM 提供所有选定范围的字节；增量保存则把来源拆成两部分。
+未被覆盖的文件区间沿用基线内容，被选中的区间用运行实例的当前字节替换。
+这是内容层面的组合规则，不要求两部分各自占据独立磁盘空间。<a href="#e3">E3</a></p>
+<p>reflink 正好把这条规则落到文件层：先让目标具备基线的完整逻辑内容，同时
+共享已有磁盘块；再由 VMM 覆盖选中区间。因而 S1 的“完整”是指单独读取它
+能得到完整镜像，不是说每个字节都已经拥有独占的物理副本。<a href="#e4">E4</a></p>
+<h3 id="_1">逻辑长度、分配空间与持久性分别判断</h3>
+<p>XFS 用 extent 描述一段文件逻辑位置对应哪些连续物理块，不必为每个文件字节
+单独记映射。Allocation Group 把分配与元数据组织在不同组内，配合树结构
+管理空间。本文关注的特性是 <strong>reflink 共享 extent、稀疏文件和写时分裂</strong>。<a href="#e2">E2</a></p>
+<p>支持 reflink 的 XFS 还维护共享块的引用计数信息。两个 inode 可以把各自
+某个逻辑区间指向同一批已写磁盘块。它们不是两个名字指向同一个 inode 的
+hardlink：修改克隆文件的内容必须能与源文件隔离。</p>
+<p>例如两个 2 GiB 文件可以共享大部分已分配数据块，稀疏区间也可能没有物理块。
+因此，文件长度不能直接相加作为物理占用；反过来，共享很多块也不会使目标
+文件缺少逻辑内容。真正分配了多少空间，还要看布局、写入和文件系统状态。</p>
+<p>XFS 使用日志管理元数据事务，并有 delayed allocation，把部分物理分配
+推迟到写回阶段。这些特性影响分配和恢复语义，但不能直接推出本机速度、
+崩溃后 VM 快照一定完整，或每次写一页只多占一个同样大小的 extent。<a href="#e2">E2</a></p>
+<h2 id="3">3. 准备阶段：从基线克隆完整目标文件</h2>
+<p>v0.7.1 的 Commit 选出 base 后，XfsCow 的 <code>CommitTemplateMemory</code> 调用
+cubecow 创建 snapshot。engine 打开源文件，创建一个新目标文件，再对目标
+FD 发出 <code>ioctl(FICLONE, source_fd)</code>；失败就返回错误并清理目标。
+这个操作建立文件数据映射，不识别 guest 的脏页。<a href="#e3">E3</a></p>
+<p>把调用拆开看：<code>CommitTemplateMemory</code>先确定新内存对象名字，
+<code>create_snapshot_from_volume</code>解析源文件并预留目标名字，<code>ficlone</code>用
+<code>create_new</code>打开目标，最后执行 <code>ioctl(dst_fd, FICLONE, src_fd)</code>。
+成功返回文件路径后，VMM才拿这个目标继续写选中页。</p>
+<p>Linux 将 FICLONE 请求交给 VFS 的 clone 接口，最终进入 XFS remap 路径。
+XFS 为目标逻辑区间建立指向源 extent 的映射，并更新共享引用计数；目标
+因此能读到完整源内容，而不要求先把所有数据块重新写一遍。<a href="#e4">E4</a></p>
+<p>看图的第一行：S0 与 S1 的示意区间都指向 E0，读到同一个“旧”值。图只画
+一个区间；真实文件中还可以有其他 extent 和空洞，各文件自己的 inode、
+大小与元数据仍各自存在。</p>
+<p><img class="article-diagram" src="../../assets/diagrams/xfs-memory-reflink.svg" alt="内存文件 reflink 克隆后共享 E0，覆盖 S1 区间后使用 E1 而 S0 保持 E0。" loading="lazy"></p>
+<p>图 1：示意，非实际块映射或容量测量。“引用数2”是两个文件共享的概念计数，
+不是完整 refcount B+tree 的原始条目展示。证据：<a href="#e3">E3</a>、<a href="#e4">E4</a>。
+每列固定一种对象，第二行表示覆盖完成后的状态；“文件→E0/E1”表示块映射，
+不是执行顺序。绿色强调共享旧区间，橙色强调目标的新区间，原文件那一列不变。</p>
+<h2 id="4-vmm-xfs">4. 保存阶段：VMM 写字节，XFS 分离共享块</h2>
+<p>运行时 RAM CoW 与文件系统 CoW 在这里先后出现。A 修改私有内存时，宿主处理
+RAM 页的隔离；A 保存时，VMM 才把相应字节写到 S1；这次文件写入又可能让
+XFS 分离共享块。两次 CoW 的对象、触发时机和分配单位都不同。</p>
+<p>VMM 现在将 A 的选中页写进 S1 文件的相应偏移。若这些偏移仍映射共享块，
+XFS 需要为新内容准备独立存储，而 S0 保留旧内容。这才是文件系统层的 CoW；
+A 早先写自己的 MAP_PRIVATE RAM 时，并没有立刻写这些磁盘块。</p>
+<p>具体桥接在 <code>send_pagemap_anon_memory</code> 或 <code>send_soft_dirty_memory</code>：它们先
+得到选中GPA范围，再用原RAM范围表换算文件偏移，最后交给
+<code>save_range_to_file</code>循环写出。XFS看到的是目标文件某个字节区间被写，
+并不知道这个区间在guest里叫“页4”。<a href="#e3">E3</a></p>
+<p>XFS 的写路径可先做 CoW 空间预留/延迟分配，使用独立 CoW fork 暂存映射，
+等对应数据写入完成再把新映射移入文件的 data fork，并调整旧引用。
+“fork”在这里是 inode 内的映射结构，不是创建进程的 <code>fork()</code>。<a href="#e5">E5</a></p>
+<p>看图的第二行：S1 的该区间改指 E1，“新”值只属于它；S0 继续指 E0。
+其他没有覆盖的区间仍可共享。实际分裂和写回按文件系统块、extent、缓存及
+对齐规则处理，不能拿一次选中 4 KiB RAM 页直接换算磁盘增长量。</p>
+<h2 id="5">5. 应用原理：内容独立，不等于生命周期没有依赖</h2>
+<p>现在可以回答两个看似矛盾的问题：S1 的内容来自 S0，为什么恢复时不必回放
+S0？既然内容独立，为什么又不能随意删除来源目录？前者由文件映射解释，
+后者取决于业务对象组织和运行中的引用，不能用同一层规则回答。</p>
+<p>FICLONE 后，每个文件持有自己的映射。S2 可以从 S1 克隆，仍是独立可读取的
+完整文件；S2 不是“要先打开 S0、再重放 S1 差分”的链。共享块的引用决定其
+何时可回收，删除一个文件不会要求把其余文件都完整重拷贝。<a href="#e4">E4</a></p>
+<p>但物理引用与 CubeSandbox 的业务血缘是两件事。reflink engine 会把来自
+snapshot 的新 snapshot 放到 ultimate-origin 的目录组织下；删除、命名索引、
+打开中的 FD 和 catalog/基线绑定仍有对象管理规则。文件内容自包含不表示
+可以任意删除整个来源目录，也不表示运行中 VM 不再需要其打开的恢复文件。<a href="#e1">E1</a></p>
+<p>v0.7.1 的 XFS restore 可直接打开原 snapshot 文件并 MAP_PRIVATE，而 S3
+有自己的导入/私有卷流程。因此“每启动一个 Sandbox 都先 reflink 一份内存
+volume”并不是这条 XFS 路径的必要步骤。共享 RAM 如何分裂见配套恢复文章。</p>
+<p>v0.7.1 的 <code>delete_volume</code> 只 unlink origin 主文件，有 snapshot 时保留目录；
+<code>delete_snapshot</code> 删除最后一个 sibling 后，只有 origin 已不存在才回收空目录。
+目录项消失与运行中映射/FD 引用消失不是同一个时点；不能据此认为内存数据
+已经不用保留，或把对象删除直接写成“整个 origin 目录清空”。<a href="#e6">E6</a></p>
+<h2 id="6">6. 适用条件、版本范围与验证边界</h2>
+<p>reflink 让“完整内存内容”和“少写变化页”可以同时成立：逻辑文件仍完整，
+只有修改区间逐渐失去物理共享。创建克隆仍有元数据工作，后续写入仍可能
+需要新空间；共享程度、暂停耗时和实际磁盘占用取决于负载与文件系统状态。</p>
+<p>文件必须处在可克隆的文件系统边界内，XFS 本身还要有 reflink 特性；backend
+会做 FICLONE 支持探测，不能只看文件系统名字。这里的克隆失败并没有自动
+退成普通全量文件复制。日志型元数据也不等于整份 VM 数据已持久落盘；
+源码中部分克隆后的目录 fsync 错误被忽略，不能宣称已验证掉电安全。<a href="#e3">E3</a></p>
+<p>v0.5.1/v0.6.0/v0.7.1 的底层 FICLONE helper 保持一致，v0.7.1 上层变为 backend
+分派与 XfsCow 命名，S3 的存储规则另计。本文未验证容量、删除/崩溃恢复、不同
+块大小、跨文件系统或实际 reflink 参数。2 GiB 和 E0/E1 都是讲解用例。</p>
+<p>继续阅读：<a href="snapshot-dirty-page-management.html">脏页识别与窗口管理</a>、
+<a href="snapshot-memory-restore-runtime-cow.html">内存恢复与运行时 CoW</a>、
+<a href="../../evolution/cubesandbox/soft-dirty-snapshot.html">SoftDirty 演进</a>。
+想继续理解字段与内核步骤，见 <a href="xfs-extents-reflink-ficlone.html">XFS基础：extent、reflink、FICLONE</a>。</p>
+<h2 id="_2">源码证据</h2>
+<h3 id="e1-volumesnapshotlocal-fact"><a id="e1"></a>E1 · 文件型 volume/snapshot（local fact）</h3>
+<p>v0.7.1</p>
+<ul>
+<li><a href="https://github.com/TencentCloud/CubeSandbox/blob/31d911e430fdf8a8879bd062b8e78066c1a8e89d/cubecow/src/engine/reflink.rs#L360-L425">新文件、set_len 与同步</a></li>
+<li><a href="https://github.com/TencentCloud/CubeSandbox/blob/31d911e430fdf8a8879bd062b8e78066c1a8e89d/cubecow/src/engine/reflink.rs#L646-L746">snapshot 来源与目录组织</a></li>
+<li><a href="https://github.com/TencentCloud/CubeSandbox/blob/31d911e430fdf8a8879bd062b8e78066c1a8e89d/cubecow/src/engine/reflink.rs#L748-L843">从 snapshot/volume 创建文件型 volume</a></li>
+<li><a href="https://github.com/TencentCloud/CubeSandbox/blob/31d911e430fdf8a8879bd062b8e78066c1a8e89d/Cubelet/storage/local.go#L979-L1064">XFS 原快照恢复与 S3 例外</a>。</li>
+</ul>
+<h3 id="e2-xfs-linux-v66"><a id="e2"></a>E2 · XFS 元数据/日志（Linux v6.6 固定辅助源码）</h3>
+<ul>
+<li><a href="https://github.com/torvalds/linux/blob/ffc253263a1375a65fa6c9f62a893e9767fbebfa/Documentation/filesystems/xfs-online-fsck-design.rst#L195-L201">Allocation Group 空间与对象划分</a></li>
+<li><a href="https://github.com/torvalds/linux/blob/ffc253263a1375a65fa6c9f62a893e9767fbebfa/Documentation/filesystems/xfs-delayed-logging-design.rst#L23-L38">元数据 Write Ahead Logging</a></li>
+<li><a href="https://github.com/torvalds/linux/blob/ffc253263a1375a65fa6c9f62a893e9767fbebfa/fs/xfs/xfs_reflink.c#L34-L114">共享块 CoW 与 delayed allocation 设计</a>。</li>
+</ul>
+<h3 id="e3-local-fact"><a id="e3"></a>E3 · 克隆调用与边界（local fact，三版独立核对）</h3>
+<p>v0.7.1</p>
+<ul>
+<li><a href="https://github.com/TencentCloud/CubeSandbox/blob/31d911e430fdf8a8879bd062b8e78066c1a8e89d/Cubelet/storage/cubecow_volume_manager.go#L218-L265">CommitTemplateMemory → CreateSnapshotFromVolume</a></li>
+</ul>
+<p>VMM 选页与目标文件覆盖</p>
+<ul>
+<li><a href="https://github.com/TencentCloud/CubeSandbox/blob/31d911e430fdf8a8879bd062b8e78066c1a8e89d/hypervisor/vmm/src/memory_manager.rs#L2388-L2463">pagemap_anon</a></li>
+<li><a href="https://github.com/TencentCloud/CubeSandbox/blob/31d911e430fdf8a8879bd062b8e78066c1a8e89d/hypervisor/vmm/src/memory_manager.rs#L2542-L2614">SoftDirty</a></li>
+</ul>
+<p>FICLONE helper</p>
+<ul>
+<li><a href="https://github.com/TencentCloud/CubeSandbox/blob/a164417f497234a0d787cb328b0ae96480b1569b/cubecow/src/engine/reflink.rs#L974-L992">v0.5.1:974–992</a></li>
+<li><a href="https://github.com/TencentCloud/CubeSandbox/blob/8721dd151971ce3c2966482bbd32904ad98f378e/cubecow/src/engine/reflink.rs#L974-L992">v0.6.0:974–992</a></li>
+<li><a href="https://github.com/TencentCloud/CubeSandbox/blob/31d911e430fdf8a8879bd062b8e78066c1a8e89d/cubecow/src/engine/reflink.rs#L1083-L1101">v0.7.1:1083–1101</a></li>
+<li><a href="https://github.com/TencentCloud/CubeSandbox/blob/31d911e430fdf8a8879bd062b8e78066c1a8e89d/cubecow/src/engine/reflink.rs#L150-L176">支持探测</a>。</li>
+</ul>
+<p>克隆后的部分目录 fsync 结果被忽略见 E1 的 :723–724、:817–819。</p>
+<h3 id="e4-ficlone-linux-v66-e0e1-inference"><a id="e4"></a>E4 · FICLONE 到共享映射（Linux v6.6 固定辅助源码；E0/E1 为 inference）</h3>
+<ul>
+<li><a href="https://github.com/torvalds/linux/blob/ffc253263a1375a65fa6c9f62a893e9767fbebfa/fs/ioctl.c#L231-L249">ioctl_file_clone</a></li>
+<li><a href="https://github.com/torvalds/linux/blob/ffc253263a1375a65fa6c9f62a893e9767fbebfa/fs/ioctl.c#L820-L824">FICLONE 全文件请求入口</a></li>
+<li><a href="https://github.com/torvalds/linux/blob/ffc253263a1375a65fa6c9f62a893e9767fbebfa/fs/remap_range.c#L370-L419">VFS 同文件系统检查与 remap 分派</a></li>
+<li><a href="https://github.com/torvalds/linux/blob/ffc253263a1375a65fa6c9f62a893e9767fbebfa/fs/xfs/xfs_file.c#L1124-L1187">XFS 检查 reflink 与 remap</a></li>
+<li><a href="https://github.com/torvalds/linux/blob/ffc253263a1375a65fa6c9f62a893e9767fbebfa/fs/xfs/xfs_reflink.c#L1288-L1346">增引用与建立目标 extent 映射</a></li>
+<li><a href="https://man7.org/linux/man-pages/man2/ioctl_ficlone.2.html">FICLONE 接口说明</a>作同文件系统等接口前提参考。</li>
+</ul>
+<h3 id="e5-cow-linux-v66"><a id="e5"></a>E5 · 写回后的 CoW 映射替换（Linux v6.6 固定辅助源码）</h3>
+<ul>
+<li><a href="https://github.com/torvalds/linux/blob/ffc253263a1375a65fa6c9f62a893e9767fbebfa/fs/xfs/xfs_reflink.c#L795-L840">旧映射解除、引用减少、新映射迁入 data fork</a>。</li>
+</ul>
+<p>此系统层机制与 Sandbox MAP_PRIVATE 匿名页的分裂不同，也不证明 VM 全快照的崩溃一致性。</p>
+<h3 id="e6-local-fact"><a id="e6"></a>E6 · 删除与运行引用（local fact）</h3>
+<p>v0.7.1</p>
+<ul>
+<li><a href="https://github.com/TencentCloud/CubeSandbox/blob/31d911e430fdf8a8879bd062b8e78066c1a8e89d/cubecow/src/engine/reflink.rs#L427-L495">删除主 volume、保留 sibling 所在目录</a></li>
+<li><a href="https://github.com/TencentCloud/CubeSandbox/blob/31d911e430fdf8a8879bd062b8e78066c1a8e89d/cubecow/src/engine/reflink.rs#L845-L903">最后一个 sibling 与 origin 目录回收条件</a></li>
+<li><a href="https://github.com/TencentCloud/CubeSandbox/blob/31d911e430fdf8a8879bd062b8e78066c1a8e89d/hypervisor/vmm/src/memory_manager.rs#L1495-L1548">VMM 保留文件映射作为 RAM backing</a>。</li>
+</ul></article>
+<aside class="related-reading" aria-labelledby="related-title"><h2 id="related-title">继续阅读</h2><ul><li><strong>项目目录：</strong><a href="../cubesandbox.html">CubeSandbox</a></li><li><strong>平台视角：</strong><a href="../../platforms/cubesandbox.html">CubeSandbox</a></li><li><strong>专题目录：</strong><a href="../../topics/storage-device-io.html">存储、设备与 I/O</a></li><li><strong>横向比较：</strong><a href="../../analysis/interrupt-event-notification-cross-project.html">中断与事件通知跨项目专题分析</a></li><li><strong>明确关联：</strong><a href="../../evolution/cubesandbox/soft-dirty-snapshot.html">CubeSandbox 内存快照演进：v0.5.1 到 v0.7.1，SoftDirty 改了什么</a></li></ul></aside>
+    <footer class="page-foot">公开来源：<code>analysis/projects/cubesandbox/xfs-reflink-memory-volume.md</code> · 文档 ID：<code>cubesandbox.xfs-reflink-memory-volume</code></footer>
+  </main>
+</div>
+
+<script defer src="../../assets/wiki.js"></script>
+</body>
+</html>

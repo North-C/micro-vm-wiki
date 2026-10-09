@@ -7542,28 +7542,18 @@
   },
   {
     "doc_id": "cubesandbox.soft-dirty-snapshot-evolution",
-    "title": "CubeSandbox 增量内存快照演进：从 Full/Incremental 到 SoftDirty 逐周期增量",
+    "title": "CubeSandbox 内存快照演进：v0.5.1 到 v0.7.1，SoftDirty 改了什么",
     "route": "evolution/cubesandbox/soft-dirty-snapshot.html",
     "headings": [
-      "A/B 身份与祖先关系",
-      "背景与术语",
-      "A 端旧机制（local fact）",
-      "变更点（change ledger）",
-      "B 端新机制（local fact）",
-      "1. 类型入口：`SnapshotType::SoftDirty`",
-      "2. VMM 侧：`soft_dirty.rs` 的布防-读取-过滤原语",
-      "3. 周期状态机：首扫写完整 anon 集、后续真差、写后重布防",
-      "4. Cubelet 三层退化：base 血缘选择",
-      "5. CLI 与文档链",
-      "不变量（跨 A/B 保持）",
-      "兼容与迁移影响",
-      "优点与代价",
-      "失败/反例与错误矩阵",
-      "x86_64 与 ARM64 边界",
-      "双端证据表",
-      "未确认项与运行验证边界"
+      "1. 三种类型一直都在，差别是“脏”从何时算起",
+      "2. 保持不变的约定：窗口必须与基线配对",
+      "3. v0.6.0：同一套选页逻辑，先把“页”量对",
+      "4. v0.7.1：从“清零写成功”到“看见页标记”",
+      "5. v0.7.1：Commit 多一个基线，Pause 有自己的规则",
+      "6. 请求成功之外，还要看错误与验证边界",
+      "源码证据与扩展阅读"
     ],
-    "summary": "CubeSandbox 增量内存快照演进：从 Full/Incremental 到 SoftDirty 逐周期增量 本文回答一个版本演进问题：CubeSandbox 从提交 A 到提交 B，内存快照的增量 捕获机制发生了什么变化，为什么变，影响与代价是什么？ 先行结论 ：B 在不破坏既有 full / incremental 语义的前提下，新增了 第三种快照类型 soft-dirty ——用内核 soft-dirty PTE 位（ clear refs 布防 + pagemap bit 55 读取）替代 pagem",
+    "summary": "CubeSandbox 内存快照演进：v0.5.1 到 v0.7.1，SoftDirty 改了什么 同一台沙箱虚拟机连续保存快照时，为什么“增量”仍会反复写旧页？换了版本， 是否就能放心使用 SoftDirty？要回答这两个问题，需要同时看选页算法、跟踪 窗口，以及 Cubelet 给它准备的基线文件。 本文沿 v0.5.1 → v0.6.0 → v0.7.1 解析。三种快照类型和 VMM 的周期状态机 保持不变；v0.6.0 修正宿主页大小计算，v0.7.1 加强能力探测，并扩展 Commit 与 Pause 的",
     "scope": "evolution",
     "projects": [
       "cubesandbox"
@@ -7577,21 +7567,30 @@
     "component_baselines": [],
     "baseline_refs": [
       {
-        "id": "cubesandbox-9e2c64ab-20260528",
+        "id": "cubesandbox-v0-5-1-a164417f",
         "component": "cubesandbox",
-        "version": "v0.3.0-rc1^",
-        "commit": "9e2c64ab871b77f59ba6fc41cd427bca72dca12a",
-        "selected_at": "2026-09-22",
-        "review_state": "historical-reference",
+        "version": "v0.5.1",
+        "commit": "a164417f497234a0d787cb328b0ae96480b1569b",
+        "selected_at": "2026-09-23",
+        "review_state": "unconfirmed",
         "role": "supporting"
       },
       {
-        "id": "cubesandbox-62e0d56d-20260528",
+        "id": "cubesandbox-v0-6-0-8721dd15",
         "component": "cubesandbox",
-        "version": "v0.3.0-rc1",
-        "commit": "62e0d56d80cdf86d4b3ad83f7dc1e5b8253528c4",
-        "selected_at": "2026-09-22",
-        "review_state": "historical-reference",
+        "version": "v0.6.0",
+        "commit": "8721dd151971ce3c2966482bbd32904ad98f378e",
+        "selected_at": "2026-09-23",
+        "review_state": "unconfirmed",
+        "role": "supporting"
+      },
+      {
+        "id": "cubesandbox-v0-7-1-31d911e4",
+        "component": "cubesandbox",
+        "version": "v0.7.1",
+        "commit": "31d911e430fdf8a8879bd062b8e78066c1a8e89d",
+        "selected_at": "2026-09-23",
+        "review_state": "unconfirmed",
         "role": "primary"
       }
     ],
@@ -7614,6 +7613,395 @@
       "inference",
       "unconfirmed"
     ],
-    "reviewed_at": "2026-09-22"
+    "reviewed_at": "2026-10-08"
+  },
+  {
+    "doc_id": "cubesandbox.snapshot-dirty-page-management",
+    "title": "CubeSandbox 的快照怎样识别脏页：从恢复基线到下一次保存",
+    "route": "projects/cubesandbox/snapshot-dirty-page-management.html",
+    "headings": [
+      "1. 选页的基础：地址、基线与时间窗口",
+      "地址把页状态连接到真正的字节",
+      "2. 从宿主页信息形成保存集合",
+      "用连续两次保存看出两种集合的差别",
+      "3. 跟踪窗口的生命周期",
+      "4. 代码流程：把选页集合写成一份完整快照",
+      "5. 应用原理：连续保存时，为什么需要两个基线绑定",
+      "6. 机制边界与版本变化",
+      "源码证据",
+      "<a id=\"e1\"></a>E1 · RAM 范围与文件定位（local fact）",
+      "<a id=\"e2\"></a>E2 · anon 识别与权限（local fact）",
+      "<a id=\"e3\"></a>E3 · 交集与优先分支（local fact）",
+      "<a id=\"e4\"></a>E4 · 系统层布防（Linux v6.6 固定辅助源码，不是宿主验证）",
+      "<a id=\"e5\"></a>E5 · 生命周期与状态机（local fact；页例为 inference）",
+      "<a id=\"e6\"></a>E6 · 暂停、捕获与恢复（local fact）",
+      "<a id=\"e7\"></a>E7 · 基线配对与完成边界（local fact）"
+    ],
+    "summary": "CubeSandbox 的快照怎样识别脏页：从恢复基线到下一次保存 内存快照把运行中的 RAM 内容保存为可恢复的状态。全量保存可以写出所有待保存 RAM；增量保存则要同时解决两件事：用一份完整基线提供未变化的字节，用选页 机制找出本次需要覆盖的部分。 少写数据是保存过程的特点，不代表产物缺少数据。 本文让运行实例 A 从初始快照 S0 恢复，连续保存得到 S1、S2。S0/S1/S2 是 三个保存时点的快照名称；讨论内存时，具体指它们的内存镜像文件。A 始终是 同一个实例；后文的 B 才是从 S1 新建的另一实例",
+    "scope": "project",
+    "projects": [
+      "cubesandbox"
+    ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
+    "topics": [
+      "snapshot-restore-migration"
+    ],
+    "component_baselines": [],
+    "baseline_refs": [
+      {
+        "id": "cubesandbox-v0-5-1-a164417f",
+        "component": "cubesandbox",
+        "version": "v0.5.1",
+        "commit": "a164417f497234a0d787cb328b0ae96480b1569b",
+        "selected_at": "2026-09-23",
+        "review_state": "unconfirmed",
+        "role": "supporting"
+      },
+      {
+        "id": "cubesandbox-v0-6-0-8721dd15",
+        "component": "cubesandbox",
+        "version": "v0.6.0",
+        "commit": "8721dd151971ce3c2966482bbd32904ad98f378e",
+        "selected_at": "2026-09-23",
+        "review_state": "unconfirmed",
+        "role": "supporting"
+      },
+      {
+        "id": "cubesandbox-v0-7-1-31d911e4",
+        "component": "cubesandbox",
+        "version": "v0.7.1",
+        "commit": "31d911e430fdf8a8879bd062b8e78066c1a8e89d",
+        "selected_at": "2026-09-23",
+        "review_state": "unconfirmed",
+        "role": "primary"
+      }
+    ],
+    "curated_topics": [],
+    "baselines": [],
+    "status": "unconfirmed",
+    "kind": "explanation",
+    "tags": [
+      "snapshot",
+      "dirty-pages",
+      "pagemap",
+      "soft-dirty"
+    ],
+    "architectures": [
+      "x86_64",
+      "aarch64"
+    ],
+    "evidence_classes": [
+      "local-source-fact",
+      "inference",
+      "unconfirmed"
+    ],
+    "reviewed_at": "2026-10-08"
+  },
+  {
+    "doc_id": "cubesandbox.snapshot-memory-restore-runtime-cow",
+    "title": "CubeSandbox 如何恢复快照内存：磁盘映射、缺页与运行时 CoW",
+    "route": "projects/cubesandbox/snapshot-memory-restore-runtime-cow.html",
+    "headings": [
+      "1. 内存恢复的基础：内容、布局与映射",
+      "保存内容与地址布局必须一起恢复",
+      "2. 正常流程：建立文件映射，再取得实际页面",
+      "3. 运行时 CoW：共享读取与私有写入",
+      "同一模板启动两个实例时会发生什么",
+      "4. 应用原理：保存窗口不改变运行实例的内存归属",
+      "5. 两种变体：预先取页与复制恢复",
+      "6. 版本范围与进一步阅读",
+      "源码证据",
+      "<a id=\"e1\"></a>E1 · 输入文件与布局（local fact）",
+      "<a id=\"e2\"></a>E2 · 快速路径 / slow copy（local fact，三版独立核对）",
+      "<a id=\"e3\"></a>E3 · KVM 地址注册（local fact，限定 KVM 后端）",
+      "<a id=\"e4\"></a>E4 · Linux 文件读缺页与私有写 CoW（固定辅助源码；单页流程是 inference）",
+      "<a id=\"e5\"></a>E5 · 基线克隆、覆盖写与实例窗口（local fact）",
+      "<a id=\"e6\"></a>E6 · prefault 不是只读预热（local source fact）"
+    ],
+    "summary": "CubeSandbox 如何恢复快照内存：磁盘映射、缺页与运行时 CoW 内存恢复包含两个层次：先重建“客户机地址对应哪段宿主内存”的关系，再为 这些地址提供保存时的字节。CubeSandbox 满足快速恢复条件时，用快照文件的 私有映射提供 RAM；不满足时，先创建内存，再把文件字节复制进去。 全文沿用一组明确对象：S0是初始模板快照，A是从S0启动的运行实例；S1是A 后来保存的完整快照，B是从S1新建的独立运行实例。图中的“旧、甲、乙”只是 同一页在三个时点的示意内容，不是应用数据或真实内存转储。 本文先建立",
+    "scope": "project",
+    "projects": [
+      "cubesandbox"
+    ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
+    "topics": [
+      "snapshot-restore-migration"
+    ],
+    "component_baselines": [],
+    "baseline_refs": [
+      {
+        "id": "cubesandbox-v0-5-1-a164417f",
+        "component": "cubesandbox",
+        "version": "v0.5.1",
+        "commit": "a164417f497234a0d787cb328b0ae96480b1569b",
+        "selected_at": "2026-09-23",
+        "review_state": "unconfirmed",
+        "role": "supporting"
+      },
+      {
+        "id": "cubesandbox-v0-6-0-8721dd15",
+        "component": "cubesandbox",
+        "version": "v0.6.0",
+        "commit": "8721dd151971ce3c2966482bbd32904ad98f378e",
+        "selected_at": "2026-09-23",
+        "review_state": "unconfirmed",
+        "role": "supporting"
+      },
+      {
+        "id": "cubesandbox-v0-7-1-31d911e4",
+        "component": "cubesandbox",
+        "version": "v0.7.1",
+        "commit": "31d911e430fdf8a8879bd062b8e78066c1a8e89d",
+        "selected_at": "2026-09-23",
+        "review_state": "unconfirmed",
+        "role": "primary"
+      }
+    ],
+    "curated_topics": [],
+    "baselines": [],
+    "status": "unconfirmed",
+    "kind": "explanation",
+    "tags": [
+      "snapshot",
+      "restore",
+      "mmap",
+      "cow"
+    ],
+    "architectures": [
+      "x86_64",
+      "aarch64"
+    ],
+    "evidence_classes": [
+      "local-source-fact",
+      "inference",
+      "unconfirmed"
+    ],
+    "reviewed_at": "2026-10-08"
+  },
+  {
+    "doc_id": "cubesandbox.xfs-reflink-memory-volume",
+    "title": "CubeSandbox 的 XFS 内存卷：reflink 如何共享磁盘块",
+    "route": "projects/cubesandbox/xfs-reflink-memory-volume.html",
+    "headings": [
+      "1. 内存卷模型：业务对象、文件内容与磁盘块",
+      "memory volume 在 XFS backend 中由普通文件承载",
+      "2. 保存原理：完整内容由基线与覆盖共同构成",
+      "逻辑长度、分配空间与持久性分别判断",
+      "3. 准备阶段：从基线克隆完整目标文件",
+      "4. 保存阶段：VMM 写字节，XFS 分离共享块",
+      "5. 应用原理：内容独立，不等于生命周期没有依赖",
+      "6. 适用条件、版本范围与验证边界",
+      "源码证据",
+      "<a id=\"e1\"></a>E1 · 文件型 volume/snapshot（local fact）",
+      "<a id=\"e2\"></a>E2 · XFS 元数据/日志（Linux v6.6 固定辅助源码）",
+      "<a id=\"e3\"></a>E3 · 克隆调用与边界（local fact，三版独立核对）",
+      "<a id=\"e4\"></a>E4 · FICLONE 到共享映射（Linux v6.6 固定辅助源码；E0/E1 为 inference）",
+      "<a id=\"e5\"></a>E5 · 写回后的 CoW 映射替换（Linux v6.6 固定辅助源码）",
+      "<a id=\"e6\"></a>E6 · 删除与运行引用（local fact）"
+    ],
+    "summary": "CubeSandbox 的 XFS 内存卷：reflink 如何共享磁盘块 CubeSandbox 的内存卷把 VM 的 RAM 字节保存为存储对象。在 XFS backend 中， 这个对象由普通文件承载：VMM 决定保存哪些字节，cubecow 组织文件与克隆， XFS 管理底层磁盘块。三层配合，才让“产物内容完整”和“本次只写部分页”同时成立。 本文先解释内存镜像的逻辑内容、物理分配与对象生命周期，再走一遍克隆和 覆盖流程。假设模板内存文件大小为 2 GiB，只用其中一个区间演算；容量不是 实测配置。XFS ",
+    "scope": "project",
+    "projects": [
+      "cubesandbox"
+    ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
+    "topics": [
+      "storage-device-io",
+      "snapshot-restore-migration"
+    ],
+    "component_baselines": [],
+    "baseline_refs": [
+      {
+        "id": "cubesandbox-v0-5-1-a164417f",
+        "component": "cubesandbox",
+        "version": "v0.5.1",
+        "commit": "a164417f497234a0d787cb328b0ae96480b1569b",
+        "selected_at": "2026-09-23",
+        "review_state": "unconfirmed",
+        "role": "supporting"
+      },
+      {
+        "id": "cubesandbox-v0-6-0-8721dd15",
+        "component": "cubesandbox",
+        "version": "v0.6.0",
+        "commit": "8721dd151971ce3c2966482bbd32904ad98f378e",
+        "selected_at": "2026-09-23",
+        "review_state": "unconfirmed",
+        "role": "supporting"
+      },
+      {
+        "id": "cubesandbox-v0-7-1-31d911e4",
+        "component": "cubesandbox",
+        "version": "v0.7.1",
+        "commit": "31d911e430fdf8a8879bd062b8e78066c1a8e89d",
+        "selected_at": "2026-09-23",
+        "review_state": "unconfirmed",
+        "role": "primary"
+      }
+    ],
+    "curated_topics": [],
+    "baselines": [],
+    "status": "unconfirmed",
+    "kind": "explanation",
+    "tags": [
+      "xfs",
+      "reflink",
+      "memory-volume",
+      "snapshot"
+    ],
+    "architectures": [
+      "x86_64",
+      "aarch64"
+    ],
+    "evidence_classes": [
+      "local-source-fact",
+      "inference",
+      "unconfirmed"
+    ],
+    "reviewed_at": "2026-10-08"
+  },
+  {
+    "doc_id": "cubesandbox.kvm-memory-slots-dirty-log",
+    "title": "理解 KVM 内存：memory slot 怎样连接 RAM，dirty log 怎样记录变化",
+    "route": "projects/cubesandbox/kvm-memory-slots-dirty-log.html",
+    "headings": [
+      "1. KVM 内存模型：三种地址与一条范围记录",
+      "客户机地址、用户态映射和物理页各有职责",
+      "slot 记录范围，不逐页保存内容",
+      "2. 注册流程：把 RAM 范围交给 KVM",
+      "3. 访问流程：从地址关系到实际页面",
+      "4. dirty log 原理：把写入记录为页集合",
+      "位图记录位置，窗口规定时间",
+      "CubeSandbox 将候选登记与正式启用分开",
+      "5. 代码实例：两个来源合成一次保存集合",
+      "6. 轮次切换、可选模式与完整性边界",
+      "源码证据",
+      "<a id=\"e1\"></a>E1 · slot ABI 与地址换算（Linux v6.6 local source fact）",
+      "<a id=\"e2\"></a>E2 · VMM 登记流程（CubeSandbox v0.7.1 local fact）",
+      "<a id=\"e3\"></a>E3 · 访存桥接（Linux v6.6 local source fact）",
+      "<a id=\"e4\"></a>E4 · 登记、启动、停止的边界（CubeSandbox local fact）",
+      "<a id=\"e5\"></a>E5 · 位图、范围和输出（CubeSandbox local fact；位图例子为 inference）",
+      "<a id=\"e6\"></a>E6 · 读取与清位（Linux v6.6 local source fact）"
+    ],
+    "summary": "理解 KVM 内存：memory slot 怎样连接 RAM，dirty log 怎样记录变化 在本文的用户态内存模式中，VMM（虚拟机管理程序）准备宿主内存，KVM （Linux 的虚拟化内核接口）把它接入客户机物理地址空间，宿主内核的内存管理 子系统负责实际页面及映射。理解这些分工，才能继续理解内存恢复和脏页跟踪。 本文先讲地址模型和 memory slot，再讲 dirty log 的记录单位与轮次，最后 沿 CubeSandbox 的代码串起注册、访问、追踪和保存。例子只用一个 16 KiB 区域， 地址、",
+    "scope": "project",
+    "projects": [
+      "cubesandbox"
+    ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
+    "topics": [
+      "cpu-memory-machine",
+      "snapshot-restore-migration"
+    ],
+    "component_baselines": [],
+    "baseline_refs": [
+      {
+        "id": "cubesandbox-v0-7-1-31d911e4",
+        "component": "cubesandbox",
+        "version": "v0.7.1",
+        "commit": "31d911e430fdf8a8879bd062b8e78066c1a8e89d",
+        "selected_at": "2026-09-23",
+        "review_state": "unconfirmed",
+        "role": "primary"
+      }
+    ],
+    "curated_topics": [],
+    "baselines": [],
+    "status": "unconfirmed",
+    "kind": "explanation",
+    "tags": [
+      "kvm",
+      "memory-slot",
+      "dirty-log",
+      "memory"
+    ],
+    "architectures": [
+      "x86_64",
+      "aarch64"
+    ],
+    "evidence_classes": [
+      "local-source-fact",
+      "inference",
+      "unconfirmed"
+    ],
+    "reviewed_at": "2026-10-08"
+  },
+  {
+    "doc_id": "cubesandbox.xfs-extents-reflink-ficlone",
+    "title": "理解 XFS：extent、reflink 与 FICLONE 怎样完成文件克隆",
+    "route": "projects/cubesandbox/xfs-extents-reflink-ficlone.html",
+    "headings": [
+      "1. XFS 的基本组织：文件身份、数据映射与空间管理",
+      "文件数据与描述数据的元数据",
+      "日志解决元数据事务，不代替应用保存协议",
+      "2. extent：把文件区间映射到物理块",
+      "用四个块展开这条记录",
+      "3. reflink：独立文件通过引用共享数据",
+      "4. FICLONE 调用：从文件描述符到共享映射",
+      "系统调用与文件系统分派",
+      "将原理落到四块区间",
+      "5. CoW 写入：准备新块、写入数据、切换映射",
+      "目标文件改写逻辑块9时发生什么",
+      "6. 应用原理：CubeSandbox 内存卷与共享的边界",
+      "源码证据",
+      "<a id=\"e1\"></a>E1 · 文件系统对象（Linux v6.6 local source fact）",
+      "<a id=\"e2\"></a>E2 · extent字段（Linux v6.6 local source fact）",
+      "<a id=\"e3\"></a>E3 · syscall到XFS（Linux v6.6 local source fact）",
+      "<a id=\"e4\"></a>E4 · 映射与共享计数（Linux v6.6 local source fact）",
+      "<a id=\"e5\"></a>E5 · CoW写入和完成（Linux v6.6 local source fact）",
+      "<a id=\"e6\"></a>E6 · CubeSandbox调用（v0.7.1 local fact）"
+    ],
+    "summary": "理解 XFS：extent、reflink 与 FICLONE 怎样完成文件克隆 文件系统把程序看到的字节序列，组织成设备上的数据块和管理这些块的元数据。 XFS 使用 extent 记录区间映射，用分配组组织空间，并用日志维护元数据事务。 在启用 reflink 的文件系统中，两个文件还可以共享数据块，而保留独立的内容视图。 本文先建立 XFS 的文件、映射和空间管理模型，再解释共享引用与写时复制， 随后把 FICLONE 调用放进这套模型。最后用一个四块区间演算克隆和覆盖，联系 CubeSandbox 内存卷。",
+    "scope": "project",
+    "projects": [
+      "cubesandbox"
+    ],
+    "platforms": [],
+    "layer": "",
+    "integrates_with_projects": [],
+    "topics": [
+      "storage-device-io",
+      "snapshot-restore-migration"
+    ],
+    "component_baselines": [],
+    "baseline_refs": [
+      {
+        "id": "cubesandbox-v0-7-1-31d911e4",
+        "component": "cubesandbox",
+        "version": "v0.7.1",
+        "commit": "31d911e430fdf8a8879bd062b8e78066c1a8e89d",
+        "selected_at": "2026-09-23",
+        "review_state": "unconfirmed",
+        "role": "primary"
+      }
+    ],
+    "curated_topics": [],
+    "baselines": [],
+    "status": "unconfirmed",
+    "kind": "explanation",
+    "tags": [
+      "xfs",
+      "extent",
+      "reflink",
+      "ficlone"
+    ],
+    "architectures": [
+      "x86_64",
+      "aarch64"
+    ],
+    "evidence_classes": [
+      "local-source-fact",
+      "inference",
+      "unconfirmed"
+    ],
+    "reviewed_at": "2026-10-08"
   }
 ]

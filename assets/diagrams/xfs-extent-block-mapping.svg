@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1152" height="552" viewBox="0 0 1152 552">
+<defs>
+<marker id="arrow-block" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+  <path d="M 0 0 L 10 5 L 0 10 Z" fill="currentColor" />
+</marker>
+<marker id="arrow-open" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+  <path d="M 0 0 L 10 5 L 0 10" fill="none" stroke="currentColor" stroke-width="1.5" />
+</marker>
+<marker id="arrow-classic" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+  <path d="M 0 0 L 10 5 L 0 10 L 3 5 Z" fill="currentColor" />
+</marker>
+<marker id="arrow-diamond" viewBox="0 0 12 12" refX="12" refY="6" markerWidth="10" markerHeight="10" orient="auto-start-reverse">
+  <path d="M 0 6 L 6 0 L 12 6 L 6 12 Z" fill="currentColor" />
+</marker>
+</defs>
+<rect width="100%" height="100%" fill="#FFFFFF" />
+<text x="32" y="24" text-anchor="start" dominant-baseline="hanging" font-family="Noto Sans CJK SC, sans-serif" font-size="20" fill="#334155">extent映射：克隆后共享，目标的一块覆盖后分裂（演算示意）</text>
+<text x="32" y="72" text-anchor="start" dominant-baseline="hanging" font-family="Noto Sans CJK SC, sans-serif" font-size="15" fill="#334155">文件系统块4 KiB；逻辑块8～11对应文件字节 [32 KiB, 48 KiB)。100/900等是同一AG内的示意块号。</text>
+<text x="320" y="120" text-anchor="start" dominant-baseline="hanging" font-family="Noto Sans CJK SC, sans-serif" font-size="16" fill="#334155">文件逻辑块 8</text>
+<text x="512" y="120" text-anchor="start" dominant-baseline="hanging" font-family="Noto Sans CJK SC, sans-serif" font-size="16" fill="#334155">文件逻辑块 9</text>
+<text x="704" y="120" text-anchor="start" dominant-baseline="hanging" font-family="Noto Sans CJK SC, sans-serif" font-size="16" fill="#334155">文件逻辑块 10</text>
+<text x="896" y="120" text-anchor="start" dominant-baseline="hanging" font-family="Noto Sans CJK SC, sans-serif" font-size="16" fill="#334155">文件逻辑块 11</text>
+<text x="32" y="192" text-anchor="start" dominant-baseline="hanging" font-family="Noto Sans CJK SC, sans-serif" font-size="16" fill="#334155">源文件（前后不变）</text>
+<text x="32" y="288" text-anchor="start" dominant-baseline="hanging" font-family="Noto Sans CJK SC, sans-serif" font-size="16" fill="#334155">目标文件：刚克隆</text>
+<text x="32" y="384" text-anchor="start" dominant-baseline="hanging" font-family="Noto Sans CJK SC, sans-serif" font-size="16" fill="#334155">目标文件：覆盖块9后</text>
+<rect x="320" y="160" width="160" height="88" rx="20" fill="#f8fafc" stroke="#94a3b8" stroke-width="1.5" />
+<text x="400" y="204" text-anchor="middle" dominant-baseline="central" font-family="Noto Sans CJK SC, sans-serif" font-size="17" fill="#334155">100</text>
+<rect x="512" y="160" width="160" height="88" rx="20" fill="#f8fafc" stroke="#94a3b8" stroke-width="1.5" />
+<text x="592" y="204" text-anchor="middle" dominant-baseline="central" font-family="Noto Sans CJK SC, sans-serif" font-size="17" fill="#334155">101</text>
+<rect x="704" y="160" width="160" height="88" rx="20" fill="#f8fafc" stroke="#94a3b8" stroke-width="1.5" />
+<text x="784" y="204" text-anchor="middle" dominant-baseline="central" font-family="Noto Sans CJK SC, sans-serif" font-size="17" fill="#334155">102</text>
+<rect x="896" y="160" width="160" height="88" rx="20" fill="#f8fafc" stroke="#94a3b8" stroke-width="1.5" />
+<text x="976" y="204" text-anchor="middle" dominant-baseline="central" font-family="Noto Sans CJK SC, sans-serif" font-size="17" fill="#334155">103</text>
+<rect x="320" y="256" width="160" height="88" rx="20" fill="#dcfce7" stroke="#15803d" stroke-width="1.5" />
+<text x="400" y="300" text-anchor="middle" dominant-baseline="central" font-family="Noto Sans CJK SC, sans-serif" font-size="17" fill="#14532d">100</text>
+<rect x="512" y="256" width="160" height="88" rx="20" fill="#dcfce7" stroke="#15803d" stroke-width="1.5" />
+<text x="592" y="300" text-anchor="middle" dominant-baseline="central" font-family="Noto Sans CJK SC, sans-serif" font-size="17" fill="#14532d">101</text>
+<rect x="704" y="256" width="160" height="88" rx="20" fill="#dcfce7" stroke="#15803d" stroke-width="1.5" />
+<text x="784" y="300" text-anchor="middle" dominant-baseline="central" font-family="Noto Sans CJK SC, sans-serif" font-size="17" fill="#14532d">102</text>
+<rect x="896" y="256" width="160" height="88" rx="20" fill="#dcfce7" stroke="#15803d" stroke-width="1.5" />
+<text x="976" y="300" text-anchor="middle" dominant-baseline="central" font-family="Noto Sans CJK SC, sans-serif" font-size="17" fill="#14532d">103</text>
+<rect x="320" y="352" width="160" height="88" rx="20" fill="#f8fafc" stroke="#94a3b8" stroke-width="1.5" />
+<text x="400" y="396" text-anchor="middle" dominant-baseline="central" font-family="Noto Sans CJK SC, sans-serif" font-size="17" fill="#334155">100</text>
+<rect x="512" y="352" width="160" height="88" rx="20" fill="#fef3c7" stroke="#b45309" stroke-width="1.5" />
+<text x="592" y="396" text-anchor="middle" dominant-baseline="central" font-family="Noto Sans CJK SC, sans-serif" font-size="17" fill="#78350f">900</text>
+<rect x="704" y="352" width="160" height="88" rx="20" fill="#f8fafc" stroke="#94a3b8" stroke-width="1.5" />
+<text x="784" y="396" text-anchor="middle" dominant-baseline="central" font-family="Noto Sans CJK SC, sans-serif" font-size="17" fill="#334155">102</text>
+<rect x="896" y="352" width="160" height="88" rx="20" fill="#f8fafc" stroke="#94a3b8" stroke-width="1.5" />
+<text x="976" y="396" text-anchor="middle" dominant-baseline="central" font-family="Noto Sans CJK SC, sans-serif" font-size="17" fill="#334155">103</text>
+<text x="32" y="464" text-anchor="start" dominant-baseline="hanging" font-family="Noto Sans CJK SC, sans-serif" font-size="15" fill="#334155">格内数字=该逻辑块映射的物理块号；覆盖后源文件仍保留101，目标文件该位置使用新块900。</text>
+<text x="32" y="504" text-anchor="start" dominant-baseline="hanging" font-family="Noto Sans CJK SC, sans-serif" font-size="15" fill="#334155">绿行=刚克隆的目标视图，灰=普通背景，橙=本例替换位置；实际分配范围可能更大，不能按颜色判断共享。</text>
+</svg>

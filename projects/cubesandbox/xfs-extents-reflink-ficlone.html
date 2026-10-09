@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="理解 XFS：extent、reflink 与 FICLONE 怎样完成文件克隆 文件系统把程序看到的字节序列，组织成设备上的数据块和管理这些块的元数据。 XFS 使用 extent 记录区间映射，用分配组组织空间，并用日志维护元数据事务。 在启用 reflink 的文件系统中，两个文件还可以共享数据块，而保留独立的内容视图。 本文先建立 XFS 的文件、映射和空间管理模型，再解释共享引用与写时复制， 随后把 FICLONE 调用放进这套模型。最后用一个四块区间演算克隆和覆盖，联系 CubeSandbox 内存卷。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="理解 XFS：extent、reflink 与 FICLONE 怎样完成文件克隆">
+<meta property="og:description" content="理解 XFS：extent、reflink 与 FICLONE 怎样完成文件克隆 文件系统把程序看到的字节序列，组织成设备上的数据块和管理这些块的元数据。 XFS 使用 extent 记录区间映射，用分配组组织空间，并用日志维护元数据事务。 在启用 reflink 的文件系统中，两个文件还可以共享数据块，而保留独立的内容视图。 本文先建立 XFS 的文件、映射和空间管理模型，再解释共享引用与写时复制， 随后把 FICLONE 调用放进这套模型。最后用一个四块区间演算克隆和覆盖，联系 CubeSandbox 内存卷。">
+<link rel="canonical" href="https://north-c.github.io/micro-vm-wiki/projects/cubesandbox/xfs-extents-reflink-ficlone.html">
+<title>理解 XFS：extent、reflink 与 FICLONE 怎样完成文件克隆 · Micro-VM 技术研究 Wiki</title>
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body data-root="../../">
+<a class="skip-link" href="#main-content">跳到正文</a>
+<div class="layout">
+  <aside class="sidebar" id="site-sidebar" aria-label="站点导航" aria-hidden="false">
+    <a class="brand" href="../../index.html">Micro-VM 技术研究 Wiki</a>
+    <label class="search-label" for="search">搜索公开文档</label>
+    <input id="search" type="search" autocomplete="off" aria-controls="search-results" aria-expanded="false">
+    <div id="search-status" class="search-status" role="status" aria-live="polite"></div>
+    <div id="search-results" class="search-results" role="listbox"></div>
+    <nav aria-label="主要导航" data-global-nav="true"><ul class="nav-tree"><li><a href="../../index.html">首页</a></li><li><details class="nav-group" open><summary>三轴入口</summary><ul><li><a href="../../projects/index.html">项目</a></li><li><a href="../../topics/index.html">特性与横向比较</a></li><li><a href="../../evolution/index.html">版本演进</a></li></ul></details></li><li><details class="nav-group"><summary>方法与索引</summary><ul><li><a href="../../methodology/status-and-evidence.html">研究方法与报告规范</a></li><li><a href="../../versions/index.html">版本与证据覆盖</a></li><li><a href="../../changes.html">Wiki 更新记录</a></li><li><a href="../../sitemap.html">站点地图</a></li></ul></details></li></ul></nav>
+  </aside>
+  <button class="sidebar-scrim" id="sidebar-scrim" aria-label="关闭导航"></button>
+  <main class="content" id="main-content" tabindex="-1">
+    <div class="topbar">
+      <button class="menu-toggle" id="menu-toggle" aria-controls="site-sidebar" aria-expanded="false">目录</button>
+      <button id="theme-toggle" aria-label="切换到深色模式">🌙</button>
+      <a class="back-home" href="../../index.html">首页</a>
+    </div>
+<nav class="breadcrumbs" aria-label="面包屑"><ol><li><a href="../../index.html">首页</a></li><li><a href="../index.html">项目目录</a></li><li><a href="../cubesandbox.html">CubeSandbox</a></li><li><a href="../../topics/storage-device-io.html">存储、设备与 I/O</a></li><li aria-current="page">理解 XFS：extent、reflink 与 FICLONE 怎样完成文件克隆</li></ol></nav>
+<div class="page-meta" aria-label="文档元数据"><span class="badge">机制解析</span><a class="badge badge-status" href="../../methodology/status-and-evidence.html#status">状态：源码版本已固定，证据仍未完备</a><span class="badge">CubeSandbox</span><span class="badge">角色：核心研究项目 / 沙箱平台</span><a class="badge" href="../../versions/index.html#cubesandbox-v0-7-1-31d911e4" title="cubesandbox 31d911e430fdf8a8879bd062b8e78066c1a8e89d；角色：primary">版本基线：v0.7.1@31d911e430fd</a><span class="badge">复核日期：2026-10-08</span></div><p class="status-explainer"><strong>源码版本已固定，证据仍未完备</strong>是本文的读者状态：页面已按显示的固定源码版本完成版本登记与源码级复核，但 build、runtime、跨组件或完整 claim-level 证据尚未齐备；机器状态保持 <code>unconfirmed</code>，登记 baseline 不会自动升级为 <code>current</code>。</p>
+    <article class="markdown-body"><h1 id="xfsextentreflink-ficlone">理解 XFS：extent、reflink 与 FICLONE 怎样完成文件克隆</h1>
+<p>文件系统把程序看到的字节序列，组织成设备上的数据块和管理这些块的元数据。
+XFS 使用 extent 记录区间映射，用分配组组织空间，并用日志维护元数据事务。
+在启用 reflink 的文件系统中，两个文件还可以共享数据块，而保留独立的内容视图。</p>
+<p>本文先建立 XFS 的文件、映射和空间管理模型，再解释共享引用与写时复制，
+随后把 FICLONE 调用放进这套模型。最后用一个四块区间演算克隆和覆盖，联系
+CubeSandbox 内存卷。reflink 是文件块共享机制，不是整文件系统快照或 RAM 克隆。</p>
+<table>
+<thead>
+<tr>
+<th>分析对象</th>
+<th>固定版本与源码</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Linux</td>
+<td><a href="https://github.com/torvalds/linux/commit/ffc253263a1375a65fa6c9f62a893e9767fbebfa">v6.6@ffc253263a13</a></td>
+<td>系统机制与接口</td>
+</tr>
+<tr>
+<td>CubeSandbox</td>
+<td><a href="https://github.com/TencentCloud/CubeSandbox/commit/31d911e430fdf8a8879bd062b8e78066c1a8e89d">v0.7.1@31d911e430fd</a></td>
+<td>VMM/存储调用实例</td>
+</tr>
+</tbody>
+</table>
+<p>这是源码解析，不是本机内核、文件系统参数或运行效果的验证。</p>
+<h2 id="1-xfs">1. XFS 的基本组织：文件身份、数据映射与空间管理</h2>
+<h3 id="_1">文件数据与描述数据的元数据</h3>
+<p>程序按文件偏移读写字节，设备按块保存内容。两者之间需要映射：文件的某段
+字节存在哪里、哪些空间还未分配、哪些块被多个文件引用。这些信息属于元数据，
+与应用实际写入的文件数据不同。reflink 的关键就是改变映射和引用，而不是
+先复制所有文件数据。</p>
+<p>文件名是目录中的入口，inode 保存文件元数据及数据映射。两个文件可以有
+不同 inode，却让部分数据块共享；hardlink 则是多个名字指向同一 inode。
+因此，“两个文件读起来一样”和“它们是不是同一个文件”是不同的问题。</p>
+<p>inode 的 <strong>data fork</strong> 保存文件数据的映射信息，映射可用 extent 记录或
+B+tree 等形式组织。fork 在这里表示 inode 内的一类结构，不是创建进程。
+文件内容不必全都连续放在设备上：不同文件区间可以由不同 extent 承接。
+<a href="#e1">E1</a>、<a href="#e5">E5</a></p>
+<p>XFS 还把物理空间划分为 Allocation Group（AG，分配组）。文件映射从文件一侧
+回答“这个偏移在哪里”；AG 内的空间管理和元数据树则从存储一侧管理分配与
+引用。AG 不是目录层级，也不是一个快照版本，一个文件区间的映射需要与这些
+空间信息配合。<a href="#e1">E1</a></p>
+<h3 id="_2">日志解决元数据事务，不代替应用保存协议</h3>
+<p>XFS 的元数据日志记录需要恢复的管理信息；延迟分配允许部分写入在更晚阶段
+确定实际存储位置。因此，文件逻辑长度、已分配空间和已持久化的数据是不同
+概念。理解这一区别，才能判断“文件已创建”或“克隆已返回”究竟完成了什么。
+<a href="#e5">E5</a>、<a href="#e6">E6</a></p>
+<p>日志并不会替应用把 RAM、CPU 状态和其他文件组合成原子的 VM 快照。本文用
+XFS 解释文件数据的共享与隔离，整份快照的保存和持久性仍需上层协议协调。</p>
+<h2 id="2-extent">2. extent：把文件区间映射到物理块</h2>
+<p>一个 extent 的关键含义可以概括为：<strong>文件逻辑块起点、物理块起点、连续块数、
+状态</strong>。代码的解码函数把磁盘记录还原成 br_startoff、br_startblock、
+br_blockcount、br_state。它描述一段对应关系，并不是“一个内存页”。<a href="#e2">E2</a></p>
+<p>一条 extent 合并描述连续的对应关系，不需要为每个字节单独建立记录。
+随着分配、共享或覆盖发生变化，原来的区间可以分裂成几条记录；“文件还是
+同一个文件”并不意味着其底层映射一直不变。</p>
+<h3 id="_3">用四个块展开这条记录</h3>
+<p>设文件系统块大小为4 KiB。文件中的逻辑块8～11，即字节区间
+<code>[32 KiB, 48 KiB)</code>，映射到同一个AG中的示意物理块100～103。
+这可由一条“逻辑起点8、物理起点100、长度4”的记录表达。</p>
+<p>本文只使用“源文件”和“目标文件”两个对象；8～11是<strong>文件逻辑块索引</strong>，
+100～103、900是<strong>示意物理块号</strong>，不是 RAM 地址、PFN 或真实设备采样。
+把块索引换成字节偏移时才乘4 KiB；实际系统还涉及AG编码和设备布局。</p>
+<p>extent 状态也有意义：已写区域、已分配但尚未写入的区域和文件空洞，不能
+只按“有没有块号”混看。稀疏文件的逻辑长度可以大于实际分配量。下面只追踪
+一段已经写入数据的源 extent，避免把不同状态的处理混成同一条路径。</p>
+<h2 id="3-reflink">3. reflink：独立文件通过引用共享数据</h2>
+<p>reflink 克隆后，源和目标各自保留文件身份与逻辑映射，但相关映射可以指向
+同一批物理数据块。目标因此立刻具有源文件的内容视图，而不必先重新写一遍
+所有数据。这里的“共享”只描述块归属，不表示两个文件被合并成一个 inode。</p>
+<p>共享信息由 refcount B+tree 等元数据管理，不能拿 inode 的硬链接数当共享
+块引用数。普通共享记录通常只覆盖引用数大于1的区间；单独拥有的数据一般
+不需要这种记录，CoW staging 还有专门的记录规则。<a href="#e4">E4</a></p>
+<p>维持共享的另一个条件是写入隔离。任一文件修改仍被共享的区间时，不能直接
+破坏其他文件需要的旧字节；文件系统必须准备独立存储，再切换修改方的映射。
+所以 reflink 的两半机制是“克隆时增加共享引用”和“写入时分离受影响的引用”。
+后文的 CoW fork 就用于组织后半段流程。<a href="#e5">E5</a></p>
+<h2 id="4-ficlone">4. FICLONE 调用：从文件描述符到共享映射</h2>
+<h3 id="_4">系统调用与文件系统分派</h3>
+<p>调用形式是 <code>ioctl(dst_fd, FICLONE, src_fd)</code>：在目标文件描述符上请求克隆，
+把源描述符作为参数。FICLONE 表示整个文件；范围克隆另有接口。它复用的是
+文件数据块，不会复制进程页表，也不会自动保存 VM 的 CPU/设备状态。</p>
+<p>Linux 的 ioctl 入口取出源 FD，调用 <code>vfs_clone_file_range</code>。VFS 检查源与
+目标是否属于同一文件系统、是否具备适当读写条件及 remap 操作，再交给
+XFS 的 <code>xfs_file_remap_range</code>。XFS 会检查 reflink 特性和文件系统状态，
+准备好范围后才开始 remap。<a href="#e3">E3</a></p>
+<p>因此，跨文件系统或不支持该能力的路径可能失败；FICLONE 自身没有“失败就
+自动完整复制”的承诺。CubeSandbox 的 helper 创建目标文件后发出 ioctl，
+失败会清理该目标并返回错误。上层是否换策略由调用者决定。</p>
+<h3 id="_5">将原理落到四块区间</h3>
+<p>对于已写 extent，<code>xfs_reflink_remap_extent</code> 为目标区间建立对应映射，并
+增加物理区间的引用计数。图中第二行表示克隆完成：目标文件的逻辑块8～11也
+指向100～103，源文件的映射保持原样。<a href="#e4">E4</a></p>
+<p><img class="article-diagram" src="../../assets/diagrams/xfs-extent-block-mapping.svg" alt="文件逻辑块8到11在克隆前后与局部覆盖后的物理块映射。" loading="lazy"></p>
+<p>图 1：每列固定一个文件逻辑块；格内数字是该位置映射的示意物理块号。橙色900
+表示目标后来获得的新块。图没有按物理距离绘制，不能从颜色或格数测量实际占用。
+证据：<a href="#e2">E2</a>、<a href="#e4">E4</a>、<a href="#e5">E5</a>。
+绿色行是“刚克隆的目标文件”这个比较阶段，灰色是普通背景，橙色只突出本例
+替换的位置；不能把绿色或灰色当成文件系统里的共享状态位。</p>
+<h2 id="5-cow">5. CoW 写入：准备新块、写入数据、切换映射</h2>
+<p>CoW fork 是写入过程的临时映射结构，data fork 则描述文件的数据映射。
+把新块准备与最终映射切换分开，可以在新数据完成后替换目标区间，同时保留
+其他文件对旧块的引用。它描述的是文件系统写入流程，不是用户进程的私有页。</p>
+<h3 id="9">目标文件改写逻辑块9时发生什么</h3>
+<p>假设目标文件改写逻辑块9。如果直接把新数据写到物理块101，源文件也会读到变化。
+XFS 因此为需要分裂的范围准备新存储。示意中它分到物理块900：
+目标映射可拆为 <code>8→100</code>、<code>9→900</code>、<code>10～11→102～103</code>，源文件仍指向100～103。</p>
+<p>内核实现把新写入的准备放在 <strong>CoW fork</strong>：可以先做空间预留/延迟分配，再
+获得实际块并提交I/O。等相应新数据写完，<code>xfs_reflink_end_cow_extent</code> 才移除
+目标的旧 data-fork 映射、减少旧引用，把新映射移入 data fork，并清理临时映射。<a href="#e5">E5</a></p>
+<p>这里“只换一个块”是演算结果之一，不是分配保证。实际CoW范围受对齐、分配、
+碎片和 cow extent size hint 等因素影响，可能合并或扩大。RAM页大小、
+XFS块大小、extent长度分别属于不同层次，不能互相直接换算。</p>
+<h2 id="6-cubesandbox">6. 应用原理：CubeSandbox 内存卷与共享的边界</h2>
+<p>CubeSandbox 保存新内存镜像时，XfsCow/cubecow 先用FICLONE克隆配套基线，
+得到完整的目标文件；VMM按选页结果覆盖其中的字节；XFS处理受影响共享块的
+分裂。文件系统没有读guest脏页位图，VMM也没有直接指定“把这次写放到块900”。<a href="#e6">E6</a></p>
+<p>删除一个源文件不会要求其他克隆文件逐层重放差分，但文件名、打开的FD、
+文件映射、业务catalog和共享块引用各有生命周期。对CubeSandbox的具体
+origin/sibling目录回收规则，见 <a href="xfs-reflink-memory-volume.html">XFS内存卷案例</a>。</p>
+<p>XFS日志主要保障元数据事务，不能单独证明多文件组成的VM快照已完整持久化。
+本文没有运行FICLONE、格式化文件系统、验证崩溃恢复或测量磁盘/RAM节省比例。
+不同inode共享磁盘块也不能据此推断它们的页缓存共享。</p>
+<p>继续阅读：<a href="xfs-reflink-memory-volume.html">内存卷的具体保存链</a>、
+<a href="snapshot-memory-restore-runtime-cow.html">RAM私有CoW与恢复</a>。</p>
+<h2 id="_6">源码证据</h2>
+<h3 id="e1-linux-v66-local-source-fact"><a id="e1"></a>E1 · 文件系统对象（Linux v6.6 local source fact）</h3>
+<ul>
+<li><a href="https://github.com/torvalds/linux/blob/ffc253263a1375a65fa6c9f62a893e9767fbebfa/Documentation/filesystems/xfs-online-fsck-design.rst#L195-L201">AG与inode划分</a></li>
+<li><a href="https://github.com/torvalds/linux/blob/ffc253263a1375a65fa6c9f62a893e9767fbebfa/fs/xfs/libxfs/xfs_format.h#L887-L903">inode的extent/btree格式</a></li>
+<li><a href="https://github.com/torvalds/linux/blob/ffc253263a1375a65fa6c9f62a893e9767fbebfa/Documentation/filesystems/xfs-online-fsck-design.rst#L4836-L4838">AG元数据树关联</a>。</li>
+</ul>
+<h3 id="e2-extentlinux-v66-local-source-fact"><a id="e2"></a>E2 · extent字段（Linux v6.6 local source fact）</h3>
+<ul>
+<li><a href="https://github.com/torvalds/linux/blob/ffc253263a1375a65fa6c9f62a893e9767fbebfa/fs/xfs/libxfs/xfs_format.h#L1653-L1678">磁盘记录格式</a></li>
+<li><a href="https://github.com/torvalds/linux/blob/ffc253263a1375a65fa6c9f62a893e9767fbebfa/fs/xfs/libxfs/xfs_bmap_btree.c#L62-L77">解码到逻辑/物理起点、长度和状态</a>。</li>
+</ul>
+<p>源/目标文件、块8～11与100/900为手工演算示意（inference）。</p>
+<h3 id="e3-syscallxfslinux-v66-local-source-fact"><a id="e3"></a>E3 · syscall到XFS（Linux v6.6 local source fact）</h3>
+<ul>
+<li><a href="https://github.com/torvalds/linux/blob/ffc253263a1375a65fa6c9f62a893e9767fbebfa/fs/ioctl.c#L820-L824">FICLONE入口</a></li>
+<li><a href="https://github.com/torvalds/linux/blob/ffc253263a1375a65fa6c9f62a893e9767fbebfa/fs/ioctl.c#L231-L249">取源FD与调用VFS</a></li>
+<li><a href="https://github.com/torvalds/linux/blob/ffc253263a1375a65fa6c9f62a893e9767fbebfa/fs/remap_range.c#L370-L419">同文件系统与操作检查</a></li>
+<li><a href="https://github.com/torvalds/linux/blob/ffc253263a1375a65fa6c9f62a893e9767fbebfa/fs/xfs/xfs_file.c#L1124-L1187">XFS能力检查与remap</a>。</li>
+</ul>
+<h3 id="e4-linux-v66-local-source-fact"><a id="e4"></a>E4 · 映射与共享计数（Linux v6.6 local source fact）</h3>
+<ul>
+<li><a href="https://github.com/torvalds/linux/blob/ffc253263a1375a65fa6c9f62a893e9767fbebfa/fs/xfs/xfs_reflink.c#L1288-L1346">增加引用并映射目标区间</a></li>
+<li><a href="https://github.com/torvalds/linux/blob/ffc253263a1375a65fa6c9f62a893e9767fbebfa/fs/xfs/libxfs/xfs_format.h#L1594-L1623">共享/staging引用记录及特殊规则</a>。</li>
+</ul>
+<h3 id="e5-cowlinux-v66-local-source-fact"><a id="e5"></a>E5 · CoW写入和完成（Linux v6.6 local source fact）</h3>
+<ul>
+<li><a href="https://github.com/torvalds/linux/blob/ffc253263a1375a65fa6c9f62a893e9767fbebfa/fs/xfs/xfs_reflink.c#L34-L114">延迟分配、CoW fork与写后切换设计</a></li>
+<li><a href="https://github.com/torvalds/linux/blob/ffc253263a1375a65fa6c9f62a893e9767fbebfa/fs/xfs/xfs_reflink.c#L795-L840">旧引用减少、新映射进入data fork</a>。</li>
+</ul>
+<p>图中900是可能的分配示意，不是源码固定选择。</p>
+<h3 id="e6-cubesandboxv071-local-fact"><a id="e6"></a>E6 · CubeSandbox调用（v0.7.1 local fact）</h3>
+<ul>
+<li><a href="https://github.com/TencentCloud/CubeSandbox/blob/31d911e430fdf8a8879bd062b8e78066c1a8e89d/Cubelet/storage/cubecow_volume_manager.go#L218-L265">CommitTemplateMemory</a></li>
+<li><a href="https://github.com/TencentCloud/CubeSandbox/blob/31d911e430fdf8a8879bd062b8e78066c1a8e89d/cubecow/src/engine/reflink.rs#L1083-L1101">ficlone的目标创建与ioctl</a></li>
+<li><a href="https://github.com/TencentCloud/CubeSandbox/blob/31d911e430fdf8a8879bd062b8e78066c1a8e89d/hypervisor/vmm/src/memory_manager.rs#L2542-L2614">VMM选页覆盖</a></li>
+<li><a href="https://github.com/torvalds/linux/blob/ffc253263a1375a65fa6c9f62a893e9767fbebfa/Documentation/filesystems/xfs-delayed-logging-design.rst#L23-L38">Linux元数据日志边界</a>。</li>
+</ul></article>
+<aside class="related-reading" aria-labelledby="related-title"><h2 id="related-title">继续阅读</h2><ul><li><strong>项目目录：</strong><a href="../cubesandbox.html">CubeSandbox</a></li><li><strong>平台视角：</strong><a href="../../platforms/cubesandbox.html">CubeSandbox</a></li><li><strong>专题目录：</strong><a href="../../topics/storage-device-io.html">存储、设备与 I/O</a></li><li><strong>横向比较：</strong><a href="../../analysis/interrupt-event-notification-cross-project.html">中断与事件通知跨项目专题分析</a></li><li><strong>明确关联：</strong><a href="xfs-reflink-memory-volume.html">CubeSandbox 的 XFS 内存卷：reflink 如何共享磁盘块</a></li></ul></aside>
+    <footer class="page-foot">公开来源：<code>analysis/projects/cubesandbox/xfs-extents-reflink-ficlone.md</code> · 文档 ID：<code>cubesandbox.xfs-extents-reflink-ficlone</code></footer>
+  </main>
+</div>
+
+<script defer src="../../assets/wiki.js"></script>
+</body>
+</html>
